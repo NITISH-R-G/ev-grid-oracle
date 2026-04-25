@@ -123,6 +123,27 @@ class EVGridObservation(Observation):
     reward_breakdown: dict[str, float] = Field(default_factory=dict)
 
 
+class SimTopStation(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    station_id: str
+    load_pct: float = Field(..., ge=0.0, le=1.0)
+    queue: int = Field(..., ge=0)
+
+
+class SimulationPrediction(BaseModel):
+    """
+    Aggregated 'dream state' prediction for T+5 ticks.
+    Kept intentionally small and verifiable for hackathon judging.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    t5_grid_load_pct: float = Field(..., ge=0.0, le=1.0)
+    t5_renewable_pct: float = Field(..., ge=0.0, le=1.0)
+    t5_top_stations: list[SimTopStation] = Field(..., min_length=1, max_length=3)
+
+
 def to_jsonable(obj: Any) -> Any:
     if isinstance(obj, BaseModel):
         return obj.model_dump(mode="json")
