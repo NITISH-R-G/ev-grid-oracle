@@ -6,7 +6,7 @@ alwaysApply: true
 # OpenEnv Hackathon 2026 — Themes + Judging Guardrail (Always Apply)
 
 ## Theme fit (pick primary, justify in README)
-- **Theme #1 Multi‑Agent**: cooperation/competition/negotiation; model beliefs/incentives of others.
+- **Theme #1 Multi‑Agent**: cooperation/competition/negotiation; model beliefs/incentives of others. (Stakeholder/incentive tensions in reward can be a **secondary narrative** only if you do not claim full multi‑LLM MARL without implementing it.)
 - **Theme #2 Long‑Horizon**: multi‑step planning + delayed rewards + recovery from mistakes.
 - **Theme #3 World Modeling**: partially observable dynamic world + real tool/API interactions + causal updates.
 - **Theme #4 Self‑Improvement**: self‑play / adaptive curriculum that escalates difficulty.
