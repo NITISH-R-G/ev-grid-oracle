@@ -14,6 +14,13 @@ Non-goals:
 - Build a full multi-policy multi-agent training system in this iteration.
 - Overhaul the simulator physics/graph; changes should layer on existing `EVGridCore`.
 
+## Determinism / replay guarantee
+
+**Hard rule:** given the same `(seed, scenario, sim_version)` the demo produces **identical** frame sequences (for the same acting policy).
+
+- Any stochasticity must draw from named RNG streams that are deterministically seeded from `seed` (e.g. `rng_env`, `rng_scenario`), and must not depend on wall-clock time.
+- This spec intentionally avoids “low-prob random events” unless they are fully deterministic under `seed`.
+
 ## Current baseline (as of now)
 
 - FastAPI server already provides a demo API:
@@ -80,7 +87,9 @@ Create scenario suite with deterministic event schedules:
 - `station_outage`
 - `tariff_shock`
 
-Each scenario has fixed tick events (and optional low-prob random events). API returns `scenario_events: []` per tick and the UI renders them.
+Each scenario has fixed tick events. The API exposes:
+- `scenario_schedule`: full schedule (returned by `/demo/new`)
+- `scenario_events_at_tick`: events applied at the current tick (returned by `/demo/step`)
 
 ### 6) Memory + reflection + planning loop (lightweight, demo-visible)
 
@@ -111,11 +120,81 @@ Server already supports this; UI will add better visibility (badges + “LLM act
 
 ### 9) Replayable seeds + timeline scrubber (the core “wow”)
 
-Record every tick into a compact `Frame`:
-- state snapshot needed for rendering
-- action + event
-- reward breakdown + anti-cheat flags
-- scenario events
+Record every tick into a compact **`Frame`** object (the backend/FE contract).
+
+#### Canonical `Frame` schema (v1)
+
+```ts
+type Role = "discom" | "cpo" | "fleet" | "driver";
+
+type ScenarioEvent = {
+  id: string;         // stable unique id for bookmarks
+  type: string;       // e.g. "STATION_OUTAGE"
+  tick: number;       // 0-based tick when applied
+  meta: Record<string, any>;
+};
+
+type AntiCheatFlag =
+  | "teleportation"
+  | "phantom_capacity"
+  | "time_window_violation"
+  | "queue_piling"
+  | "grid_limit_violation";
+
+type RewardBreakdown = {
+  wait: number;
+  grid_stress: number;
+  peak: number;
+  renewable: number;
+  urgency: number;
+  anti_hack: number;
+  valid_action_shaping: number;
+  total: number; // MUST equal sum(components)
+};
+
+type RenderState = {
+  tick: number;
+  stations: Array<{
+    id: string;
+    lat: number;
+    lng: number;
+    is_outage: boolean;
+    queue_len: number;
+    occupancy_0_1: number;
+  }>;
+  evs: Array<{
+    id: string;
+    lat: number;
+    lng: number;
+    soc_0_1: number;
+    urgency_0_1: number;
+    assigned_station_id?: string;
+  }>;
+  feeders: Array<{
+    id: string;
+    stress_0_1: number;
+    headroom_kw: number;
+  }>;
+};
+
+type Frame = {
+  sim_version: string;
+  frame_id: number; // tick index
+  seed: number;
+  scenario: string;
+  acting_policy: "baseline" | "oracle";
+  action: any; // existing EVGridAction (server returns as json)
+  event: any;  // existing render-friendly event
+  scenario_events_at_tick: ScenarioEvent[];
+  anti_cheat_flags: AntiCheatFlag[];
+  anti_cheat_details?: Partial<Record<AntiCheatFlag, string>>; // for UI callouts
+  reward_breakdown: RewardBreakdown;
+  role_kpis: Record<Role, Record<string, number>>;
+  role_reward_breakdown: Record<Role, RewardBreakdown>;
+  oracle_text?: string;
+  render: RenderState;
+};
+```
 
 UI adds:
 - timeline slider (scrub)
@@ -138,11 +217,12 @@ Extend `POST /demo/new` to accept:
 Extend `POST /demo/step` response with:
 - `frame_id` (tick index)
 - `anti_cheat_flags: string[]`
-- `scenario_events: Array<{type, tick, meta}>`
+- `scenario_schedule: ScenarioEvent[]` (returned only from `/demo/new`)
+- `scenario_events_at_tick: ScenarioEvent[]` (returned from `/demo/step`)
 - `role_kpis: Record<role, {...}>`
 - `role_reward_breakdown: Record<role, Record<string, number>>`
 
-Maintain backwards compatibility where possible, but the web UI will be updated in lockstep.
+**Shipping rule:** web + server ship in lockstep; no backwards-compat guarantee for the demo API.
 
 ## Frontend changes (web Phaser)
 
@@ -156,7 +236,7 @@ Make scenario selection + seed entry first-class.
 ## Success criteria (what “mindblowing” means)
 
 - Demo starts with one click and looks alive within 2 seconds.
-- You can replay the same seed + scenario and see identical stress events.
+- **Determinism:** two runs with the same `(seed, scenario, sim_version)` yield the same `Frame[]` hash.
 - UI clearly shows *why* baseline fails and oracle improves:
   - lower queue halo counts
   - fewer overload callouts
