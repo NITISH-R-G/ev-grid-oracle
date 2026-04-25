@@ -39,7 +39,7 @@ An **OpenEnv RL environment** that simulates Bangalore’s EV charging grid and 
 - **GitHub**: `https://github.com/NITISH-R-G/ev-grid-oracle`
 - **Colab training notebook**: `https://colab.research.google.com/github/NITISH-R-G/ev-grid-oracle/blob/main/training/train_grpo.ipynb`
 - **2‑minute video**: TODO (YouTube/HF post link)
-- **LoRA repo**: TODO (e.g. `NITISH-R-G/ev-oracle-lora`)
+- **LoRA repo**: `https://huggingface.co/NITISHRG15102007/ev-oracle-lora`
 
 ---
 
@@ -126,9 +126,12 @@ KPI comparison plot:
 Regenerate:
 
 ```bash
+export ORACLE_LORA_REPO="NITISHRG15102007/ev-oracle-lora"  # set this on GPU machine / Colab
 python -m training.evaluate --episodes 50 --out training/eval_results.json
 python -m training.make_plots --eval-json training/eval_results.json --out-dir artifacts
 ```
+
+Note: On CPU-only Windows, loading a 3B model can be slow or fail; in that case set `ORACLE_SKIP_LLM=1` for a fast sanity run, but **use Colab GPU** for the final “evidence of learning” artifacts.
 
 ---
 
