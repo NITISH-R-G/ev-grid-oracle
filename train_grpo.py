@@ -5,6 +5,7 @@ from trl import GRPOConfig, GRPOTrainer
 from datasets import Dataset
 import gymnasium as gym
 import wandb
+import numpy as np
 
 # Patch Unsloth for RLHF trainers
 PatchFastRL()
@@ -153,7 +154,7 @@ def get_training_dataset(num_samples=100):
     
     return Dataset.from_dict({"prompt": prompts})
 
-import numpy as np # Needed for sampling
+
 train_dataset = get_training_dataset()
 
 # ==========================================
