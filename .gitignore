@@ -4,7 +4,8 @@ __pycache__/
 .pytest_cache/
 *.egg-info/
 .superpowers/
-.cursor/
+.cursor/*
+!.cursor/rules/
 
 # Large generated artifacts (keep small plots committed)
 artifacts/frames*/

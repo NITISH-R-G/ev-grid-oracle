@@ -1,0 +1,27 @@
+---
+description: After every code/docs change, commit and push to GitHub immediately (atomic workflow).
+alwaysApply: true
+---
+
+# Commit + Push After Every Change
+
+## Non‑negotiable workflow
+After **any** successful change (code, config, assets, generated-but-intended artifacts like pruned maps), the agent must:
+
+1. **Review** `git status` / `git diff` and ensure no secrets (tokens, `.env`, private keys) are included.
+2. **Stage** only intentional files.
+3. **Commit** with a clear message: `area: what changed (why)`.
+4. **Push** to the configured GitHub remote on the current branch.
+
+## Safety gates (do not skip)
+- If the change includes **credentials** or **HF tokens**, **stop** and ask the human to rotate/revoke; do not commit.
+- If CI/pre-submit checks exist and are fast, run them before pushing when practical.
+- If push fails due to auth/network, **retry once** with a different approach; if still failing, stop and report.
+
+## Defaults
+- Prefer **small atomic commits** (one logical change per commit).
+- Do not leave the repo dirty at end of a task unless explicitly asked.
+
+## Examples
+- ✅ `git add server/app.py web/src/phaser/PixelCityScene.ts && git commit -m "demo: surface RL action + reward HUD" && git push`
+- ❌ “I’ll push later” / large mixed commits unrelated to the task
