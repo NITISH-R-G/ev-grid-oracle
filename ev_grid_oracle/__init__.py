@@ -1,2 +1,0 @@
-"""EV Grid Oracle package."""
-

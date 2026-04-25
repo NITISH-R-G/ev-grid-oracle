@@ -1,0 +1,11 @@
+unsloth
+trl
+transformers
+accelerate
+peft
+bitsandbytes
+datasets
+gymnasium
+wandb
+protobuf
+sentencepiece
