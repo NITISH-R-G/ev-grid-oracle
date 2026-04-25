@@ -19,6 +19,7 @@ demo = [
   "gradio>=4.44",
   "pillow>=10.3",
   "matplotlib>=3.8",
+  "pygame-ce>=2.5.2",
 ]
 
 [project.scripts]

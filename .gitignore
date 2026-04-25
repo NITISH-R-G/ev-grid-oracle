@@ -6,3 +6,7 @@ __pycache__/
 .superpowers/
 .cursor/
 
+# Large generated artifacts (keep small plots committed)
+artifacts/frames*/
+artifacts/*.mp4
+
