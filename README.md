@@ -250,6 +250,11 @@ Notes:
 python -m uvicorn server.app:app --host 0.0.0.0 --port 8000
 ```
 
+### HF Space: redeploy from `main`
+
+- **Restart / rebuild (API):** with a Hub token installed locally, `python -c "from huggingface_hub import HfApi; HfApi().restart_space('NITISHRG15102007/ev-grid-oracle')"` queues a new build from the Space’s configured source revision.  
+- **`git push hf main`:** the Space git remote often **rejects** pushes that contain **binary PNGs** under `artifacts/` (use [Xet](https://huggingface.co/docs/hub/xet) or keep plots **only on GitHub**). Prefer linking the Space to **this GitHub repo** in Space **Settings → Repository** so every `git push origin main` triggers the build without pushing images to `hf`.
+
 ### HF Space: “Oracle loading forever” / frozen UI
 
 1. **LoRA repo typo:** the Hub user is **`NITISHRG15102007`** (letters **HR**). `NITISHGR…` will 404 or hang on retries. The Command Center pre-fills the correct id; edit only if you use another adapter repo.  
