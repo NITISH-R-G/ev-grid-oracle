@@ -50,6 +50,20 @@ function pill(el: HTMLElement, kind: "good" | "warn" | "bad", text: string) {
   el.textContent = text;
 }
 
+async function withDeadline<T>(p: Promise<T>, ms: number, label: string): Promise<T> {
+  let timeoutId: number | null = null;
+  try {
+    return await Promise.race([
+      p,
+      new Promise<T>((_, reject) => {
+        timeoutId = window.setTimeout(() => reject(new Error(`${label} timed out after ${ms / 1000}s`)), ms);
+      }),
+    ]);
+  } finally {
+    if (timeoutId != null) window.clearTimeout(timeoutId);
+  }
+}
+
 export function startCommandCenter(args: Args) {
   const mountBaseline = document.getElementById(args.baselineMountId);
   const mountOracle = document.getElementById(args.oracleMountId);
@@ -163,16 +177,18 @@ export function startCommandCenter(args: Args) {
 
     const seed = Number(args.seedEl.value || "0") || seedRand();
     const scenario = args.scenarioEl.value || "baseline";
-    pill(args.oracleBadge, "warn", "loading map…");
-    args.eventsEl.textContent = "(creating sessions)";
+    pill(args.baselineBadge, "warn", "waking server…");
+    pill(args.oracleBadge, "warn", "waking server…");
+    args.eventsEl.textContent = "(creating sessions — HF Space cold-start may take ~10–30s)";
     try {
-      const [b, o] = await Promise.all([demoNew(seed, scenario), demoNew(seed, scenario)]);
+      const [b, o] = await withDeadline(Promise.all([demoNew(seed, scenario), demoNew(seed, scenario)]), 75_000, "demoNew");
       baselineSid = b.session_id;
       oracleSid = o.session_id;
-      await Promise.all([
-        baseline.scene().bindSession(b.session_id, b.station_nodes),
-        oracle.scene().bindSession(o.session_id, o.station_nodes),
-      ]);
+      await withDeadline(
+        Promise.all([baseline.scene().bindSession(b.session_id, b.station_nodes), oracle.scene().bindSession(o.session_id, o.station_nodes)]),
+        25_000,
+        "bindSession"
+      );
       pill(args.baselineBadge, "warn", "heuristic");
       pill(args.oracleBadge, "good", "ready");
       args.eventsEl.textContent = `seed=${seed}\nscenario=${scenario}\nbaseline=${baselineSid}\noracle=${oracleSid}`;
@@ -184,9 +200,14 @@ export function startCommandCenter(args: Args) {
     } catch (e: any) {
       pill(args.oracleBadge, "bad", "API ERROR");
       pill(args.baselineBadge, "bad", "API ERROR");
-      args.dreamEl.textContent = "ERROR: failed to create sessions.";
-      args.oracleEl.textContent = "ERROR: failed to create sessions.";
-      args.eventsEl.textContent = `ERROR creating sessions:\n${String(e?.message || e)}`;
+      const msg = String(e?.message || e);
+      args.dreamEl.textContent =
+        "ERROR: failed to create sessions.\n\n" +
+        "- If this is a fresh Space cold-start, wait ~30s and refresh.\n" +
+        "- Check `/health` loads.\n" +
+        "- If roads are missing, the client should still render stations; this error is likely API reachability.";
+      args.oracleEl.textContent = `ERROR: ${msg}`;
+      args.eventsEl.textContent = `ERROR creating sessions:\n${msg}`;
     }
   };
 
