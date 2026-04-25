@@ -19,6 +19,8 @@ from ev_grid_oracle.env import EVGridCore, _build_prompt
 from ev_grid_oracle.models import ActionType, EVGridAction, EVGridObservation
 from ev_grid_oracle.oracle_agent import OracleAgent
 from ev_grid_oracle.policies import baseline_policy
+from ev_grid_oracle.parsing import parse_simulation
+from ev_grid_oracle.world_model_verifier import rollout_deterministic_5ticks, score_prediction
 from server.ev_grid_environment import EVGridEnvironment
 
 
@@ -147,6 +149,11 @@ def demo_step(
 
     st = core._grid_state
     oracle_llm_active = False
+    oracle_text = ""
+    dream_score = None
+    dream_breakdown: dict[str, float] = {}
+    dream_pred = None
+    dream_true = None
     if st is None or not st.pending_evs:
         action = EVGridAction(action_type=ActionType.load_shift, ev_id="EV-000", defer_minutes=0)
         event: dict[str, Any] = {"type": "idle"}
@@ -155,8 +162,37 @@ def demo_step(
             action = baseline_policy(st, core.city_graph)
         else:
             agent = OracleAgent(lora_repo_id=(oracle_lora_repo or "").strip() or None)
-            action = agent.act(st, _build_prompt(st), core.city_graph)
+            action, oracle_text = agent.act_with_text(st, _build_prompt(st), core.city_graph)
             oracle_llm_active = bool(agent.is_active)
+
+            # If oracle produced a <SIMULATE> block, score it against a deterministic T+5 rollout.
+            pred = parse_simulation(oracle_text) if oracle_text else None
+            if pred is not None:
+                ps = score_prediction(st, action, pred)
+                dream_score = ps.score_0_1
+                dream_breakdown = ps.breakdown
+                dream_pred = pred.model_dump(mode="json")
+                t5 = rollout_deterministic_5ticks(st, action)
+                # summarize true top3
+                top3 = sorted(
+                    [
+                        (
+                            s.station_id,
+                            s.occupied_slots / max(1, s.total_slots),
+                            s.queue_length,
+                        )
+                        for s in t5.stations
+                    ],
+                    key=lambda x: x[1],
+                    reverse=True,
+                )[:3]
+                dream_true = {
+                    "t5_grid_load_pct": float(t5.grid_load_pct),
+                    "t5_renewable_pct": float(t5.renewable_pct),
+                    "t5_top_stations": [
+                        {"station_id": sid, "load_pct": float(load), "queue": int(q)} for sid, load, q in top3
+                    ],
+                }
 
         # Render-friendly event for frontend animation.
         # v0: polyline path is station-to-station graph path (lat/lng pairs).
@@ -182,6 +218,11 @@ def demo_step(
         "oracle_lora_repo": (oracle_lora_repo or "").strip(),
         "oracle_llm_active": oracle_llm_active,
         "action": action.model_dump(),
+        "oracle_text": oracle_text,
+        "dream_score": dream_score,
+        "dream_breakdown": dream_breakdown,
+        "dream_pred": dream_pred,
+        "dream_true": dream_true,
     }
 
 

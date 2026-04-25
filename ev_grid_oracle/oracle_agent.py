@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, Tuple
 
 from ev_grid_oracle.models import EVGridAction, GridState
-from ev_grid_oracle.parsing import parse_action
+from ev_grid_oracle.parsing import parse_action, parse_simulation
 from ev_grid_oracle.policies import baseline_policy
 
 
@@ -58,6 +58,10 @@ class OracleAgent:
         self._model = model
 
     def act(self, state: GridState, prompt: str, graph) -> EVGridAction:
+        action, _txt = self.act_with_text(state, prompt, graph)
+        return action
+
+    def act_with_text(self, state: GridState, prompt: str, graph) -> Tuple[EVGridAction, str]:
         # choose target ev_id (matches env prompt builder v0)
         ev_id = state.pending_evs[0].ev_id if state.pending_evs else "EV-000"
 
@@ -66,9 +70,9 @@ class OracleAgent:
             txt = self._generate(prompt)
             action = parse_action(txt, ev_id=ev_id)
             if action is not None:
-                return action
+                return action, txt
 
-        return baseline_policy(state, graph)
+        return baseline_policy(state, graph), ""
 
     @property
     def is_active(self) -> bool:

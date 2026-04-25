@@ -35,6 +35,9 @@ export class PixelCityScene extends Phaser.Scene {
   private camMain!: Phaser.Cameras.Scene2D.Camera;
   private camMini!: Phaser.Cameras.Scene2D.Camera;
 
+  private side: "baseline" | "oracle" = "oracle";
+  private flickerRect: Phaser.GameObjects.Rectangle | null = null;
+
   constructor() {
     super("PixelCityScene");
   }
@@ -105,7 +108,28 @@ export class PixelCityScene extends Phaser.Scene {
     this.camMain.setRoundPixels(true);
     this.camMini.setRoundPixels(true);
 
+    // Baseline gets CRT flicker + micro-shake (to sell chaos vs control).
+    this.flickerRect = this.add.rectangle(w / 2, h / 2, w, h, 0x000000, 0.0);
+    this.flickerRect.setDepth(999);
+
+    this.time.addEvent({
+      loop: true,
+      delay: 80,
+      callback: () => {
+        if (this.side !== "baseline" || !this.flickerRect) return;
+        const a = 0.02 + Math.random() * 0.08;
+        this.flickerRect.setAlpha(a);
+        if (Math.random() < 0.20) {
+          this.camMain.shake(40, 0.002);
+        }
+      },
+    });
+
     this.ui.statusEl.textContent = "Click New to start.";
+  }
+
+  setSide(side: "baseline" | "oracle") {
+    this.side = side;
   }
 
   async bindSession(sessionId: string, station_nodes: StationNode[]) {
@@ -356,9 +380,23 @@ export class PixelCityScene extends Phaser.Scene {
       .map((p: any) => new Phaser.Math.Vector2(p.x, p.y));
     if (pts.length < 2) return;
 
-    // Draw route glow
+    // GHOST PATH (Oracle only): dashed purple dream path appears first.
+    const ghost = this.add.graphics();
+    ghost.setDepth(4);
+    this.fxLayer.add(ghost);
+    if (this.side === "oracle") {
+      ghost.lineStyle(4, 0xb85cff, 0.45);
+      this._strokeDashed(ghost, pts, 16, 12);
+      this.time.delayedCall(900, () => ghost.destroy());
+    } else {
+      ghost.destroy();
+    }
+
+    // ACTUAL PATH: solid glow (oracle brighter, baseline dimmer)
     const g = this.add.graphics();
-    g.lineStyle(6, 0x2dff9d, 0.22);
+    const core = this.side === "oracle" ? 0x35ffb8 : 0x6d7aa6;
+    const alpha = this.side === "oracle" ? 0.26 : 0.12;
+    g.lineStyle(6, core, alpha);
     g.beginPath();
     g.moveTo(pts[0].x, pts[0].y);
     for (let i = 1; i < pts.length; i++) g.lineTo(pts[i].x, pts[i].y);
@@ -407,6 +445,28 @@ export class PixelCityScene extends Phaser.Scene {
         onComplete: () => resolve(),
       });
     });
+  }
+
+  private _strokeDashed(g: Phaser.GameObjects.Graphics, pts: Phaser.Math.Vector2[], dash: number, gap: number) {
+    for (let i = 1; i < pts.length; i++) {
+      const a = pts[i - 1];
+      const b = pts[i];
+      const dx = b.x - a.x;
+      const dy = b.y - a.y;
+      const len = Math.hypot(dx, dy);
+      if (len < 1) continue;
+      const ux = dx / len;
+      const uy = dy / len;
+      let t = 0;
+      while (t < len) {
+        const t2 = Math.min(len, t + dash);
+        g.beginPath();
+        g.moveTo(a.x + ux * t, a.y + uy * t);
+        g.lineTo(a.x + ux * t2, a.y + uy * t2);
+        g.strokePath();
+        t += dash + gap;
+      }
+    }
   }
 
   // For the split-screen command center: drive animation externally.

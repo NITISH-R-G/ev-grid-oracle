@@ -73,6 +73,10 @@ export function startCommandCenter(args: Args) {
   const baseline = mkGame(mountBaseline);
   const oracle = mkGame(mountOracle);
 
+  // Side-specific vibe (baseline = jittery, oracle = smooth)
+  baseline.scene().setSide("baseline");
+  oracle.scene().setSide("oracle");
+
   let baselineSid: string | null = null;
   let oracleSid: string | null = null;
 
@@ -129,10 +133,12 @@ export function startCommandCenter(args: Args) {
     // right rail: dream panel + oracle panel
     const dreamScore = typeof (oRes as any).dream_score === "number" ? (oRes as any).dream_score : null;
     const dreamBreak = (oRes as any).dream_breakdown || {};
+    const dreamPred = (oRes as any).dream_pred || null;
+    const dreamTrue = (oRes as any).dream_true || null;
     args.dreamEl.textContent =
       dreamScore == null
-        ? "Dream score: N/A (Oracle completion did not include <SIMULATE> yet)\n\nTip: run Oracle with LoRA trained on dream reward."
-        : `Dream score: ${(dreamScore * 100).toFixed(1)}%\n` + JSON.stringify(dreamBreak, null, 2);
+        ? "Dream score: N/A (no <SIMULATE> from Oracle yet)\n\nTip: run Oracle with LoRA trained on dream reward."
+        : `DREAM SCORE: ${(dreamScore * 100).toFixed(1)}%\n\nPRED:\n${JSON.stringify(dreamPred, null, 2)}\n\nTRUE:\n${JSON.stringify(dreamTrue, null, 2)}\n\nBREAKDOWN:\n${JSON.stringify(dreamBreak, null, 2)}`;
 
     const rb = (oRes.obs?.reward_breakdown || {}) as Record<string, number>;
     const top = Object.entries(rb)
