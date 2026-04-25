@@ -9,6 +9,7 @@ from typing import Any, Literal
 from uuid import uuid4
 
 from fastapi import Body, HTTPException, Query
+from fastapi.responses import HTMLResponse
 
 from ev_grid_oracle.city_graph import build_city_graph
 from ev_grid_oracle.env import EVGridCore, _build_prompt
@@ -19,6 +20,56 @@ from server.ev_grid_environment import EVGridEnvironment
 
 
 app = create_app(EVGridEnvironment, EVGridAction, EVGridObservation, env_name="ev-grid-oracle", max_concurrent_envs=1)
+
+
+@app.get("/", response_class=HTMLResponse)
+def root() -> str:
+    return """\
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>EV Grid Oracle (OpenEnv)</title>
+    <style>
+      body { font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial; background:#0b1022; color:#e8ecff; margin:0; }
+      .wrap { max-width: 920px; margin: 0 auto; padding: 28px 18px; }
+      .card { background: rgba(255,255,255,0.04); border: 1px solid rgba(120,140,200,0.22); border-radius: 16px; padding: 16px; margin-top: 14px; }
+      a { color: #7aa7ff; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+      code { background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 8px; }
+      .k { opacity: 0.85; font-size: 13px; }
+      ul { margin: 10px 0 0 18px; }
+    </style>
+  </head>
+  <body>
+    <div class="wrap">
+      <h2>EV Grid Oracle — OpenEnv Environment</h2>
+      <div class="k">This Space hosts the FastAPI server for the OpenEnv environment + a small demo API.</div>
+
+      <div class="card">
+        <b>OpenEnv API</b>
+        <ul>
+          <li><a href="/docs">/docs</a> (FastAPI Swagger)</li>
+          <li><a href="/schema">/schema</a></li>
+          <li><a href="/health">/health</a></li>
+          <li><code>POST</code> /reset · <code>POST</code> /step · <code>GET</code> /state</li>
+        </ul>
+      </div>
+
+      <div class="card">
+        <b>Demo API (for the Phaser pixel-map client)</b>
+        <ul>
+          <li><code>POST</code> /demo/new</li>
+          <li><code>POST</code> /demo/step</li>
+          <li><code>GET</code> /demo/state</li>
+        </ul>
+        <div class="k">Note: The Phaser UI runs locally via Vite and proxies to these endpoints.</div>
+      </div>
+    </div>
+  </body>
+</html>
+"""
 
 
 # -----------------------------
