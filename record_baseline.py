@@ -32,7 +32,7 @@ def record_baseline_chaos():
             
         time.sleep(0.5) # Slow down for smooth screen recording
         
-    print(f"\n✅ Recording Complete.")
+    print("\nRecording Complete.")
     print(f"Total Steps: 50 | Outages: {failures} | Avg Reward: {total_reward/50:.2f}")
 
 if __name__ == "__main__":

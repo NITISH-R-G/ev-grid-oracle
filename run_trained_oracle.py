@@ -67,10 +67,10 @@ Provide your response strictly in the following format:
         print(f"Step {step+1}: Oracle chose {action_str.upper()} | Reward: {reward:.2f}")
         
         if terminated and reward > 0:
-            print("✅ Shift successful. Grid remains within safety thresholds.")
+            print("SUCCESS: Shift successful. Grid remains within safety thresholds.")
             env.reset()
         elif terminated and reward < 0:
-            print("❌ Critical System Failure. (Unexpected)")
+            print("FAILURE: Critical System Failure. (Unexpected)")
             env.reset()
             
         time.sleep(0.5) # For smooth visualization update
