@@ -2,7 +2,7 @@ import os
 import sys
 import numpy as np
 from env_bescom import BESCOM_EV_Env
-from train_grpo import format_reward_func, constraint_reward_func, objective_reward_func
+from rewards import format_reward_func, constraint_reward_func, objective_reward_func
 
 def run_bulletproof_smoke_test():
     print("--- Starting Bulletproof Smoke Test ---")
