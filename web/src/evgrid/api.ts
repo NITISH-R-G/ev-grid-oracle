@@ -39,14 +39,44 @@ export type DemoStepResponse = {
   forced_action?: boolean;
 };
 
+async function sleep(ms: number) {
+  await new Promise((r) => setTimeout(r, ms));
+}
+
 export async function demoNew(seed: number, scenario: string = "baseline"): Promise<DemoNewResponse> {
-  const r = await fetch("/demo/new", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ seed, scenario }),
-  });
-  if (!r.ok) throw new Error(`demoNew failed: ${r.status}`);
-  return (await r.json()) as DemoNewResponse;
+  const maxAttempts = 3;
+  let lastErr: unknown = null;
+  for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+    const ctl = new AbortController();
+    const timeoutMs = 60_000;
+    const t = window.setTimeout(() => ctl.abort(), timeoutMs);
+    try {
+      const r = await fetch("/demo/new", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ seed, scenario }),
+        signal: ctl.signal,
+      });
+      if (!r.ok) throw new Error(`demoNew failed: ${r.status}`);
+      return (await r.json()) as DemoNewResponse;
+    } catch (e: any) {
+      lastErr = e;
+      const isAbort = e?.name === "AbortError";
+      if (attempt >= maxAttempts) {
+        if (isAbort) {
+          throw new Error(
+            "demoNew timed out (60s). The Space may be cold-starting. Wait ~30s and refresh, or try again."
+          );
+        }
+        throw e;
+      }
+      // Brief backoff for HF Spaces cold-start / transient network.
+      await sleep(isAbort ? 1_250 : 650);
+    } finally {
+      window.clearTimeout(t);
+    }
+  }
+  throw lastErr instanceof Error ? lastErr : new Error("demoNew failed.");
 }
 
 export async function demoStep(args: {
