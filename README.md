@@ -46,7 +46,7 @@ An **OpenEnv RL environment** that simulates Bangalore’s EV charging grid and 
 - **Demo UI**: `viz/gradio_demo.py` (baseline vs oracle toggle + streaming “Run 60 ticks”).
 - **2D recording**: `viz/city_map.py`, `viz/record_two_phase.py` (baseline → oracle 2‑minute frames).
 - **Training**: `training/train_grpo.ipynb` (Colab T4 GRPO with verifier rewards).
-- **Evidence**: `training/evaluate.py` (paired seeds + `per_episode` JSON) + `training/fair_eval.py` (Wilson CIs + **McNemar** `paired_mcnemar` + `artifacts/fair_eval_chart.png`) + `training/make_plots.py` → `artifacts/kpi_comparison.png`.
+- **Evidence**: paired `training/evaluate.py` + `training/fair_eval.py` + **`training/make_plots.py`** (multi-figure suite: KPIs, trajectories, deltas, breakdowns, boxplots, win rates, McNemar, dashboard — all under `artifacts/`).
 - **Judge kit (repo-specific checklist)**: `docs/judge-kit/credit-assessment-pattern-map.md`
 - **HF mini-blog (markdown article in repo)**: `docs/hf-mini-blog-ev-grid-oracle.md`
 - **Official hackathon links (OpenEnv + HF Hub + tutorials + papers)**: `docs/hackathon-official-resources.md`
@@ -161,28 +161,75 @@ ffmpeg -framerate 30 -i frame_%06d.png -c:v libx264 -pix_fmt yuv420p out.mp4
 
 ---
 
-## Evidence (baseline vs oracle)
+## Evidence & visualizations (baseline vs oracle — judge pack)
 
-**KPI comparison** (lower wait / stress / violations is better; same episode seeds for both bars — see `training/evaluate.py`):
-
-![Baseline vs Oracle KPIs — mean metrics over paired episodes](artifacts/kpi_comparison.png)
-
-**Paired binary outcomes + Wilson 95% intervals** (from `training/fair_eval.py`; baseline vs oracle on the **same** `per_episode` worlds):
-
-![Paired eval — Wilson intervals on binary rates](artifacts/fair_eval_chart.png)
-
-Regenerate (GPU recommended for real oracle weights):
+All figures below are generated from **`training/eval_results.json`** (`per_episode` rows = same world, two policies) and **`artifacts/fair_eval_results.json`**. Regenerate in one pass:
 
 ```bash
-export ORACLE_LORA_REPO="NITISHRG15102007/ev-oracle-lora"  # optional; omit or set ORACLE_SKIP_LLM=1 for KPI plumbing only
-python training/evaluate.py --episodes 50 --seed 123 --out training/eval_results.json
-python training/fair_eval.py --eval-json training/eval_results.json
-python training/make_plots.py --eval-json training/eval_results.json --out-dir artifacts
+export ORACLE_LORA_REPO="NITISHRG15102007/ev-oracle-lora"   # optional; use GPU + real LoRA for separation
+# ORACLE_SKIP_LLM=1  → baseline fallback inside oracle path (sanity / CI only)
+python training/evaluate.py --episodes 72 --seed 7 --scenario baseline --out training/eval_results.json
+python training/fair_eval.py --eval-json training/eval_results.json --out-json artifacts/fair_eval_results.json --out-chart artifacts/fair_eval_chart.png
+python training/make_plots.py --eval-json training/eval_results.json --fair-json artifacts/fair_eval_results.json --out-dir artifacts
 ```
 
-`artifacts/fair_eval_results.json` holds **`paired_mcnemar`** (discordant-pair exact p-values) alongside Wilson rates.
+**How to read these when policies match:** if oracle falls back to baseline, trajectories and scatter collapse on top of each other — that proves **paired harness is correct**. After GRPO + LoRA, you want **divergence** on wait / peak / stress and **higher oracle win rates**.
 
-Note: On CPU-only machines, loading a 3B model can be slow or fail; set `ORACLE_SKIP_LLM=1` for a fast sanity run, but **use Colab GPU** for the final “evidence of learning” artifacts.
+### 1) Aggregate KPIs (mean over paired episodes)
+
+![Baseline vs Oracle — mean KPIs](artifacts/kpi_comparison.png)
+
+### 2) One-page dashboard (trajectory + deltas + scatter + win rate)
+
+![Six-panel evaluation dashboard](artifacts/eval_dashboard_summary.png)
+
+### 3) Per-episode trajectories (paired seeds)
+
+![Wait, peak ticks, and stress ticks vs episode index](artifacts/eval_episode_trajectories.png)
+
+### 4) Paired deltas (oracle − baseline)
+
+![Histograms of per-episode deltas](artifacts/eval_delta_histograms.png)
+
+### 5) Verifier reward breakdown (mean components)
+
+![Reward breakdown bars — baseline vs oracle](artifacts/eval_reward_breakdown_bars.png)
+
+### 6) Distributions over episodes (boxplots)
+
+![Boxplots — spread = world noise; separation = learning](artifacts/eval_boxplots_by_policy.png)
+
+### 7) Head-to-head win rate (% episodes oracle wins outright)
+
+![Oracle win rates on paired episodes](artifacts/eval_oracle_win_rates.png)
+
+### 8) Paired scatter — wait (y = x means no change)
+
+![Baseline vs oracle avg wait per episode](artifacts/eval_paired_scatter_wait.png)
+
+### 9) Baseline binary stress timeline (which episodes were “hard”)
+
+![Episode-level binary flags (baseline)](artifacts/eval_binary_timeline_baseline.png)
+
+### 10) Wilson rates on binary outcomes (from `fair_eval_results.json`)
+
+![Binary rates with Wilson error bars](artifacts/eval_fair_binary_rates.png)
+
+### 11) Wilson chart (errorbar plot from `fair_eval.py`)
+
+![Wilson intervals — headline binaries](artifacts/fair_eval_chart.png)
+
+### 12) McNemar p-values (paired discordant-binomial test)
+
+![McNemar exact p-values per outcome](artifacts/eval_mcnemar_pvalues.png)
+
+`artifacts/fair_eval_results.json` also stores **`paired_mcnemar`** tables for the full numeric report.
+
+### GRPO training curves (loss / reward vs step)
+
+TRL / Unsloth logs are most trustworthy when exported from a real run. In `training/train_grpo.ipynb`, set `report_to=["tensorboard"]` in `GRPOConfig`, train on GPU, then add **exported PNGs** (e.g. `artifacts/grpo_reward_mean.png`, `artifacts/grpo_loss.png`) here and commit — judges reward **labeled axes** and **same-run** comparisons.
+
+Note: On CPU-only machines, loading a 3B model can be slow or fail; use **Colab GPU** for final “evidence of learning” artifacts and training curves.
 
 ---
 
@@ -209,7 +256,7 @@ python -m uvicorn server.app:app --host 0.0.0.0 --port 8000
 
 - [ ] **OpenEnv (current stack):** `openenv.yaml` + `openenv-core` per `pyproject.toml`; env runnable from **HF Space URL** (submit this URL).
 - [ ] **Training:** Colab **or** repo path — [`training/train_grpo.ipynb`](training/train_grpo.ipynb) + [Open in Colab](https://colab.research.google.com/github/NITISH-R-G/ev-grid-oracle/blob/main/training/train_grpo.ipynb) using **Unsloth / TRL**.
-- [ ] **Evidence of real training:** committed **readable plots** (axes interpretable) — KPI + fair eval figures above; link Wandb/Trackio **per run** if you use them.
+- [ ] **Evidence of real training:** committed **readable plots** (axes interpretable) — full **Evidence & visualizations** gallery above + optional GRPO TensorBoard exports; link Wandb/Trackio **per run** if you use them.
 - [ ] **Writeup:** **HF mini-blog** ([`docs/hf-mini-blog-ev-grid-oracle.md`](docs/hf-mini-blog-ev-grid-oracle.md)) **or** an **under 2 minute** video (YouTube/HF) — **link only** (no large video files in the Space repo).
 - [ ] **README:** motivates **problem**, explains **env + reward**, shows **results**, says **why it matters**; includes **Space + Colab + blog/video + LoRA** links (see Quick links).
 - [ ] **One submission per team:** freeze the Space URL you give judges; avoid post-deadline reliance on unpinned `main` unless rules allow.

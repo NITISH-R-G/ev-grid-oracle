@@ -68,7 +68,7 @@ The first notebook cell **clones this repository** and runs `pip install -e .` s
 
 1. Run `python training/evaluate.py` → JSON includes **`paired_same_world`** and **`per_episode`** rows.  
 2. Run `python training/fair_eval.py` → **`artifacts/fair_eval_results.json`** includes **`binary_rates_wilson`** and **`paired_mcnemar`**.  
-3. Plots (commit to repo for reviewers who skim): `artifacts/kpi_comparison.png`, `artifacts/fair_eval_chart.png` from `training/make_plots.py` and `training/fair_eval.py`.
+3. **Judge-facing figure pack** (commit to repo): run `python training/make_plots.py --eval-json training/eval_results.json --fair-json artifacts/fair_eval_results.json --out-dir artifacts` to emit KPI bars, paired trajectories, Δ-histograms, reward breakdown bars, boxplots, win-rate bars, paired scatter, binary timeline, Wilson/McNemar panels, and a **six-panel dashboard** (`eval_dashboard_summary.png`). Also run `training/fair_eval.py` for `fair_eval_chart.png`.
 
 **Why it matters:** dispatch policies that **survive verification** under stress are closer to deployable co-pilots than chat-only “plans.”
 
