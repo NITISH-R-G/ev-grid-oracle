@@ -5,7 +5,7 @@ try:
 except ImportError as e:  # pragma: no cover
     raise ImportError("openenv-core required. Install deps from pyproject.") from e
 
-from typing import Any, Literal
+from typing import Any, Literal, cast
 from uuid import uuid4
 
 from pathlib import Path
@@ -21,6 +21,7 @@ from ev_grid_oracle.models import ActionType, EVGridAction, EVGridObservation
 from ev_grid_oracle.oracle_agent import OracleAgent
 from ev_grid_oracle.policies import baseline_policy
 from ev_grid_oracle.parsing import parse_simulation
+from ev_grid_oracle.scenarios import ScenarioName
 from ev_grid_oracle.world_model_verifier import rollout_deterministic_5ticks, score_prediction
 from server.ev_grid_environment import EVGridEnvironment
 
@@ -92,6 +93,12 @@ def root() -> str:
 
 _demo_sessions: dict[str, EVGridCore] = {}
 _demo_graph = build_city_graph()
+_SIM_VERSION = "2026-04-26.1"
+
+
+class DemoNewRequest(BaseModel):
+    seed: int = Field(123, ge=0, le=1_000_000)
+    scenario: ScenarioName = Field("baseline")
 
 
 def _obs_to_jsonable(obs: EVGridObservation) -> dict[str, Any]:
@@ -117,23 +124,22 @@ def _station_nodes(core: EVGridCore) -> list[dict[str, Any]]:
 
 
 @app.post("/demo/new")
-def demo_new(payload: "DemoNewRequest" = Body(...)) -> dict[str, Any]:
+def demo_new(payload: DemoNewRequest = Body(...)) -> dict[str, Any]:
     session_id = str(uuid4())
     core = EVGridCore(city_graph=_demo_graph)
-    obs = core.reset(seed=payload.seed, scenario=payload.scenario)
+    obs = core.reset(seed=payload.seed, scenario=cast(ScenarioName, payload.scenario))
     _demo_sessions[session_id] = core
+    from ev_grid_oracle.scenarios import scenario_schedule
+
     return {
         "session_id": session_id,
         "obs": _obs_to_jsonable(obs),
         "station_nodes": _station_nodes(core),
         "scenario": core.scenario,
         "seed": payload.seed,
+        "sim_version": _SIM_VERSION,
+        "scenario_schedule": scenario_schedule(core.scenario),
     }
-
-
-class DemoNewRequest(BaseModel):
-    seed: int = Field(123, ge=0, le=1_000_000)
-    scenario: str = Field("baseline")
 
 
 @app.get("/demo/state")
@@ -143,10 +149,26 @@ def demo_state(session_id: str = Query(...)) -> dict[str, Any]:
         raise HTTPException(status_code=404, detail="Unknown session_id")
     st = core._grid_state
     if st is None:
-        obs = core.reset(seed=123)
+        obs = core.reset(seed=123, scenario=core.scenario)
     else:
-        obs = EVGridObservation(prompt=_build_prompt(st), state=st, done=False, reward_breakdown={})
-    return {"session_id": session_id, "obs": _obs_to_jsonable(obs), "station_nodes": _station_nodes(core)}
+        obs = EVGridObservation(
+            prompt=_build_prompt(st),
+            state=st,
+            done=False,
+            reward_breakdown={},
+            anti_cheat_flags=[],
+            anti_cheat_details={},
+        )
+    from ev_grid_oracle.scenarios import scenario_schedule
+
+    return {
+        "session_id": session_id,
+        "obs": _obs_to_jsonable(obs),
+        "station_nodes": _station_nodes(core),
+        "scenario": core.scenario,
+        "sim_version": _SIM_VERSION,
+        "scenario_schedule": scenario_schedule(core.scenario),
+    }
 
 
 @app.post("/demo/step")
@@ -222,19 +244,18 @@ def demo_step(
         else:
             event = {"type": action.action_type.value}
 
-    # scenario events that fired at this tick
-    from ev_grid_oracle.scenarios import scenario_schedule
-
-    sched = scenario_schedule(core.scenario)
-    fired = [e for e in sched if int(e.get("tick", -1)) == int(core.step_count + 1)]
-
     obs = core.step(action)
+    anti_flags = obs.anti_cheat_flags
+    anti_details = obs.anti_cheat_details
     return {
         "obs": _obs_to_jsonable(obs),
         "event": event,
         "scenario": core.scenario,
-        "scenario_events": fired,
+        "scenario_events_at_tick": core.last_scenario_events,
         "tick": core.step_count,
+        "sim_version": _SIM_VERSION,
+        "anti_cheat_flags": anti_flags,
+        "anti_cheat_details": anti_details,
         "mode": mode,
         "oracle_lora_repo": (oracle_lora_repo or "").strip(),
         "oracle_llm_active": oracle_llm_active,

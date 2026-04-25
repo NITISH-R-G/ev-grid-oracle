@@ -14,7 +14,8 @@ ScenarioName = Literal[
 ]
 
 
-class ScenarioEvent(TypedDict):
+class ScenarioEvent(TypedDict, total=False):
+    id: str
     tick: int
     type: str
     meta: dict[str, Any]
@@ -35,6 +36,9 @@ class ScenarioModifiers:
 
     # Multiplier on station price_per_kwh (used for storytelling/UI; reward can incorporate later).
     price_mult: float = 1.0
+
+    # Baseline prices captured at reset (so we don't compound multipliers every tick).
+    base_prices: dict[str, float] | None = None
 
     # If set, reduces total_slots for a given station_id (simulates outage/derate).
     slot_derate: dict[str, int] | None = None
@@ -102,6 +106,10 @@ def apply_scenario_events(
     fired = [e for e in schedule if int(e["tick"]) == int(tick)]
     if not fired:
         return modifiers, []
+
+    # Stable ids for bookmarks / UI (deterministic).
+    for e in fired:
+        e.setdefault("id", f"{name}:{int(e['tick'])}:{str(e.get('type',''))}")
 
     # Modifiers are "sticky": once an event changes a knob, it persists.
     for e in fired:

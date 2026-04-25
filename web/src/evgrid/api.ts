@@ -15,14 +15,19 @@ export type DemoNewResponse = {
   station_nodes: StationNode[];
   scenario?: string;
   seed?: number;
+  sim_version?: string;
+  scenario_schedule?: any[];
 };
 
 export type DemoStepResponse = {
   obs: any;
   event: any;
   scenario?: string;
-  scenario_events?: any[];
+  scenario_events_at_tick?: any[];
   tick?: number;
+  sim_version?: string;
+  anti_cheat_flags?: string[];
+  anti_cheat_details?: Record<string, string>;
   mode?: "baseline" | "oracle";
   oracle_lora_repo?: string;
   oracle_llm_active?: boolean;
