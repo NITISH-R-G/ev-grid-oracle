@@ -49,6 +49,7 @@ An **OpenEnv RL environment** that simulates Bangalore’s EV charging grid and 
 - **Evidence**: `training/evaluate.py` (paired seeds + `per_episode` JSON) + `training/fair_eval.py` (Wilson CIs + **McNemar** `paired_mcnemar` + `artifacts/fair_eval_chart.png`) + `training/make_plots.py` → `artifacts/kpi_comparison.png`.
 - **Judge kit (repo-specific checklist)**: `docs/judge-kit/credit-assessment-pattern-map.md`
 - **HF mini-blog (markdown article in repo)**: `docs/hf-mini-blog-ev-grid-oracle.md`
+- **Official hackathon links (OpenEnv + HF Hub + tutorials + papers)**: `docs/hackathon-official-resources.md`
 - **Trap catalog (scenarios + verifier flags)**: `docs/judge-kit/trap-catalog.md`
 - **Local validation**: `./validate-submission.sh` → `assets/validation_output.txt` (gitignored; see `assets/README.md`)
 
@@ -66,6 +67,23 @@ An **OpenEnv RL environment** that simulates Bangalore’s EV charging grid and 
 - **LoRA repo**: `https://huggingface.co/NITISHRG15102007/ev-oracle-lora`
 
 **Submission tips:** Hugging Face accepts long-form writeups as **markdown in your repo** (see `docs/hf-mini-blog-ev-grid-oracle.md`). Keep the **Colab link** and **GitHub `.ipynb` link** both in the README so judges can open Colab directly or review the notebook on GitHub. The training notebook’s **first code cell clones this repo and `pip install -e .`** so Colab runs stay reproducible.
+
+### Official hackathon resources (OpenEnv + HF + tutorials)
+
+Full list with descriptions: [`docs/hackathon-official-resources.md`](docs/hackathon-official-resources.md).
+
+| Resource | Link |
+|----------|------|
+| OpenEnv Core (GitHub) | https://github.com/meta-pytorch/OpenEnV |
+| OpenEnv docs | https://meta-pytorch.org/OpenEnv/ |
+| HF OpenEnv environments | https://huggingface.co/openenv |
+| HF OpenEnv Spaces | https://huggingface.co/openenv/spaces |
+| Tutorials (tree) | https://github.com/meta-pytorch/OpenEnv/tree/main/tutorial |
+| Training examples | https://github.com/meta-pytorch/OpenEnv/tree/main/tutorial/examples |
+| Environment examples | https://github.com/meta-pytorch/OpenEnv/tree/main/envs |
+| Reward papers | https://arxiv.org/abs/2408.10215 · https://arxiv.org/abs/2601.19100 |
+
+**YouTube (RL envs):** [0airz7BhBiA](https://www.youtube.com/watch?v=0airz7BhBiA) · [ap4q4sAK4OY](https://www.youtube.com/watch?v=ap4q4sAK4OY) · [Jew4lhAiqnw](https://www.youtube.com/watch?v=Jew4lhAiqnw) · [kkCNMz0Ptd8 (live)](https://www.youtube.com/live/kkCNMz0Ptd8?si=JJ7og8x5qc7_Gi0e)
 
 ---
 

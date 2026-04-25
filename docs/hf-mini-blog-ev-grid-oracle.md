@@ -85,6 +85,10 @@ The first notebook cell **clones this repository** and runs `pip install -e .` s
 - **GitHub:** `https://github.com/NITISH-R-G/ev-grid-oracle`  
 - **Space / live URL:** see root `README.md` → Quick links (keep in sync with your HF account).
 
+## Official hackathon materials
+
+See **[`hackathon-official-resources.md`](hackathon-official-resources.md)** (OpenEnv Core, HF `openenv` hub, tutorials, YouTube series, reward-engineering papers).
+
 ---
 
 *This file lives in the environment repository so you can **copy it into a Hugging Face Space blog post**, **link the raw GitHub file** from your model card, or **mirror** it on `huggingface.co/blog` with minimal edits.*
