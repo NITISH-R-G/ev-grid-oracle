@@ -70,6 +70,10 @@ class OracleAgent:
 
         return baseline_policy(state, graph)
 
+    @property
+    def is_active(self) -> bool:
+        return bool(self.lora_repo_id) and self._model is not None and self._tokenizer is not None
+
     def _generate(self, prompt: str) -> str:
         tok = self._tokenizer
         model = self._model

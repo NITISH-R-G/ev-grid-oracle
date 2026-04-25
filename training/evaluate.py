@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 from dataclasses import dataclass
 from statistics import mean
 from typing import Optional
@@ -9,6 +10,7 @@ from typing import Optional
 from ev_grid_oracle.city_graph import build_city_graph
 from ev_grid_oracle.env import EVGridCore
 from ev_grid_oracle.models import ActionType, EVGridAction, GridState
+from ev_grid_oracle.oracle_agent import OracleAgent
 from ev_grid_oracle.policies import baseline_policy
 
 
@@ -25,9 +27,17 @@ def _first_ev_id(state: GridState) -> Optional[str]:
     return state.pending_evs[0].ev_id if state.pending_evs else None
 
 
-def run_episode(env: EVGridCore, *, policy: str, seed: int) -> EpisodeMetrics:
+def run_episode(env: EVGridCore, *, policy: str, seed: int, oracle_repo: str | None = None) -> EpisodeMetrics:
     obs = env.reset(seed=seed)
     graph = env.city_graph
+    oracle = None
+    if policy == "oracle":
+        # If running on a machine without good model download/inference,
+        # allow opting out cleanly (still returns baseline KPIs).
+        if os.getenv("ORACLE_SKIP_LLM", "").strip() not in ("", "0", "false", "False"):
+            oracle = OracleAgent(lora_repo_id=None)
+        else:
+            oracle = OracleAgent(lora_repo_id=(oracle_repo or "").strip() or None)
 
     waits = []
     grid_stress = 0
@@ -48,8 +58,7 @@ def run_episode(env: EVGridCore, *, policy: str, seed: int) -> EpisodeMetrics:
             if policy == "baseline":
                 action = baseline_policy(state, graph)
             else:
-                # placeholder: oracle policy will be wired to LLM later.
-                action = baseline_policy(state, graph)
+                action = oracle.act(state, obs.prompt, graph) if oracle else baseline_policy(state, graph)
 
             if action.action_type == ActionType.defer and state.pending_evs[0].battery_pct_0_100 < 15.0:
                 critical_deferred += 1
@@ -87,14 +96,18 @@ def main():
     graph = build_city_graph()
     env = EVGridCore(city_graph=graph)
 
+    oracle_repo = os.getenv("ORACLE_LORA_REPO", "").strip() or None
     baseline = [run_episode(env, policy="baseline", seed=args.seed + i) for i in range(args.episodes)]
-    oracle = [run_episode(env, policy="oracle", seed=args.seed + 10_000 + i) for i in range(args.episodes)]
+    oracle = [
+        run_episode(env, policy="oracle", seed=args.seed + 10_000 + i, oracle_repo=oracle_repo)
+        for i in range(args.episodes)
+    ]
 
     out = {
         "episodes": args.episodes,
         "baseline": summarize(baseline),
         "oracle": summarize(oracle),
-        "note": "oracle currently uses baseline policy (LLM wiring pending).",
+        "note": "oracle uses ORACLE_LORA_REPO if set, else baseline fallback.",
     }
 
     with open(args.out, "w", encoding="utf-8") as f:

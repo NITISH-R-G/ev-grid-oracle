@@ -8,7 +8,7 @@ import gradio as gr
 from PIL import Image, ImageDraw, ImageFont
 
 from ev_grid_oracle.city_graph import build_city_graph
-from ev_grid_oracle.env import EVGridCore
+from ev_grid_oracle.env import EVGridCore, _build_prompt
 from ev_grid_oracle.models import ActionType, EVGridAction
 from ev_grid_oracle.oracle_agent import OracleAgent
 from ev_grid_oracle.policies import baseline_policy
@@ -91,6 +91,8 @@ class Session:
     env: EVGridCore
     last_action_text: str = ""
     seed: int = 0
+    oracle_lora_repo: str = ""
+    oracle: OracleAgent | None = None
 
 
 def new_session(seed: int) -> Session:
@@ -99,7 +101,7 @@ def new_session(seed: int) -> Session:
     return Session(env=env, seed=seed)
 
 
-def step_once(sess: Session, mode: Mode) -> tuple[Image.Image, str, str]:
+def step_once(sess: Session, mode: Mode, oracle_lora_repo: str) -> tuple[Image.Image, str, str]:
     state = sess.env._grid_state
     if state is None or not state.pending_evs:
         action = EVGridAction(action_type=ActionType.load_shift, ev_id="EV-000", defer_minutes=0)
@@ -109,9 +111,14 @@ def step_once(sess: Session, mode: Mode) -> tuple[Image.Image, str, str]:
             action = baseline_policy(state, sess.env.city_graph)
             sess.last_action_text = f"Baseline picked {action.action_type.value} -> {action.station_id or 'NONE'}"
         else:
-            oracle = OracleAgent()  # no LoRA -> baseline fallback, but logic centralized
-            action = oracle.act(state, sess.env._grid_state.prompt if hasattr(sess.env, "_grid_state") and sess.env._grid_state else "", sess.env.city_graph)  # type: ignore[arg-type]
-            sess.last_action_text = f"Oracle picked {action.action_type.value} -> {action.station_id or 'NONE'}"
+            oracle_lora_repo = (oracle_lora_repo or "").strip()
+            if sess.oracle is None or sess.oracle_lora_repo != oracle_lora_repo:
+                sess.oracle_lora_repo = oracle_lora_repo
+                sess.oracle = OracleAgent(lora_repo_id=oracle_lora_repo or None)
+            prompt = _build_prompt(state)
+            action = sess.oracle.act(state, prompt, sess.env.city_graph) if sess.oracle else baseline_policy(state, sess.env.city_graph)
+            tag = "Oracle" if sess.oracle and sess.oracle.is_active else "Oracle (fallback)"
+            sess.last_action_text = f"{tag} picked {action.action_type.value} -> {action.station_id or 'NONE'}"
 
     obs = sess.env.step(action)
     img = render_map(sess.env)
@@ -119,16 +126,19 @@ def step_once(sess: Session, mode: Mode) -> tuple[Image.Image, str, str]:
     return img, sess.last_action_text, kpi
 
 
-def compute_kpis(seed: int, episodes: int = 10) -> str:
+def compute_kpis(seed: int, *, episodes: int = 10, oracle_lora_repo: str = "") -> str:
     graph = build_city_graph()
     env = EVGridCore(city_graph=graph)
     baseline = [run_episode(env, policy="baseline", seed=seed + i) for i in range(episodes)]
-    oracle = [run_episode(env, policy="oracle", seed=seed + 10_000 + i) for i in range(episodes)]
+    oracle_repo = (oracle_lora_repo or "").strip() or None
+    oracle = [
+        run_episode(env, policy="oracle", seed=seed + 10_000 + i, oracle_repo=oracle_repo) for i in range(episodes)
+    ]
     out = {
         "episodes": episodes,
         "baseline": summarize(baseline),
         "oracle": summarize(oracle),
-        "note": "oracle currently uses baseline policy (LLM wiring pending).",
+        "note": "oracle uses LoRA repo if provided, else baseline fallback.",
     }
     # Human-readable
     b = out["baseline"]
@@ -169,39 +179,45 @@ with gr.Blocks(title="EV Grid Oracle") as demo:
 
     start.click(_start, inputs=[seed], outputs=[state, img, thought, kpi, kpi_summary])
 
-    def _step(sess: Session, mode_val: Mode):
+    oracle_lora = gr.Textbox(
+        label="Oracle LoRA repo id (optional)",
+        placeholder="NITISHRG15102007/ev-oracle-lora",
+        value="",
+    )
+
+    def _step(sess: Session, mode_val: Mode, oracle_lora_repo: str):
         if sess is None:
             sess = new_session(123)
-        im, t, k = step_once(sess, mode_val)
+        im, t, k = step_once(sess, mode_val, oracle_lora_repo)
         return sess, im, t, k
 
-    step.click(_step, inputs=[state, mode], outputs=[state, img, thought, kpi])
+    step.click(_step, inputs=[state, mode, oracle_lora], outputs=[state, img, thought, kpi])
 
-    def _run60(sess: Session, mode_val: Mode):
+    def _run60(sess: Session, mode_val: Mode, oracle_lora_repo: str):
         if sess is None:
             sess = new_session(123)
         for _ in range(60):
-            im, t, k = step_once(sess, mode_val)
+            im, t, k = step_once(sess, mode_val, oracle_lora_repo)
             yield sess, im, t, k
 
-    run60.click(_run60, inputs=[state, mode], outputs=[state, img, thought, kpi])
+    run60.click(_run60, inputs=[state, mode, oracle_lora], outputs=[state, img, thought, kpi])
 
     # (Optional) auto-start streaming after reset
-    def _start_and_maybe_autoplay(seed_val: int, autoplay_val: bool, mode_val: Mode):
+    def _start_and_maybe_autoplay(seed_val: int, autoplay_val: bool, mode_val: Mode, oracle_lora_repo: str):
         sess = new_session(seed_val)
         if not autoplay_val:
             return sess, render_map(sess.env), "", "", ""
         # stream 60 steps
         for i in range(60):
-            im, t, k = step_once(sess, mode_val)
+            im, t, k = step_once(sess, mode_val, oracle_lora_repo)
             yield sess, im, t, k, ""
 
     # keep existing Start button behavior; extra checkbox controls separate Run button
 
-    def _kpis(seed_val: int):
-        return compute_kpis(seed_val, episodes=10)
+    def _kpis(seed_val: int, oracle_lora_repo: str):
+        return compute_kpis(seed_val, episodes=10, oracle_lora_repo=oracle_lora_repo)
 
-    kpis_btn.click(_kpis, inputs=[seed], outputs=[kpi_summary])
+    kpis_btn.click(_kpis, inputs=[seed, oracle_lora], outputs=[kpi_summary])
 
 
 if __name__ == "__main__":

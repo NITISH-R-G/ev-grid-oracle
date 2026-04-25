@@ -10,3 +10,6 @@ __pycache__/
 artifacts/frames*/
 artifacts/*.mp4
 
+# Large raw OSM extracts (keep pruned demo map committed instead)
+web/public/maps/bangalore_roads.geojson
+
