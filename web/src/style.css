@@ -373,7 +373,7 @@ body::after {
   }
 }
 
-/* Kill any leftover Vite template layout if it still exists in DOM */
+/* Hide any leftover Vite template layout if it still exists in DOM */
 #center,
 #next-steps,
 #docs,
@@ -448,8 +448,7 @@ p {
   margin: 0;
 }
 
-code,
-.counter {
+code {
   font-family: var(--mono);
   display: inline-flex;
   border-radius: 4px;
@@ -463,24 +462,7 @@ code {
   background: var(--code-bg);
 }
 
-.counter {
-  font-size: 16px;
-  padding: 5px 10px;
-  border-radius: 5px;
-  color: var(--accent);
-  background: var(--accent-bg);
-  border: 2px solid transparent;
-  transition: border-color 0.3s;
-  margin-bottom: 24px;
-
-  &:hover {
-    border-color: var(--accent-border);
-  }
-  &:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 2px;
-  }
-}
+/* removed `.counter` starter styles */
 
 .hero {
   position: relative;

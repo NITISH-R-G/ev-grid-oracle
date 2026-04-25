@@ -1,9 +1,2 @@
-export function setupCounter(element: HTMLButtonElement) {
-  let counter = 0
-  const setCounter = (count: number) => {
-    counter = count
-    element.innerHTML = `Count is ${counter}`
-  }
-  element.addEventListener('click', () => setCounter(counter + 1))
-  setCounter(0)
-}
+// Legacy Vite scaffold (not used by this app); kept empty to avoid confusion if imported accidentally.
+export {};
