@@ -6,13 +6,45 @@ import { staticAssetUrl } from "../paths";
 
 /** One fetch + parse for all Phaser maps (baseline + oracle) — avoids duplicate work on “New”. */
 let roadsGeojsonPromise: Promise<any> | null = null;
+
+async function withTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
+  let timeoutId: number | null = null;
+  try {
+    return await Promise.race([
+      p,
+      new Promise<T>((_, reject) => {
+        timeoutId = window.setTimeout(() => reject(new Error(`timeout after ${ms}ms`)), ms);
+      }),
+    ]);
+  } finally {
+    if (timeoutId != null) window.clearTimeout(timeoutId);
+  }
+}
+
+function fetchJsonWithTimeout(url: string, ms: number): Promise<any> {
+  const ctl = new AbortController();
+  const t = window.setTimeout(() => ctl.abort(), ms);
+  return fetch(url, { signal: ctl.signal })
+    .then(async (r) => {
+      if (!r.ok) throw new Error(`fetch failed: ${r.status}`);
+      return await r.json();
+    })
+    .finally(() => window.clearTimeout(t));
+}
+
 function loadRoadsGeojsonOnce(): Promise<any> {
   if (!roadsGeojsonPromise) {
     roadsGeojsonPromise = (async () => {
-      const r = await fetch(staticAssetUrl("maps/bangalore_roads_demo.geojson"));
-      if (!r.ok) throw new Error(`roads fetch failed: ${r.status}`);
-      return await r.json();
+      const url = staticAssetUrl("maps/bangalore_roads_demo.geojson");
+      // On HF Spaces cold-start, static assets can be slow. Never let this hang forever.
+      return await fetchJsonWithTimeout(url, 12_000);
     })();
+
+    // If it fails, clear the cached promise so a later retry can succeed.
+    roadsGeojsonPromise = roadsGeojsonPromise.catch((e) => {
+      roadsGeojsonPromise = null;
+      throw e;
+    });
   }
   return roadsGeojsonPromise;
 }
@@ -151,9 +183,19 @@ export class PixelCityScene extends Phaser.Scene {
     this.nodes = station_nodes;
     const bbox = computeBBox(this.nodes);
     this.projector = makeProjector(bbox, this.scale.width, this.scale.height, 70);
-    await this.loadAndDrawRoads();
     this.drawStations();
     this.snapCameraToCity();
+
+    // Roads are optional; do not block session readiness on them.
+    void (async () => {
+      try {
+        await withTimeout(this.loadAndDrawRoads(), 15_000);
+        // Re-draw stations on top once roads are present.
+        this.drawStations();
+      } catch {
+        // Fallback roads layer is already handled by drawStations(); ignore.
+      }
+    })();
   }
 
   private async loadAndDrawRoads() {
