@@ -12,8 +12,26 @@ pinned: false
 
 An **OpenEnv RL environment** that simulates Bangalore’s EV charging grid and trains a small LLM (Qwen2.5‑3B) with **verifiable GRPO rewards** to route EVs in real time — **lower queues**, **avoid feeder stress**, **shift load to renewables**.
 
-- **Hackathon theme fit**: Theme #3 (**World Modeling**) + Theme #2 (**Long‑horizon planning**)  
-- **Dual framing**: OpenEnv Hackathon + AI for Bharat (BESCOM Theme 9)
+### OpenEnv Hackathon 2026 — theme fit (pick a primary; justify in pitch)
+
+| Theme | How EV Grid Oracle aligns |
+|------|----------------------------|
+| **#3 World modeling (primary)** | **Partially observable** grid + queues + **strict tool-like** actions; rewards come from **simulator + verifier** (`ev_grid_oracle/reward.py`), not from the model grading itself. Optional **world-model head** in training (`SimulationPrediction` + verifier in `training/train_grpo.ipynb`). |
+| **#2 Long horizon (primary)** | Multi-step episodes (`reset` / `step` over many ticks), **delayed** stress from **scheduled scenarios** (`ev_grid_oracle/scenarios.py`), recovery from early mistakes visible in replay. |
+| **#1 Multi-agent (secondary narrative)** | Not a full multi-LLM MARL stack today; the **reward mixes stakeholder tensions** (wait vs peak vs renewables vs urgency). A credible **stretch** is to pitch **coalition / incentives** (fleet, operator, grid) and reserve explicit multi-agent turns for a follow-on. |
+| **#4 Self-improvement** | Scenario curriculum + trap catalog (`docs/judge-kit/trap-catalog.md`) are a hook for **adaptive difficulty**; training can reweight scenarios (future work). |
+| **#5 Wild card** | Spatial **Bangalore graph** + **City Ops** demo + paired statistical eval are the differentiated story. |
+
+**Dual framing:** OpenEnv Hackathon + AI for Bharat (BESCOM Theme 9).
+
+### How this maps to judging (40 / 30 / 20 / 10)
+
+| Criterion (weight) | What judges ask | Where we answer |
+|--------------------|-----------------|-----------------|
+| **Environment innovation (40%)** | Novel, hard to game, tests behavior | Graph routing + **anti-cheat flags**, deterministic **stress scenarios**, Phaser command center + replay (`web/`). |
+| **Storytelling (30%)** | Problem → env → what changed → why it matters | This README + [`docs/hf-mini-blog-ev-grid-oracle.md`](docs/hf-mini-blog-ev-grid-oracle.md) + Space demo. |
+| **Improvement in rewards / behavior (20%)** | Before vs after, same seeds | **Paired** `training/evaluate.py`, plots below, `training/fair_eval.py` (Wilson + McNemar on `per_episode`). |
+| **Reward & pipeline (10%)** | Coherent reward, training hooks env | `ev_grid_oracle/reward.py` breakdown + `training/train_grpo.ipynb` (GRPO + `reward_fn` stepping `EVGridCore`). |
 
 ### Why judges will care (fast)
 - **It’s verifiable**: every action parsed + validated; reward breakdown logged (anti‑hack by design).
@@ -127,19 +145,26 @@ ffmpeg -framerate 30 -i frame_%06d.png -c:v libx264 -pix_fmt yuv420p out.mp4
 
 ## Evidence (baseline vs oracle)
 
-KPI comparison plot:
+**KPI comparison** (lower wait / stress / violations is better; same episode seeds for both bars — see `training/evaluate.py`):
 
-![Baseline vs Oracle KPIs](artifacts/kpi_comparison.png)
+![Baseline vs Oracle KPIs — mean metrics over paired episodes](artifacts/kpi_comparison.png)
 
-Regenerate:
+**Paired binary outcomes + Wilson 95% intervals** (from `training/fair_eval.py`; baseline vs oracle on the **same** `per_episode` worlds):
+
+![Paired eval — Wilson intervals on binary rates](artifacts/fair_eval_chart.png)
+
+Regenerate (GPU recommended for real oracle weights):
 
 ```bash
-export ORACLE_LORA_REPO="NITISHRG15102007/ev-oracle-lora"  # set this on GPU machine / Colab
-python -m training.evaluate --episodes 50 --out training/eval_results.json
-python -m training.make_plots --eval-json training/eval_results.json --out-dir artifacts
+export ORACLE_LORA_REPO="NITISHRG15102007/ev-oracle-lora"  # optional; omit or set ORACLE_SKIP_LLM=1 for KPI plumbing only
+python training/evaluate.py --episodes 50 --seed 123 --out training/eval_results.json
+python training/fair_eval.py --eval-json training/eval_results.json
+python training/make_plots.py --eval-json training/eval_results.json --out-dir artifacts
 ```
 
-Note: On CPU-only Windows, loading a 3B model can be slow or fail; in that case set `ORACLE_SKIP_LLM=1` for a fast sanity run, but **use Colab GPU** for the final “evidence of learning” artifacts.
+`artifacts/fair_eval_results.json` holds **`paired_mcnemar`** (discordant-pair exact p-values) alongside Wilson rates.
+
+Note: On CPU-only machines, loading a 3B model can be slow or fail; set `ORACLE_SKIP_LLM=1` for a fast sanity run, but **use Colab GPU** for the final “evidence of learning” artifacts.
 
 ---
 
@@ -162,13 +187,14 @@ python -m uvicorn server.app:app --host 0.0.0.0 --port 8000
 
 ---
 
-## Submission checklist (minimum requirements)
+## Submission checklist (OpenEnv India 2026 — non‑negotiables)
 
-- [ ] OpenEnv env hosted on HF Space (this repo)
-- [ ] Colab notebook runs end‑to‑end (GRPO + verifier reward)
-- [ ] Baseline vs Oracle comparison (plot + numbers)
-- [ ] Reward curves / logs (screenshot or committed PNG)
-- [ ] < 2 minute video OR HF mini‑blog linked from this README
+- [ ] **OpenEnv (current stack):** `openenv.yaml` + `openenv-core` per `pyproject.toml`; env runnable from **HF Space URL** (submit this URL).
+- [ ] **Training:** Colab **or** repo path — [`training/train_grpo.ipynb`](training/train_grpo.ipynb) + [Open in Colab](https://colab.research.google.com/github/NITISH-R-G/ev-grid-oracle/blob/main/training/train_grpo.ipynb) using **Unsloth / TRL**.
+- [ ] **Evidence of real training:** committed **readable plots** (axes interpretable) — KPI + fair eval figures above; link Wandb/Trackio **per run** if you use them.
+- [ ] **Writeup:** **HF mini-blog** ([`docs/hf-mini-blog-ev-grid-oracle.md`](docs/hf-mini-blog-ev-grid-oracle.md)) **or** an **under 2 minute** video (YouTube/HF) — **link only** (no large video files in the Space repo).
+- [ ] **README:** motivates **problem**, explains **env + reward**, shows **results**, says **why it matters**; includes **Space + Colab + blog/video + LoRA** links (see Quick links).
+- [ ] **One submission per team:** freeze the Space URL you give judges; avoid post-deadline reliance on unpinned `main` unless rules allow.
 
 ---
 

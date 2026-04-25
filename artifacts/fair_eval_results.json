@@ -1,0 +1,130 @@
+{
+  "source_eval": "training/eval_results.json",
+  "n_episodes": 25,
+  "binary_rates_wilson": {
+    "baseline_any_anti_cheat": {
+      "successes": 25,
+      "n": 25,
+      "p_hat": 1.0,
+      "wilson_low": 0.8668035060468213,
+      "wilson_high": 1.0
+    },
+    "baseline_any_critical_defer": {
+      "successes": 0,
+      "n": 25,
+      "p_hat": 0.0,
+      "wilson_low": 0.0,
+      "wilson_high": 0.13319649395317873
+    },
+    "baseline_any_peak_violation": {
+      "successes": 25,
+      "n": 25,
+      "p_hat": 1.0,
+      "wilson_low": 0.8668035060468213,
+      "wilson_high": 1.0
+    },
+    "baseline_high_stress": {
+      "successes": 9,
+      "n": 25,
+      "p_hat": 0.36,
+      "wilson_low": 0.20247656431735636,
+      "wilson_high": 0.5548184539895337
+    },
+    "oracle_any_anti_cheat": {
+      "successes": 25,
+      "n": 25,
+      "p_hat": 1.0,
+      "wilson_low": 0.8668035060468213,
+      "wilson_high": 1.0
+    },
+    "oracle_any_critical_defer": {
+      "successes": 0,
+      "n": 25,
+      "p_hat": 0.0,
+      "wilson_low": 0.0,
+      "wilson_high": 0.13319649395317873
+    },
+    "oracle_any_peak_violation": {
+      "successes": 25,
+      "n": 25,
+      "p_hat": 1.0,
+      "wilson_low": 0.8668035060468213,
+      "wilson_high": 1.0
+    },
+    "oracle_high_stress": {
+      "successes": 9,
+      "n": 25,
+      "p_hat": 0.36,
+      "wilson_low": 0.20247656431735636,
+      "wilson_high": 0.5548184539895337
+    }
+  },
+  "paired_oracle_improvements_wilson": {
+    "oracle_strictly_better_peak_violation_episodes": {
+      "successes": 0,
+      "n": 25,
+      "p_hat": 0.0,
+      "wilson_low": 0.0,
+      "wilson_high": 0.13319649395317873
+    },
+    "oracle_strictly_better_anti_cheat_episodes": {
+      "successes": 0,
+      "n": 25,
+      "p_hat": 0.0,
+      "wilson_low": 0.0,
+      "wilson_high": 0.13319649395317873
+    },
+    "oracle_strictly_better_critical_defer_episodes": {
+      "successes": 0,
+      "n": 25,
+      "p_hat": 0.0,
+      "wilson_low": 0.0,
+      "wilson_high": 0.13319649395317873
+    },
+    "oracle_strictly_better_high_stress_episodes": {
+      "successes": 0,
+      "n": 25,
+      "p_hat": 0.0,
+      "wilson_low": 0.0,
+      "wilson_high": 0.13319649395317873
+    }
+  },
+  "paired_mcnemar": {
+    "any_peak_violation": {
+      "n_discordant": 0,
+      "b01_baseline_pos_oracle_neg": 0,
+      "b10_baseline_neg_oracle_pos": 0,
+      "p_value_two_sided_exact": 1.0,
+      "chi2_continuity_corrected": 0.0,
+      "baseline_key": "baseline_any_peak_violation",
+      "oracle_key": "oracle_any_peak_violation"
+    },
+    "any_anti_cheat": {
+      "n_discordant": 0,
+      "b01_baseline_pos_oracle_neg": 0,
+      "b10_baseline_neg_oracle_pos": 0,
+      "p_value_two_sided_exact": 1.0,
+      "chi2_continuity_corrected": 0.0,
+      "baseline_key": "baseline_any_anti_cheat",
+      "oracle_key": "oracle_any_anti_cheat"
+    },
+    "any_critical_defer": {
+      "n_discordant": 0,
+      "b01_baseline_pos_oracle_neg": 0,
+      "b10_baseline_neg_oracle_pos": 0,
+      "p_value_two_sided_exact": 1.0,
+      "chi2_continuity_corrected": 0.0,
+      "baseline_key": "baseline_any_critical_defer",
+      "oracle_key": "oracle_any_critical_defer"
+    },
+    "high_stress": {
+      "n_discordant": 0,
+      "b01_baseline_pos_oracle_neg": 0,
+      "b10_baseline_neg_oracle_pos": 0,
+      "p_value_two_sided_exact": 1.0,
+      "chi2_continuity_corrected": 0.0,
+      "baseline_key": "baseline_high_stress",
+      "oracle_key": "oracle_high_stress"
+    }
+  }
+}

@@ -14,6 +14,27 @@ pinned: false
 
 ---
 
+## OpenEnv Hackathon themes (how we fit)
+
+| Theme | Claim |
+|------|--------|
+| **#3 World modeling** | **Primary:** LLM acts in a **partially observable** world (queues, grid %, renewables) with **tool-like** actions verified by the simulator. |
+| **#2 Long horizon** | **Primary:** Many `step` calls, **scheduled** shocks, mistakes compound; replay shows recovery or failure modes. |
+| **#1 Multi-agent** | **Secondary / narrative:** Stakeholder **tensions** in the reward (urgency vs grid vs wait); explicit multi-LLM negotiation is **not** required to tell a credible “incentives + coordination” story. |
+| **#4 Self-improvement** | **Stretch:** Scenario / trap catalog supports **adaptive curricula**; hook for future self-play or difficulty ramps. |
+| **#5 Wild card** | **Differentiator:** City graph + operator UI + **statistical** paired eval. |
+
+---
+
+## Judging rubric (where we spend reviewer attention)
+
+- **Innovation (40%):** verifier-first rewards, anti-cheat, deterministic stress scenarios—not a toy yes/no grid.  
+- **Storytelling (30%):** this post + README + Space demo = **problem → env → training → evidence → why Bangalore / grid ops**.  
+- **Learning evidence (20%):** paired baseline vs oracle, **committed PNGs** in `artifacts/`, JSON from `fair_eval`.  
+- **Reward / pipeline (10%):** `reward_fn` in Colab calls **`EVGridCore.step`**, not a static label dataset.
+
+---
+
 ## The problem
 
 Operators route EVs to stations under **queues**, **feeder stress**, and **renewable variability**. A language model should output **structured actions** that the simulator can check—not hand-wavy prose.
@@ -47,7 +68,9 @@ The first notebook cell **clones this repository** and runs `pip install -e .` s
 
 1. Run `python training/evaluate.py` → JSON includes **`paired_same_world`** and **`per_episode`** rows.  
 2. Run `python training/fair_eval.py` → **`artifacts/fair_eval_results.json`** includes **`binary_rates_wilson`** and **`paired_mcnemar`**.  
-3. Plots: `python training/make_plots.py` → `artifacts/kpi_comparison.png`.
+3. Plots (commit to repo for reviewers who skim): `artifacts/kpi_comparison.png`, `artifacts/fair_eval_chart.png` from `training/make_plots.py` and `training/fair_eval.py`.
+
+**Why it matters:** dispatch policies that **survive verification** under stress are closer to deployable co-pilots than chat-only “plans.”
 
 ---
 
