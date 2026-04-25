@@ -101,4 +101,6 @@ def test_fair_eval_cli(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
     assert fe["n_episodes"] == 3
     assert "binary_rates_wilson" in fe
     assert "baseline_any_peak_violation" in fe["binary_rates_wilson"]
+    assert "paired_mcnemar" in fe
+    assert "any_peak_violation" in fe["paired_mcnemar"]
     assert fair_png.is_file()

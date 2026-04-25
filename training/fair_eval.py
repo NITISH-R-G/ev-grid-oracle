@@ -9,6 +9,72 @@ from typing import Any
 import matplotlib.pyplot as plt
 
 
+def _binom_two_sided_exact_p(k: int, n: int, p: float = 0.5) -> float:
+    """Two-sided exact test for Binomial(n, p); used for McNemar discordant pairs (p=0.5)."""
+    if n <= 0:
+        return 1.0
+    k = max(0, min(n, k))
+
+    def pmf(i: int) -> float:
+        return math.comb(n, i) * (p**i) * ((1.0 - p) ** (n - i))
+
+    pk = pmf(k)
+    tot = sum(pmf(i) for i in range(n + 1) if pmf(i) <= pk + 1e-15)
+    return min(1.0, tot)
+
+
+def mcnemar_discordant(b01: int, b10: int) -> dict[str, float | int]:
+    """
+    McNemar on paired binary outcomes.
+    b01 = count(baseline True, oracle False); b10 = count(baseline False, oracle True).
+    """
+    n = b01 + b10
+    if n == 0:
+        return {
+            "n_discordant": 0,
+            "b01_baseline_pos_oracle_neg": b01,
+            "b10_baseline_neg_oracle_pos": b10,
+            "p_value_two_sided_exact": 1.0,
+            "chi2_continuity_corrected": 0.0,
+        }
+    p_exact = _binom_two_sided_exact_p(b01, n, 0.5)
+    chi2 = (abs(b01 - b10) - 1.0) ** 2 / n
+    return {
+        "n_discordant": n,
+        "b01_baseline_pos_oracle_neg": b01,
+        "b10_baseline_neg_oracle_pos": b10,
+        "p_value_two_sided_exact": p_exact,
+        "chi2_continuity_corrected": float(chi2),
+    }
+
+
+def paired_mcnemar_analysis(per_episode: list[dict[str, Any]]) -> dict[str, Any]:
+    """Paired McNemar for headline binaries (same rows as Wilson chart)."""
+
+    def pair(bk: str, ok: str) -> dict[str, float | int]:
+        b01 = sum(
+            1
+            for row in per_episode
+            if (row.get("binary") or {}).get(bk) and not (row.get("binary") or {}).get(ok)
+        )
+        b10 = sum(
+            1
+            for row in per_episode
+            if not (row.get("binary") or {}).get(bk) and (row.get("binary") or {}).get(ok)
+        )
+        out = mcnemar_discordant(b01, b10)
+        out["baseline_key"] = bk
+        out["oracle_key"] = ok
+        return out
+
+    return {
+        "any_peak_violation": pair("baseline_any_peak_violation", "oracle_any_peak_violation"),
+        "any_anti_cheat": pair("baseline_any_anti_cheat", "oracle_any_anti_cheat"),
+        "any_critical_defer": pair("baseline_any_critical_defer", "oracle_any_critical_defer"),
+        "high_stress": pair("baseline_high_stress", "oracle_high_stress"),
+    }
+
+
 def wilson_interval(successes: int, n: int, z: float = 1.96) -> tuple[float, float, float]:
     """
     Wilson score interval for a binomial proportion.
@@ -181,11 +247,13 @@ def main() -> None:
 
     rates_block = analyze_per_episode(per_episode)
     paired = _paired_improvement_counts(per_episode)
+    mcnemar = paired_mcnemar_analysis(per_episode)
     out = {
         "source_eval": args.eval_json,
         "n_episodes": rates_block["n_episodes"],
         "binary_rates_wilson": rates_block["binary_rates"],
         "paired_oracle_improvements_wilson": paired,
+        "paired_mcnemar": mcnemar,
     }
 
     out_json = Path(args.out_json)

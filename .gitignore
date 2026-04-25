@@ -11,6 +11,9 @@ __pycache__/
 artifacts/frames*/
 artifacts/*.mp4
 
+# Regenerate with ./validate-submission.sh
+assets/validation_output.txt
+
 # Large raw OSM extracts (keep pruned demo map committed instead)
 web/public/maps/bangalore_roads.geojson
 

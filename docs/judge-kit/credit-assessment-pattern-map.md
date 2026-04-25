@@ -90,11 +90,11 @@ Credit_Assessment advertises tests, validator output, client/server separation.
 
 1. ~~**Fix paired evaluation seeds** in `training/evaluate.py`~~ (done: `paired_same_world` + `per_episode`).
 2. ~~Add `training/fair_eval.py` + **Wilson CIs**~~ (done: `artifacts/fair_eval_results.json` + `fair_eval_chart.png`).
-3. Add `docs/judge-kit/trap-catalog.md` + link from `README.md` “Evidence”.
+3. ~~Add `docs/judge-kit/trap-catalog.md` + README link~~ (done).
 4. Extend eval to **scenario sweep** (`--scenario`) aligned with `ev_grid_oracle/scenarios.py`.
-5. Log **reward breakdown means** in eval JSON (not just KPI averages).
-6. Add `validate-submission.sh` + `assets/validation_output.txt` pattern.
-7. Add “collapse baselines” policies to `ev_grid_oracle/policies.py` + eval them.
+5. ~~Log **reward breakdown means** in eval JSON~~ (done: `baseline_reward_breakdown_mean` / `oracle_reward_breakdown_mean`).
+6. ~~Add `validate-submission.sh` + `assets/validation_output.txt` pattern~~ (done; output gitignored).
+7. **Partial**: collapse policies in `ev_grid_oracle/policies.py` (`always_defer_policy`, `always_load_shift_policy`, `nearest_travel_only_policy`); wire into `training/evaluate.py` matrix optional.
 8. Notebook top: “minimum run + expected artifacts” in `training/train_grpo.ipynb`.
 9. HF Dataset publish script (small) under `tools/publish_eval_bundle.py` (optional but huge judge UX).
 10. Record **15–30s vertical clip** showing scenario + scrub replay + anti-cheat callout.

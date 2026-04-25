@@ -43,3 +43,57 @@ def baseline_policy(state: GridState, graph) -> EVGridAction:
         defer_minutes=0,
     )
 
+
+def always_defer_policy(state: GridState, graph) -> EVGridAction:
+    """Collapse baseline: always defer (reward-hack / fairness stressor)."""
+    if not state.pending_evs:
+        return EVGridAction(action_type=ActionType.load_shift, ev_id="EV-000", defer_minutes=0)
+    ev = state.pending_evs[0]
+    return EVGridAction(action_type=ActionType.defer, ev_id=ev.ev_id, defer_minutes=5)
+
+
+def always_load_shift_policy(state: GridState, graph) -> EVGridAction:
+    """Collapse baseline: always load_shift on head EV (ignores queues / grid)."""
+    if not state.pending_evs:
+        return EVGridAction(action_type=ActionType.load_shift, ev_id="EV-000", defer_minutes=0)
+    ev = state.pending_evs[0]
+    return EVGridAction(action_type=ActionType.load_shift, ev_id=ev.ev_id, defer_minutes=0)
+
+
+def nearest_travel_only_policy(state: GridState, graph) -> EVGridAction:
+    """
+    Collapse baseline: minimize travel time only (ignores price, wait, stress).
+    Used to show greedy multi-objective baseline is not trivially dominated.
+    """
+    if not state.pending_evs:
+        return EVGridAction(action_type=ActionType.load_shift, ev_id="EV-000", defer_minutes=0)
+    ev = state.pending_evs[0]
+    ev_id = ev.ev_id
+    best_station = None
+    best_t = float("inf")
+    try:
+        from_station = next(x for x in state.stations if x.neighborhood_slug == ev.neighborhood_slug)
+    except StopIteration:
+        return EVGridAction(action_type=ActionType.defer, ev_id=ev_id, defer_minutes=5)
+
+    for s in state.stations:
+        if s.occupied_slots >= s.total_slots:
+            continue
+        try:
+            tmin = travel_time_minutes(graph, from_station.station_id, s.station_id, default_if_missing=90.0)
+        except Exception:
+            tmin = 60.0
+        if tmin < best_t:
+            best_t = tmin
+            best_station = s
+
+    if best_station is None:
+        return EVGridAction(action_type=ActionType.defer, ev_id=ev_id, defer_minutes=5)
+    return EVGridAction(
+        action_type=ActionType.route,
+        ev_id=ev_id,
+        station_id=best_station.station_id,
+        charge_rate=ChargeRate.fast,
+        defer_minutes=0,
+    )
+
