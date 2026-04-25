@@ -17,7 +17,7 @@ Legend:
 | Colab training | `training/train_grpo.ipynb` | ✅ | Add a **1-page “Run order”** at top of notebook: minimum T4 run, expected outputs, where logs land. |
 | Adapter weights | Linked from `README.md` / env vars in `training/evaluate.py` | ⚠️ | Publish **date-stamped** adapter repos for ablations (baseline-oracle vs curriculum vs adversarial) like they do—avoid overwrite risk stories. |
 | Versioned logs/plots dataset | `artifacts/` + `training/eval_results.json` | ⚠️ | Create a HF Dataset folder per run (like their `run-…`) and commit **only small** JSON/PNGs; link large artifacts. |
-| `<2 min` video / blog | `README.md` TODO | ❌ | Minimum: **HF mini-blog** + embed 1 “headline” plot (`artifacts/kpi_comparison.png`). |
+| `<2 min` video / blog | `README.md` TODO; **in-repo HF article**: `docs/hf-mini-blog-ev-grid-oracle.md` | ⚠️ | Publish post on Hub **or** link raw GitHub markdown; embed `artifacts/kpi_comparison.png` + `fair_eval_chart.png`. |
 
 ---
 

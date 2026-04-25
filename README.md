@@ -30,6 +30,7 @@ An **OpenEnv RL environment** that simulates Bangalore’s EV charging grid and 
 - **Training**: `training/train_grpo.ipynb` (Colab T4 GRPO with verifier rewards).
 - **Evidence**: `training/evaluate.py` (paired seeds + `per_episode` JSON) + `training/fair_eval.py` (Wilson CIs + **McNemar** `paired_mcnemar` + `artifacts/fair_eval_chart.png`) + `training/make_plots.py` → `artifacts/kpi_comparison.png`.
 - **Judge kit (repo-specific checklist)**: `docs/judge-kit/credit-assessment-pattern-map.md`
+- **HF mini-blog (markdown article in repo)**: `docs/hf-mini-blog-ev-grid-oracle.md`
 - **Trap catalog (scenarios + verifier flags)**: `docs/judge-kit/trap-catalog.md`
 - **Local validation**: `./validate-submission.sh` → `assets/validation_output.txt` (gitignored; see `assets/README.md`)
 
@@ -40,9 +41,13 @@ An **OpenEnv RL environment** that simulates Bangalore’s EV charging grid and 
 - **OpenEnv Space (env)**: `https://huggingface.co/spaces/NITISHRG15102007/ev-grid-oracle`
 - **Live host**: `https://nitishrg15102007-ev-grid-oracle.hf.space`
 - **GitHub**: `https://github.com/NITISH-R-G/ev-grid-oracle`
-- **Colab training notebook**: `https://colab.research.google.com/github/NITISH-R-G/ev-grid-oracle/blob/main/training/train_grpo.ipynb`
+- **Colab (opens `main` notebook on a clean VM)**: `https://colab.research.google.com/github/NITISH-R-G/ev-grid-oracle/blob/main/training/train_grpo.ipynb`
+- **Notebook source (same file as Colab)**: `https://github.com/NITISH-R-G/ev-grid-oracle/blob/main/training/train_grpo.ipynb`
+- **HF mini-blog / article (markdown in this repo — paste into a Hub post or link raw)**: `https://github.com/NITISH-R-G/ev-grid-oracle/blob/main/docs/hf-mini-blog-ev-grid-oracle.md`
 - **2‑minute video**: TODO (YouTube/HF post link)
 - **LoRA repo**: `https://huggingface.co/NITISHRG15102007/ev-oracle-lora`
+
+**Submission tips:** Hugging Face accepts long-form writeups as **markdown in your repo** (see `docs/hf-mini-blog-ev-grid-oracle.md`). Keep the **Colab link** and **GitHub `.ipynb` link** both in the README so judges can open Colab directly or review the notebook on GitHub. The training notebook’s **first code cell clones this repo and `pip install -e .`** so Colab runs stay reproducible.
 
 ---
 
