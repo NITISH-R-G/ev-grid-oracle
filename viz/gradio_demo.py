@@ -10,6 +10,7 @@ from PIL import Image, ImageDraw, ImageFont
 from ev_grid_oracle.city_graph import build_city_graph
 from ev_grid_oracle.env import EVGridCore
 from ev_grid_oracle.models import ActionType, EVGridAction
+from ev_grid_oracle.oracle_agent import OracleAgent
 from ev_grid_oracle.policies import baseline_policy
 from training.evaluate import run_episode, summarize
 
@@ -104,14 +105,13 @@ def step_once(sess: Session, mode: Mode) -> tuple[Image.Image, str, str]:
         action = EVGridAction(action_type=ActionType.load_shift, ev_id="EV-000", defer_minutes=0)
         sess.last_action_text = "ACTION: load_shift (no pending EVs)"
     else:
-        ev = state.pending_evs[0]
         if mode == "Untrained Baseline":
             action = baseline_policy(state, sess.env.city_graph)
             sess.last_action_text = f"Baseline picked {action.action_type.value} -> {action.station_id or 'NONE'}"
         else:
-            # Placeholder until model wiring: use baseline but label it.
-            action = baseline_policy(state, sess.env.city_graph)
-            sess.last_action_text = f"Oracle (stub) picked {action.action_type.value} -> {action.station_id or 'NONE'}"
+            oracle = OracleAgent()  # no LoRA -> baseline fallback, but logic centralized
+            action = oracle.act(state, sess.env._grid_state.prompt if hasattr(sess.env, "_grid_state") and sess.env._grid_state else "", sess.env.city_graph)  # type: ignore[arg-type]
+            sess.last_action_text = f"Oracle picked {action.action_type.value} -> {action.station_id or 'NONE'}"
 
     obs = sess.env.step(action)
     img = render_map(sess.env)
@@ -149,9 +149,11 @@ with gr.Blocks(title="EV Grid Oracle") as demo:
     with gr.Row():
         mode = gr.Radio(["Untrained Baseline", "Oracle Agent"], value="Untrained Baseline", label="Mode")
         seed = gr.Slider(0, 10_000, value=123, step=1, label="Scenario seed")
+        autoplay = gr.Checkbox(value=False, label="Autoplay (stream 60 ticks)")
 
     start = gr.Button("Start / Reset")
     step = gr.Button("Step 1 tick (5 min)")
+    run60 = gr.Button("Run 60 ticks (stream)")
     kpis_btn = gr.Button("Compute KPI summary (10 episodes)")
 
     img = gr.Image(type="pil", label="Bangalore map (sim)")
@@ -174,6 +176,27 @@ with gr.Blocks(title="EV Grid Oracle") as demo:
         return sess, im, t, k
 
     step.click(_step, inputs=[state, mode], outputs=[state, img, thought, kpi])
+
+    def _run60(sess: Session, mode_val: Mode):
+        if sess is None:
+            sess = new_session(123)
+        for _ in range(60):
+            im, t, k = step_once(sess, mode_val)
+            yield sess, im, t, k
+
+    run60.click(_run60, inputs=[state, mode], outputs=[state, img, thought, kpi])
+
+    # (Optional) auto-start streaming after reset
+    def _start_and_maybe_autoplay(seed_val: int, autoplay_val: bool, mode_val: Mode):
+        sess = new_session(seed_val)
+        if not autoplay_val:
+            return sess, render_map(sess.env), "", "", ""
+        # stream 60 steps
+        for i in range(60):
+            im, t, k = step_once(sess, mode_val)
+            yield sess, im, t, k, ""
+
+    # keep existing Start button behavior; extra checkbox controls separate Run button
 
     def _kpis(seed_val: int):
         return compute_kpis(seed_val, episodes=10)
