@@ -2,13 +2,14 @@ import Phaser from "phaser";
 import type { DemoMode, DemoStepResponse, StationNode } from "../evgrid/api";
 import { demoStep } from "../evgrid/api";
 import { computeBBox, makeProjector } from "../evgrid/project";
+import { staticAssetUrl } from "../paths";
 
 /** One fetch + parse for all Phaser maps (baseline + oracle) — avoids duplicate work on “New”. */
 let roadsGeojsonPromise: Promise<any> | null = null;
 function loadRoadsGeojsonOnce(): Promise<any> {
   if (!roadsGeojsonPromise) {
     roadsGeojsonPromise = (async () => {
-      const r = await fetch("/maps/bangalore_roads_demo.geojson");
+      const r = await fetch(staticAssetUrl("maps/bangalore_roads_demo.geojson"));
       if (!r.ok) throw new Error(`roads fetch failed: ${r.status}`);
       return await r.json();
     })();
