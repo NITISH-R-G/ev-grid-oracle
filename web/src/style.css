@@ -104,7 +104,7 @@ body {
 
 .main {
   display: grid;
-  grid-template-columns: 1fr 360px;
+  grid-template-columns: 1fr 1fr 380px;
   gap: 14px;
   padding: 14px;
   height: 100%;
@@ -122,16 +122,94 @@ body {
   height: fit-content;
 }
 
-#game {
+#gameBaseline,
+#gameOracle {
   width: 100%;
   height: 100%;
 }
 
-#game canvas {
+#gameBaseline canvas,
+#gameOracle canvas {
   width: 100% !important;
   height: 100% !important;
   image-rendering: pixelated;
   display: block;
+}
+
+.gameHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-bottom: 1px solid rgba(120, 140, 200, 0.18);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.tag {
+  font-weight: 900;
+  letter-spacing: 0.4px;
+  font-size: 12px;
+  opacity: 0.9;
+}
+
+.tag.oracle {
+  color: #8db3ff;
+  text-shadow: 0 0 10px rgba(141, 179, 255, 0.25);
+}
+
+.tag.baseline {
+  color: rgba(232, 236, 255, 0.78);
+}
+
+.pill {
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 999px;
+  border: 1px solid rgba(120, 140, 200, 0.22);
+  background: rgba(7, 9, 17, 0.55);
+  opacity: 0.9;
+}
+
+.pill.good {
+  border-color: rgba(71, 255, 154, 0.4);
+}
+.pill.warn {
+  border-color: rgba(255, 165, 0, 0.35);
+}
+.pill.bad {
+  border-color: rgba(255, 90, 138, 0.4);
+}
+
+.rail {
+  display: grid;
+  gap: 14px;
+  grid-template-rows: auto auto auto 1fr;
+}
+
+.kpis {
+  display: grid;
+  gap: 10px;
+}
+
+.kpiRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 12px;
+}
+
+.kpiVal {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  opacity: 0.95;
+}
+
+.deltaPos { color: #47ff9a; }
+.deltaNeg { color: #ff5a8a; }
+
+@media (max-width: 1280px) {
+  .main {
+    grid-template-columns: 1fr;
+  }
 }
 
 .side {

@@ -1,6 +1,6 @@
 import Phaser from "phaser";
 import type { DemoMode, DemoStepResponse, StationNode } from "../evgrid/api";
-import { demoNew, demoStep } from "../evgrid/api";
+import { demoStep } from "../evgrid/api";
 import { computeBBox, makeProjector } from "../evgrid/project";
 
 type UIRefs = {
@@ -108,24 +108,14 @@ export class PixelCityScene extends Phaser.Scene {
     this.ui.statusEl.textContent = "Click New to start.";
   }
 
-  async newSession(seed: number) {
-    this.ui.statusEl.textContent = "Creating session…";
-    const res = await demoNew(seed);
-    this.sessionId = res.session_id;
-    this.nodes = res.station_nodes;
-
+  async bindSession(sessionId: string, station_nodes: StationNode[]) {
+    this.sessionId = sessionId;
+    this.nodes = station_nodes;
     const bbox = computeBBox(this.nodes);
     this.projector = makeProjector(bbox, this.scale.width, this.scale.height, 70);
-
     await this.loadAndDrawRoads();
     this.drawStations();
     this.snapCameraToCity();
-    this.ui.statusEl.textContent =
-      `RL LIVE DEMO\n` +
-      `- This UI is the *verifier + renderer* for actions chosen by Baseline vs Oracle.\n` +
-      `- Oracle mode uses your LoRA if it loads; otherwise it falls back (still valid env).\n` +
-      `- Training/eval evidence: python -m training.evaluate (+ plots).\n\n` +
-      `session_id=${this.sessionId}\nStations=${this.nodes.length}`;
   }
 
   private async loadAndDrawRoads() {
@@ -327,34 +317,7 @@ export class PixelCityScene extends Phaser.Scene {
     const oracle_lora_repo = this.ui.loraEl.value || "";
 
     const res: DemoStepResponse = await demoStep({ session_id: this.sessionId, mode, oracle_lora_repo });
-    this.ui.eventEl.textContent = JSON.stringify({ event: res.event, action: res.action }, null, 2);
-
-    const rb = (res.obs?.reward_breakdown || {}) as Record<string, number>;
-    const top = Object.entries(rb)
-      .filter(([k]) => k !== "total")
-      .sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]))
-      .slice(0, 6)
-      .map(([k, v]) => `${k}=${v.toFixed(3)}`)
-      .join(" | ");
-
-    const st = res.obs?.state;
-    const oracleNote =
-      mode === "oracle"
-        ? res.oracle_llm_active
-          ? "Oracle: LLM+LoRA active"
-          : "Oracle: LoRA not loaded (fallback policy)"
-        : "Baseline: greedy heuristic";
-
-    this.ui.statusEl.textContent =
-      `POLICY: ${mode.toUpperCase()} | ${oracleNote}\n` +
-      `ACTION: ${String(res.action?.action_type || "")} ev=${String(res.action?.ev_id || "")} station=${String(res.action?.station_id || "NONE")}\n` +
-      `GRID: load=${((st?.grid_load_pct ?? 0) * 100).toFixed(1)}% renew=${((st?.renewable_pct ?? 0) * 100).toFixed(1)}% peak=${String(st?.peak_risk || "")}\n` +
-      `REWARD: total=${Number(rb.total ?? 0).toFixed(3)}\n` +
-      `BREAKDOWN: ${top || "(empty)"}\n` +
-      `PENDING_EVS=${Array.isArray(st?.pending_evs) ? st.pending_evs.length : 0}`;
-
-    this.applyStationStress(st);
-
+    this.applyStationStress(res.obs?.state);
     await this.playEvent(res.event);
   }
 
@@ -444,6 +407,11 @@ export class PixelCityScene extends Phaser.Scene {
         onComplete: () => resolve(),
       });
     });
+  }
+
+  // For the split-screen command center: drive animation externally.
+  async playExternalEvent(event: any) {
+    await this.playEvent(event);
   }
 }
 

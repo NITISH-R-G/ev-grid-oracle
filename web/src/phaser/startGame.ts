@@ -1,5 +1,6 @@
 import Phaser from "phaser";
 import { PixelCityScene } from "./PixelCityScene";
+import { demoNew } from "../evgrid/api";
 
 type StartArgs = {
   mountId: string;
@@ -49,7 +50,8 @@ export function startGame(args: StartArgs) {
 
   args.btnNew.onclick = async () => {
     try {
-      await scene().newSession(seedRand());
+      const res = await demoNew(seedRand());
+      await scene().bindSession(res.session_id, res.station_nodes);
     } catch (e: any) {
       ui.statusEl.textContent = String(e?.message || e);
     }
