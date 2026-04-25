@@ -8,8 +8,11 @@ except ImportError as e:  # pragma: no cover
 from typing import Any, Literal
 from uuid import uuid4
 
+from pathlib import Path
+
 from fastapi import Body, HTTPException, Query
 from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
 
 from ev_grid_oracle.city_graph import build_city_graph
 from ev_grid_oracle.env import EVGridCore, _build_prompt
@@ -21,9 +24,17 @@ from server.ev_grid_environment import EVGridEnvironment
 
 app = create_app(EVGridEnvironment, EVGridAction, EVGridObservation, env_name="ev-grid-oracle", max_concurrent_envs=1)
 
+_WEB_DIST = (Path(__file__).resolve().parents[1] / "web" / "dist").resolve()
+if _WEB_DIST.exists():
+    # Serve Phaser UI at /ui (built by Docker during Space build)
+    app.mount("/ui", StaticFiles(directory=str(_WEB_DIST), html=True), name="ui")
+
 
 @app.get("/", response_class=HTMLResponse)
 def root() -> str:
+    # HF Spaces loads / by default; redirect to the Phaser UI if present.
+    if _WEB_DIST.exists():
+        return """<!doctype html><html><head><meta http-equiv="refresh" content="0; url=/ui/" /></head><body></body></html>"""
     return """\
 <!doctype html>
 <html>
@@ -64,7 +75,7 @@ def root() -> str:
           <li><code>POST</code> /demo/step</li>
           <li><code>GET</code> /demo/state</li>
         </ul>
-        <div class="k">Note: The Phaser UI runs locally via Vite and proxies to these endpoints.</div>
+        <div class="k">If the Phaser UI is built into this Space, it will be available at <a href="/ui/">/ui/</a>.</div>
       </div>
     </div>
   </body>

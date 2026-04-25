@@ -7,6 +7,14 @@ FROM ${BASE_IMAGE} AS builder
 WORKDIR /app/env
 COPY . /app/env
 
+# Build the Phaser UI (Vite) in a dedicated node stage and copy dist into the image.
+FROM node:22-bookworm-slim AS web_builder
+WORKDIR /web
+COPY web/package.json web/package-lock.json /web/
+RUN npm ci
+COPY web/ /web/
+RUN npm run build
+
 # Ensure uv present
 RUN if ! command -v uv >/dev/null 2>&1; then \
         curl -LsSf https://astral.sh/uv/install.sh | sh && \
@@ -21,6 +29,7 @@ FROM ${BASE_IMAGE}
 WORKDIR /app/env
 COPY --from=builder /app/env/.venv /app/.venv
 COPY --from=builder /app/env /app/env
+COPY --from=web_builder /web/dist /app/env/web/dist
 
 ENV PATH="/app/.venv/bin:$PATH"
 ENV PYTHONPATH="/app/env:$PYTHONPATH"
