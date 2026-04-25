@@ -31,4 +31,6 @@ def test_demo_new_and_step_roundtrip():
     assert isinstance(data2.get("anti_cheat_flags"), list)
     assert isinstance(data2.get("anti_cheat_details"), dict)
     assert isinstance(data2.get("sim_version"), str) and data2["sim_version"]
+    assert isinstance(data2.get("role_kpis"), dict)
+    assert isinstance(data2.get("role_reward_breakdown"), dict)
 

@@ -8,6 +8,11 @@ type Args = {
   btnNew: HTMLButtonElement;
   btnStep: HTMLButtonElement;
   btnRun: HTMLButtonElement;
+  scenarioEl: HTMLSelectElement;
+  seedEl: HTMLInputElement;
+  tickEl: HTMLInputElement;
+  tickLabelEl: HTMLSpanElement;
+  btnPlay: HTMLButtonElement;
   followEl: HTMLInputElement;
   loraEl: HTMLInputElement;
 
@@ -23,6 +28,15 @@ type Args = {
   dreamEl: HTMLPreElement;
   oracleEl: HTMLPreElement;
   eventsEl: HTMLPreElement;
+};
+
+type TurnFrame = {
+  tick: number;
+  action: any;
+  event: any;
+  anti_cheat_flags?: string[];
+  anti_cheat_details?: Record<string, string>;
+  scenario_events_at_tick?: any[];
 };
 
 function fmtDelta(v: number, goodWhenNegative = true) {
@@ -79,11 +93,38 @@ export function startCommandCenter(args: Args) {
   let baselineSid: string | null = null;
   let oracleSid: string | null = null;
 
+  const baselineFrames: TurnFrame[] = [];
+  const oracleFrames: TurnFrame[] = [];
+  let isReplaying = false;
+  let replayBusy = false;
+  let playTimer: number | null = null;
+  let playing = false;
+
   const seedRand = () => Math.floor(Math.random() * 10_000);
 
   const appendEvent = (line: string) => {
     const prev = args.eventsEl.textContent || "";
     args.eventsEl.textContent = prev ? `${prev}\n${line}` : line;
+  };
+
+  const setReplayUi = () => {
+    const n = Math.max(0, baselineFrames.length - 1);
+    args.tickEl.min = "0";
+    args.tickEl.max = String(n);
+    args.tickEl.disabled = baselineFrames.length === 0;
+    args.btnPlay.disabled = baselineFrames.length === 0;
+    const t = Math.min(Number(args.tickEl.value || "0"), n);
+    args.tickEl.value = String(t);
+    args.tickLabelEl.textContent = String(t);
+  };
+
+  const stopPlay = () => {
+    playing = false;
+    args.btnPlay.textContent = "Play";
+    if (playTimer != null) {
+      window.clearInterval(playTimer);
+      playTimer = null;
+    }
   };
 
   const applyKpis = (b: any, o: any, dreamScore: number | null) => {
@@ -116,21 +157,27 @@ export function startCommandCenter(args: Args) {
   };
 
   const initSessions = async () => {
-    const seed = seedRand();
+    stopPlay();
+    baselineFrames.length = 0;
+    oracleFrames.length = 0;
+
+    const seed = Number(args.seedEl.value || "0") || seedRand();
+    const scenario = args.scenarioEl.value || "baseline";
     pill(args.oracleBadge, "warn", "loading…");
     args.eventsEl.textContent = "(creating sessions)";
     try {
-      const [b, o] = await Promise.all([demoNew(seed), demoNew(seed)]);
+      const [b, o] = await Promise.all([demoNew(seed, scenario), demoNew(seed, scenario)]);
       baselineSid = b.session_id;
       oracleSid = o.session_id;
       await baseline.scene().bindSession(b.session_id, b.station_nodes);
       await oracle.scene().bindSession(o.session_id, o.station_nodes);
       pill(args.baselineBadge, "warn", "heuristic");
       pill(args.oracleBadge, "good", "ready");
-      args.eventsEl.textContent = `seed=${seed}\nbaseline=${baselineSid}\noracle=${oracleSid}`;
+      args.eventsEl.textContent = `seed=${seed}\nscenario=${scenario}\nbaseline=${baselineSid}\noracle=${oracleSid}`;
       // Optional: take 1 automatic step so the UI shows life immediately.
       appendEvent("(auto-step 1)");
       await stepOne();
+      setReplayUi();
     } catch (e: any) {
       pill(args.oracleBadge, "bad", "API ERROR");
       pill(args.baselineBadge, "bad", "API ERROR");
@@ -146,6 +193,26 @@ export function startCommandCenter(args: Args) {
     const oracleRepo = args.loraEl.value || "";
     const bRes = await demoStep({ session_id: baselineSid, mode: "baseline", oracle_lora_repo: "" });
     const oRes = await demoStep({ session_id: oracleSid, mode: "oracle", oracle_lora_repo: oracleRepo });
+
+    if (!isReplaying) {
+      baselineFrames.push({
+        tick: Number(bRes.tick ?? baselineFrames.length),
+        action: bRes.action,
+        event: bRes.event,
+        anti_cheat_flags: bRes.anti_cheat_flags,
+        anti_cheat_details: bRes.anti_cheat_details,
+        scenario_events_at_tick: bRes.scenario_events_at_tick,
+      });
+      oracleFrames.push({
+        tick: Number(oRes.tick ?? oracleFrames.length),
+        action: oRes.action,
+        event: oRes.event,
+        anti_cheat_flags: oRes.anti_cheat_flags,
+        anti_cheat_details: oRes.anti_cheat_details,
+        scenario_events_at_tick: oRes.scenario_events_at_tick,
+      });
+      setReplayUi();
+    }
 
     // animate
     await baseline.scene().playExternalEvent(bRes.event);
@@ -187,7 +254,10 @@ export function startCommandCenter(args: Args) {
 
     // event stream
     args.eventsEl.textContent = JSON.stringify(
-      { baseline: { event: bRes.event, action: bRes.action }, oracle: { event: oRes.event, action: oRes.action } },
+      {
+        baseline: { tick: bRes.tick, event: bRes.event, action: bRes.action, anti: bRes.anti_cheat_flags },
+        oracle: { tick: oRes.tick, event: oRes.event, action: oRes.action, anti: oRes.anti_cheat_flags },
+      },
       null,
       2
     );
@@ -222,6 +292,57 @@ export function startCommandCenter(args: Args) {
     applyKpis(bKpi, oKpi, dreamScore);
   };
 
+  const replayToTick = async (frameIdx: number) => {
+    if (replayBusy) return;
+    replayBusy = true;
+    isReplaying = true;
+    try {
+      if (!baselineSid || !oracleSid) return;
+      const seed = Number(args.seedEl.value || "0") || 123;
+      const scenario = args.scenarioEl.value || "baseline";
+
+      stopPlay();
+
+      const [b, o] = await Promise.all([demoNew(seed, scenario), demoNew(seed, scenario)]);
+      baselineSid = b.session_id;
+      oracleSid = o.session_id;
+      await baseline.scene().bindSession(b.session_id, b.station_nodes);
+      await oracle.scene().bindSession(o.session_id, o.station_nodes);
+
+      const oracleRepo = args.loraEl.value || "";
+      const f = Math.max(0, Math.min(frameIdx, baselineFrames.length - 1, oracleFrames.length - 1));
+
+      let bLast: any = null;
+      let oLast: any = null;
+      for (let i = 0; i <= f; i++) {
+        const bf = baselineFrames[i];
+        const of = oracleFrames[i];
+        // eslint-disable-next-line no-await-in-loop
+        bLast = await demoStep({
+          session_id: baselineSid,
+          mode: "baseline",
+          oracle_lora_repo: "",
+          forced_action: bf.action,
+        });
+        // eslint-disable-next-line no-await-in-loop
+        oLast = await demoStep({
+          session_id: oracleSid,
+          mode: "oracle",
+          oracle_lora_repo: oracleRepo,
+          forced_action: of.action,
+        });
+      }
+
+      if (bLast && oLast) {
+        await baseline.scene().playExternalEvent(bLast.event);
+        await oracle.scene().playExternalEvent(oLast.event);
+      }
+    } finally {
+      isReplaying = false;
+      replayBusy = false;
+    }
+  };
+
   args.btnNew.onclick = async () => {
     await initSessions();
   };
@@ -237,6 +358,37 @@ export function startCommandCenter(args: Args) {
       // eslint-disable-next-line no-await-in-loop
       await new Promise((r) => setTimeout(r, 90));
     }
+  };
+
+  args.tickEl.addEventListener("input", async () => {
+    const t = Number(args.tickEl.value || "0");
+    args.tickLabelEl.textContent = String(t);
+    if (baselineFrames.length === 0) return;
+    await replayToTick(t);
+  });
+
+  args.btnPlay.onclick = async () => {
+    if (baselineFrames.length === 0) return;
+    if (playing) {
+      stopPlay();
+      return;
+    }
+    playing = true;
+    args.btnPlay.textContent = "Pause";
+    let idx = Number(args.tickEl.value || "0");
+    playTimer = window.setInterval(() => {
+      void (async () => {
+        idx = Math.min(idx + 1, baselineFrames.length - 1);
+        args.tickEl.value = String(idx);
+        args.tickLabelEl.textContent = String(idx);
+        try {
+          await replayToTick(idx);
+        } catch {
+          stopPlay();
+        }
+        if (idx >= baselineFrames.length - 1) stopPlay();
+      })();
+    }, 320);
   };
 
   // initial badges

@@ -28,10 +28,13 @@ export type DemoStepResponse = {
   sim_version?: string;
   anti_cheat_flags?: string[];
   anti_cheat_details?: Record<string, string>;
+  role_kpis?: Record<string, Record<string, number>>;
+  role_reward_breakdown?: Record<string, Record<string, number>>;
   mode?: "baseline" | "oracle";
   oracle_lora_repo?: string;
   oracle_llm_active?: boolean;
   action?: any;
+  forced_action?: boolean;
 };
 
 export async function demoNew(seed: number, scenario: string = "baseline"): Promise<DemoNewResponse> {
@@ -48,6 +51,7 @@ export async function demoStep(args: {
   session_id: string;
   mode: DemoMode;
   oracle_lora_repo: string;
+  forced_action?: any;
 }): Promise<DemoStepResponse> {
   const r = await fetch("/demo/step", {
     method: "POST",

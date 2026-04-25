@@ -169,6 +169,50 @@ body::after {
 .input {
   width: 100%;
 }
+.input.narrow {
+  width: 140px;
+}
+
+.btn.small {
+  padding: 6px 8px;
+  letter-spacing: 0.4px;
+}
+
+.replayBar {
+  border-bottom: 1px solid rgba(120, 140, 200, 0.22);
+  background: rgba(7, 9, 17, 0.55);
+  backdrop-filter: blur(10px);
+  padding: 10px 16px 12px;
+}
+.replayTitle {
+  font-family: "Press Start 2P", "VT323", ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.6px;
+  opacity: 0.92;
+  margin-bottom: 8px;
+}
+.replayRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.replayMeta {
+  display: grid;
+  gap: 6px;
+  justify-items: end;
+  min-width: 170px;
+  font-size: 12px;
+  opacity: 0.9;
+}
+.replayHint {
+  margin-top: 8px;
+  font-size: 12px;
+  opacity: 0.72;
+}
+.range {
+  width: 100%;
+  accent-color: #7aa7ff;
+}
 
 .main {
   display: grid;

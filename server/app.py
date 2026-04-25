@@ -24,6 +24,7 @@ from ev_grid_oracle.parsing import parse_simulation
 from ev_grid_oracle.scenarios import ScenarioName
 from ev_grid_oracle.world_model_verifier import rollout_deterministic_5ticks, score_prediction
 from server.ev_grid_environment import EVGridEnvironment
+from server.role_metrics import compute_role_kpis, compute_role_reward_breakdown, summarize_action
 
 
 app = create_app(EVGridEnvironment, EVGridAction, EVGridObservation, env_name="ev-grid-oracle", max_concurrent_envs=1)
@@ -176,6 +177,7 @@ def demo_step(
     session_id: str = Body(...),
     mode: Literal["baseline", "oracle"] = Body("baseline"),
     oracle_lora_repo: str = Body("", embed=True),
+    forced_action: dict[str, Any] | None = Body(None),
 ) -> dict[str, Any]:
     core = _demo_sessions.get(session_id)
     if core is None:
@@ -188,9 +190,35 @@ def demo_step(
     dream_breakdown: dict[str, float] = {}
     dream_pred = None
     dream_true = None
-    if st is None or not st.pending_evs:
+    event: dict[str, Any] = {"type": "noop"}
+    if forced_action is not None:
+        action = EVGridAction.model_validate(forced_action)
+        oracle_llm_active = False
+        oracle_text = ""
+        dream_score = None
+        dream_breakdown = {}
+        dream_pred = None
+        dream_true = None
+        # Keep animation useful even when replaying stored actions.
+        if st is not None:
+            ev = next((e for e in st.pending_evs if e.ev_id == action.ev_id), st.pending_evs[0] if st.pending_evs else None)
+            src = next((x for x in st.stations if ev is not None and x.neighborhood_slug == ev.neighborhood_slug), None)
+            dst = next((x for x in st.stations if action.station_id and x.station_id == action.station_id), None)
+            if action.action_type == ActionType.route and ev is not None and src is not None and dst is not None:
+                event = {
+                    "type": "route",
+                    "ev_id": ev.ev_id,
+                    "from": {"station_id": src.station_id, "lat": src.lat, "lng": src.lng},
+                    "to": {"station_id": dst.station_id, "lat": dst.lat, "lng": dst.lng},
+                    "polyline": [[src.lat, src.lng], [dst.lat, dst.lng]],
+                }
+            else:
+                event = {"type": "forced_action", "action_type": str(action.action_type.value)}
+        else:
+            event = {"type": "forced_action"}
+    elif st is None or not st.pending_evs:
         action = EVGridAction(action_type=ActionType.load_shift, ev_id="EV-000", defer_minutes=0)
-        event: dict[str, Any] = {"type": "idle"}
+        event = {"type": "idle"}
     else:
         if mode == "baseline":
             action = baseline_policy(st, core.city_graph)
@@ -247,6 +275,8 @@ def demo_step(
     obs = core.step(action)
     anti_flags = obs.anti_cheat_flags
     anti_details = obs.anti_cheat_details
+    role_kpis = compute_role_kpis(obs)
+    role_reward_breakdown = compute_role_reward_breakdown(obs)
     return {
         "obs": _obs_to_jsonable(obs),
         "event": event,
@@ -256,15 +286,18 @@ def demo_step(
         "sim_version": _SIM_VERSION,
         "anti_cheat_flags": anti_flags,
         "anti_cheat_details": anti_details,
+        "role_kpis": role_kpis,
+        "role_reward_breakdown": role_reward_breakdown,
         "mode": mode,
         "oracle_lora_repo": (oracle_lora_repo or "").strip(),
         "oracle_llm_active": oracle_llm_active,
-        "action": action.model_dump(),
+        "action": summarize_action(action),
         "oracle_text": oracle_text,
         "dream_score": dream_score,
         "dream_breakdown": dream_breakdown,
         "dream_pred": dream_pred,
         "dream_true": dream_true,
+        "forced_action": forced_action is not None,
     }
 
 
