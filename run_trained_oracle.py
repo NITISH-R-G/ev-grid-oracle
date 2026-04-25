@@ -10,7 +10,7 @@ import time
 model_path = "trained_ev_oracle"
 max_seq_length = 512
 
-print(f"🔮 Initializing Trained BESCOM EV Grid Oracle from {model_path}...")
+print(f"Initializing Trained BESCOM EV Grid Oracle from {model_path}...")
 model, tokenizer = FastLanguageModel.from_pretrained(
     model_name = model_path,
     max_seq_length = max_seq_length,
@@ -25,7 +25,7 @@ def run_trained_oracle_demo(num_steps=50):
     env = BESCOM_EV_Env()
     obs, _ = env.reset()
     
-    print("\n⚡ Oracle Active. Monitoring Grid State...")
+    print("\nOracle Active. Monitoring Grid State...")
     
     for step in range(num_steps):
         # Format the current observation for the LLM

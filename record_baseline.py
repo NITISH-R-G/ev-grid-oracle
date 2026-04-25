@@ -6,7 +6,7 @@ def record_baseline_chaos():
     """
     Runs a 50-step simulation with a random agent to demonstrate grid failure.
     """
-    print("🚀 Starting Baseline Chaos Recording...")
+    print("Starting Baseline Chaos Recording...")
     env = BESCOM_EV_Env()
     obs, _ = env.reset()
     
@@ -23,10 +23,10 @@ def record_baseline_chaos():
         
         # Check if the grid is failing
         if "0.9" in obs or "1.00" in obs:
-            print(f"⚠️ Step {step}: GRID STRESS DETECTED!")
+            print(f"Step {step}: GRID STRESS DETECTED!")
         
         if terminated and reward < 0:
-            print(f"💥 Step {step}: TOTAL GRID COLLAPSE! (Outage occurred)")
+            print(f"Step {step}: TOTAL GRID COLLAPSE! (Outage occurred)")
             failures += 1
             env.reset() # Keep recording even if it fails
             
