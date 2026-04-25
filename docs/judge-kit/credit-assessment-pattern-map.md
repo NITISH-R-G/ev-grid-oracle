@@ -32,9 +32,9 @@ Credit_Assessment’s killer move is **head-to-head on identical applicants** + 
 ### Status vs judge bar
 | Requirement | Current implementation | Status | Next commit |
 |---|---|---:|---|
-| Same seed pool for both policies | `evaluate.py` uses different seed offsets for baseline vs oracle (`seed+i` vs `seed+10_000+i`) | ❌ | Change to **identical per-episode seeds** (paired episodes), e.g. both use `args.seed + i`, record `oracle` as “same world, different policy”. |
-| Scenario-aware eval | `EVGridCore.reset(..., scenario=...)` exists (`ev_grid_oracle/env.py`) but `evaluate.py` doesn’t pass scenarios | ❌ | Extend CLI: `--scenario heatwave_peak` and sweep `scripts/fair_eval.py`-style matrix (see below). |
-| Uncertainty / significance | no Wilson / bootstrap in repo | ❌ | Add `training/fair_eval.py` that outputs `fair_eval_results.json` + `fair_eval_chart.png` for **binary outcomes** (peak violation yes/no, anti-cheat flag rate, “critical defer”, etc.). |
+| Same seed pool for both policies | `training/evaluate.py` uses **paired** `episode_seed = seed + i` for baseline and oracle; `per_episode` in JSON | ✅ | Optional: McNemar / bootstrap on paired deltas for significance. |
+| Scenario-aware eval | `evaluate.py` CLI `--scenario` (names from `ev_grid_oracle/scenarios.py`) | ✅ | Next: small sweep script or matrix in CI over 2–3 scenarios. |
+| Uncertainty / significance | `training/fair_eval.py` → Wilson CIs on `per_episode` binaries + `artifacts/fair_eval_chart.png` | ✅ | Extend with paired tests (McNemar) if reviewers ask. |
 | Reward breakdown evidence | `ev_grid_oracle/reward.py` + `EVGridObservation.reward_breakdown` | ✅ | Extend eval to log **mean/std** of each breakdown component per policy (not only KPI aggregates). |
 
 ---
@@ -88,8 +88,8 @@ Credit_Assessment advertises tests, validator output, client/server separation.
 
 ## 6) Highest ROI “next 10 commits” (ordered)
 
-1. **Fix paired evaluation seeds** in `training/evaluate.py` (biggest scientific credibility win).
-2. Add `training/fair_eval.py` + **Wilson CIs** for 3–5 binary operational outcomes + write `artifacts/fair_eval_chart.png`.
+1. ~~**Fix paired evaluation seeds** in `training/evaluate.py`~~ (done: `paired_same_world` + `per_episode`).
+2. ~~Add `training/fair_eval.py` + **Wilson CIs**~~ (done: `artifacts/fair_eval_results.json` + `fair_eval_chart.png`).
 3. Add `docs/judge-kit/trap-catalog.md` + link from `README.md` “Evidence”.
 4. Extend eval to **scenario sweep** (`--scenario`) aligned with `ev_grid_oracle/scenarios.py`.
 5. Log **reward breakdown means** in eval JSON (not just KPI averages).

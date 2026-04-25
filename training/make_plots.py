@@ -20,8 +20,22 @@ def main():
     b = data.get("baseline", {})
     o = data.get("oracle", {})
 
-    metrics = ["avg_wait_minutes", "grid_stress_events", "peak_violations", "renewable_mean", "critical_deferred"]
-    labels = ["Avg wait (min)", "Stress events", "Peak violations", "Renewable mean", "Critical deferred"]
+    metrics = [
+        "avg_wait_minutes",
+        "grid_stress_events",
+        "peak_violations",
+        "renewable_mean",
+        "critical_deferred",
+        "anti_cheat_steps",
+    ]
+    labels = [
+        "Avg wait (min)",
+        "Stress events",
+        "Peak violations",
+        "Renewable mean",
+        "Critical deferred",
+        "Anti-cheat steps",
+    ]
 
     bvals = [float(b.get(m, 0.0)) for m in metrics]
     ovals = [float(o.get(m, 0.0)) for m in metrics]

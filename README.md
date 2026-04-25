@@ -28,7 +28,7 @@ An **OpenEnv RL environment** that simulates Bangalore’s EV charging grid and 
 - **Demo UI**: `viz/gradio_demo.py` (baseline vs oracle toggle + streaming “Run 60 ticks”).
 - **2D recording**: `viz/city_map.py`, `viz/record_two_phase.py` (baseline → oracle 2‑minute frames).
 - **Training**: `training/train_grpo.ipynb` (Colab T4 GRPO with verifier rewards).
-- **Evidence**: `training/evaluate.py` + `training/make_plots.py` → `artifacts/kpi_comparison.png`.
+- **Evidence**: `training/evaluate.py` (paired seeds + `per_episode` JSON) + `training/fair_eval.py` (Wilson CIs + `artifacts/fair_eval_chart.png`) + `training/make_plots.py` → `artifacts/kpi_comparison.png`.
 - **Judge kit (repo-specific checklist)**: `docs/judge-kit/credit-assessment-pattern-map.md`
 
 ---
