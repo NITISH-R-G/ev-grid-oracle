@@ -1,5 +1,4 @@
 import Phaser from "phaser";
-import type { DemoNewResponse } from "../evgrid/api";
 import { demoNew, demoStep } from "../evgrid/api";
 import { PixelCityScene } from "./PixelCityScene";
 
@@ -82,6 +81,11 @@ export function startCommandCenter(args: Args) {
 
   const seedRand = () => Math.floor(Math.random() * 10_000);
 
+  const appendEvent = (line: string) => {
+    const prev = args.eventsEl.textContent || "";
+    args.eventsEl.textContent = prev ? `${prev}\n${line}` : line;
+  };
+
   const applyKpis = (b: any, o: any, dreamScore: number | null) => {
     const bw = Number(b?.baseline?.avg_wait_minutes ?? 0);
     const ow = Number(o?.oracle?.avg_wait_minutes ?? 0);
@@ -109,6 +113,31 @@ export function startCommandCenter(args: Args) {
 
     args.kpiDream.textContent = dreamScore == null ? "—" : `${(dreamScore * 100).toFixed(1)}%`;
     args.kpiDream.className = "kpiVal";
+  };
+
+  const initSessions = async () => {
+    const seed = seedRand();
+    pill(args.oracleBadge, "warn", "loading…");
+    args.eventsEl.textContent = "(creating sessions)";
+    try {
+      const [b, o] = await Promise.all([demoNew(seed), demoNew(seed)]);
+      baselineSid = b.session_id;
+      oracleSid = o.session_id;
+      await baseline.scene().bindSession(b.session_id, b.station_nodes);
+      await oracle.scene().bindSession(o.session_id, o.station_nodes);
+      pill(args.baselineBadge, "warn", "heuristic");
+      pill(args.oracleBadge, "good", "ready");
+      args.eventsEl.textContent = `seed=${seed}\nbaseline=${baselineSid}\noracle=${oracleSid}`;
+      // Optional: take 1 automatic step so the UI shows life immediately.
+      appendEvent("(auto-step 1)");
+      await stepOne();
+    } catch (e: any) {
+      pill(args.oracleBadge, "bad", "API ERROR");
+      pill(args.baselineBadge, "bad", "API ERROR");
+      args.dreamEl.textContent = "ERROR: failed to create sessions.";
+      args.oracleEl.textContent = "ERROR: failed to create sessions.";
+      args.eventsEl.textContent = `ERROR creating sessions:\n${String(e?.message || e)}`;
+    }
   };
 
   const stepOne = async () => {
@@ -194,18 +223,7 @@ export function startCommandCenter(args: Args) {
   };
 
   args.btnNew.onclick = async () => {
-    const seed = seedRand();
-    pill(args.oracleBadge, "warn", "loading…");
-    args.eventsEl.textContent = "(creating sessions)";
-    const b: DemoNewResponse = await demoNew(seed);
-    const o: DemoNewResponse = await demoNew(seed);
-    baselineSid = b.session_id;
-    oracleSid = o.session_id;
-    await baseline.scene().bindSession(b.session_id, b.station_nodes);
-    await oracle.scene().bindSession(o.session_id, o.station_nodes);
-    pill(args.baselineBadge, "warn", "heuristic");
-    pill(args.oracleBadge, "warn", "ready");
-    args.eventsEl.textContent = `seed=${seed}\nbaseline=${baselineSid}\noracle=${oracleSid}`;
+    await initSessions();
   };
 
   args.btnStep.onclick = async () => {
@@ -224,5 +242,10 @@ export function startCommandCenter(args: Args) {
   // initial badges
   pill(args.baselineBadge, "warn", "heuristic");
   pill(args.oracleBadge, "warn", "ready");
+
+  // Auto-start for Spaces (no need to click New)
+  window.setTimeout(() => {
+    void initSessions();
+  }, 200);
 }
 

@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=VT323&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap");
 
 /* Minimal CSS for the EV Grid Oracle Phaser demo.
    (Replaces the Vite starter template styles.) */
@@ -8,9 +8,17 @@ html, body { height: 100%; }
 body {
   margin: 0;
   font-family: "VT323", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-  background: radial-gradient(1200px 600px at 30% 10%, #121629, #070911 70%);
+  background:
+    radial-gradient(900px 540px at 18% 8%, rgba(255, 0, 245, 0.18), rgba(0,0,0,0) 55%),
+    radial-gradient(900px 540px at 82% 18%, rgba(0, 255, 224, 0.16), rgba(0,0,0,0) 58%),
+    radial-gradient(1200px 600px at 30% 10%, #121629, #070911 70%);
   color: #e8ecff;
   text-shadow: 0 0 12px rgba(122, 167, 255, 0.12);
+}
+
+.title, .pill, .btn, .kpiLabel, .panelTitle {
+  font-family: "Press Start 2P", "VT323", ui-monospace, monospace;
+  letter-spacing: 0.4px;
 }
 
 /* HEAVY RETRO CRT: scanlines + noise + flicker */
@@ -98,6 +106,8 @@ body::after {
   box-shadow: 0 0 18px rgba(71, 255, 154, 0.45);
 }
 
+/* (moved further down; see .game.baselineGame / .game.oracleGame overrides) */
+
 .title {
   font-weight: 900;
   letter-spacing: 0.3px;
@@ -180,6 +190,19 @@ body::after {
   height: fit-content;
 }
 
+.game.baselineGame {
+  border: 1px solid rgba(255, 88, 88, 0.40);
+  box-shadow:
+    0 0 0 1px rgba(255, 88, 88, 0.10) inset,
+    0 0 36px rgba(255, 88, 88, 0.16);
+}
+.game.oracleGame {
+  border: 1px solid rgba(120, 102, 255, 0.48);
+  box-shadow:
+    0 0 0 1px rgba(120, 102, 255, 0.14) inset,
+    0 0 42px rgba(160, 88, 255, 0.22);
+}
+
 #gameBaseline,
 #gameOracle {
   width: 100%;
@@ -211,8 +234,8 @@ body::after {
 }
 
 .tag.oracle {
-  color: #8db3ff;
-  text-shadow: 0 0 10px rgba(141, 179, 255, 0.25);
+  color: #b67cff;
+  text-shadow: 0 0 16px rgba(182, 124, 255, 0.40);
 }
 
 .tag.baseline {
@@ -280,7 +303,7 @@ body::after {
   border: 1px solid rgba(120, 140, 200, 0.22);
   border-radius: 16px;
   padding: 12px;
-  background: rgba(255, 255, 255, 0.04);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.03));
 }
 
 .cardTitle {

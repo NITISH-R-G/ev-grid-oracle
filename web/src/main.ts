@@ -30,7 +30,7 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
     </header>
 
     <main class="main">
-      <section class="game">
+      <section class="game baselineGame">
         <div class="gameHeader">
           <div class="tag baseline">BASELINE</div>
           <div id="baselineBadge" class="pill">heuristic</div>
@@ -38,7 +38,7 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
         <div id="gameBaseline" style="width:100%; height:100%;"></div>
       </section>
 
-      <section class="game">
+      <section class="game oracleGame">
         <div class="gameHeader">
           <div class="tag oracle">ORACLE</div>
           <div id="oracleBadge" class="pill warn">loading…</div>
