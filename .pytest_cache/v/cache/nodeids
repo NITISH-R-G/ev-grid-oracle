@@ -1,0 +1,8 @@
+[
+  "tests/test_models_and_graph.py::test_action_defer_requires_positive_defer_minutes",
+  "tests/test_models_and_graph.py::test_action_route_requires_station_id_and_zero_defer",
+  "tests/test_models_and_graph.py::test_city_graph_connected_and_25_stations",
+  "tests/test_reward.py::test_deferring_critical_ev_penalized",
+  "tests/test_reward.py::test_invalid_station_routes_penalized",
+  "tests/test_reward.py::test_reward_breakdown_has_keys_and_total"
+]

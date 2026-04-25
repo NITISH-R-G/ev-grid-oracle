@@ -1,0 +1,18 @@
+{
+  "episodes": 3,
+  "baseline": {
+    "avg_wait_minutes": 0.3280555555555556,
+    "grid_stress_events": 11.333333333333334,
+    "peak_violations": 4,
+    "renewable_mean": 0.31176444429764705,
+    "critical_deferred": 0
+  },
+  "oracle": {
+    "avg_wait_minutes": 0.3283333333333333,
+    "grid_stress_events": 16,
+    "peak_violations": 5,
+    "renewable_mean": 0.39624789556921525,
+    "critical_deferred": 0
+  },
+  "note": "oracle currently uses baseline policy (LLM wiring pending)."
+}
