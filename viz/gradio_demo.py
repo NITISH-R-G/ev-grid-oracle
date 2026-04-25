@@ -1,17 +1,17 @@
 from __future__ import annotations
 
-import time
 from dataclasses import dataclass
-from io import BytesIO
-from typing import Literal, Optional
+from statistics import mean
+from typing import Literal
 
 import gradio as gr
 from PIL import Image, ImageDraw, ImageFont
 
-from ev_grid_oracle.city_graph import STATIONS, build_city_graph
+from ev_grid_oracle.city_graph import build_city_graph
 from ev_grid_oracle.env import EVGridCore
 from ev_grid_oracle.models import ActionType, EVGridAction
 from ev_grid_oracle.policies import baseline_policy
+from training.evaluate import run_episode, summarize
 
 
 Mode = Literal["Untrained Baseline", "Oracle Agent"]
@@ -89,12 +89,13 @@ def render_map(env: EVGridCore, *, w: int = 900, h: int = 600) -> Image.Image:
 class Session:
     env: EVGridCore
     last_action_text: str = ""
+    seed: int = 0
 
 
 def new_session(seed: int) -> Session:
     env = EVGridCore(city_graph=build_city_graph())
     env.reset(seed=seed)
-    return Session(env=env)
+    return Session(env=env, seed=seed)
 
 
 def step_once(sess: Session, mode: Mode) -> tuple[Image.Image, str, str]:
@@ -118,6 +119,30 @@ def step_once(sess: Session, mode: Mode) -> tuple[Image.Image, str, str]:
     return img, sess.last_action_text, kpi
 
 
+def compute_kpis(seed: int, episodes: int = 10) -> str:
+    graph = build_city_graph()
+    env = EVGridCore(city_graph=graph)
+    baseline = [run_episode(env, policy="baseline", seed=seed + i) for i in range(episodes)]
+    oracle = [run_episode(env, policy="oracle", seed=seed + 10_000 + i) for i in range(episodes)]
+    out = {
+        "episodes": episodes,
+        "baseline": summarize(baseline),
+        "oracle": summarize(oracle),
+        "note": "oracle currently uses baseline policy (LLM wiring pending).",
+    }
+    # Human-readable
+    b = out["baseline"]
+    o = out["oracle"]
+    return (
+        f"Episodes={episodes}\n"
+        f"Baseline avg_wait={b['avg_wait_minutes']:.2f}m | stress={b['grid_stress_events']:.1f} | peak_viol={b['peak_violations']:.1f}\n"
+        f"Oracle   avg_wait={o['avg_wait_minutes']:.2f}m | stress={o['grid_stress_events']:.1f} | peak_viol={o['peak_violations']:.1f}\n"
+        f"Renewable mean: baseline={b['renewable_mean']:.2f} oracle={o['renewable_mean']:.2f}\n"
+        f"Critical deferred: baseline={b['critical_deferred']:.2f} oracle={o['critical_deferred']:.2f}\n"
+        f"{out['note']}"
+    )
+
+
 with gr.Blocks(title="EV Grid Oracle") as demo:
     gr.Markdown("## EV Grid Oracle — Bangalore EV charging dispatch (baseline vs oracle)")
 
@@ -127,18 +152,20 @@ with gr.Blocks(title="EV Grid Oracle") as demo:
 
     start = gr.Button("Start / Reset")
     step = gr.Button("Step 1 tick (5 min)")
+    kpis_btn = gr.Button("Compute KPI summary (10 episodes)")
 
     img = gr.Image(type="pil", label="Bangalore map (sim)")
     thought = gr.Textbox(label="Agent decision", lines=2)
     kpi = gr.Textbox(label="KPIs", lines=1)
+    kpi_summary = gr.Textbox(label="Baseline vs Oracle (batch KPIs)", lines=6)
 
     state = gr.State()
 
     def _start(seed_val: int):
         sess = new_session(seed_val)
-        return sess, render_map(sess.env), "", ""
+        return sess, render_map(sess.env), "", "", ""
 
-    start.click(_start, inputs=[seed], outputs=[state, img, thought, kpi])
+    start.click(_start, inputs=[seed], outputs=[state, img, thought, kpi, kpi_summary])
 
     def _step(sess: Session, mode_val: Mode):
         if sess is None:
@@ -147,6 +174,11 @@ with gr.Blocks(title="EV Grid Oracle") as demo:
         return sess, im, t, k
 
     step.click(_step, inputs=[state, mode], outputs=[state, img, thought, kpi])
+
+    def _kpis(seed_val: int):
+        return compute_kpis(seed_val, episodes=10)
+
+    kpis_btn.click(_kpis, inputs=[seed], outputs=[kpi_summary])
 
 
 if __name__ == "__main__":
