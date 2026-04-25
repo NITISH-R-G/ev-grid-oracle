@@ -84,13 +84,15 @@ def format_reward_func(completions, **kwargs) -> list[float]:
 def constraint_reward_func(completions, prompts, **kwargs) -> list[float]:
     """
     Grid constraint reward: Penalizes reasoning that ignores high load warnings.
+    Works with 10-node multi-load observations.
     """
     rewards = []
     for content, prompt in zip(completions, prompts):
         score = 1.0
-        # If the observation (in prompt) says Load > 0.9 and action is 'schedule' (which adds load)
-        if "Load=0.9" in prompt and "schedule" in content.lower():
-            score = -1.0 # Heavy penalty for overloading the grid
+        # If any node in the prompt shows a load >= 0.9 and action is 'schedule'
+        # We look for decimals like 0.9x or 1.00
+        if re.search(r"0\.9\d|1\.00", prompt) and "schedule" in content.lower():
+            score = -2.0 # Increased penalty for multi-node risk
         rewards.append(score)
     return rewards
 
@@ -163,8 +165,8 @@ training_args = GRPOConfig(
     gradient_accumulation_steps = 4,
     learning_rate = 5e-5,
     max_prompt_length = 256,
-    max_completion_length = 256,
-    num_generations = 4, # Number of completions to sample per prompt for GRPO
+    max_completion_length = 128,
+    num_generations = 2, # Number of completions to sample per prompt for GRPO
     max_steps = 100, # Adjust for hackathon duration
     logging_steps = 1,
     report_to = "wandb",

@@ -1,35 +1,52 @@
-# BESCOM EV Grid Oracle: RLHF Training Pipeline
+# ⚡ BESCOM EV Grid Oracle 🔮
 
-## 🏆 Meta x Hugging Face Hackathon Submission
+### Meta x Hugging Face OpenEnv Hackathon Submission
+**A Zero-Latency AI Dispatcher for Bengaluru's Smart Grid**
 
-### Overview
-The **BESCOM EV Grid Oracle** is a dual-reasoning LLM system designed to manage smart grid loads in response to the surging demand of Electric Vehicles (EVs). Using **Group Relative Policy Optimization (GRPO)**, we have trained a `Gemma-1.1-2b-it` model to act as a real-time decision-maker for transformer load balancing.
+---
 
-### 🛠️ Technical Stack
-*   **Base Model**: `unsloth/gemma-1.1-2b-it-bnb-4bit`
-*   **Training Method**: GRPO (Group Relative Policy Optimization)
-*   **Frameworks**: Unsloth, TRL (Hugging Face), Gymnasium
-*   **Hardware**: Optimized for NVIDIA T4 (16GB VRAM)
+## 📍 Section 1: AI for Bharat Impact (BESCOM Theme 9)
 
-### 🧠 The Reasoning Engine (GRPO)
-Unlike standard SFT (Supervised Fine-Tuning), this project uses **GRPO** to refine the model's internal "Chain of Thought" (`<thought>` tags). 
-The model is rewarded for:
-1.  **Format Adherence**: Strictly following XML-based output.
-2.  **Safety Compliance**: Never suggesting a charging schedule when the grid is above 90% load.
-3.  **Logical Depth**: Longer, more analytical thought processes before taking an action.
+Bengaluru is the EV capital of India, but its power infrastructure—managed by **BESCOM**—faces a looming crisis. Traditional grid expansion is slow and capital-intensive. The **BESCOM EV Grid Oracle** offers a software-defined solution: an LLM-based dispatcher that manages EV load dynamically using real-time reasoning.
 
-### 📁 Repository Structure
-*   `train_grpo.py`: Core RLHF training script.
-*   `env_bescom.py`: Custom Gymnasium environment simulating grid load dynamics.
-*   `test_oracle.py`: Inference script to validate the trained oracle.
-*   `train_ev_oracle.ipynb`: Jupyter Notebook for quick Colab deployment.
-*   `setup_colab.sh`: One-click environment setup script.
+By acting as a **Zero-Latency Dispatcher**, this AI prioritizes charging at stations with high renewable availability and transformer headroom (e.g., Whitefield during solar peaks) while deferring load in high-stress areas like Silk Board. This shifts the focus from building physical grid capacity to **optimizing existing infrastructure with hybrid intelligence.**
 
-### 🚀 Getting Started
-1. Open `train_ev_oracle.ipynb` in Google Colab.
-2. Ensure you have an NVIDIA T4 GPU runtime selected.
-3. Run the setup and training cells.
-4. The final merged 16-bit model will be saved to `/trained_ev_oracle`.
+---
+
+## 🧠 Section 2: OpenEnv RL Architecture
+
+### The "Cheat Architecture"
+We abstracted the physical complexity of the Bangalore grid into a **Discrete Topological Graph** with 10 critical nodes. This allows our LLM to reason about the grid as a spatial network rather than just numbers.
+
+### GRPO: Reinforcement Learning from Reasoning
+We used **Group Relative Policy Optimization (GRPO)** to train the model's internal "Chain of Thought" (`<thought>` tags). This ensures the Oracle doesn't just guess; it analyzes the grid state before taking an action.
+
+### The 3 Verifiable Reward Functions:
+To prevent "reward hacking" (where the model finds shortcuts that don't solve the problem), we implemented three independent verifiers:
+1.  **Format Reward**: Validates strict XML output for seamless integration with the control systems.
+2.  **Constraint Reward**: Heavily penalizes any action that ignores high-load warnings (Load > 90%).
+3.  **Objective Reward**: Incentivizes deep, long-horizon reasoning about grid stability and demand fulfillment.
+
+---
+
+## 🛠️ Section 3: How to Run
+
+### Installation
+```bash
+!bash setup_colab.sh
+```
+
+### The "Before" Demo (Baseline Chaos)
+Run this to see the grid fail under random, uncoordinated EV charging:
+```bash
+python record_baseline.py
+```
+
+### The "After" Demo (Oracle in Control)
+Run this to launch the trained AI Oracle and watch it maintain grid stability across all nodes:
+```bash
+python run_trained_oracle.py
+```
 
 ---
 *Built for the Meta x Hugging Face Hackathon - April 2026*
