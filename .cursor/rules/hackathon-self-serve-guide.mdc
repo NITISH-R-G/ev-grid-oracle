@@ -1,0 +1,27 @@
+---
+description: Self-serve workflow for OpenEnv hackathon builds (env→reward→GRPO→deploy→evidence).
+alwaysApply: true
+---
+
+# OpenEnv Hackathon Self‑Serve Flow (Always Apply)
+
+Follow this order. Do not skip gates.
+
+## Build order (must)
+- **Idea check**: step-based + programmatically verifiable + **non‑zero success probability**.
+- **Minimum RL loop**: prompt → action → env/verifier → reward → update.
+- **SFT vs RL**: if format/behavior not present, do light SFT (or format priming) then RL.
+- **Environment first**: implement `reset/step/state/close` + strict action schema + step caps.
+- **Reward engineering**: 2–6 independent components + explicit anti‑hack checks.
+- **Training**: start tiny (debug run) → inspect generations → scale.
+- **Deploy early**: push to HF Space early to catch packaging issues.
+- **Evidence**: baseline vs oracle (same seeds) + plots saved to repo + short (<2 min) video/blog linked in README.
+
+## Non‑negotiables
+- Invalid/malformed action output must be handled deterministically (no crashes).
+- Track reward **breakdown columns**, not only total reward.
+- Sample generations periodically during training to catch reward hacking.
+- Include this warning verbatim when LoRA/QLoRA used:
+
+> If you’re using LoRA/QLoRA, don’t naively upcast a 4-bit base to 16-bit and “merge” at the end without the correct path — it can badly degrade quality. Save adapters cleanly and test post-training inference immediately.
+

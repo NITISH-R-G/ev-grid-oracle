@@ -1,0 +1,31 @@
+---
+description: OpenEnv Hackathon 2026 themes + judging criteria guardrail (pick theme fit, prioritize verifiable env + evidence + storytelling).
+alwaysApply: true
+---
+
+# OpenEnv Hackathon 2026 — Themes + Judging Guardrail (Always Apply)
+
+## Theme fit (pick primary, justify in README)
+- **Theme #1 Multi‑Agent**: cooperation/competition/negotiation; model beliefs/incentives of others.
+- **Theme #2 Long‑Horizon**: multi‑step planning + delayed rewards + recovery from mistakes.
+- **Theme #3 World Modeling**: partially observable dynamic world + real tool/API interactions + causal updates.
+- **Theme #4 Self‑Improvement**: self‑play / adaptive curriculum that escalates difficulty.
+- **Theme #5 Wild Card**: impress-us novelty, still trainable + verifiable.
+
+## Minimum submission requirements (non‑negotiable)
+- Use **OpenEnv latest**; env hosted on **HF Spaces**.
+- Provide **Colab** training script using **Unsloth** or **HF TRL**.
+- Provide **<2 min video** or **HF mini‑blog** explaining env + training.
+- README links: Space URL + Colab + plots + video/blog. No big videos committed.
+
+## What judges score (optimize for these)
+- **Innovation (40%)**: novel, meaningful agent behavior; not toy grid‑world clone.
+- **Storytelling (30%)**: clear problem → env → what learned → why it matters; demo engaging.
+- **Evidence of learning (20%)**: baseline vs trained; readable plots; replayable seeds.
+- **Reward/pipeline (10%)**: coherent rewards; verifiable checks; anti‑hack defenses.
+
+## Hard rules during build
+- Prefer **verifiable** rewards (RLVR): schema checks + env rollouts + constraints.
+- Log **reward breakdown columns**, not only total.
+- Periodically **sample generations** to detect reward hacking.
+

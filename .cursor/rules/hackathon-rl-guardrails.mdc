@@ -1,0 +1,21 @@
+---
+description: Guardrails for OpenEnv + GRPO hackathon builds (avoid reward hacking, ensure evidence, safe LoRA saves).
+alwaysApply: true
+---
+
+# Hackathon RL Guardrails (Always Apply)
+
+Before running long training or claiming results:
+
+- **Non-zero success**: show a baseline policy gets non-zero reward on easy seeds.
+- **Multiple rewards**: optimize 2–6 components; log each component explicitly.
+- **Reward hacking**: add 2+ anti-cheat checks; sample outputs periodically.
+- **Env stable first**: tests pass; `reset/step/state` consistent; no crash-on-bad-output.
+- **Timeouts/caps**: step caps; any external tooling has timeouts.
+- **Evidence**: commit plots to `artifacts/` + link them in README; baseline vs oracle with same seeds.
+- **LoRA saving**: save adapters; test inference post-save immediately.
+
+Required warning text in docs when LoRA/QLoRA used:
+
+> If you’re using LoRA/QLoRA, don’t naively upcast a 4-bit base to 16-bit and “merge” at the end without the correct path — it can badly degrade quality. Save adapters cleanly and test post-training inference immediately.
+
