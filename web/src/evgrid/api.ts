@@ -33,6 +33,8 @@ export type DemoStepResponse = {
   mode?: "baseline" | "oracle";
   oracle_lora_repo?: string;
   oracle_llm_active?: boolean;
+  oracle_timed_out?: boolean;
+  oracle_skipped_env?: boolean;
   action?: any;
   forced_action?: boolean;
 };
@@ -53,12 +55,24 @@ export async function demoStep(args: {
   oracle_lora_repo: string;
   forced_action?: any;
 }): Promise<DemoStepResponse> {
-  const r = await fetch("/demo/step", {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify(args),
-  });
-  if (!r.ok) throw new Error(`demoStep failed: ${r.status}`);
-  return (await r.json()) as DemoStepResponse;
+  const ctl = new AbortController();
+  const t = window.setTimeout(() => ctl.abort(), 240_000);
+  try {
+    const r = await fetch("/demo/step", {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify(args),
+      signal: ctl.signal,
+    });
+    if (!r.ok) throw new Error(`demoStep failed: ${r.status}`);
+    return (await r.json()) as DemoStepResponse;
+  } catch (e: any) {
+    if (e?.name === "AbortError") {
+      throw new Error("demoStep timed out after 4m — server may be loading Qwen+LoRA on CPU; try ORACLE_SKIP_LLM=1 on Space or fix LoRA repo id.");
+    }
+    throw e;
+  } finally {
+    window.clearTimeout(t);
+  }
 }
 

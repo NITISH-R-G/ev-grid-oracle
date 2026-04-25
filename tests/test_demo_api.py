@@ -26,6 +26,8 @@ def test_demo_new_and_step_roundtrip():
     assert data2.get("mode") == "baseline"
     assert "action" in data2 and isinstance(data2["action"], dict)
     assert "oracle_llm_active" in data2
+    assert data2.get("oracle_timed_out") is False
+    assert data2.get("oracle_skipped_env") is False
     assert isinstance(data2.get("tick"), int)
     assert isinstance(data2.get("scenario_events_at_tick"), list)
     assert isinstance(data2.get("anti_cheat_flags"), list)

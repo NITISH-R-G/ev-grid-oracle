@@ -108,6 +108,13 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
   </div>
 `;
 
+{
+  const lora = document.querySelector<HTMLInputElement>("#lora")!;
+  lora.value = "NITISHRG15102007/ev-oracle-lora";
+  lora.title =
+    "Hugging Face repo id for LoRA (exact spelling). Common typo: NITISHGR… — correct is NITISHRG… (HR).";
+}
+
 startCommandCenter({
   baselineMountId: "gameBaseline",
   oracleMountId: "gameOracle",

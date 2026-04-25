@@ -250,6 +250,13 @@ Notes:
 python -m uvicorn server.app:app --host 0.0.0.0 --port 8000
 ```
 
+### HF Space: “Oracle loading forever” / frozen UI
+
+1. **LoRA repo typo:** the Hub user is **`NITISHRG15102007`** (letters **HR**). `NITISHGR…` will 404 or hang on retries. The Command Center pre-fills the correct id; edit only if you use another adapter repo.  
+2. **First `STEP` downloads Qwen2.5‑3B + LoRA on CPU** — can exceed a minute. The server now runs oracle inference in a **thread with timeout** (`DEMO_ORACLE_INFERENCE_TIMEOUT_SEC`, default **120s** in the Docker image) and falls back to **baseline** with badge **TIMEOUT→baseline** instead of wedging the browser.  
+3. **`ORACLE_SKIP_LLM=1`** on the Space forces an instant oracle path (baseline policy) for demos when you do not need on-Space LLM inference.  
+4. **“New” no longer auto-runs the first step** — click **STEP** once maps are ready so the page does not block on model load during session creation.
+
 ---
 
 ## Submission checklist (OpenEnv India 2026 — non‑negotiables)

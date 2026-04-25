@@ -33,6 +33,7 @@ COPY --from=web_builder /web/dist /app/env/web/dist
 
 ENV PATH="/app/.venv/bin:$PATH"
 ENV PYTHONPATH="/app/env:$PYTHONPATH"
+ENV DEMO_ORACLE_INFERENCE_TIMEOUT_SEC="120"
 
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1

@@ -1,5 +1,9 @@
 from __future__ import annotations
 
+import concurrent.futures
+import os
+from pathlib import Path
+
 try:
     from openenv.core.env_server.http_server import create_app
 except ImportError as e:  # pragma: no cover
@@ -7,8 +11,6 @@ except ImportError as e:  # pragma: no cover
 
 from typing import Any, Literal, cast
 from uuid import uuid4
-
-from pathlib import Path
 from pydantic import BaseModel, Field
 
 from fastapi import Body, HTTPException, Query
@@ -25,6 +27,50 @@ from ev_grid_oracle.scenarios import ScenarioName
 from ev_grid_oracle.world_model_verifier import rollout_deterministic_5ticks, score_prediction
 from server.ev_grid_environment import EVGridEnvironment
 from server.role_metrics import compute_role_kpis, compute_role_reward_breakdown, summarize_action
+
+
+def _oracle_skip_llm_env() -> bool:
+    return os.getenv("ORACLE_SKIP_LLM", "").strip() not in ("", "0", "false", "False")
+
+
+def _demo_oracle_act_with_guard(
+    *,
+    st: Any,
+    core: EVGridCore,
+    oracle_lora_repo: str,
+) -> tuple[EVGridAction, str, bool, bool, bool]:
+    """
+    Run oracle policy with CPU-Space-safe guards.
+
+    Returns: action, oracle_text, oracle_llm_active, oracle_timed_out, oracle_skipped_env
+    """
+    if _oracle_skip_llm_env():
+        a, t = OracleAgent(lora_repo_id=None).act_with_text(st, _build_prompt(st), core.city_graph)
+        return a, t, False, False, True
+
+    repo = (oracle_lora_repo or "").strip() or None
+    if not repo:
+        agent = OracleAgent(lora_repo_id=None)
+        action, text = agent.act_with_text(st, _build_prompt(st), core.city_graph)
+        return action, text, bool(agent.is_active), False, False
+
+    timeout = float(os.getenv("DEMO_ORACLE_INFERENCE_TIMEOUT_SEC", "90"))
+
+    def run() -> tuple[EVGridAction, str, bool]:
+        agent = OracleAgent(lora_repo_id=repo)
+        action, text = agent.act_with_text(st, _build_prompt(st), core.city_graph)
+        return action, text, bool(agent.is_active)
+
+    pool = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+    fut = pool.submit(run)
+    try:
+        action, text, active = fut.result(timeout=timeout)
+        return action, text, active, False, False
+    except concurrent.futures.TimeoutError:
+        fut.cancel()
+        return baseline_policy(st, core.city_graph), "[timeout] baseline fallback (model load too slow for Space CPU)", False, True, False
+    finally:
+        pool.shutdown(wait=False, cancel_futures=True)
 
 
 app = create_app(EVGridEnvironment, EVGridAction, EVGridObservation, env_name="ev-grid-oracle", max_concurrent_envs=1)
@@ -186,6 +232,8 @@ def demo_step(
     st = core._grid_state
     oracle_llm_active = False
     oracle_text = ""
+    oracle_timed_out = False
+    oracle_skipped_env = False
     dream_score = None
     dream_breakdown: dict[str, float] = {}
     dream_pred = None
@@ -223,9 +271,9 @@ def demo_step(
         if mode == "baseline":
             action = baseline_policy(st, core.city_graph)
         else:
-            agent = OracleAgent(lora_repo_id=(oracle_lora_repo or "").strip() or None)
-            action, oracle_text = agent.act_with_text(st, _build_prompt(st), core.city_graph)
-            oracle_llm_active = bool(agent.is_active)
+            action, oracle_text, oracle_llm_active, oracle_timed_out, oracle_skipped_env = _demo_oracle_act_with_guard(
+                st=st, core=core, oracle_lora_repo=oracle_lora_repo
+            )
 
             # If oracle produced a <SIMULATE> block, score it against a deterministic T+5 rollout.
             pred = parse_simulation(oracle_text) if oracle_text else None
@@ -291,6 +339,8 @@ def demo_step(
         "mode": mode,
         "oracle_lora_repo": (oracle_lora_repo or "").strip(),
         "oracle_llm_active": oracle_llm_active,
+        "oracle_timed_out": oracle_timed_out,
+        "oracle_skipped_env": oracle_skipped_env,
         "action": summarize_action(action),
         "oracle_text": oracle_text,
         "dream_score": dream_score,

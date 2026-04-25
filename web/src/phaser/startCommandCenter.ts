@@ -163,20 +163,23 @@ export function startCommandCenter(args: Args) {
 
     const seed = Number(args.seedEl.value || "0") || seedRand();
     const scenario = args.scenarioEl.value || "baseline";
-    pill(args.oracleBadge, "warn", "loading…");
+    pill(args.oracleBadge, "warn", "loading map…");
     args.eventsEl.textContent = "(creating sessions)";
     try {
       const [b, o] = await Promise.all([demoNew(seed, scenario), demoNew(seed, scenario)]);
       baselineSid = b.session_id;
       oracleSid = o.session_id;
-      await baseline.scene().bindSession(b.session_id, b.station_nodes);
-      await oracle.scene().bindSession(o.session_id, o.station_nodes);
+      await Promise.all([
+        baseline.scene().bindSession(b.session_id, b.station_nodes),
+        oracle.scene().bindSession(o.session_id, o.station_nodes),
+      ]);
       pill(args.baselineBadge, "warn", "heuristic");
       pill(args.oracleBadge, "good", "ready");
       args.eventsEl.textContent = `seed=${seed}\nscenario=${scenario}\nbaseline=${baselineSid}\noracle=${oracleSid}`;
-      // Optional: take 1 automatic step so the UI shows life immediately.
-      appendEvent("(auto-step 1)");
-      await stepOne();
+      args.dreamEl.textContent =
+        "Sessions ready. Click STEP (first oracle step may download Qwen+LoRA on CPU — can take minutes; Space uses a server timeout fallback).\n\nTip: LoRA id must match Hub exactly, e.g. NITISHRG15102007/ev-oracle-lora";
+      args.oracleEl.textContent = "(click STEP — no auto-run avoids blocking on model load)";
+      appendEvent("(ready — click STEP or RUN 60)");
       setReplayUi();
     } catch (e: any) {
       pill(args.oracleBadge, "bad", "API ERROR");
@@ -220,11 +223,17 @@ export function startCommandCenter(args: Args) {
 
     // badges
     pill(args.baselineBadge, "warn", "heuristic");
-    pill(
-      args.oracleBadge,
-      oRes.oracle_llm_active ? "good" : "warn",
-      oRes.oracle_llm_active ? "LLM ACTIVE" : "FALLBACK"
-    );
+    if ((oRes as any).oracle_timed_out) {
+      pill(args.oracleBadge, "bad", "TIMEOUT→baseline");
+    } else if ((oRes as any).oracle_skipped_env) {
+      pill(args.oracleBadge, "warn", "SKIP LLM env");
+    } else {
+      pill(
+        args.oracleBadge,
+        oRes.oracle_llm_active ? "good" : "warn",
+        oRes.oracle_llm_active ? "LLM ACTIVE" : "FALLBACK"
+      );
+    }
 
     // right rail: dream panel + oracle panel
     const dreamScore = typeof (oRes as any).dream_score === "number" ? (oRes as any).dream_score : null;
