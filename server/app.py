@@ -9,6 +9,7 @@ from typing import Any, Literal
 from uuid import uuid4
 
 from pathlib import Path
+from pydantic import BaseModel, Field
 
 from fastapi import Body, HTTPException, Query
 from fastapi.responses import HTMLResponse
@@ -116,12 +117,23 @@ def _station_nodes(core: EVGridCore) -> list[dict[str, Any]]:
 
 
 @app.post("/demo/new")
-def demo_new(seed: int = Body(123, embed=True)) -> dict[str, Any]:
+def demo_new(payload: "DemoNewRequest" = Body(...)) -> dict[str, Any]:
     session_id = str(uuid4())
     core = EVGridCore(city_graph=_demo_graph)
-    obs = core.reset(seed=seed)
+    obs = core.reset(seed=payload.seed, scenario=payload.scenario)
     _demo_sessions[session_id] = core
-    return {"session_id": session_id, "obs": _obs_to_jsonable(obs), "station_nodes": _station_nodes(core)}
+    return {
+        "session_id": session_id,
+        "obs": _obs_to_jsonable(obs),
+        "station_nodes": _station_nodes(core),
+        "scenario": core.scenario,
+        "seed": payload.seed,
+    }
+
+
+class DemoNewRequest(BaseModel):
+    seed: int = Field(123, ge=0, le=1_000_000)
+    scenario: str = Field("baseline")
 
 
 @app.get("/demo/state")
@@ -210,10 +222,19 @@ def demo_step(
         else:
             event = {"type": action.action_type.value}
 
+    # scenario events that fired at this tick
+    from ev_grid_oracle.scenarios import scenario_schedule
+
+    sched = scenario_schedule(core.scenario)
+    fired = [e for e in sched if int(e.get("tick", -1)) == int(core.step_count + 1)]
+
     obs = core.step(action)
     return {
         "obs": _obs_to_jsonable(obs),
         "event": event,
+        "scenario": core.scenario,
+        "scenario_events": fired,
+        "tick": core.step_count,
         "mode": mode,
         "oracle_lora_repo": (oracle_lora_repo or "").strip(),
         "oracle_llm_active": oracle_llm_active,

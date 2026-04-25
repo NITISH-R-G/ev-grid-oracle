@@ -13,22 +13,27 @@ export type DemoNewResponse = {
   session_id: string;
   obs: any;
   station_nodes: StationNode[];
+  scenario?: string;
+  seed?: number;
 };
 
 export type DemoStepResponse = {
   obs: any;
   event: any;
+  scenario?: string;
+  scenario_events?: any[];
+  tick?: number;
   mode?: "baseline" | "oracle";
   oracle_lora_repo?: string;
   oracle_llm_active?: boolean;
   action?: any;
 };
 
-export async function demoNew(seed: number): Promise<DemoNewResponse> {
+export async function demoNew(seed: number, scenario: string = "baseline"): Promise<DemoNewResponse> {
   const r = await fetch("/demo/new", {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ seed }),
+    body: JSON.stringify({ seed, scenario }),
   });
   if (!r.ok) throw new Error(`demoNew failed: ${r.status}`);
   return (await r.json()) as DemoNewResponse;

@@ -21,6 +21,7 @@ from .models import (
     StationState,
 )
 from .reward import compute_reward
+from .scenarios import ScenarioModifiers, ScenarioName, apply_scenario_events, scenario_schedule
 
 
 @dataclass
@@ -38,11 +39,17 @@ class EVGridCore:
     step_minutes: int = 5
     rng: Random = field(default_factory=Random)
     _grid_state: Optional[GridState] = None
+    scenario: ScenarioName = "baseline"
+    _scenario_schedule: list[dict] = field(default_factory=list)
+    _scenario_mods: ScenarioModifiers = field(default_factory=ScenarioModifiers)
 
-    def reset(self, *, seed: Optional[int] = None) -> EVGridObservation:
+    def reset(self, *, seed: Optional[int] = None, scenario: ScenarioName = "baseline") -> EVGridObservation:
         if seed is not None:
             self.rng.seed(seed)
         self.step_count = 0
+        self.scenario = scenario
+        self._scenario_schedule = scenario_schedule(scenario)
+        self._scenario_mods = ScenarioModifiers()
 
         hour = self.rng.randint(0, 23)
         day_type = self.rng.choice([DayType.weekday, DayType.weekend])
@@ -64,6 +71,14 @@ class EVGridCore:
             for s in STATIONS
         ]
 
+        # Apply tick-0 scenario effects (e.g., tariff baseline multiplier).
+        self._scenario_mods, _ = apply_scenario_events(
+            name=self.scenario, tick=0, schedule=self._scenario_schedule, modifiers=self._scenario_mods
+        )
+        if self._scenario_mods.price_mult != 1.0:
+            for s in stations:
+                s.price_per_kwh = float(round(s.price_per_kwh * self._scenario_mods.price_mult, 2))
+
         pending = [_make_ev(self.rng, i, stations) for i in range(self.rng.randint(3, 8))]
 
         occupied_total = sum(s.occupied_slots for s in stations)
@@ -73,6 +88,7 @@ class EVGridCore:
             occupied_slots_total=occupied_total,
             load_shift_action_strength=0.0,
         )
+        grid_load = max(0.0, min(1.0, grid_load + float(self._scenario_mods.grid_load_delta)))
         peak_risk = _peak_risk(grid_load)
 
         self._grid_state = GridState(
@@ -91,10 +107,30 @@ class EVGridCore:
 
     def step(self, action: EVGridAction) -> EVGridObservation:
         if self._grid_state is None:
-            return self.reset()
+            return self.reset(scenario=self.scenario)
 
         prev_state = self._grid_state
         self.step_count += 1
+
+        # 0) scenario events (deterministic scheduled stress tests)
+        self._scenario_mods, _ = apply_scenario_events(
+            name=self.scenario,
+            tick=self.step_count,
+            schedule=self._scenario_schedule,
+            modifiers=self._scenario_mods,
+        )
+
+        # Apply sticky modifiers to state (prices + outages).
+        if self._scenario_mods.price_mult != 1.0:
+            for s in prev_state.stations:
+                s.price_per_kwh = float(round(s.price_per_kwh * self._scenario_mods.price_mult, 2))
+        if self._scenario_mods.slot_derate:
+            for s in prev_state.stations:
+                new_total = self._scenario_mods.slot_derate.get(s.station_id)
+                if new_total is not None and new_total < s.total_slots:
+                    s.total_slots = int(new_total)
+                    if s.occupied_slots > s.total_slots:
+                        s.occupied_slots = s.total_slots
 
         # 1) apply action (deterministic validation + state mutation)
         action_effect = _apply_action(prev_state, action)
@@ -105,6 +141,7 @@ class EVGridCore:
 
         # 3) new arrivals
         arrivals = sample_arrivals_per_step(self.rng, prev_state.hour, day_type=prev_state.day_type.value)
+        arrivals = int(round(arrivals * float(self._scenario_mods.arrivals_mult)))
         for _ in range(arrivals):
             prev_state.pending_evs.append(_make_ev(self.rng, self.rng.randint(1000, 9999), prev_state.stations))
 
@@ -121,9 +158,9 @@ class EVGridCore:
             occupied_slots_total=occupied_total,
             load_shift_action_strength=load_shift_strength,
         )
-        prev_state.grid_load_pct = grid_load
+        prev_state.grid_load_pct = max(0.0, min(1.0, grid_load + float(self._scenario_mods.grid_load_delta)))
         prev_state.renewable_pct = renewable
-        prev_state.peak_risk = _peak_risk(grid_load)
+        prev_state.peak_risk = _peak_risk(prev_state.grid_load_pct)
 
         # 5) wait estimates + reward
         _update_station_waits(prev_state, step_minutes=self.step_minutes)

@@ -1,0 +1,124 @@
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import Any, Literal, TypedDict
+
+
+ScenarioName = Literal[
+    "baseline",
+    "heatwave_peak",
+    "festival_surge",
+    "transformer_derate",
+    "station_outage",
+    "tariff_shock",
+]
+
+
+class ScenarioEvent(TypedDict):
+    tick: int
+    type: str
+    meta: dict[str, Any]
+
+
+@dataclass
+class ScenarioModifiers:
+    """
+    Lightweight knobs applied on top of the core simulator.
+    These are intentionally simple and deterministic for replayable judging.
+    """
+
+    # Additive delta applied to computed grid_load_pct, clamped to [0, 1].
+    grid_load_delta: float = 0.0
+
+    # Multiplier on sampled arrivals per step.
+    arrivals_mult: float = 1.0
+
+    # Multiplier on station price_per_kwh (used for storytelling/UI; reward can incorporate later).
+    price_mult: float = 1.0
+
+    # If set, reduces total_slots for a given station_id (simulates outage/derate).
+    slot_derate: dict[str, int] | None = None
+
+
+def scenario_schedule(name: ScenarioName) -> list[ScenarioEvent]:
+    """
+    Deterministic, fixed-tick stress tests (OpenOfficeRL-style).
+
+    Note: ticks are env steps (5-minute increments by default).
+    """
+    if name == "baseline":
+        return []
+
+    if name == "heatwave_peak":
+        # Gradually rising base load, then a pronounced evening spike.
+        return [
+            {"tick": 6, "type": "heatwave_start", "meta": {"grid_load_delta": 0.04}},
+            {"tick": 18, "type": "heatwave_ramp", "meta": {"grid_load_delta": 0.08}},
+            {"tick": 30, "type": "heatwave_peak", "meta": {"grid_load_delta": 0.14}},
+        ]
+
+    if name == "festival_surge":
+        # Demand surge + queues explode unless dispatch adapts.
+        return [
+            {"tick": 8, "type": "festival_surge", "meta": {"arrivals_mult": 1.6}},
+            {"tick": 26, "type": "festival_second_wave", "meta": {"arrivals_mult": 2.0}},
+        ]
+
+    if name == "transformer_derate":
+        # Grid is more fragile: effective headroom drops.
+        return [
+            {"tick": 10, "type": "transformer_derate", "meta": {"grid_load_delta": 0.10}},
+            {"tick": 28, "type": "derate_worsens", "meta": {"grid_load_delta": 0.16}},
+        ]
+
+    if name == "station_outage":
+        # One major station loses capacity mid-episode.
+        return [
+            {"tick": 14, "type": "station_outage", "meta": {"station_id": "BLR-07", "new_total_slots": 1}},
+            {"tick": 22, "type": "spillover", "meta": {"arrivals_mult": 1.3}},
+        ]
+
+    if name == "tariff_shock":
+        # Tariff spike nudges policy to load shift / avoid expensive stations.
+        return [
+            {"tick": 12, "type": "tariff_shock", "meta": {"price_mult": 1.35}},
+            {"tick": 24, "type": "tariff_shock_2", "meta": {"price_mult": 1.55}},
+        ]
+
+    # Exhaustive check
+    raise ValueError(f"Unknown scenario: {name}")
+
+
+def apply_scenario_events(
+    *,
+    name: ScenarioName,
+    tick: int,
+    schedule: list[ScenarioEvent],
+    modifiers: ScenarioModifiers,
+) -> tuple[ScenarioModifiers, list[ScenarioEvent]]:
+    """
+    Returns updated modifiers and the list of events that fired this tick.
+    """
+    fired = [e for e in schedule if int(e["tick"]) == int(tick)]
+    if not fired:
+        return modifiers, []
+
+    # Modifiers are "sticky": once an event changes a knob, it persists.
+    for e in fired:
+        meta = e.get("meta", {})
+        if "grid_load_delta" in meta:
+            modifiers.grid_load_delta = float(meta["grid_load_delta"])
+        if "arrivals_mult" in meta:
+            modifiers.arrivals_mult = float(meta["arrivals_mult"])
+        if "price_mult" in meta:
+            modifiers.price_mult = float(meta["price_mult"])
+        if e.get("type") == "station_outage":
+            sid = str(meta.get("station_id", ""))
+            new_slots = int(meta.get("new_total_slots", 1))
+            if sid:
+                if modifiers.slot_derate is None:
+                    modifiers.slot_derate = {}
+                modifiers.slot_derate[sid] = max(1, new_slots)
+
+    return modifiers, fired
+
