@@ -1,0 +1,12 @@
+Metadata-Version: 2.4
+Name: ev-grid-oracle
+Version: 0.0.1
+Summary: EV Grid Oracle (OpenEnv Hackathon + BESCOM Theme 9)
+Requires-Python: >=3.10
+Requires-Dist: pydantic>=2.7
+Requires-Dist: networkx>=3.2
+Requires-Dist: openenv-core>=0.2.3
+Requires-Dist: fastapi>=0.110
+Requires-Dist: uvicorn>=0.27
+Provides-Extra: dev
+Requires-Dist: pytest>=8.0; extra == "dev"
