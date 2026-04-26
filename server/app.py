@@ -332,14 +332,16 @@ class MANewRequest(BaseModel):
 def ma_new(req: Request, payload: MANewRequest = Body(...)) -> dict[str, Any]:
     _rate_limit(req, key="ma_new", limit=30, window_sec=60)
     t0 = time.time()
+    rid = _request_id(req)
     _ma_gc()
     sid = str(uuid4())
     core = EVGridCore(city_graph=_demo_graph)
     obs = core.reset(seed=payload.seed, scenario=cast(ScenarioName, payload.scenario), fleet_mode=cast(Any, payload.fleet_mode))
     sess = MultiAgentSession(core=core)
     _ma_sessions[sid] = (time.time(), sess)
-    log.info("ma_new", extra={"sid": sid, "seed": payload.seed, "scenario": str(core.scenario), "ms": int((time.time() - t0) * 1000)})
+    log.info("ma_new", extra={"rid": rid, "sid": sid, "seed": payload.seed, "scenario": str(core.scenario), "ms": int((time.time() - t0) * 1000)})
     return {
+        "request_id": rid,
         "session_id": sid,
         "obs": _obs_to_jsonable(obs),
         "station_nodes": _station_nodes(core),
@@ -462,9 +464,10 @@ def ma_state(req: Request, session_id: str = Query(...)) -> dict[str, Any]:
 def ma_step(req: Request, payload: MultiAgentStepRequest = Body(...)) -> dict[str, Any]:
     _rate_limit(req, key="ma_step", limit=120, window_sec=60)
     t0 = time.time()
+    rid = _request_id(req)
     sess = _ma_get(payload.session_id)
     if sess is None:
-        log.info("ma_step_miss", extra={"sid": payload.session_id, "ms": int((time.time() - t0) * 1000)})
+        log.info("ma_step_miss", extra={"rid": rid, "sid": payload.session_id, "ms": int((time.time() - t0) * 1000)})
         raise HTTPException(status_code=404, detail="Unknown session_id")
 
     gm = payload.grid_message
@@ -492,6 +495,7 @@ def ma_step(req: Request, payload: MultiAgentStepRequest = Body(...)) -> dict[st
     log.info(
         "ma_step",
         extra={
+            "rid": rid,
             "sid": payload.session_id,
             "tick": int(sess.core.step_count),
             "viol": ",".join(sess.last_violations),
@@ -499,6 +503,7 @@ def ma_step(req: Request, payload: MultiAgentStepRequest = Body(...)) -> dict[st
         },
     )
     return {
+        "request_id": rid,
         "session_id": payload.session_id,
         "obs": out_obs,
         "tick": sess.core.step_count,

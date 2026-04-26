@@ -101,6 +101,7 @@ def test_ma_new_and_step_roundtrip():
     r = c.post("/ma/new", json={"seed": 123, "scenario": "baseline"})
     assert r.status_code == 200
     data = r.json()
+    assert isinstance(data.get("request_id"), str) and data["request_id"]
     sid = data["session_id"]
     assert isinstance(data.get("grid_directive"), dict)
 
@@ -114,6 +115,7 @@ def test_ma_new_and_step_roundtrip():
     r2 = c.post("/ma/step", json=step)
     assert r2.status_code == 200
     data2 = r2.json()
+    assert isinstance(data2.get("request_id"), str) and data2["request_id"]
     assert data2["session_id"] == sid
     assert isinstance(data2.get("messages"), list)
     assert isinstance(data2.get("resolved_action"), dict)
