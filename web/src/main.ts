@@ -13,10 +13,12 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
       </div>
 
       <div class="controls">
-        <button id="btnNew" class="btn">New</button>
-        <button id="btnStep" class="btn">Step</button>
-        <button id="btnRun" class="btn">Run 60 (cinematic)</button>
-        <button id="btnJudge" class="btn">Judge Mode (MA)</button>
+        <div class="controlCluster primary">
+          <button id="btnNew" class="btn primary">New</button>
+          <button id="btnStep" class="btn">Step</button>
+          <button id="btnRun" class="btn">Run 60</button>
+          <button id="btnJudge" class="btn">Judge Mode</button>
+        </div>
 
         <label class="label">
           Scenario
@@ -30,22 +32,57 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
           </select>
         </label>
 
-        <label class="label">
-          Seed
-          <input id="seed" class="input narrow" type="number" min="0" max="1000000" value="123" />
-        </label>
+        <details class="advanced">
+          <summary class="btn ghost">Advanced</summary>
+          <div class="advancedGrid">
+            <label class="label">
+              Seed
+              <input id="seed" class="input narrow" type="number" min="0" max="1000000" value="123" />
+            </label>
 
-        <label class="label">
-          Follow EV
-          <input id="follow" type="checkbox" />
-        </label>
+            <label class="label">
+              Follow EV
+              <input id="follow" type="checkbox" />
+            </label>
 
-        <label class="label wide">
-          Oracle LoRA repo
-          <input id="lora" class="input" placeholder="NITISHRG15102007/ev-oracle-lora" />
-        </label>
+            <label class="label wide">
+              Oracle LoRA repo
+              <input id="lora" class="input" placeholder="NITISHRG15102007/ev-oracle-lora" />
+            </label>
+          </div>
+        </details>
       </div>
     </header>
+
+    <div class="heroStrip" id="heroStrip">
+      <div class="heroLeft">
+        <div class="heroEyebrow">Oracle Advantage</div>
+        <div class="heroHeadline">
+          <span id="heroMain" class="heroMain">—</span>
+          <span id="heroMainUnit" class="heroUnit">avg wait</span>
+        </div>
+        <div id="heroSub" class="heroSub">Take 1–2 steps to reveal the delta. Then hit Run 60.</div>
+      </div>
+      <div class="heroRight">
+        <div class="heroMini">
+          <div class="miniLabel">Peak</div>
+          <div id="heroPeak" class="miniVal">—</div>
+        </div>
+        <div class="heroMini">
+          <div class="miniLabel">Stress</div>
+          <div id="heroStress" class="miniVal">—</div>
+        </div>
+        <div class="heroMini">
+          <div class="miniLabel">Renew</div>
+          <div id="heroRen" class="miniVal">—</div>
+        </div>
+        <div class="heroMini">
+          <div class="miniLabel">Dream</div>
+          <div id="heroDream" class="miniVal">—</div>
+        </div>
+        <div id="heroVerdict" class="heroVerdict">READY</div>
+      </div>
+    </div>
 
     <div class="replayBar">
       <div class="replayTitle">City Ops Replay</div>
@@ -56,13 +93,11 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
           <button id="btnPlay" class="btn small" type="button" disabled>Play</button>
         </div>
       </div>
-      <div class="replayHint">
-        Tip: after a few steps, scrub the timeline — it replays the recorded action sequence deterministically.
-      </div>
+      <div class="replayHint">Tip: scrub the timeline to replay the recorded action sequence deterministically.</div>
     </div>
 
     <main class="main">
-      <section class="game baselineGame">
+      <section id="baselinePanel" class="game baselineGame">
         <div class="gameHeader">
           <div class="tag baseline">BASELINE</div>
           <div id="baselineBadge" class="pill">heuristic</div>
@@ -70,7 +105,7 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
         <div id="gameBaseline" style="width:100%; height:100%;"></div>
       </section>
 
-      <section class="game oracleGame">
+      <section id="oraclePanel" class="game oracleGame">
         <div class="gameHeader">
           <div class="tag oracle">ORACLE</div>
           <div id="oracleBadge" class="pill warn">loading…</div>

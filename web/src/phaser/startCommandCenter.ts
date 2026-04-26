@@ -52,6 +52,27 @@ function pill(el: HTMLElement, kind: "good" | "warn" | "bad", text: string) {
   el.textContent = text;
 }
 
+function bump(el: HTMLElement | null, cls: "pulse" | "shake") {
+  if (!el) return;
+  el.classList.remove(cls);
+  // Force reflow so the animation retriggers even with same class.
+  void el.offsetWidth;
+  el.classList.add(cls);
+}
+
+function setText(id: string, v: string) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = v;
+}
+
+function setVerdict(kind: "ready" | "win" | "risk", text: string) {
+  const el = document.getElementById("heroVerdict");
+  if (!el) return;
+  el.className = `heroVerdict ${kind}`;
+  el.textContent = text;
+}
+
 async function withDeadline<T>(p: Promise<T>, ms: number, label: string): Promise<T> {
   let timeoutId: number | null = null;
   try {
@@ -188,27 +209,52 @@ export function startCommandCenter(args: Args) {
     const wait = fmtDelta(ow - bw, true);
     args.kpiWait.textContent = wait.text;
     args.kpiWait.className = `kpiVal ${wait.cls}`;
+    setText("heroMain", wait.text);
+    setText("heroMainUnit", "avg wait (min)");
 
     const bp = Number(b?.baseline?.peak_violations ?? 0);
     const op = Number(o?.oracle?.peak_violations ?? 0);
     const peak = fmtDelta(op - bp, true);
     args.kpiPeak.textContent = peak.text;
     args.kpiPeak.className = `kpiVal ${peak.cls}`;
+    setText("heroPeak", peak.text);
 
     const bs = Number(b?.baseline?.grid_stress_events ?? 0);
     const os = Number(o?.oracle?.grid_stress_events ?? 0);
     const stress = fmtDelta(os - bs, true);
     args.kpiStress.textContent = stress.text;
     args.kpiStress.className = `kpiVal ${stress.cls}`;
+    setText("heroStress", stress.text);
 
     const br = Number(b?.baseline?.renewable_mean ?? 0);
     const or = Number(o?.oracle?.renewable_mean ?? 0);
     const ren = fmtDelta(or - br, false);
     args.kpiRen.textContent = ren.text;
     args.kpiRen.className = `kpiVal ${ren.cls}`;
+    setText("heroRen", ren.text);
 
     args.kpiDream.textContent = dreamScore == null ? "—" : `${(dreamScore * 100).toFixed(1)}%`;
     args.kpiDream.className = "kpiVal";
+    setText("heroDream", dreamScore == null ? "—" : `${(dreamScore * 100).toFixed(1)}%`);
+
+    const wins =
+      (ow - bw <= 0 ? 1 : 0) +
+      (op - bp <= 0 ? 1 : 0) +
+      (os - bs <= 0 ? 1 : 0) +
+      (or - br >= 0 ? 1 : 0);
+    if (wins >= 3) {
+      setVerdict("win", `WIN ${wins}/4`);
+      setText("heroSub", "Oracle is outperforming baseline under current conditions.");
+      bump(document.getElementById("oraclePanel"), "pulse");
+    } else if (wins <= 1) {
+      setVerdict("risk", `RISK ${wins}/4`);
+      setText("heroSub", "Baseline is holding up — try a stress scenario, then Run 60.");
+      bump(document.getElementById("baselinePanel"), "shake");
+    } else {
+      setVerdict("ready", `LIVE ${wins}/4`);
+      setText("heroSub", "Close race — keep stepping and watch the deltas stabilize.");
+      bump(document.getElementById("heroStrip"), "pulse");
+    }
   };
 
   const initSessions = async () => {
@@ -240,6 +286,8 @@ export function startCommandCenter(args: Args) {
       );
       pill(args.baselineBadge, "warn", "heuristic");
       pill(args.oracleBadge, "good", judgeMode ? "ready (MA)" : "ready");
+      setVerdict("ready", judgeMode ? "READY (MA)" : "READY");
+      setText("heroSub", "Take 1–2 steps to reveal the delta. Then hit Run 60.");
       args.eventsEl.textContent = `seed=${seed}\nscenario=${scenario}\nbaseline=${baselineSid}\noracle=${oracleSid}`;
       args.dreamEl.textContent =
         "Sessions ready. Click STEP (first oracle step may download Qwen+LoRA on CPU — can take minutes; Space uses a server timeout fallback).\n\nTip: LoRA id must match Hub exactly, e.g. NITISHRG15102007/ev-oracle-lora";
@@ -258,6 +306,7 @@ export function startCommandCenter(args: Args) {
         "- If roads are missing, the client should still render stations; this error is likely API reachability.";
       args.oracleEl.textContent = `ERROR: ${msg}`;
       args.eventsEl.textContent = `ERROR creating sessions:\n${msg}`;
+      setVerdict("risk", "API ERROR");
     }
   };
 
