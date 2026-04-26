@@ -392,7 +392,7 @@ export class MapView {
       this.lastTs = ts;
 
       // Simple speed model (can be upgraded to per-road-type later).
-      const baseSpeedMps = this.side === "oracle" ? 14.5 : 10.5; // ~52km/h vs ~38km/h
+      const baseSpeedMps = this.side === "oracle" ? 34.0 : 30.0; // faster demo motion
 
       const now = performance.now();
       // TTL: fade out old vehicles so the map doesn't become messy.
@@ -408,7 +408,7 @@ export class MapView {
           this.vehicles.delete(id);
           continue;
         }
-        const base = v.kind === "bike" ? baseSpeedMps * 0.78 : baseSpeedMps;
+        const base = v.kind === "bike" ? baseSpeedMps * 0.92 : baseSpeedMps;
         const m = this.multAt(v);
         const targetSpeed = base / Math.max(0.35, Math.min(1.15, m));
         v.speedMps = v.speedMps == null ? targetSpeed : v.speedMps * 0.84 + targetSpeed * 0.16;
@@ -622,12 +622,11 @@ export class MapView {
   }
 
   private renderVehicleOnly() {
-    const vehicleLayer = this.makeVehicleLayer();
     const vehicleDotLayer = this.makeVehicleDotLayer();
     const stationLayer = this.makeStationIconLayer();
     const routeLayers = this.makeRouteProgressLayers();
     this.overlay.setProps({
-      layers: [...this.staticLayers, ...routeLayers, stationLayer, vehicleDotLayer, vehicleLayer],
+      layers: [...this.staticLayers, ...routeLayers, stationLayer, vehicleDotLayer],
     });
   }
 
@@ -657,39 +656,17 @@ export class MapView {
     this.renderVehicleOnly();
   }
 
-  private makeVehicleLayer() {
-    const heroId = this.heroVehicleId;
-    return new IconLayer({
-      id: `vehicle-${this.side}`,
-      data: [...this.vehicles.values()],
-      iconAtlas: ICON_ATLAS as any,
-      iconMapping: ICON_MAPPING as any,
-      getIcon: (d: any) => d.kind,
-      sizeUnits: "pixels",
-      getSize: (d: any) => {
-        const base = d.kind === "bike" ? 30 : 36;
-        return heroId && d.id === heroId ? base * 1.6 : base;
-      },
-      getPosition: (d: any) => d.pos,
-      getAngle: (d: any) => d.headingDeg,
-      getColor: (d: any) => d.color,
-      billboard: false,
-      pickable: false,
-      parameters: { depthTest: false },
-    });
-  }
-
   private makeVehicleDotLayer() {
     return new ScatterplotLayer({
       id: `vehicle-dots-${this.side}`,
       data: [...this.vehicles.values()],
       getPosition: (d: any) => d.pos,
       radiusUnits: "pixels",
-      getRadius: (d: any) => (d.kind === "bike" ? 4.5 : 5.5),
+      getRadius: (d: any) => (d.kind === "bike" ? 6.5 : 8.0),
       getFillColor: (d: any) => d.color,
-      getLineColor: [0, 0, 0, 140] as any,
+      getLineColor: [0, 0, 0, 190] as any,
       lineWidthUnits: "pixels",
-      lineWidthMinPixels: 1,
+      lineWidthMinPixels: 2,
       stroked: true,
       filled: true,
       pickable: false,
