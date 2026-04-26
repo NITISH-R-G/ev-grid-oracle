@@ -8,11 +8,8 @@ type Station = { station_id: string; lat: number; lng: number; total_slots: numb
 
 function ensureLngLat(poly: any[]): [number, number][] {
   // Server returns [lat,lng]. Deck expects [lng,lat].
-  // Heuristic: if abs(first) > abs(second) and within lng range, assume [lng,lat]
-  if (poly.length === 0) return [];
-  const [a, b] = poly[0] as any;
-  const looksLikeLngLat = Math.abs(a) <= 180 && Math.abs(b) <= 90;
-  return looksLikeLngLat ? (poly as any) : (poly as any).map(([lat, lng]: any) => [lng, lat]);
+  // Do NOT use heuristics here: Bangalore values (12.xx, 77.xx) can look valid in both orders.
+  return Array.isArray(poly) ? (poly as any).map(([lat, lng]: any) => [lng, lat]) : [];
 }
 
 // Canvas atlas containing: car | bike | station
