@@ -16,6 +16,18 @@ body {
   text-shadow: 0 0 12px rgba(122, 167, 255, 0.12);
 }
 
+:root{
+  --hud-bg: rgba(9, 9, 22, 0.78);
+  --hud-bg2: rgba(18, 16, 42, 0.62);
+  --hud-stroke: rgba(142, 110, 255, 0.35);
+  --hud-stroke2: rgba(90, 120, 255, 0.26);
+  --hud-glow: rgba(172, 88, 255, 0.25);
+  --hud-cyan: #23e7ff;
+  --hud-green: #47ff9a;
+  --hud-amber: #ffbf3c;
+  --hud-pink: #ff5a8a;
+}
+
 .title, .pill, .btn, .kpiLabel, .panelTitle {
   font-family: "Press Start 2P", "VT323", ui-monospace, monospace;
   letter-spacing: 0.4px;
@@ -97,6 +109,12 @@ body::after {
   border-bottom: 1px solid rgba(120, 140, 200, 0.25);
   background: rgba(7, 9, 17, 0.6);
   backdrop-filter: blur(10px);
+}
+
+.topbar {
+  box-shadow:
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset,
+    0 16px 50px rgba(0,0,0,0.45);
 }
 
 .brand {
@@ -185,8 +203,9 @@ body::after {
 }
 
 .btn {
-  background: rgba(90, 120, 255, 0.14);
-  border: 1px solid rgba(120, 140, 200, 0.35);
+  background:
+    linear-gradient(180deg, rgba(120, 102, 255, 0.34), rgba(20, 18, 46, 0.55));
+  border: 1px solid var(--hud-stroke);
   color: #e8ecff;
   padding: 8px 10px;
   border-radius: 10px;
@@ -194,17 +213,23 @@ body::after {
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.6px;
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.05) inset,
+    0 10px 30px rgba(0,0,0,0.35);
 }
 .btn.primary {
-  background: linear-gradient(180deg, rgba(182, 124, 255, 0.34), rgba(90, 120, 255, 0.12));
-  border-color: rgba(182, 124, 255, 0.55);
-  box-shadow: 0 0 28px rgba(182, 124, 255, 0.18);
+  background:
+    linear-gradient(180deg, rgba(255, 191, 60, 0.75), rgba(160, 88, 255, 0.22));
+  border-color: rgba(255, 191, 60, 0.65);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.08) inset,
+    0 0 28px rgba(255, 191, 60, 0.16);
 }
 .btn.ghost {
-  background: rgba(7, 9, 17, 0.35);
+  background: rgba(9, 9, 22, 0.45);
 }
 .btn:hover {
-  border-color: rgba(160, 190, 255, 0.6);
+  border-color: rgba(35, 231, 255, 0.55);
 }
 
 .controlCluster.primary {
@@ -335,6 +360,10 @@ body::after {
   border-color: rgba(182, 124, 255, 0.45);
   box-shadow: 0 0 28px rgba(182, 124, 255, 0.12);
 }
+.heroStrip {
+  border-top: 1px solid rgba(255,255,255,0.05);
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.03) inset;
+}
 
 .pulse {
   animation: pulse 520ms ease-out;
@@ -444,6 +473,103 @@ body::after {
   width: 100%;
   aspect-ratio: 16 / 9;
   height: fit-content;
+}
+
+.hudHeader {
+  background:
+    linear-gradient(180deg, rgba(18, 16, 42, 0.75), rgba(9, 9, 22, 0.55));
+}
+.hudTag {
+  display: inline-flex;
+  gap: 8px;
+  align-items: center;
+}
+.hudIcon {
+  display: inline-flex;
+  width: 18px;
+  height: 18px;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(0,0,0,0.25);
+  box-shadow: 0 0 18px rgba(172, 88, 255, 0.16);
+}
+.hudIcon.good { border-color: rgba(71,255,154,0.35); box-shadow: 0 0 16px rgba(71,255,154,0.12); }
+.hudIcon.danger { border-color: rgba(255,90,138,0.35); box-shadow: 0 0 16px rgba(255,90,138,0.12); }
+.hudIcon.info { border-color: rgba(35,231,255,0.35); box-shadow: 0 0 16px rgba(35,231,255,0.12); }
+.hudIcon.oracle { border-color: rgba(182,124,255,0.45); box-shadow: 0 0 16px rgba(182,124,255,0.14); }
+
+.hudPill {
+  background: rgba(0,0,0,0.22);
+}
+
+.hudCard {
+  background:
+    linear-gradient(180deg, rgba(18, 16, 42, 0.62), rgba(9, 9, 22, 0.62));
+  border: 1px solid var(--hud-stroke);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.03) inset,
+    0 0 34px rgba(172, 88, 255, 0.10);
+}
+.hudTitle {
+  font-family: "Press Start 2P", "VT323", ui-monospace, monospace;
+  font-size: 10px;
+  letter-spacing: 0.9px;
+  text-transform: uppercase;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.hudKpiRow {
+  align-items: center;
+}
+.kpiLeft {
+  display: inline-flex;
+  gap: 10px;
+  align-items: center;
+}
+.kpiIcon {
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  border: 1px solid rgba(255,255,255,0.10);
+  background: rgba(0,0,0,0.22);
+  font-size: 12px;
+}
+.kpiRight {
+  display: grid;
+  grid-template-columns: 92px auto;
+  gap: 10px;
+  align-items: center;
+}
+.kpiBar {
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(0,0,0,0.28);
+  border: 1px solid rgba(255,255,255,0.08);
+  box-shadow: 0 0 0 1px rgba(255,255,255,0.02) inset;
+  overflow: hidden;
+}
+.kpiBarFill {
+  height: 100%;
+  width: 0%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(35,231,255,0.85), rgba(182,124,255,0.85));
+  box-shadow: 0 0 16px rgba(35,231,255,0.10);
+  transition: width 420ms ease;
+}
+.kpiVal.deltaPos + .kpiBar .kpiBarFill {}
+.kpiVal.deltaPos {
+  color: var(--hud-green);
+}
+.kpiVal.deltaNeg {
+  color: var(--hud-pink);
 }
 
 .game.baselineGame {

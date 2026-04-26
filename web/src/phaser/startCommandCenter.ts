@@ -73,6 +73,16 @@ function setVerdict(kind: "ready" | "win" | "risk", text: string) {
   el.textContent = text;
 }
 
+function setBar(id: string, pct: number, good: boolean) {
+  const el = document.getElementById(id) as HTMLDivElement | null;
+  if (!el) return;
+  const p = Math.max(0, Math.min(100, pct));
+  el.style.width = `${p.toFixed(0)}%`;
+  el.style.background = good
+    ? "linear-gradient(90deg, rgba(71,255,154,0.90), rgba(35,231,255,0.70))"
+    : "linear-gradient(90deg, rgba(255,90,138,0.92), rgba(255,191,60,0.62))";
+}
+
 async function withDeadline<T>(p: Promise<T>, ms: number, label: string): Promise<T> {
   let timeoutId: number | null = null;
   try {
@@ -211,6 +221,7 @@ export function startCommandCenter(args: Args) {
     args.kpiWait.className = `kpiVal ${wait.cls}`;
     setText("heroMain", wait.text);
     setText("heroMainUnit", "avg wait (min)");
+    setBar("kpiWaitBar", (Math.min(30, Math.abs(ow - bw)) / 30) * 100, ow - bw <= 0);
 
     const bp = Number(b?.baseline?.peak_violations ?? 0);
     const op = Number(o?.oracle?.peak_violations ?? 0);
@@ -218,6 +229,7 @@ export function startCommandCenter(args: Args) {
     args.kpiPeak.textContent = peak.text;
     args.kpiPeak.className = `kpiVal ${peak.cls}`;
     setText("heroPeak", peak.text);
+    setBar("kpiPeakBar", (Math.min(8, Math.abs(op - bp)) / 8) * 100, op - bp <= 0);
 
     const bs = Number(b?.baseline?.grid_stress_events ?? 0);
     const os = Number(o?.oracle?.grid_stress_events ?? 0);
@@ -225,6 +237,7 @@ export function startCommandCenter(args: Args) {
     args.kpiStress.textContent = stress.text;
     args.kpiStress.className = `kpiVal ${stress.cls}`;
     setText("heroStress", stress.text);
+    setBar("kpiStressBar", (Math.min(12, Math.abs(os - bs)) / 12) * 100, os - bs <= 0);
 
     const br = Number(b?.baseline?.renewable_mean ?? 0);
     const or = Number(o?.oracle?.renewable_mean ?? 0);
@@ -232,10 +245,12 @@ export function startCommandCenter(args: Args) {
     args.kpiRen.textContent = ren.text;
     args.kpiRen.className = `kpiVal ${ren.cls}`;
     setText("heroRen", ren.text);
+    setBar("kpiRenBar", (Math.min(0.55, Math.abs(or - br)) / 0.55) * 100, or - br >= 0);
 
     args.kpiDream.textContent = dreamScore == null ? "—" : `${(dreamScore * 100).toFixed(1)}%`;
     args.kpiDream.className = "kpiVal";
     setText("heroDream", dreamScore == null ? "—" : `${(dreamScore * 100).toFixed(1)}%`);
+    setBar("kpiDreamBar", dreamScore == null ? 0 : dreamScore * 100, (dreamScore ?? 0) >= 0.6);
 
     const wins =
       (ow - bw <= 0 ? 1 : 0) +

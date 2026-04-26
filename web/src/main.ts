@@ -98,50 +98,80 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
 
     <main class="main">
       <section id="baselinePanel" class="game baselineGame">
-        <div class="gameHeader">
-          <div class="tag baseline">BASELINE</div>
-          <div id="baselineBadge" class="pill">heuristic</div>
+        <div class="gameHeader hudHeader">
+          <div class="tag baseline hudTag"><span class="hudIcon danger">⚡</span> BASELINE</div>
+          <div id="baselineBadge" class="pill hudPill">heuristic</div>
         </div>
         <div id="gameBaseline" style="width:100%; height:100%;"></div>
       </section>
 
       <section id="oraclePanel" class="game oracleGame">
-        <div class="gameHeader">
-          <div class="tag oracle">ORACLE</div>
-          <div id="oracleBadge" class="pill warn">loading…</div>
+        <div class="gameHeader hudHeader">
+          <div class="tag oracle hudTag"><span class="hudIcon good">★</span> ORACLE</div>
+          <div id="oracleBadge" class="pill warn hudPill">loading…</div>
         </div>
         <div id="gameOracle" style="width:100%; height:100%;"></div>
       </section>
 
       <aside class="rail">
-        <div class="card">
-          <div class="cardTitle">KPI Delta (Oracle − Baseline)</div>
-          <div class="kpis">
-            <div class="kpiRow"><div>Avg wait (min)</div><div id="kpiWait" class="kpiVal">—</div></div>
-            <div class="kpiRow"><div>Peak violations</div><div id="kpiPeak" class="kpiVal">—</div></div>
-            <div class="kpiRow"><div>Grid stress events</div><div id="kpiStress" class="kpiVal">—</div></div>
-            <div class="kpiRow"><div>Renewable mean</div><div id="kpiRen" class="kpiVal">—</div></div>
-            <div class="kpiRow"><div>Dream accuracy</div><div id="kpiDream" class="kpiVal">—</div></div>
+        <div class="card hudCard">
+          <div class="cardTitle hudTitle"><span class="hudIcon info">▣</span> KPI Delta (Oracle − Baseline)</div>
+          <div class="kpis hudKpis">
+            <div class="kpiRow hudKpiRow">
+              <div class="kpiLeft"><span class="kpiIcon">⏱</span><div>Avg wait</div></div>
+              <div class="kpiRight">
+                <div class="kpiBar"><div id="kpiWaitBar" class="kpiBarFill"></div></div>
+                <div id="kpiWait" class="kpiVal">—</div>
+              </div>
+            </div>
+            <div class="kpiRow hudKpiRow">
+              <div class="kpiLeft"><span class="kpiIcon">⚠</span><div>Peak violations</div></div>
+              <div class="kpiRight">
+                <div class="kpiBar"><div id="kpiPeakBar" class="kpiBarFill"></div></div>
+                <div id="kpiPeak" class="kpiVal">—</div>
+              </div>
+            </div>
+            <div class="kpiRow hudKpiRow">
+              <div class="kpiLeft"><span class="kpiIcon">⚡</span><div>Grid stress</div></div>
+              <div class="kpiRight">
+                <div class="kpiBar"><div id="kpiStressBar" class="kpiBarFill"></div></div>
+                <div id="kpiStress" class="kpiVal">—</div>
+              </div>
+            </div>
+            <div class="kpiRow hudKpiRow">
+              <div class="kpiLeft"><span class="kpiIcon">☀</span><div>Renewable</div></div>
+              <div class="kpiRight">
+                <div class="kpiBar"><div id="kpiRenBar" class="kpiBarFill"></div></div>
+                <div id="kpiRen" class="kpiVal">—</div>
+              </div>
+            </div>
+            <div class="kpiRow hudKpiRow">
+              <div class="kpiLeft"><span class="kpiIcon">✦</span><div>Dream acc</div></div>
+              <div class="kpiRight">
+                <div class="kpiBar"><div id="kpiDreamBar" class="kpiBarFill"></div></div>
+                <div id="kpiDream" class="kpiVal">—</div>
+              </div>
+            </div>
           </div>
         </div>
 
-        <div class="card">
-          <div class="cardTitle">Dream vs Reality (T+5)</div>
+        <div class="card hudCard">
+          <div class="cardTitle hudTitle"><span class="hudIcon oracle">☾</span> Dream vs Reality (T+5)</div>
           <pre id="dream" class="mono">(waiting)</pre>
         </div>
 
-        <div class="card">
-          <div class="cardTitle">Oracle Action + Reward</div>
+        <div class="card hudCard">
+          <div class="cardTitle hudTitle"><span class="hudIcon good">◆</span> Oracle Action + Reward</div>
           <pre id="oracle" class="mono">(waiting)</pre>
         </div>
 
-        <details class="card collapsible">
-          <summary class="cardTitle">Explain / Debug (Event Stream)</summary>
+        <details class="card hudCard collapsible">
+          <summary class="cardTitle hudTitle">Explain / Debug (Event Stream)</summary>
           <pre id="events" class="mono">(none)</pre>
         </details>
 
-        <details class="card collapsible">
-          <summary class="cardTitle">Judge Mode Transcript (Multi-Agent)</summary>
+        <details class="card hudCard collapsible">
+          <summary class="cardTitle hudTitle">Judge Mode Transcript (Multi-Agent)</summary>
           <pre id="nego" class="mono">(click Judge Mode)</pre>
         </details>
       </aside>
