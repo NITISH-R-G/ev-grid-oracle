@@ -8,95 +8,270 @@ app_port: 8000
 pinned: false
 ---
 
-# EV Grid Oracle — verifiable GRPO on a Bangalore EV dispatch world
+# EV Grid Oracle — a verifiable GRPO “dispatch oracle” for Bangalore’s EV charging grid
 
-**TL;DR:** We built an **OpenEnv**-style environment that simulates EV charging stress on a city graph, exposed it on **Hugging Face Spaces**, and trained a small **Qwen2.5‑3B** policy with **TRL GRPO** using **verifier-style rewards** (strict action schema + reward breakdown + anti-cheat flags). Judges can replay **paired** baseline vs oracle episodes on the **same seeds** and read **Wilson + McNemar** summaries from `training/fair_eval.py`.
+**EV Grid Oracle** is an **OpenEnv** environment + verifier suite where a small LLM learns to output **tool-like dispatch actions** that can be **executed, checked, and scored**—not just “explained.”
 
-**One‑screen checklist (Space, Colab, plots, writeup):** see the **“Judges — non‑negotiables”** table in the repo root [`README.md`](https://github.com/NITISH-R-G/ev-grid-oracle/blob/main/README.md).
+### Team Codestreak
 
----
-
-## OpenEnv Hackathon themes (how we fit)
-
-| Theme | Claim |
-|------|--------|
-| **#3 World modeling** | **Primary:** LLM acts in a **partially observable** world (queues, grid %, renewables) with **tool-like** actions verified by the simulator. |
-| **#2 Long horizon** | **Primary:** Many `step` calls, **scheduled** shocks, mistakes compound; replay shows recovery or failure modes. |
-| **#1 Multi-agent** | **Secondary / narrative:** Stakeholder **tensions** in the reward (urgency vs grid vs wait); explicit multi-LLM negotiation is **not** required to tell a credible “incentives + coordination” story. |
-| **#4 Self-improvement** | **Stretch:** Scenario / trap catalog supports **adaptive curricula**; hook for future self-play or difficulty ramps. |
-| **#5 Wild card** | **Differentiator:** City graph + operator UI + **statistical** paired eval. |
+- **Nitish R.G.** — Team Leader · [LinkedIn](https://www.linkedin.com/in/nitish-r-g-15-10-2007-rgn/)  
+- **Padmanabhan Suresh Babu**  
+- **Prithic**
 
 ---
 
-## Judging rubric (where we spend reviewer attention)
+## The 3‑second hook (what makes this different)
 
-- **Innovation (40%):** verifier-first rewards, anti-cheat, deterministic stress scenarios—not a toy yes/no grid.  
-- **Storytelling (30%):** this post + README + Space demo = **problem → env → training → evidence → why Bangalore / grid ops**.  
-- **Learning evidence (20%):** paired baseline vs oracle, **committed PNGs** in `artifacts/`, JSON from `fair_eval`.  
-- **Reward / pipeline (10%):** `reward_fn` in Colab calls **`EVGridCore.step`**, not a static label dataset.
+- **Verifiable world, not vibes:** every action is parsed → validated → stepped in a simulator → scored with a **reward breakdown**.  
+- **Replayable evidence:** baseline vs oracle is evaluated on the **same seeds** (paired, deterministic).  
+- **Engineer‑grade outputs:** plots + stats are committed as PNG/JSON artifacts so judges can audit without rerunning everything.
 
----
-
-## The problem
-
-Operators route EVs to stations under **queues**, **feeder stress**, and **renewable variability**. A language model should output **structured actions** that the simulator can check—not hand-wavy prose.
+If you only read one thing, read the repo’s **“Judges — non‑negotiables”** table in [`README.md`](https://github.com/NITISH-R-G/ev-grid-oracle/blob/main/README.md) (Space + Colab + plots + writeup in one place).
 
 ---
 
-## What we shipped
+## Live environment (discoverable, runnable)
 
-| Piece | Where |
-|--------|--------|
-| Environment + FastAPI Space | Repo `server/`, Space linked from `README.md` |
-| Deterministic stress scenarios | `ev_grid_oracle/scenarios.py` |
-| Verifier rewards + anti-cheat | `ev_grid_oracle/reward.py`, flags on `EVGridObservation` |
-| Phaser “City Ops” demo + replay | `web/` |
-| Paired eval + Wilson + McNemar | `training/evaluate.py`, `training/fair_eval.py` |
-| Trap catalog (for judges) | `docs/judge-kit/trap-catalog.md` |
+- **HF Space (environment):** see `README.md` → Quick links (Space card + live host).  
+- **OpenEnv descriptor:** [`openenv.yaml`](../openenv.yaml)  
+- **Server entrypoint:** `server/app.py` (FastAPI, OpenEnv-style endpoints)  
 
----
+**Core API shape (judge-friendly):**
 
-## Training (Colab + TRL + Unsloth)
-
-- **Runnable notebook:** open from GitHub or Colab:  
-  [training/train_grpo.ipynb](https://github.com/NITISH-R-G/ev-grid-oracle/blob/main/training/train_grpo.ipynb)  
-  [Open in Colab](https://colab.research.google.com/github/NITISH-R-G/ev-grid-oracle/blob/main/training/train_grpo.ipynb)
-
-The first notebook cell **clones this repository** and runs `pip install -e .` so `import ev_grid_oracle` works on a clean Colab VM. Use **GPU runtime (T4+)** before running Unsloth / GRPO cells.
+- `POST /reset`
+- `POST /step`
+- `GET /state`
+- `GET /schema`
+- `GET /health`
 
 ---
 
-## Evidence judges can trust
+## Problem statement (why it matters)
 
-1. Run `python training/evaluate.py` → JSON includes **`paired_same_world`** and **`per_episode`** rows.  
-2. Run `python training/fair_eval.py` → **`artifacts/fair_eval_results.json`** includes **`binary_rates_wilson`** and **`paired_mcnemar`**.  
-3. **Judge-facing figure pack** (commit to repo): run `python training/make_plots.py --eval-json training/eval_results.json --fair-json artifacts/fair_eval_results.json --out-dir artifacts` to emit KPI bars, paired trajectories, Δ-histograms, reward breakdown bars, boxplots, win-rate bars, paired scatter, binary timeline, Wilson/McNemar panels, and a **six-panel dashboard** (`eval_dashboard_summary.png`). Also run `training/fair_eval.py` for `fair_eval_chart.png`.
+Grid operators (and fleet dispatchers) are constantly making routing decisions under:
 
-**Why it matters:** dispatch policies that **survive verification** under stress are closer to deployable co-pilots than chat-only “plans.”
+- **Queues / wait times**
+- **Feeder stress / peak violations**
+- **Renewable windows (shift load when it’s clean)**
+- **Safety constraints + “no cheating” constraints**
+
+We want an LLM that produces **structured, executable actions** under these constraints—then **improves** by reinforcement learning against a verifier.
 
 ---
 
-## LoRA / QLoRA warning (verbatim)
+## What the agent can do (action schemas)
+
+This project uses **strict action schemas** so verification is deterministic.
+
+### A) Station routing / load shifting (EVGridAction)
+
+```text
+ACTION: route|defer|load_shift
+STATION: BLR-01..BLR-25 or NONE
+CHARGE_RATE: slow|fast|ultra_fast
+DEFER_MINUTES: integer
+REASON: max 20 words
+CONFIDENCE: 0.0-1.0
+```
+
+### B) Road-graph routing (connected-edge only)
+
+```text
+CURRENT_NODE: <int>
+NEXT_NODE: <int>
+REASON: max 20 words
+CONFIDENCE: 0.0-1.0
+```
+
+The key constraint: **no teleporting**—the agent must pick a **neighbor edge** in the Bangalore road graph.
+
+---
+
+## Environment design (OpenEnv-first)
+
+### Observations (what the model sees)
+
+High-level: a text prompt containing the current grid snapshot (queues, stress, renewables, and the next decision point), plus a JSON-like `state` structure that is included in the OpenEnv response object.
+
+### World dynamics (what changes after actions)
+
+Each step advances a simulator tick:
+
+- queue dynamics (arrivals / services)
+- stress events (load crossing thresholds)
+- renewable windows (time-varying clean score)
+- anti-cheat flags if the action violates constraints
+
+### Episode structure (long-horizon)
+
+This is not a single-shot task. Policies are scored over many steps, and early mistakes can compound (or be recovered from).
+
+---
+
+## Reward design (verifiable, multi-component, anti-hack)
+
+Reward is **not** “LLM-as-judge only.” It’s computed by the environment/verifier, with **independent components** (logged as columns).
+
+High-level components include:
+
+- **wait** (penalize long queues / delays)
+- **grid_stress** (penalize overload)
+- **peak** (penalize peak violations)
+- **renewable** (reward clean windows)
+- **urgency** (don’t defer critical EVs)
+- **format + validity shaping**
+- **anti-hack** (punish impossible/cheaty steps)
+
+This is where most hackathon projects win or lose: **if reward is crisp and hard to game, RL works.**
+
+---
+
+## Training (Colab + TRL GRPO + Unsloth)
+
+**Public training notebook:**
+
+- **Colab:** `https://colab.research.google.com/github/NITISH-R-G/ev-grid-oracle/blob/main/training/train_grpo.ipynb`  
+- **GitHub:** `https://github.com/NITISH-R-G/ev-grid-oracle/blob/main/training/train_grpo.ipynb`
+
+The notebook:
+
+- clones this repo
+- installs `openenv-core`
+- trains with **TRL GRPO** (verifier reward function)
+- uses a **small model** + **QLoRA**-style adapter saving for iteration speed
+
+### Winning tip (practical)
+
+Small models + many short runs beat “one heroic huge run.” Iterate on:
+
+- reward components
+- anti-hack flags
+- scenario curriculum
+- throughput (rollout speed dominates RL runtime)
+
+---
+
+## Evidence: results + plots (auditable, committed)
+
+Everything below is generated by:
+
+- `training/evaluate.py` → `training/eval_results.json`  
+- `training/fair_eval.py` → `artifacts/fair_eval_results.json` + `artifacts/fair_eval_chart.png`  
+- `training/make_plots.py` → the figure pack in `artifacts/`
+
+### Current snapshot (paired evaluation)
+
+From `training/eval_results.json` (paired_same_world=true, episodes=72):
+
+- **avg_wait_minutes:** 0.2939  
+- **grid_stress_events:** 10.3194  
+- **peak_violations:** 5.6528  
+- **renewable_mean:** 0.3625  
+- **critical_deferred:** 0  
+- **anti_cheat_steps:** 2.6389  
+
+From `artifacts/fair_eval_results.json` (n_episodes=25): Wilson + McNemar summaries are committed for binary outcomes.
+
+> Note: If oracle is configured to fall back to baseline (e.g. `ORACLE_SKIP_LLM=1` or no LoRA loaded), baseline and oracle curves may coincide. That’s expected and actually useful: it validates the **paired harness** before you spend GPU time.
+
+---
+
+## Training logs (non‑negotiable requirement)
+
+After a real GPU GRPO run, TensorBoard event files land in `ev_oracle_grpo_road/`.
+
+Export judge-ready plots (PNG) with labeled axes:
+
+```bash
+python tools/export_grpo_tensorboard_plots.py --logdir ev_oracle_grpo_road --out-dir artifacts
+```
+
+This writes:
+
+- `artifacts/grpo_loss.png`
+- `artifacts/grpo_reward.png`
+
+These two files are the simplest “we actually trained” evidence judges look for.
+
+---
+
+## Visualization gallery (what judges can scan fast)
+
+### One-page dashboard
+
+![Six-panel evaluation dashboard](../artifacts/eval_dashboard_summary.png)
+
+### Aggregate KPI comparison
+
+![Baseline vs Oracle — mean KPIs](../artifacts/kpi_comparison.png)
+
+### Per-episode trajectories (paired seeds)
+
+![Wait, peak ticks, stress ticks vs episode index](../artifacts/eval_episode_trajectories.png)
+
+### Paired deltas (oracle − baseline)
+
+![Per-episode delta histograms](../artifacts/eval_delta_histograms.png)
+
+### Reward breakdown (mean components)
+
+![Reward breakdown bars](../artifacts/eval_reward_breakdown_bars.png)
+
+### Distribution over episodes
+
+![Boxplots by policy](../artifacts/eval_boxplots_by_policy.png)
+
+### Head-to-head win rates
+
+![Oracle win rates](../artifacts/eval_oracle_win_rates.png)
+
+### Paired scatter: wait
+
+![Paired scatter wait](../artifacts/eval_paired_scatter_wait.png)
+
+### Binary timeline (baseline difficulty map)
+
+![Binary timeline baseline](../artifacts/eval_binary_timeline_baseline.png)
+
+### Wilson intervals (binary rates)
+
+![Binary rates with Wilson intervals](../artifacts/eval_fair_binary_rates.png)
+
+### McNemar p-values (paired test)
+
+![McNemar p-values](../artifacts/eval_mcnemar_pvalues.png)
+
+### Fair-eval chart
+
+![Wilson chart](../artifacts/fair_eval_chart.png)
+
+---
+
+## Submission bundle (the “don’t miss anything” checklist)
+
+If you want **env + scripts + logs** in one place:
+
+- [`docs/submission/training-artifacts-and-logs.md`](submission/training-artifacts-and-logs.md)
+- Under–2 minute video shot list: [`docs/submission/youtube-under-2min-outline.md`](submission/youtube-under-2min-outline.md)
+
+---
+
+## LoRA / QLoRA warning (verbatim, keep this intact)
 
 > If you're using LoRA/QLoRA, don't naively upcast a 4-bit base to 16-bit and "merge" at the end without the correct path — it can badly degrade quality. Save adapters cleanly and test post-training inference immediately.
 
 ---
 
-## Submission bundle (last push)
-
-For reviewers who want **env + scripts + logs** in one place: **[`docs/submission/training-artifacts-and-logs.md`](submission/training-artifacts-and-logs.md)** (TensorBoard / `trainer_state.json`, eval JSON, what to commit). Under–2 minute **video shot list**: [`docs/submission/youtube-under-2min-outline.md`](submission/youtube-under-2min-outline.md).
-
----
-
-## Links (canonical)
-
-- **GitHub:** `https://github.com/NITISH-R-G/ev-grid-oracle`  
-- **Space / live URL:** see root `README.md` → Quick links (keep in sync with your HF account).
-
 ## Official hackathon materials
 
-See **[`hackathon-official-resources.md`](hackathon-official-resources.md)** (OpenEnv Core, HF `openenv` hub, tutorials, YouTube series, reward-engineering papers).
+See [`docs/hackathon-official-resources.md`](hackathon-official-resources.md) for OpenEnv + HF resources and the official video series.
 
 ---
 
-*This file lives in the environment repository so you can **copy it into a Hugging Face Space blog post**, **link the raw GitHub file** from your model card, or **mirror** it on `huggingface.co/blog` with minimal edits.*
+## Shareable blog markdown URL (for submission forms)
+
+Use the public GitHub URL of this markdown file:
+
+`https://github.com/NITISH-R-G/ev-grid-oracle/blob/main/docs/hf-mini-blog-ev-grid-oracle.md`
+
+If you mirror it to the **HF Space repository**, use the equivalent HF repo file URL (same path/name).
