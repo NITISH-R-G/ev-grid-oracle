@@ -30,6 +30,7 @@ type Args = {
 
   dreamEl: HTMLPreElement;
   oracleEl: HTMLPreElement;
+  diffEl: HTMLPreElement;
   eventsEl: HTMLPreElement;
   negoEl: HTMLPreElement;
 };
@@ -150,6 +151,9 @@ export function startCommandCenter(args: Args) {
   let playing = false;
   let demoBusy = false;
   let tourBusy = false;
+  let lastBaselineState: any | null = null;
+  let lastOracleState: any | null = null;
+  let lastOracleRb: Record<string, number> | null = null;
 
   const seedRand = () => Math.floor(Math.random() * 10_000);
 
@@ -193,6 +197,45 @@ export function startCommandCenter(args: Args) {
     if (lora) params.set("lora", lora);
     const url = `${window.location.pathname}?${params.toString()}`;
     appendEvent(`share: ${url}`);
+  };
+
+  const summarizeDiff = (prev: any | null, next: any | null) => {
+    if (!next) return "(no state)";
+    const pv = prev || {};
+    const nv = next || {};
+    const d = (a: any, b: any) => (Number(b ?? 0) - Number(a ?? 0));
+    const pct = (x: any) => `${(Number(x ?? 0) * 100).toFixed(1)}%`;
+    const num = (x: any) => Number(x ?? 0);
+
+    const prevStations = Array.isArray(pv.stations) ? pv.stations : [];
+    const nextStations = Array.isArray(nv.stations) ? nv.stations : [];
+    const meanWait = (arr: any[]) => arr.reduce((a, s) => a + Number(s?.avg_wait_minutes ?? 0), 0) / Math.max(1, arr.length);
+    const stressCount = (arr: any[]) => arr.filter((s) => Number(s?.occupied_slots ?? 0) / Math.max(1, Number(s?.total_slots ?? 1)) > 0.85).length;
+
+    const lines: string[] = [];
+    lines.push(`grid_load: ${pct(pv.grid_load_pct)} → ${pct(nv.grid_load_pct)} (Δ ${(d(pv.grid_load_pct, nv.grid_load_pct) * 100).toFixed(1)}pp)`);
+    lines.push(`renewable: ${pct(pv.renewable_pct)} → ${pct(nv.renewable_pct)} (Δ ${(d(pv.renewable_pct, nv.renewable_pct) * 100).toFixed(1)}pp)`);
+    lines.push(`avg_wait: ${meanWait(prevStations).toFixed(2)} → ${meanWait(nextStations).toFixed(2)} (Δ ${d(meanWait(prevStations), meanWait(nextStations)).toFixed(2)} min)`);
+    lines.push(`stress_stations: ${stressCount(prevStations)} → ${stressCount(nextStations)} (Δ ${d(stressCount(prevStations), stressCount(nextStations)).toFixed(0)})`);
+    lines.push(`peak_risk: ${String(pv.peak_risk || "—")} → ${String(nv.peak_risk || "—")}`);
+    const pPend = Array.isArray(pv.pending_evs) ? pv.pending_evs.length : 0;
+    const nPend = Array.isArray(nv.pending_evs) ? nv.pending_evs.length : 0;
+    lines.push(`pending_evs: ${pPend} → ${nPend} (Δ ${nPend - pPend})`);
+    lines.push(`tick_dt_s: ${num(nv.tick_dt_s).toFixed(1)}`);
+    return lines.join("\n");
+  };
+
+  const summarizeRewardDelta = (prev: Record<string, number> | null, next: Record<string, number> | null) => {
+    if (!next) return "(no reward)";
+    const p = prev || {};
+    const keys = Array.from(new Set([...Object.keys(p), ...Object.keys(next)])).filter((k) => k !== "total");
+    const diffs = keys
+      .map((k) => [k, Number(next[k] ?? 0) - Number(p[k] ?? 0)] as const)
+      .sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]))
+      .slice(0, 6)
+      .map(([k, dv]) => `${k}: ${dv >= 0 ? "+" : ""}${dv.toFixed(3)}`);
+    const total = Number(next.total ?? 0);
+    return `reward_total: ${total.toFixed(3)}\nΔ reward terms:\n${diffs.join("\n") || "(none)"}`;
   };
 
   const setReplayUi = () => {
@@ -475,6 +518,16 @@ export function startCommandCenter(args: Args) {
       )}% peak=${String(st?.peak_risk || "")}\n` +
       `REWARD: total=${Number(rb.total ?? 0).toFixed(3)}\n` +
       `BREAKDOWN: ${top || "(empty)"}`;
+
+    // diff panel: state + reward deltas (readable, judge-friendly)
+    const bState = bRes.obs?.state || null;
+    const oState = oRes.obs?.state || null;
+    const oRb = (oRes.obs?.reward_breakdown || {}) as Record<string, number>;
+    args.diffEl.textContent =
+      `BASELINE\n${summarizeDiff(lastBaselineState, bState)}\n\nORACLE\n${summarizeDiff(lastOracleState, oState)}\n\nORACLE REWARD\n${summarizeRewardDelta(lastOracleRb, oRb)}`;
+    lastBaselineState = bState;
+    lastOracleState = oState;
+    lastOracleRb = oRb;
 
     // event stream + negotiation
     if (!judgeMode) {

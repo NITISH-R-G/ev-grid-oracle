@@ -183,6 +183,11 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
           <pre id="oracle" class="mono">(waiting)</pre>
         </div>
 
+        <div class="card hudCard">
+          <div class="cardTitle hudTitle"><span class="hudIcon info">⇄</span> What changed this step?</div>
+          <pre id="diff" class="mono">(take a Step)</pre>
+        </div>
+
         <details class="card hudCard collapsible">
           <summary class="cardTitle hudTitle">Explain / Debug (Event Stream)</summary>
           <pre id="events" class="mono">(none)</pre>
@@ -228,6 +233,7 @@ startCommandCenter({
   kpiDream: document.querySelector<HTMLDivElement>("#kpiDream")!,
   dreamEl: document.querySelector<HTMLPreElement>("#dream")!,
   oracleEl: document.querySelector<HTMLPreElement>("#oracle")!,
+  diffEl: document.querySelector<HTMLPreElement>("#diff")!,
   eventsEl: document.querySelector<HTMLPreElement>("#events")!,
   negoEl: document.querySelector<HTMLPreElement>("#nego")!,
   btnJudge: document.querySelector<HTMLButtonElement>("#btnJudge")!,
