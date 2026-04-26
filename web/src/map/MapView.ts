@@ -208,6 +208,13 @@ export class MapView {
   private staticLayers: any[] = [];
   private vehicles: Map<string, Vehicle> = new Map();
 
+  private heroRemainingPath(): [number, number][] {
+    if (!this.heroVehicleId) return this.activeRoute;
+    const v = this.vehicles.get(this.heroVehicleId);
+    if (!v || v.route.length < 2 || v.cumM.length !== v.route.length) return this.activeRoute;
+    return this.splitRouteAtProgress(v.route, v.cumM, v.totalM, v.progM).remaining;
+  }
+
   private nearestProgMOnRoute(pos: [number, number], route: [number, number][], cumM: number[]) {
     if (!route.length || cumM.length !== route.length) return 0;
     let bestI = 0;
@@ -388,7 +395,8 @@ export class MapView {
     }
 
     this.renderStatic();
-    this.fitViewToRoute(poly);
+    const fitPoly = this.side === "baseline" ? this.heroRemainingPath() : poly;
+    this.fitViewToRoute(fitPoly);
     this.kickAnim();
   }
 
@@ -409,12 +417,13 @@ export class MapView {
     const padLat = Math.max(0.002, (maxLat - minLat) * 0.12);
     const sw: [number, number] = [minLng - padLng, minLat - padLat];
     const ne: [number, number] = [maxLng + padLng, maxLat + padLat];
+    const isBaseline = this.side === "baseline";
     try {
       this.map.fitBounds([sw, ne] as any, {
-        padding: { top: 56, bottom: 56, left: 56, right: 56 },
-        duration: 700,
-        maxZoom: 15.2,
-        minZoom: 11.2,
+        padding: isBaseline ? { top: 36, bottom: 36, left: 36, right: 36 } : { top: 56, bottom: 56, left: 56, right: 56 },
+        duration: isBaseline ? 520 : 700,
+        maxZoom: isBaseline ? 16.6 : 15.2,
+        minZoom: isBaseline ? 13.2 : 11.2,
       });
     } catch {
       // ignore map timing errors
