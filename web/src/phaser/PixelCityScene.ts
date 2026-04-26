@@ -75,6 +75,11 @@ export class PixelCityScene extends Phaser.Scene {
     { glow: Phaser.GameObjects.Arc; ring: Phaser.GameObjects.Arc; base: Phaser.GameObjects.Arc }
   >();
 
+  private stationUi = new Map<string, { root: Phaser.GameObjects.Container; label: Phaser.GameObjects.Text }>();
+  private hoverCard: Phaser.GameObjects.Container | null = null;
+  private hoverBg: Phaser.GameObjects.Rectangle | null = null;
+  private hoverText: Phaser.GameObjects.Text | null = null;
+
   private ev!: Phaser.GameObjects.Sprite;
   private evShadow!: Phaser.GameObjects.Ellipse;
 
@@ -83,6 +88,9 @@ export class PixelCityScene extends Phaser.Scene {
 
   private side: "baseline" | "oracle" = "oracle";
   private flickerRect: Phaser.GameObjects.Rectangle | null = null;
+  private energyDots: Phaser.GameObjects.Image[] = [];
+  private reactor: Phaser.GameObjects.Container | null = null;
+  private roadsFallbackEdges: Array<{ a: { x: number; y: number }; b: { x: number; y: number } }> = [];
 
   constructor() {
     super("PixelCityScene");
@@ -107,6 +115,38 @@ export class PixelCityScene extends Phaser.Scene {
     g.fillRect(12, 5, 1, 2);
     g.generateTexture("ev", 16, 16);
     g.destroy();
+
+    // Pixel station sprite
+    {
+      const s = this.make.graphics({ x: 0, y: 0 });
+      s.clear();
+      s.fillStyle(0x0b0d14, 1);
+      s.fillRect(0, 0, 16, 16);
+      s.fillStyle(0x1b243a, 1);
+      s.fillRect(2, 2, 12, 12);
+      s.fillStyle(0x35ffb8, 1);
+      s.fillRect(6, 3, 4, 3);
+      s.fillStyle(0xe8ecff, 1);
+      s.fillRect(5, 7, 6, 6);
+      s.fillStyle(0x0b0d14, 1);
+      s.fillRect(6, 8, 4, 4);
+      s.generateTexture("station", 16, 16);
+      s.destroy();
+    }
+
+    // Energy dot sprite
+    {
+      const e = this.make.graphics({ x: 0, y: 0 });
+      e.clear();
+      e.fillStyle(0x000000, 0);
+      e.fillRect(0, 0, 8, 8);
+      e.fillStyle(0x61ffb1, 1);
+      e.fillRect(3, 0, 2, 8);
+      e.fillStyle(0x61ffb1, 1);
+      e.fillRect(0, 3, 8, 2);
+      e.generateTexture("energyDot", 8, 8);
+      e.destroy();
+    }
   }
 
   create() {
@@ -172,6 +212,38 @@ export class PixelCityScene extends Phaser.Scene {
     });
 
     this.ui.statusEl.textContent = "Click New to start.";
+
+    // Hover card (micro-interaction)
+    this.hoverBg = this.add.rectangle(0, 0, 10, 10, 0x070911, 0.82).setOrigin(0, 0);
+    this.hoverBg.setStrokeStyle(1, 0x5a78ff, 0.35);
+    this.hoverText = this.add.text(0, 0, "", {
+      fontFamily: "monospace",
+      fontSize: "12px",
+      color: "#e8ecff",
+    });
+    this.hoverText.setShadow(0, 0, "#000", 6);
+    this.hoverCard = this.add.container(0, 0, [this.hoverBg, this.hoverText]);
+    this.hoverCard.setDepth(9999);
+    this.hoverCard.setVisible(false);
+
+    // Idle “alive” motion on load even before sessions
+    this.time.addEvent({
+      loop: true,
+      delay: 900,
+      callback: () => {
+        if (!this.reactor) return;
+        // Soft heartbeat on the Bangalore hub
+        const core = this.reactor.getByName("reactorCore") as Phaser.GameObjects.Arc | null;
+        if (!core) return;
+        this.tweens.add({
+          targets: core,
+          scale: { from: 1.0, to: 1.08 },
+          yoyo: true,
+          duration: 420,
+          ease: "Sine.easeInOut",
+        });
+      },
+    });
   }
 
   setSide(side: "baseline" | "oracle") {
@@ -185,6 +257,8 @@ export class PixelCityScene extends Phaser.Scene {
     this.projector = makeProjector(bbox, this.scale.width, this.scale.height, 70);
     this.drawStations();
     this.snapCameraToCity();
+    this.ensureReactorHub();
+    this.startAmbientEnergy();
 
     // Roads are optional; do not block session readiness on them.
     void (async () => {
@@ -321,6 +395,8 @@ export class PixelCityScene extends Phaser.Scene {
   private drawStations() {
     this.stationsLayer.removeAll(true);
     this.stationMarks.clear();
+    this.stationUi.clear();
+    this.roadsFallbackEdges = [];
     if (!this.projector) return;
 
     // Roads fallback (v0) only if OSM layer didn’t load
@@ -334,6 +410,7 @@ export class PixelCityScene extends Phaser.Scene {
           const b = this.nodes[j];
           const pb = this.projector(b.lat, b.lng);
           road.lineBetween(pa.x, pa.y, pb.x, pb.y);
+          this.roadsFallbackEdges.push({ a: { x: pa.x, y: pa.y }, b: { x: pb.x, y: pb.y } });
         }
       }
       road.lineStyle(3, 0xbcc6e5, 0.10);
@@ -355,6 +432,11 @@ export class PixelCityScene extends Phaser.Scene {
       const base = this.add.circle(p.x, p.y, 10, 0x1b243a, 1);
       const glow = this.add.circle(p.x, p.y, 18, 0x3cff9a, 0.08);
       const ring = this.add.circle(p.x, p.y, 14, 0x5a78ff, 0.08);
+      const spr = this.add.sprite(p.x, p.y, "station");
+      spr.setScale(1.6);
+      spr.setDepth(2);
+      spr.setInteractive({ useHandCursor: true });
+
       const label = this.add.text(p.x + 14, p.y - 10, n.station_id, {
         fontFamily: "monospace",
         fontSize: "10px",
@@ -363,9 +445,155 @@ export class PixelCityScene extends Phaser.Scene {
       label.setAlpha(0.85);
       label.setShadow(0, 0, "#000", 4);
 
-      this.stationsLayer.add([glow, ring, base, label]);
+      // Subtle idle pulse per station (makes map “alive” immediately)
+      this.tweens.add({
+        targets: [glow, ring],
+        alpha: { from: 0.05, to: 0.12 },
+        duration: 1400 + Math.random() * 900,
+        yoyo: true,
+        repeat: -1,
+        ease: "Sine.easeInOut",
+      });
+
+      spr.on("pointerover", () => {
+        spr.setScale(1.9);
+        this.showHover(`Station: ${n.station_id}\nSlots: ${n.total_slots}\nType: ${n.station_type || "charger"}`, p.x, p.y);
+      });
+      spr.on("pointerout", () => {
+        spr.setScale(1.6);
+        this.hideHover();
+      });
+      spr.on("pointerdown", () => {
+        // Satisfying click feedback
+        this.spawnBurst(p.x, p.y, this.side === "oracle" ? 0xb85cff : 0x35ffb8);
+      });
+
+      const root = this.add.container(0, 0, [glow, ring, base, spr, label]);
+      this.stationsLayer.add(root);
       this.stationMarks.set(n.station_id, { glow, ring, base });
+      this.stationUi.set(n.station_id, { root, label });
     }
+  }
+
+  private ensureReactorHub() {
+    if (!this.projector || this.nodes.length === 0) return;
+    // center of bbox in screen space
+    const xs = this.nodes.map((n) => this.projector!(n.lat, n.lng).x);
+    const ys = this.nodes.map((n) => this.projector!(n.lat, n.lng).y);
+    const cx = (Math.min(...xs) + Math.max(...xs)) / 2;
+    const cy = (Math.min(...ys) + Math.max(...ys)) / 2;
+
+    this.reactor?.destroy(true);
+    const outer = this.add.circle(cx, cy, 34, 0x5a78ff, 0.06);
+    const mid = this.add.circle(cx, cy, 22, 0xb85cff, 0.10);
+    const core = this.add.circle(cx, cy, 12, 0x35ffb8, 0.35);
+    core.setName("reactorCore");
+    const label = this.add.text(cx, cy + 42, "BANGALORE HUB", {
+      fontFamily: "monospace",
+      fontSize: "12px",
+      color: "#e8ecff",
+    });
+    label.setOrigin(0.5, 0);
+    label.setAlpha(0.9);
+    label.setShadow(0, 0, "#000", 6);
+
+    this.reactor = this.add.container(0, 0, [outer, mid, core, label]);
+    this.reactor.setDepth(1);
+    this.fxLayer.add(this.reactor);
+
+    // Continuous reactor breathing glow (immediate focal point)
+    this.tweens.add({
+      targets: [outer, mid],
+      alpha: { from: 0.06, to: 0.18 },
+      duration: 1200,
+      yoyo: true,
+      repeat: -1,
+      ease: "Sine.easeInOut",
+    });
+  }
+
+  private startAmbientEnergy() {
+    // Clear old dots
+    for (const d of this.energyDots) d.destroy();
+    this.energyDots = [];
+    if (this.roadsFallbackEdges.length === 0) return;
+
+    // Spawn a few “energy dots” that flow along edges (directional motion)
+    const count = 10;
+    for (let i = 0; i < count; i++) {
+      const e = this.roadsFallbackEdges[Math.floor(Math.random() * this.roadsFallbackEdges.length)];
+      const dot = this.add.image(e.a.x, e.a.y, "energyDot");
+      dot.setScale(1.2);
+      dot.setDepth(3);
+      dot.setAlpha(0.8);
+      this.fxLayer.add(dot);
+      this.energyDots.push(dot);
+      this.loopDot(dot, e);
+    }
+  }
+
+  private loopDot(dot: Phaser.GameObjects.Image, edge: { a: { x: number; y: number }; b: { x: number; y: number } }) {
+    const from = Math.random() < 0.5 ? edge.a : edge.b;
+    const to = from === edge.a ? edge.b : edge.a;
+    dot.setPosition(from.x, from.y);
+    this.tweens.add({
+      targets: dot,
+      x: to.x,
+      y: to.y,
+      duration: 1400 + Math.random() * 1100,
+      ease: "Sine.easeInOut",
+      onComplete: () => {
+        // pick a new edge to keep it feeling alive
+        const e = this.roadsFallbackEdges[Math.floor(Math.random() * this.roadsFallbackEdges.length)];
+        this.loopDot(dot, e);
+      },
+    });
+  }
+
+  private showHover(text: string, x: number, y: number) {
+    if (!this.hoverCard || !this.hoverBg || !this.hoverText) return;
+    this.hoverText.setText(text);
+    const pad = 10;
+    const w = Math.min(320, this.hoverText.width + pad * 2);
+    const h = this.hoverText.height + pad * 2;
+    this.hoverBg.setSize(w, h);
+    this.hoverText.setPosition(pad, pad);
+
+    const px = Phaser.Math.Clamp(x + 14, 10, this.scale.width - w - 10);
+    const py = Phaser.Math.Clamp(y - h - 12, 10, this.scale.height - h - 10);
+    this.hoverCard.setPosition(px, py);
+    this.hoverCard.setVisible(true);
+    this.hoverCard.setAlpha(0);
+    this.tweens.add({ targets: this.hoverCard, alpha: 1, duration: 120, ease: "Sine.easeOut" });
+  }
+
+  private hideHover() {
+    if (!this.hoverCard) return;
+    this.hoverCard.setVisible(false);
+  }
+
+  private spawnBurst(x: number, y: number, color: number) {
+    const g = this.add.graphics();
+    g.setDepth(50);
+    this.fxLayer.add(g);
+    const rays = 8;
+    const r1 = 6;
+    const r2 = 20;
+    g.lineStyle(3, color, 0.8);
+    for (let i = 0; i < rays; i++) {
+      const a = (Math.PI * 2 * i) / rays;
+      g.beginPath();
+      g.moveTo(x + Math.cos(a) * r1, y + Math.sin(a) * r1);
+      g.lineTo(x + Math.cos(a) * r2, y + Math.sin(a) * r2);
+      g.strokePath();
+    }
+    this.tweens.add({
+      targets: g,
+      alpha: { from: 1, to: 0 },
+      duration: 360,
+      ease: "Sine.easeOut",
+      onComplete: () => g.destroy(),
+    });
   }
 
   private snapCameraToCity() {
@@ -412,6 +640,10 @@ export class PixelCityScene extends Phaser.Scene {
       const danger = stress > 0.72;
       // Arc doesn't support tint the same way sprites do; adjust fill color directly.
       m.glow.setFillStyle(danger ? 0xff5a8a : 0x3cff9a, m.glow.alpha);
+      if (danger && Math.random() < 0.07) {
+        // “event burst” micro-magic when stress spikes
+        this.spawnBurst(m.glow.x, m.glow.y, 0xff5a8a);
+      }
     }
   }
 

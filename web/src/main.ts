@@ -7,7 +7,7 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
       <div class="brand">
         <div class="dot"></div>
         <div>
-          <div class="title">EV Grid Oracle — Command Center</div>
+          <div class="title glitch" data-text="EV Grid Oracle — Command Center">EV Grid Oracle — Command Center</div>
           <div class="subtitle">A/B live: heuristic baseline vs GRPO-trained Oracle (Dream → Act)</div>
         </div>
       </div>
