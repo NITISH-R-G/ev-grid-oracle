@@ -17,3 +17,8 @@ assets/validation_output.txt
 # Large raw OSM extracts (keep pruned demo map committed instead)
 web/public/maps/bangalore_roads.geojson
 
+# Web build artifacts / deps should never be committed
+web/node_modules/
+web/dist/
+web/dist-ssr/
+
