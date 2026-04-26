@@ -91,6 +91,7 @@ export class PixelCityScene extends Phaser.Scene {
   private energyDots: Phaser.GameObjects.Image[] = [];
   private reactor: Phaser.GameObjects.Container | null = null;
   private roadsFallbackEdges: Array<{ a: { x: number; y: number }; b: { x: number; y: number } }> = [];
+  private terrainRt: Phaser.GameObjects.RenderTexture | null = null;
 
   constructor() {
     super("PixelCityScene");
@@ -163,15 +164,11 @@ export class PixelCityScene extends Phaser.Scene {
     this.stationsLayer = this.add.container(0, 0);
     this.fxLayer = this.add.container(0, 0);
 
-    // Pixel ground (simple tiled vibe)
-    const bg = this.add.graphics();
-    bg.fillStyle(0x070911, 1);
-    bg.fillRect(0, 0, w, h);
-    // subtle grid “tile” pattern
-    bg.lineStyle(1, 0x131a33, 0.25);
-    for (let x = 0; x <= w; x += 24) bg.lineBetween(x, 0, x, h);
-    for (let y = 0; y <= h; y += 24) bg.lineBetween(0, y, w, y);
-    bg.setDepth(-10);
+    // Stylized terrain base (reads more “real map” than a plain grid)
+    this.terrainRt = this.add.renderTexture(0, 0, w, h);
+    this.terrainRt.setOrigin(0, 0);
+    this.terrainRt.setDepth(-10);
+    this.drawTerrain();
 
     // Subtle vignette (readability): darken edges/top/bottom without noisy gradients.
     const vig = this.add.graphics();
@@ -257,6 +254,7 @@ export class PixelCityScene extends Phaser.Scene {
     this.projector = makeProjector(bbox, this.scale.width, this.scale.height, 70);
     this.drawStations();
     this.snapCameraToCity();
+    this.drawTerrain();
     this.ensureReactorHub();
     this.startAmbientEnergy();
 
@@ -474,6 +472,80 @@ export class PixelCityScene extends Phaser.Scene {
       this.stationMarks.set(n.station_id, { glow, ring, base });
       this.stationUi.set(n.station_id, { root, label });
     }
+  }
+
+  private drawTerrain() {
+    if (!this.terrainRt) return;
+    const w = this.scale.width;
+    const h = this.scale.height;
+    this.terrainRt.clear();
+
+    // Deterministic-ish seed from sessionId (or fallback).
+    const seedStr = this.sessionId || "seed";
+    let seed = 0;
+    for (let i = 0; i < seedStr.length; i++) seed = (seed * 31 + seedStr.charCodeAt(i)) >>> 0;
+    const rand = () => {
+      // xorshift32
+      seed ^= seed << 13;
+      seed ^= seed >>> 17;
+      seed ^= seed << 5;
+      return ((seed >>> 0) % 10_000) / 10_000;
+    };
+
+    const g = this.make.graphics({ x: 0, y: 0 });
+    // Deep base
+    g.fillStyle(0x070911, 1);
+    g.fillRect(0, 0, w, h);
+
+    // Water-ish bodies (cyan dark) — gives “real place” structure
+    g.fillStyle(0x0a2a33, 0.35);
+    for (let i = 0; i < 3; i++) {
+      const cx = w * (0.18 + rand() * 0.72);
+      const cy = h * (0.20 + rand() * 0.65);
+      const rx = 90 + rand() * 140;
+      const ry = 60 + rand() * 110;
+      g.fillEllipse(cx, cy, rx, ry);
+    }
+
+    // Parks/green pockets
+    g.fillStyle(0x0c2a1f, 0.28);
+    for (let i = 0; i < 6; i++) {
+      const cx = w * (0.10 + rand() * 0.80);
+      const cy = h * (0.15 + rand() * 0.70);
+      const rx = 70 + rand() * 160;
+      const ry = 50 + rand() * 120;
+      g.fillEllipse(cx, cy, rx, ry);
+    }
+
+    // Hills (purple height blobs) + contour rings
+    for (let i = 0; i < 10; i++) {
+      const cx = w * (0.12 + rand() * 0.76);
+      const cy = h * (0.12 + rand() * 0.76);
+      const r = 90 + rand() * 210;
+      const col = i % 2 === 0 ? 0x1a163e : 0x12134a;
+      g.fillStyle(col, 0.28);
+      g.fillCircle(cx, cy, r);
+
+      g.lineStyle(2, 0xb85cff, 0.05);
+      g.strokeCircle(cx, cy, r * 0.72);
+      g.strokeCircle(cx, cy, r * 0.48);
+    }
+
+    // Subtle “street grid” texture overlay (kept light)
+    g.lineStyle(1, 0x1b2a55, 0.18);
+    for (let x = 0; x <= w; x += 32) g.lineBetween(x, 0, x, h);
+    for (let y = 0; y <= h; y += 32) g.lineBetween(0, y, w, y);
+
+    // City glow bloom around center to guide focus
+    const cx = w * 0.52;
+    const cy = h * 0.52;
+    g.fillStyle(0xb85cff, 0.06);
+    g.fillCircle(cx, cy, 260);
+    g.fillStyle(0x23e7ff, 0.04);
+    g.fillCircle(cx, cy, 200);
+
+    this.terrainRt.draw(g, 0, 0);
+    g.destroy();
   }
 
   private ensureReactorHub() {
