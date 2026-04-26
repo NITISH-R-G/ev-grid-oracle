@@ -95,6 +95,7 @@ export class PixelCityScene extends Phaser.Scene {
   private tilesLayer: Phaser.GameObjects.Container | null = null;
   private tileSprites: Phaser.GameObjects.Image[] = [];
   private osmAttribution: Phaser.GameObjects.Text | null = null;
+  private tileStatus: Phaser.GameObjects.Text | null = null;
 
   constructor() {
     super("PixelCityScene");
@@ -175,7 +176,10 @@ export class PixelCityScene extends Phaser.Scene {
     this.terrainRt.setDepth(-10);
     this.drawTerrain();
 
-    // OSM attribution (required if we show real tiles)
+    // Cross-origin tiles need CORS enabled for WebGL textures.
+    this.load.setCORS("anonymous");
+
+    // Attribution (required if we show real tiles)
     this.osmAttribution = this.add.text(w - 12, h - 10, "© OpenStreetMap contributors", {
       fontFamily: "monospace",
       fontSize: "10px",
@@ -184,6 +188,15 @@ export class PixelCityScene extends Phaser.Scene {
     this.osmAttribution.setOrigin(1, 1);
     this.osmAttribution.setAlpha(0.0);
     this.osmAttribution.setDepth(9998);
+
+    this.tileStatus = this.add.text(12, h - 10, "", {
+      fontFamily: "monospace",
+      fontSize: "10px",
+      color: "#cbd5ff",
+    });
+    this.tileStatus.setOrigin(0, 1);
+    this.tileStatus.setAlpha(0.0);
+    this.tileStatus.setDepth(9998);
 
     // Subtle vignette (readability): darken edges/top/bottom without noisy gradients.
     const vig = this.add.graphics();
@@ -557,6 +570,9 @@ export class PixelCityScene extends Phaser.Scene {
     // Map tile corners to screen using the *same* projector as overlays (mercator-based)
     if (!this.projector) return;
 
+    this.tileStatus?.setText("loading map tiles…");
+    this.tileStatus?.setAlpha(0.85);
+
     const loadTile = (key: string, url: string) =>
       new Promise<void>((resolve, reject) => {
         if (this.textures.exists(key)) {
@@ -575,7 +591,9 @@ export class PixelCityScene extends Phaser.Scene {
     for (let y = yMin; y <= yMax; y++) {
       for (let x = xMin; x <= xMax; x++) {
         const key = `osm_${zoom}_${x}_${y}`;
-        const url = `https://tile.openstreetmap.org/${zoom}/${x}/${y}.png`;
+        // Use CARTO basemap tiles (CORS-friendly). Dark style fits the HUD.
+        // Attribution required: © OpenStreetMap contributors © CARTO
+        const url = `https://basemaps.cartocdn.com/dark_all/${zoom}/${x}/${y}.png`;
         // eslint-disable-next-line no-await-in-loop
         await loadTile(key, url);
 
@@ -592,15 +610,18 @@ export class PixelCityScene extends Phaser.Scene {
 
         const img = this.add.image(pTL.x, pTL.y, key).setOrigin(0, 0);
         img.setDisplaySize(tw, th);
-        img.setAlpha(0.78);
+        img.setAlpha(1.0);
         this.tilesLayer.add(img);
         this.tileSprites.push(img);
       }
     }
 
     // If tiles are present, fade out terrain and show attribution
-    this.terrainRt?.setAlpha(0.18);
-    this.osmAttribution?.setAlpha(0.85);
+    this.terrainRt?.setAlpha(0.06);
+    this.osmAttribution?.setText("© OpenStreetMap contributors © CARTO");
+    this.osmAttribution?.setAlpha(0.90);
+    this.tileStatus?.setText(`tiles: ${total} @ z${zoom}`);
+    this.tileStatus?.setAlpha(0.85);
   }
 
   private drawTerrain() {
