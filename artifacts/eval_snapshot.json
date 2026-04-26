@@ -1,0 +1,151 @@
+{
+  "episodes": 2,
+  "seed": 777,
+  "scenario": "baseline",
+  "paired_same_world": true,
+  "baseline": {
+    "avg_wait_minutes": 0.3308333333333333,
+    "grid_stress_events": 12.5,
+    "peak_violations": 3.5,
+    "renewable_mean": 0.30965023345375964,
+    "critical_deferred": 0,
+    "anti_cheat_steps": 2
+  },
+  "oracle": {
+    "avg_wait_minutes": 0.3308333333333333,
+    "grid_stress_events": 12.5,
+    "peak_violations": 3.5,
+    "renewable_mean": 0.30965023345375964,
+    "critical_deferred": 0,
+    "anti_cheat_steps": 2
+  },
+  "baseline_reward_breakdown_mean": {
+    "action/route": 0.09166666666666667,
+    "anti_hack": -0.3333333333333333,
+    "grid_stress": -0.65625,
+    "no_pending": 0.0,
+    "peak": 0.36888926649385567,
+    "renewable": 0.46821057589411247,
+    "urgency": 1.34375,
+    "valid_action_shaping": 0.09583333333333333,
+    "wait": -0.07833333333333332
+  },
+  "oracle_reward_breakdown_mean": {
+    "action/route": 0.09166666666666667,
+    "anti_hack": -0.3333333333333333,
+    "grid_stress": -0.65625,
+    "no_pending": 0.0,
+    "peak": 0.36888926649385567,
+    "renewable": 0.46821057589411247,
+    "urgency": 1.34375,
+    "valid_action_shaping": 0.09583333333333333,
+    "wait": -0.07833333333333332
+  },
+  "per_episode": [
+    {
+      "episode_index": 0,
+      "episode_seed": 777,
+      "scenario": "baseline",
+      "baseline": {
+        "avg_wait": 0.335,
+        "grid_stress_events": 15,
+        "peak_violations": 3,
+        "renewable_mean": 0.4191342549001467,
+        "critical_deferred": 0,
+        "anti_cheat_steps": 2,
+        "reward_breakdown_mean": {
+          "action/route": 0.09999999999999998,
+          "anti_hack": -0.3333333333333333,
+          "grid_stress": -0.8125,
+          "peak": 0.3850664753055811,
+          "renewable": 0.633437458777166,
+          "urgency": 1.4375,
+          "valid_action_shaping": 0.09583333333333333,
+          "wait": -0.10499999999999998
+        }
+      },
+      "oracle": {
+        "avg_wait": 0.335,
+        "grid_stress_events": 15,
+        "peak_violations": 3,
+        "renewable_mean": 0.4191342549001467,
+        "critical_deferred": 0,
+        "anti_cheat_steps": 2,
+        "reward_breakdown_mean": {
+          "action/route": 0.09999999999999998,
+          "anti_hack": -0.3333333333333333,
+          "grid_stress": -0.8125,
+          "peak": 0.3850664753055811,
+          "renewable": 0.633437458777166,
+          "urgency": 1.4375,
+          "valid_action_shaping": 0.09583333333333333,
+          "wait": -0.10499999999999998
+        }
+      },
+      "binary": {
+        "baseline_any_peak_violation": true,
+        "oracle_any_peak_violation": true,
+        "baseline_any_anti_cheat": true,
+        "oracle_any_anti_cheat": true,
+        "baseline_any_critical_defer": false,
+        "oracle_any_critical_defer": false,
+        "baseline_high_stress": true,
+        "oracle_high_stress": true
+      }
+    },
+    {
+      "episode_index": 1,
+      "episode_seed": 778,
+      "scenario": "baseline",
+      "baseline": {
+        "avg_wait": 0.32666666666666666,
+        "grid_stress_events": 10,
+        "peak_violations": 4,
+        "renewable_mean": 0.2001662120073726,
+        "critical_deferred": 0,
+        "anti_cheat_steps": 2,
+        "reward_breakdown_mean": {
+          "action/route": 0.08333333333333337,
+          "anti_hack": -0.3333333333333333,
+          "grid_stress": -0.5,
+          "no_pending": 0.0,
+          "peak": 0.35271205768213026,
+          "renewable": 0.302983693011059,
+          "urgency": 1.25,
+          "valid_action_shaping": 0.09583333333333333,
+          "wait": -0.051666666666666666
+        }
+      },
+      "oracle": {
+        "avg_wait": 0.32666666666666666,
+        "grid_stress_events": 10,
+        "peak_violations": 4,
+        "renewable_mean": 0.2001662120073726,
+        "critical_deferred": 0,
+        "anti_cheat_steps": 2,
+        "reward_breakdown_mean": {
+          "action/route": 0.08333333333333337,
+          "anti_hack": -0.3333333333333333,
+          "grid_stress": -0.5,
+          "no_pending": 0.0,
+          "peak": 0.35271205768213026,
+          "renewable": 0.302983693011059,
+          "urgency": 1.25,
+          "valid_action_shaping": 0.09583333333333333,
+          "wait": -0.051666666666666666
+        }
+      },
+      "binary": {
+        "baseline_any_peak_violation": true,
+        "oracle_any_peak_violation": true,
+        "baseline_any_anti_cheat": true,
+        "oracle_any_anti_cheat": true,
+        "baseline_any_critical_defer": false,
+        "oracle_any_critical_defer": false,
+        "baseline_high_stress": false,
+        "oracle_high_stress": false
+      }
+    }
+  ],
+  "note": "Per-episode: identical episode_seed for baseline and oracle. Oracle uses ORACLE_LORA_REPO if set; ORACLE_SKIP_LLM forces baseline policy inside oracle path."
+}

@@ -12,6 +12,20 @@ function ensureLngLat(poly: any[]): [number, number][] {
   return Array.isArray(poly) ? (poly as any).map(([lat, lng]: any) => [lng, lat]) : [];
 }
 
+/** Uniform resample cap: huge OSM polylines slow Deck; keep shape + endpoints. */
+function simplifyPathLngLat(path: [number, number][], maxPts: number): [number, number][] {
+  if (path.length <= 2 || path.length <= maxPts) return path;
+  const out: [number, number][] = [];
+  const last = path.length - 1;
+  const step = last / (maxPts - 1);
+  for (let k = 0; k < maxPts - 1; k++) {
+    const idx = Math.min(last, Math.round(k * step));
+    out.push([path[idx][0], path[idx][1]]);
+  }
+  out.push([path[last][0], path[last][1]]);
+  return out;
+}
+
 // Canvas atlas containing: car | bike | station
 // (data-URL SVG atlases can fail to load in some deck.gl environments)
 function buildIconAtlas(): HTMLCanvasElement {
@@ -430,11 +444,134 @@ export class MapView {
     return 2 * R * Math.asin(Math.sqrt(a));
   }
 
+  private nearLngLat(a: [number, number], b: [number, number]) {
+    return Math.abs(a[0] - b[0]) < 1e-9 && Math.abs(a[1] - b[1]) < 1e-9;
+  }
+
+  /** Split active polyline at hero progress for Uber-style “done vs ahead” styling. */
+  private splitRouteAtProgress(
+    route: [number, number][],
+    cumM: number[],
+    totalM: number,
+    progM: number
+  ): { traveled: [number, number][]; remaining: [number, number][] } {
+    if (route.length < 2) return { traveled: [...route], remaining: [...route] };
+    const m = Math.max(0, Math.min(progM, totalM));
+    const cut = this.pointAtOn(route, cumM, totalM, m);
+    if (!cut) return { traveled: [[route[0][0], route[0][1]]], remaining: [...route] };
+    const pos = cut.pos;
+    let i = 1;
+    while (i < cumM.length && cumM[i] < m) i++;
+
+    const traveled: [number, number][] = [];
+    for (let j = 0; j < i; j++) traveled.push([route[j][0], route[j][1]]);
+    const lastT = traveled[traveled.length - 1];
+    if (!lastT || !this.nearLngLat(lastT, pos)) traveled.push([pos[0], pos[1]]);
+
+    const remaining: [number, number][] = [];
+    if (!this.nearLngLat(pos, route[i - 1])) remaining.push([pos[0], pos[1]]);
+    for (let j = i; j < route.length; j++) {
+      if (j === i && this.nearLngLat(pos, route[j])) continue;
+      remaining.push([route[j][0], route[j][1]]);
+    }
+    if (remaining.length < 2) {
+      const end = route[route.length - 1];
+      remaining.push([end[0], end[1]]);
+    }
+    return {
+      traveled: simplifyPathLngLat(traveled, 220),
+      remaining: simplifyPathLngLat(remaining, 360),
+    };
+  }
+
+  /** Route is updated every animation frame; roads stay in `staticLayers`. */
+  private makeRouteProgressLayers(): PathLayer[] {
+    if (!this.activeRoute.length) return [];
+    const hero = this.heroVehicleId ? this.vehicles.get(this.heroVehicleId) : undefined;
+    let traveled: [number, number][] = [];
+    let remaining: [number, number][] = [];
+    if (hero && hero.route.length >= 2 && hero.cumM.length === hero.route.length && hero.totalM > 1e-6) {
+      const sp = this.splitRouteAtProgress(hero.route, hero.cumM, hero.totalM, hero.progM);
+      traveled = sp.traveled;
+      remaining = sp.remaining;
+    } else {
+      remaining = simplifyPathLngLat(this.activeRoute, 360);
+    }
+
+    const traveledCore: [number, number, number, number] =
+      this.side === "oracle" ? [60, 160, 175, 170] : [200, 200, 220, 150];
+    const routeCore = this.side === "oracle" ? [55, 240, 255, 255] : [240, 244, 255, 250];
+    const routeCasing = [8, 10, 18, 235];
+    const routeHalo = this.side === "oracle" ? [35, 200, 230, 55] : [200, 210, 245, 45];
+
+    const layers: PathLayer[] = [];
+    if (traveled.length >= 2) {
+      layers.push(
+        new PathLayer({
+          id: `route-traveled-${this.side}`,
+          data: [{ path: traveled }],
+          getPath: (d: any) => d.path,
+          getColor: traveledCore as any,
+          getWidth: 2.2,
+          widthUnits: "pixels",
+          capRounded: true,
+          jointRounded: true,
+          pickable: false,
+          parameters: { depthTest: false },
+        })
+      );
+    }
+    if (remaining.length >= 2) {
+      layers.push(
+        new PathLayer({
+          id: `route-halo-${this.side}`,
+          data: [{ path: remaining }],
+          getPath: (d: any) => d.path,
+          getColor: routeHalo as any,
+          getWidth: 7,
+          widthUnits: "pixels",
+          capRounded: false,
+          jointRounded: false,
+          pickable: false,
+          parameters: { depthTest: false },
+        }),
+        new PathLayer({
+          id: `route-casing-${this.side}`,
+          data: [{ path: remaining }],
+          getPath: (d: any) => d.path,
+          getColor: routeCasing as any,
+          getWidth: 5,
+          widthUnits: "pixels",
+          capRounded: false,
+          jointRounded: false,
+          pickable: false,
+          parameters: { depthTest: false },
+        }),
+        new PathLayer({
+          id: `route-core-${this.side}`,
+          data: [{ path: remaining }],
+          getPath: (d: any) => d.path,
+          getColor: routeCore as any,
+          getWidth: 2.75,
+          widthUnits: "pixels",
+          capRounded: true,
+          jointRounded: true,
+          pickable: false,
+          parameters: { depthTest: false },
+        })
+      );
+    }
+    return layers;
+  }
+
   private renderVehicleOnly() {
     const vehicleLayer = this.makeVehicleLayer();
     const vehicleDotLayer = this.makeVehicleDotLayer();
     const stationLayer = this.makeStationIconLayer();
-    this.overlay.setProps({ layers: [...this.staticLayers, stationLayer, vehicleDotLayer, vehicleLayer] });
+    const routeLayers = this.makeRouteProgressLayers();
+    this.overlay.setProps({
+      layers: [...this.staticLayers, ...routeLayers, stationLayer, vehicleDotLayer, vehicleLayer],
+    });
   }
 
   private renderStatic() {
@@ -446,69 +583,21 @@ export class MapView {
     };
     const roadWidth = (hw: string) => (hw === "primary" ? 2.4 : hw === "secondary" ? 1.8 : 1.2);
 
-    // Thin core + sharp-edged halo/casing: thick lines with round caps/joints draw a "bead" at every vertex.
-    const routeCore = this.side === "oracle" ? [55, 240, 255, 255] : [240, 244, 255, 250];
-    const routeCasing = [8, 10, 18, 235];
-    const routeHalo = this.side === "oracle" ? [35, 200, 230, 55] : [200, 210, 245, 45];
-
-    const layers = [
-      new PathLayer({
-        id: `roads-${this.side}`,
-        data: roads,
-        getPath: (d: any) => d.path,
-        getColor: (d: any) => roadColor(d.highway),
-        getWidth: (d: any) => roadWidth(d.highway),
-        widthUnits: "pixels",
-        rounded: true,
-        capRounded: true,
-        jointRounded: true,
-        pickable: false,
-        parameters: { depthTest: false },
-      }),
-      // Soft halo: butt caps + miter joints so wide stroke does not blob at vertices.
-      new PathLayer({
-        id: `route-halo-${this.side}`,
-        data: this.activeRoute.length ? [{ path: this.activeRoute }] : [],
-        getPath: (d: any) => d.path,
-        getColor: routeHalo as any,
-        getWidth: 7,
-        widthUnits: "pixels",
-        capRounded: false,
-        jointRounded: false,
-        pickable: false,
-        parameters: { depthTest: false },
-      }),
-      new PathLayer({
-        id: `route-casing-${this.side}`,
-        data: this.activeRoute.length ? [{ path: this.activeRoute }] : [],
-        getPath: (d: any) => d.path,
-        getColor: routeCasing as any,
-        getWidth: 5,
-        widthUnits: "pixels",
-        capRounded: false,
-        jointRounded: false,
-        pickable: false,
-        parameters: { depthTest: false },
-      }),
-      new PathLayer({
-        id: `route-core-${this.side}`,
-        data: this.activeRoute.length ? [{ path: this.activeRoute }] : [],
-        getPath: (d: any) => d.path,
-        getColor: routeCore as any,
-        getWidth: 2.75,
-        widthUnits: "pixels",
-        rounded: true,
-        capRounded: true,
-        jointRounded: true,
-        pickable: false,
-        parameters: { depthTest: false },
-      }),
-      // stations + vehicles are appended by renderVehicleOnly() for smooth updates
-    ];
-    this.staticLayers = layers;
-    this.overlay.setProps({
-      layers: [...this.staticLayers, this.makeStationIconLayer(), this.makeVehicleDotLayer(), this.makeVehicleLayer()],
+    const roadLayer = new PathLayer({
+      id: `roads-${this.side}`,
+      data: roads,
+      getPath: (d: any) => d.path,
+      getColor: (d: any) => roadColor(d.highway),
+      getWidth: (d: any) => roadWidth(d.highway),
+      widthUnits: "pixels",
+      rounded: true,
+      capRounded: true,
+      jointRounded: true,
+      pickable: false,
+      parameters: { depthTest: false },
     });
+    this.staticLayers = [roadLayer];
+    this.renderVehicleOnly();
   }
 
   private makeVehicleLayer() {

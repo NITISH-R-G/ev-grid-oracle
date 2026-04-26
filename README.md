@@ -53,6 +53,15 @@ An **OpenEnv RL environment** that simulates Bangalore’s EV charging grid and 
 - **Trap catalog (scenarios + verifier flags)**: `docs/judge-kit/trap-catalog.md`
 - **Local validation**: `./validate-submission.sh` → `assets/validation_output.txt` (gitignored; see `assets/README.md`)
 
+### Web command center (`web/` + Space static UI)
+
+- **Judge tour**: open the Space with `?tour=1` (combine with `seed`, `scenario`, `fleet`, `follow`, `lora`, `judge` query params).
+- **Shareable state**: after **New** / **Step** / **Run**, the log prints a `share:` URL you can copy for the same seed/scenario.
+- **Export JSON**: **Export JSON** downloads the recorded baseline/oracle step frames (map stills: use your OS screenshot tool).
+- **Route rendering**: **traveled vs remaining** polyline styling; long OSM paths are **decimated** for smoother Deck.gl performance.
+
+**Eval snapshot (no LLM):** `python tools/write_eval_snapshot.py` writes `artifacts/eval_snapshot.json` (paired baseline vs oracle with `ORACLE_SKIP_LLM=1`).
+
 ---
 
 ## Quick links (fill these in before submission)

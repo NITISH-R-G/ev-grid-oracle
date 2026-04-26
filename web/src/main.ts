@@ -19,6 +19,7 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
           <button id="btnRun" class="btn">Run 60</button>
           <button id="btnDemo" class="btn glow">Guided Demo</button>
           <button id="btnJudge" class="btn">Judge Mode</button>
+          <button id="btnExport" class="btn ghost" type="button" title="Download recorded steps as JSON">Export JSON</button>
         </div>
 
         <label class="label">
@@ -237,4 +238,5 @@ startCommandCenter({
   eventsEl: document.querySelector<HTMLPreElement>("#events")!,
   negoEl: document.querySelector<HTMLPreElement>("#nego")!,
   btnJudge: document.querySelector<HTMLButtonElement>("#btnJudge")!,
+  btnExport: document.querySelector<HTMLButtonElement>("#btnExport")!,
 });

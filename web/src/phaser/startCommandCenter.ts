@@ -10,6 +10,7 @@ type Args = {
   btnRun: HTMLButtonElement;
   btnDemo: HTMLButtonElement;
   btnJudge: HTMLButtonElement;
+  btnExport: HTMLButtonElement;
   scenarioEl: HTMLSelectElement;
   seedEl: HTMLInputElement;
   tickEl: HTMLInputElement;
@@ -154,6 +155,7 @@ export function startCommandCenter(args: Args) {
   let lastBaselineState: any | null = null;
   let lastOracleState: any | null = null;
   let lastOracleRb: Record<string, number> | null = null;
+  const episodeLog: { tick: number; baseline: TurnFrame; oracle: TurnFrame }[] = [];
 
   const seedRand = () => Math.floor(Math.random() * 10_000);
 
@@ -321,6 +323,7 @@ export function startCommandCenter(args: Args) {
     stopPlay();
     baselineFrames.length = 0;
     oracleFrames.length = 0;
+    episodeLog.length = 0;
 
     const seed = Number(args.seedEl.value || "0") || seedRand();
     const scenario = args.scenarioEl.value || "baseline";
@@ -466,6 +469,15 @@ export function startCommandCenter(args: Args) {
         anti_cheat_details: oRes.anti_cheat_details,
         scenario_events_at_tick: oRes.scenario_events_at_tick,
       });
+      const bi = baselineFrames.length - 1;
+      const oi = oracleFrames.length - 1;
+      if (bi >= 0 && oi >= 0) {
+        episodeLog.push({
+          tick: Number(bRes.tick ?? bi),
+          baseline: { ...baselineFrames[bi] },
+          oracle: { ...oracleFrames[oi] },
+        });
+      }
       setReplayUi();
     }
 
@@ -602,6 +614,7 @@ export function startCommandCenter(args: Args) {
       args.btnStep.disabled = true;
       args.btnNew.disabled = true;
       args.btnJudge.disabled = true;
+      args.btnExport.disabled = true;
 
       await initSessions();
       updateShareLink();
@@ -634,6 +647,7 @@ export function startCommandCenter(args: Args) {
       args.btnStep.disabled = false;
       args.btnNew.disabled = false;
       args.btnJudge.disabled = false;
+      args.btnExport.disabled = false;
       args.scenarioEl.value = prevScenario;
       args.seedEl.value = prevSeed;
       judgeMode = prevJudge;
@@ -758,6 +772,7 @@ export function startCommandCenter(args: Args) {
       args.btnRun.disabled = true;
       args.btnStep.disabled = true;
       args.btnNew.disabled = true;
+      args.btnExport.disabled = true;
 
       // New session
       await initSessions();
@@ -782,6 +797,7 @@ export function startCommandCenter(args: Args) {
       args.btnRun.disabled = false;
       args.btnStep.disabled = false;
       args.btnNew.disabled = false;
+      args.btnExport.disabled = false;
       args.scenarioEl.value = prevScenario;
       args.seedEl.value = prevSeed;
       demoBusy = false;
@@ -838,6 +854,27 @@ export function startCommandCenter(args: Args) {
     args.eventsEl.textContent = "(Judge Mode enabled — multi-agent protocol)";
     await initSessions();
     updateShareLink();
+  };
+
+  args.btnExport.onclick = () => {
+    const seed = Number(args.seedEl.value || "0") || 0;
+    const scenario = args.scenarioEl.value || "baseline";
+    const fleet = args.fleetEl ? args.fleetEl.value : "mixed";
+    const payload = {
+      exported_at: new Date().toISOString(),
+      seed,
+      scenario,
+      fleet,
+      judge_mode: judgeMode,
+      frames: episodeLog,
+    };
+    const blob = new Blob([JSON.stringify(payload, null, 2)], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = `ev-grid-oracle-episode-${scenario}-${seed}-${Date.now()}.json`;
+    a.click();
+    URL.revokeObjectURL(a.href);
+    appendEvent("(exported episode JSON — use OS screenshot for map stills)");
   };
 
   // Power-user keyboard shortcut: Shift+T runs the judge tour.
