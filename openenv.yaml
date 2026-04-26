@@ -5,3 +5,36 @@ runtime: fastapi
 app: server.app:app
 port: 8000
 
+# v2 metadata (judge-friendly schemas)
+observation_space:
+  type: object
+  description: EV grid observation (verifier-based).
+  properties:
+    prompt:
+      type: string
+    state:
+      type: object
+    done:
+      type: boolean
+    reward_breakdown:
+      type: object
+  required: [prompt, state]
+
+action_space:
+  anyOf:
+    - type: object
+      description: Station-routing action (legacy EVGridAction)
+      properties:
+        action_type: { type: string, enum: ["route", "defer", "load_shift"] }
+        ev_id: { type: string }
+        station_id: { type: ["string", "null"] }
+        charge_rate: { type: string, enum: ["slow", "fast", "ultra_fast"] }
+        defer_minutes: { type: integer }
+      required: [action_type, ev_id]
+    - type: object
+      description: Road-graph action (connected-edge only)
+      properties:
+        current_node: { type: integer }
+        next_node: { type: integer }
+      required: [current_node, next_node]
+
