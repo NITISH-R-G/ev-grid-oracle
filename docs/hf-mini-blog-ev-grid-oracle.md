@@ -43,6 +43,8 @@ pinned: false
 
 ![EV Grid Oracle Command Center screenshot](https://raw.githubusercontent.com/NITISH-R-G/ev-grid-oracle/main/docs/images/command-center.png)
 
+![EV Grid Oracle Command Center screenshot (alt view)](https://raw.githubusercontent.com/NITISH-R-G/ev-grid-oracle/main/docs/images/command-center-2.png)
+
 If you only read one thing, read the repo's **"Judges - non-negotiables"** table in [`README.md`](https://github.com/NITISH-R-G/ev-grid-oracle/blob/main/README.md) (Space + Colab + plots + writeup in one place).
 
 ---
