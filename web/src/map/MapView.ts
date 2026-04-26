@@ -18,12 +18,39 @@ function simplifyPathLngLat(path: [number, number][], maxPts: number): [number, 
   const out: [number, number][] = [];
   const last = path.length - 1;
   const step = last / (maxPts - 1);
+  let prevIdx = -1;
   for (let k = 0; k < maxPts - 1; k++) {
-    const idx = Math.min(last, Math.round(k * step));
+    let idx = Math.min(last, Math.floor(k * step));
+    if (idx <= prevIdx) idx = Math.min(last, prevIdx + 1);
+    prevIdx = idx;
     out.push([path[idx][0], path[idx][1]]);
   }
   out.push([path[last][0], path[last][1]]);
   return out;
+}
+
+function dropNearDuplicates(path: [number, number][], minMeters: number): [number, number][] {
+  if (path.length <= 2) return path;
+  const out: [number, number][] = [];
+  out.push([path[0][0], path[0][1]]);
+  const R = 6371000;
+  const hav = (a: [number, number], b: [number, number]) => {
+    const lat1 = (a[1] * Math.PI) / 180;
+    const lat2 = (b[1] * Math.PI) / 180;
+    const dLat = ((b[1] - a[1]) * Math.PI) / 180;
+    const dLng = ((b[0] - a[0]) * Math.PI) / 180;
+    const h = Math.sin(dLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
+    return 2 * R * Math.asin(Math.sqrt(h));
+  };
+  for (let i = 1; i < path.length; i++) {
+    const p = path[i];
+    const last = out[out.length - 1];
+    if (hav(last, p) >= minMeters) out.push([p[0], p[1]]);
+  }
+  const end = path[path.length - 1];
+  const last = out[out.length - 1];
+  if (last[0] !== end[0] || last[1] !== end[1]) out.push([end[0], end[1]]);
+  return out.length >= 2 ? out : path;
 }
 
 // Canvas atlas containing: car | bike | station
@@ -536,8 +563,8 @@ export class MapView {
       remaining.push([end[0], end[1]]);
     }
     return {
-      traveled: simplifyPathLngLat(traveled, 220),
-      remaining: simplifyPathLngLat(remaining, 360),
+      traveled: dropNearDuplicates(simplifyPathLngLat(traveled, 220), 2.0),
+      remaining: dropNearDuplicates(simplifyPathLngLat(remaining, 360), 2.0),
     };
   }
 
