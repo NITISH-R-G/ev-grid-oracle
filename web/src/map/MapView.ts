@@ -190,6 +190,7 @@ type Vehicle = {
   pos: [number, number];
   headingDeg: number;
   lastSeenTs: number;
+  arrivedTs?: number | null;
   segMq?: number[] | null; // traffic multiplier per segment (q=1000 => 1.0)
   speedMps?: number; // smoothed instantaneous speed
 };
@@ -433,9 +434,15 @@ export class MapView {
 
       const now = performance.now();
       // TTL: fade out old vehicles so the map doesn't become messy.
-      const ttlMs = 22_000;
+      const ttlMs = 120_000;
+      const lingerAfterArriveMs = 25_000;
       for (const [id, v] of this.vehicles) {
-        if (now - v.lastSeenTs > ttlMs) {
+        if (v.arrivedTs != null) {
+          if (now - v.arrivedTs > lingerAfterArriveMs) {
+            this.vehicles.delete(id);
+            continue;
+          }
+        } else if (now - v.lastSeenTs > ttlMs) {
           this.vehicles.delete(id);
           continue;
         }
@@ -443,7 +450,14 @@ export class MapView {
         const m = this.multAt(v);
         const targetSpeed = base / Math.max(0.35, Math.min(1.15, m));
         v.speedMps = v.speedMps == null ? targetSpeed : v.speedMps * 0.84 + targetSpeed * 0.16;
-        v.progM = Math.min(v.totalM, v.progM + (v.speedMps || targetSpeed) * dt);
+        const nextProg = Math.min(v.totalM, v.progM + (v.speedMps || targetSpeed) * dt);
+        v.progM = nextProg;
+        // Keep active trips alive; don't delete mid-route just because they were spawned earlier.
+        if (v.progM < v.totalM - 1e-3) {
+          v.lastSeenTs = now;
+        } else if (v.arrivedTs == null) {
+          v.arrivedTs = now;
+        }
         const p = this.pointAtOn(v.route, v.cumM, v.totalM, v.progM);
         if (p) {
           v.pos = p.pos;
