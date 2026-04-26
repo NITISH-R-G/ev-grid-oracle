@@ -1,5 +1,5 @@
 ---
-title: "EV Grid Oracle — verifiable GRPO on a Bangalore EV dispatch world"
+title: "EV Grid Oracle - verifiable GRPO on a Bangalore EV dispatch world"
 emoji: ⚡
 colorFrom: indigo
 colorTo: green
@@ -8,31 +8,44 @@ app_port: 8000
 pinned: false
 ---
 
-# EV Grid Oracle — a verifiable GRPO “dispatch oracle” for Bangalore’s EV charging grid
+<div align="center">
 
-**EV Grid Oracle** is an **OpenEnv** environment + verifier suite where a small LLM learns to output **tool-like dispatch actions** that can be **executed, checked, and scored**—not just “explained.”
+# EV Grid Oracle
+
+### Verifiable GRPO dispatch oracle for Bangalore's EV charging grid
+
+[![OpenEnv](https://img.shields.io/badge/OpenEnv-openenv--core%200.2.3-0ea5e9)](https://pypi.org/project/openenv-core/)
+[![Space](https://img.shields.io/badge/HF%20Space-ev--grid--oracle-f97316)](https://huggingface.co/spaces/NITISHRG15102007/ev-grid-oracle)
+[![Colab](https://img.shields.io/badge/Colab-train_grpo.ipynb-facc15)](https://colab.research.google.com/github/NITISH-R-G/ev-grid-oracle/blob/main/training/train_grpo.ipynb)
+[![Repo](https://img.shields.io/badge/GitHub-ev--grid--oracle-22c55e)](https://github.com/NITISH-R-G/ev-grid-oracle)
+
+</div>
+
+---
+
+**EV Grid Oracle** is an **OpenEnv** environment + verifier suite where a small LLM learns to output **tool-like dispatch actions** that can be **executed, checked, and scored** (not just explained).
 
 ### Team Codestreak
 
-- **Nitish R.G.** — Team Leader · [LinkedIn](https://www.linkedin.com/in/nitish-r-g-15-10-2007-rgn/)  
+- **Nitish R.G.** - Team Leader · [LinkedIn](https://www.linkedin.com/in/nitish-r-g-15-10-2007-rgn/)  
 - **Padmanabhan Suresh Babu**  
 - **Prithic**
 
 ---
 
-## The 3‑second hook (what makes this different)
+## The 3-second hook (what makes this different)
 
-- **Verifiable world, not vibes:** every action is parsed → validated → stepped in a simulator → scored with a **reward breakdown**.  
+- **Verifiable world, not vibes:** every action is parsed -> validated -> stepped in a simulator -> scored with a **reward breakdown**.  
 - **Replayable evidence:** baseline vs oracle is evaluated on the **same seeds** (paired, deterministic).  
-- **Engineer‑grade outputs:** plots + stats are committed as PNG/JSON artifacts so judges can audit without rerunning everything.
+- **Engineer-grade outputs:** plots + stats are committed as PNG/JSON artifacts so judges can audit without rerunning everything.
 
-If you only read one thing, read the repo’s **“Judges — non‑negotiables”** table in [`README.md`](https://github.com/NITISH-R-G/ev-grid-oracle/blob/main/README.md) (Space + Colab + plots + writeup in one place).
+If you only read one thing, read the repo's **"Judges - non-negotiables"** table in [`README.md`](https://github.com/NITISH-R-G/ev-grid-oracle/blob/main/README.md) (Space + Colab + plots + writeup in one place).
 
 ---
 
 ## Live environment (discoverable, runnable)
 
-- **HF Space (environment):** see `README.md` → Quick links (Space card + live host).  
+- **HF Space (environment):** see `README.md` -> Quick links (Space card + live host).  
 - **OpenEnv descriptor:** [`openenv.yaml`](../openenv.yaml)  
 - **Server entrypoint:** `server/app.py` (FastAPI, OpenEnv-style endpoints)  
 
@@ -53,9 +66,9 @@ Grid operators (and fleet dispatchers) are constantly making routing decisions u
 - **Queues / wait times**
 - **Feeder stress / peak violations**
 - **Renewable windows (shift load when it’s clean)**
-- **Safety constraints + “no cheating” constraints**
+- **Safety constraints + "no cheating" constraints**
 
-We want an LLM that produces **structured, executable actions** under these constraints—then **improves** by reinforcement learning against a verifier.
+We want an LLM that produces **structured, executable actions** under these constraints, then **improves** by reinforcement learning against a verifier.
 
 ---
 
@@ -83,7 +96,7 @@ REASON: max 20 words
 CONFIDENCE: 0.0-1.0
 ```
 
-The key constraint: **no teleporting**—the agent must pick a **neighbor edge** in the Bangalore road graph.
+The key constraint: **no teleporting** - the agent must pick a **neighbor edge** in the Bangalore road graph.
 
 ---
 
@@ -110,7 +123,7 @@ This is not a single-shot task. Policies are scored over many steps, and early m
 
 ## Reward design (verifiable, multi-component, anti-hack)
 
-Reward is **not** “LLM-as-judge only.” It’s computed by the environment/verifier, with **independent components** (logged as columns).
+Reward is **not** "LLM-as-judge only." It's computed by the environment/verifier, with **independent components** (logged as columns).
 
 High-level components include:
 
@@ -142,7 +155,7 @@ The notebook:
 
 ### Winning tip (practical)
 
-Small models + many short runs beat “one heroic huge run.” Iterate on:
+Small models + many short runs beat "one heroic huge run." Iterate on:
 
 - reward components
 - anti-hack flags
@@ -191,7 +204,7 @@ This writes:
 - `artifacts/grpo_loss.png`
 - `artifacts/grpo_reward.png`
 
-These two files are the simplest “we actually trained” evidence judges look for.
+These two files are the simplest "we actually trained" evidence judges look for.
 
 ---
 
@@ -203,7 +216,7 @@ These two files are the simplest “we actually trained” evidence judges look 
 
 ### Aggregate KPI comparison
 
-![Baseline vs Oracle — mean KPIs](../artifacts/kpi_comparison.png)
+![Baseline vs Oracle - mean KPIs](../artifacts/kpi_comparison.png)
 
 ### Per-episode trajectories (paired seeds)
 
@@ -247,18 +260,18 @@ These two files are the simplest “we actually trained” evidence judges look 
 
 ---
 
-## Submission bundle (the “don’t miss anything” checklist)
+## Submission bundle (the "don't miss anything" checklist)
 
 If you want **env + scripts + logs** in one place:
 
 - [`docs/submission/training-artifacts-and-logs.md`](submission/training-artifacts-and-logs.md)
-- Under–2 minute video shot list: [`docs/submission/youtube-under-2min-outline.md`](submission/youtube-under-2min-outline.md)
+- Under-2 minute video shot list: [`docs/submission/youtube-under-2min-outline.md`](submission/youtube-under-2min-outline.md)
 
 ---
 
 ## LoRA / QLoRA warning (verbatim, keep this intact)
 
-> If you're using LoRA/QLoRA, don't naively upcast a 4-bit base to 16-bit and "merge" at the end without the correct path — it can badly degrade quality. Save adapters cleanly and test post-training inference immediately.
+> If you're using LoRA/QLoRA, don't naively upcast a 4-bit base to 16-bit and "merge" at the end without the correct path - it can badly degrade quality. Save adapters cleanly and test post-training inference immediately.
 
 ---
 
