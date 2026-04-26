@@ -38,6 +38,23 @@ def _overpass_query(bbox: tuple[float, float, float, float], highways: list[str]
     return f"[out:json][timeout:180];({clauses});out geom;"
 
 
+def _tile_bbox(bbox: tuple[float, float, float, float], tiles: int) -> list[tuple[float, float, float, float]]:
+    if tiles <= 1:
+        return [bbox]
+    south, west, north, east = bbox
+    lat_step = (north - south) / tiles
+    lng_step = (east - west) / tiles
+    out: list[tuple[float, float, float, float]] = []
+    for i in range(tiles):
+        for j in range(tiles):
+            s = south + lat_step * i
+            n = south + lat_step * (i + 1)
+            w = west + lng_step * j
+            e = west + lng_step * (j + 1)
+            out.append((s, w, n, e))
+    return out
+
+
 def _http_post(url: str, data: dict[str, str], *, retries: int = 3) -> bytes:
     body = urllib.parse.urlencode(data).encode("utf-8")
     req = urllib.request.Request(url, data=body, method="POST")
@@ -108,21 +125,38 @@ def main() -> int:
     ap.add_argument("--highways", default=",".join(DEFAULT_HIGHWAYS))
     ap.add_argument("--simplify-every", type=int, default=2, help="keep every Nth point per way (>=1)")
     ap.add_argument("--endpoint", default="https://overpass-api.de/api/interpreter")
+    ap.add_argument("--tiles", type=int, default=3, help="split bbox into NxN tiles to avoid huge queries")
     args = ap.parse_args()
 
     south, west, north, east = [float(x.strip()) for x in str(args.bbox).split(",")]
     bbox = (south, west, north, east)
     highways = [h.strip() for h in str(args.highways).split(",") if h.strip()]
 
-    q = _overpass_query(bbox, highways)
-    raw = _http_post(args.endpoint, {"data": q})
-    obj = json.loads(raw.decode("utf-8"))
-    gj = _to_geojson(obj, simplify_every=max(1, int(args.simplify_every)))
+    simplify_every = max(1, int(args.simplify_every))
+
+    # Tile the bbox to keep Overpass responses under server limits.
+    features_by_id: dict[str, dict[str, Any]] = {}
+    total_tiles = int(args.tiles)
+    tiles = _tile_bbox(bbox, total_tiles)
+    for idx, tb in enumerate(tiles):
+        q = _overpass_query(tb, highways)
+        raw = _http_post(args.endpoint, {"data": q})
+        obj = json.loads(raw.decode("utf-8"))
+        gj_part = _to_geojson(obj, simplify_every=simplify_every)
+        for f in gj_part.get("features", []):
+            props = f.get("properties") or {}
+            oid = str(props.get("osm_id") or "")
+            # Merge by OSM way id (tile overlap duplicates).
+            if oid and oid not in features_by_id:
+                features_by_id[oid] = f
+        print(f"tile {idx+1}/{len(tiles)} features={len(gj_part.get('features', []))} unique_total={len(features_by_id)}")
+
+    gj = {"type": "FeatureCollection", "features": list(features_by_id.values())}
 
     out = (ROOT / args.out).resolve()
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(gj), encoding="utf-8")
-    print(f"Wrote {out} features={len(gj.get('features', []))}")
+    print(f"Wrote {out} features={len(gj.get('features', []))} tiles={total_tiles}x{total_tiles} simplify_every={simplify_every}")
     return 0
 
 
