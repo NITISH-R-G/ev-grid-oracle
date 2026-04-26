@@ -16,7 +16,7 @@ from typing import Any, Literal, cast
 from uuid import uuid4
 from pydantic import BaseModel, Field
 
-from fastapi import Body, HTTPException, Query
+from fastapi import Body, HTTPException, Query, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 
@@ -48,6 +48,19 @@ if not log.handlers:
 def _oracle_skip_llm_env() -> bool:
     return os.getenv("ORACLE_SKIP_LLM", "").strip() not in ("", "0", "false", "False")
 
+
+_RATE_BUCKET: dict[str, list[float]] = {}
+
+
+def _rate_limit(req: Request, *, key: str, limit: int, window_sec: int) -> None:
+    ip = (req.client.host if req.client else "unknown") + ":" + key
+    now = time.time()
+    xs = _RATE_BUCKET.get(ip, [])
+    xs = [t for t in xs if now - t < window_sec]
+    if len(xs) >= limit:
+        raise HTTPException(status_code=429, detail="Rate limit exceeded")
+    xs.append(now)
+    _RATE_BUCKET[ip] = xs
 
 def _demo_oracle_act_with_guard(
     *,
@@ -237,7 +250,8 @@ class MANewRequest(BaseModel):
 
 
 @app.post("/ma/new")
-def ma_new(payload: MANewRequest = Body(...)) -> dict[str, Any]:
+def ma_new(req: Request, payload: MANewRequest = Body(...)) -> dict[str, Any]:
+    _rate_limit(req, key="ma_new", limit=30, window_sec=60)
     t0 = time.time()
     _ma_gc()
     sid = str(uuid4())
@@ -283,7 +297,8 @@ class MAAutoStepRequest(BaseModel):
 
 
 @app.post("/ma/auto_step")
-def ma_auto_step(payload: MAAutoStepRequest = Body(...)) -> dict[str, Any]:
+def ma_auto_step(req: Request, payload: MAAutoStepRequest = Body(...)) -> dict[str, Any]:
+    _rate_limit(req, key="ma_auto_step", limit=120, window_sec=60)
     """
     Convenience endpoint for the demo UI: server computes both roles' actions/messages
     while still using the explicit multi-agent protocol internally.
@@ -331,7 +346,8 @@ def ma_auto_step(payload: MAAutoStepRequest = Body(...)) -> dict[str, Any]:
 
 
 @app.get("/ma/state")
-def ma_state(session_id: str = Query(...)) -> dict[str, Any]:
+def ma_state(req: Request, session_id: str = Query(...)) -> dict[str, Any]:
+    _rate_limit(req, key="ma_state", limit=120, window_sec=60)
     t0 = time.time()
     sess = _ma_get(session_id)
     if sess is None:
@@ -364,7 +380,8 @@ def ma_state(session_id: str = Query(...)) -> dict[str, Any]:
 
 
 @app.post("/ma/step")
-def ma_step(payload: MultiAgentStepRequest = Body(...)) -> dict[str, Any]:
+def ma_step(req: Request, payload: MultiAgentStepRequest = Body(...)) -> dict[str, Any]:
+    _rate_limit(req, key="ma_step", limit=120, window_sec=60)
     t0 = time.time()
     sess = _ma_get(payload.session_id)
     if sess is None:
@@ -439,7 +456,8 @@ def _station_nodes(core: EVGridCore) -> list[dict[str, Any]]:
 
 
 @app.post("/demo/new")
-def demo_new(payload: DemoNewRequest = Body(...)) -> dict[str, Any]:
+def demo_new(req: Request, payload: DemoNewRequest = Body(...)) -> dict[str, Any]:
+    _rate_limit(req, key="demo_new", limit=30, window_sec=60)
     t0 = time.time()
     _demo_session_gc()
     session_id = str(uuid4())
@@ -461,7 +479,8 @@ def demo_new(payload: DemoNewRequest = Body(...)) -> dict[str, Any]:
 
 
 @app.get("/demo/state")
-def demo_state(session_id: str = Query(...)) -> dict[str, Any]:
+def demo_state(req: Request, session_id: str = Query(...)) -> dict[str, Any]:
+    _rate_limit(req, key="demo_state", limit=120, window_sec=60)
     t0 = time.time()
     core = _demo_session_get(session_id)
     if core is None:
@@ -494,11 +513,13 @@ def demo_state(session_id: str = Query(...)) -> dict[str, Any]:
 
 @app.post("/demo/step")
 def demo_step(
+    req: Request,
     session_id: str = Body(...),
     mode: Literal["baseline", "oracle"] = Body("baseline"),
     oracle_lora_repo: str = Body("", embed=True),
     forced_action: dict[str, Any] | None = Body(None),
 ) -> dict[str, Any]:
+    _rate_limit(req, key="demo_step", limit=120, window_sec=60)
     t0 = time.time()
     core = _demo_session_get(session_id)
     if core is None:
