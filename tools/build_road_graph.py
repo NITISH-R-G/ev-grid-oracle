@@ -48,13 +48,26 @@ def snap(lat: float, lng: float, *, decimals: int) -> tuple[float, float]:
     return (round(lat, decimals), round(lng, decimals))
 
 
+def _coords_latlng_from_geojson_line(coords: Any) -> list[tuple[float, float]]:
+    if not isinstance(coords, list) or len(coords) < 2:
+        return []
+    out: list[tuple[float, float]] = []
+    for c in coords:
+        if not isinstance(c, list) or len(c) < 2:
+            continue
+        lng = float(c[0])
+        lat = float(c[1])
+        out.append((lat, lng))
+    return out
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--in", dest="inp", default="web/public/maps/bangalore_roads_full.geojson")
     ap.add_argument("--out", dest="out", default="web/public/maps/bangalore_roads_graph.json")
     ap.add_argument("--meta-out", dest="meta_out", default="web/public/maps/bangalore_roads_build_meta.json")
     ap.add_argument("--snap-decimals", type=int, default=5, help="Coordinate snapping for intersection merging")
-    ap.add_argument("--drop-components-under-edges", type=int, default=200)
+    ap.add_argument("--keep-only-largest-component", action="store_true", default=True)
     args = ap.parse_args()
 
     inp = (ROOT / args.inp).resolve()
@@ -68,18 +81,16 @@ def main() -> int:
     if not isinstance(feats, list):
         raise SystemExit("invalid geojson: features[] missing")
 
-    node_id: dict[tuple[float, float], int] = {}
-    nodes: list[Node] = []
-    edges: list[dict[str, Any]] = []
+    snap_decimals = int(args.snap_decimals)
 
-    def get_node(lat: float, lng: float) -> int:
-        k = snap(lat, lng, decimals=args.snap_decimals)
-        if k in node_id:
-            return node_id[k]
-        nid = len(nodes)
-        node_id[k] = nid
-        nodes.append(Node(lat=float(k[0]), lng=float(k[1])))
-        return nid
+    # Pass 1: build point adjacency over snapped coordinates.
+    adj: dict[tuple[float, float], set[tuple[float, float]]] = {}
+
+    def add_neighbor(a: tuple[float, float], b: tuple[float, float]):
+        if a == b:
+            return
+        adj.setdefault(a, set()).add(b)
+        adj.setdefault(b, set()).add(a)
 
     for f in feats:
         if not isinstance(f, dict):
@@ -87,86 +98,145 @@ def main() -> int:
         geom = f.get("geometry") or {}
         if not isinstance(geom, dict) or geom.get("type") != "LineString":
             continue
+        pts = _coords_latlng_from_geojson_line(geom.get("coordinates"))
+        if len(pts) < 2:
+            continue
+        snapped = [snap(lat, lng, decimals=snap_decimals) for (lat, lng) in pts]
+        for a, b in zip(snapped, snapped[1:]):
+            add_neighbor(a, b)
+
+    # Intersections/endpoints are nodes where degree != 2.
+    is_node: dict[tuple[float, float], bool] = {k: (len(v) != 2) for k, v in adj.items()}
+
+    node_id: dict[tuple[float, float], int] = {}
+    nodes: list[Node] = []
+
+    def get_node(k: tuple[float, float]) -> int:
+        if k in node_id:
+            return node_id[k]
+        nid = len(nodes)
+        node_id[k] = nid
+        nodes.append(Node(lat=float(k[0]), lng=float(k[1])))
+        return nid
+
+    edges: list[dict[str, Any]] = []
+
+    # Pass 2: for each way, contract degree-2 chains into intersection-to-intersection edges
+    for f in feats:
+        if not isinstance(f, dict):
+            continue
+        geom = f.get("geometry") or {}
+        if not isinstance(geom, dict) or geom.get("type") != "LineString":
+            continue
         coords = geom.get("coordinates")
-        if not isinstance(coords, list) or len(coords) < 2:
+        pts = _coords_latlng_from_geojson_line(coords)
+        if len(pts) < 2:
             continue
         props = f.get("properties") or {}
         highway = str((props.get("highway") if isinstance(props, dict) else "") or "")
         name = str((props.get("name") if isinstance(props, dict) else "") or "")
 
-        # Coordinates are [lng,lat] in GeoJSON.
-        pts = [(float(c[1]), float(c[0])) for c in coords if isinstance(c, list) and len(c) >= 2]
-        if len(pts) < 2:
-            continue
+        snapped = [snap(lat, lng, decimals=snap_decimals) for (lat, lng) in pts]
+        # Ensure endpoints are treated as nodes.
+        if snapped:
+            is_node[snapped[0]] = True
+            is_node[snapped[-1]] = True
 
-        # Build segment edges between consecutive points. This preserves curvature.
-        for (lat1, lng1), (lat2, lng2) in zip(pts, pts[1:]):
-            a = get_node(lat1, lng1)
-            b = get_node(lat2, lng2)
-            if a == b:
-                continue
-            dist_m = haversine_m(lat1, lng1, lat2, lng2)
+        last_node_k: tuple[float, float] | None = None
+        seg_geom: list[list[float]] = []  # [[lat,lng],...]
+
+        def flush(to_k: tuple[float, float]):
+            nonlocal last_node_k, seg_geom
+            if last_node_k is None:
+                last_node_k = to_k
+                seg_geom = [[float(to_k[0]), float(to_k[1])]]
+                return
+            if to_k == last_node_k:
+                return
+            if len(seg_geom) < 2:
+                seg_geom.append([float(to_k[0]), float(to_k[1])])
+            else:
+                seg_geom[-1] = [float(to_k[0]), float(to_k[1])]
+
+            a_id = get_node(last_node_k)
+            b_id = get_node(to_k)
+
+            # Distance along the segment geometry
+            dist_m = 0.0
+            for (la1, lo1), (la2, lo2) in zip(seg_geom, seg_geom[1:]):
+                dist_m += haversine_m(float(la1), float(lo1), float(la2), float(lo2))
             v_kmh = speed_kmh(highway)
             travel_s = dist_m / max(1e-3, (v_kmh * 1000.0 / 3600.0))
+
             edges.append(
                 {
-                    "a": a,
-                    "b": b,
+                    "a": int(a_id),
+                    "b": int(b_id),
                     "highway": highway,
                     "name": name,
                     "dist_m": round(dist_m, 3),
                     "travel_s": round(travel_s, 4),
+                    "geom": [[round(float(x[0]), snap_decimals), round(float(x[1]), snap_decimals)] for x in seg_geom],
                 }
             )
 
-    # Prune tiny disconnected components for performance + routing consistency.
-    g = nx.Graph()
-    g.add_nodes_from(range(len(nodes)))
-    for e in edges:
-        g.add_edge(int(e["a"]), int(e["b"]))
+            last_node_k = to_k
+            seg_geom = [[float(to_k[0]), float(to_k[1])]]
 
-    keep_edges: set[tuple[int, int]] = set()
-    comps = list(nx.connected_components(g))
-    # Keep largest component, plus any component with >= threshold edges
-    # (edge-count approximated by counting edges internal to component).
-    comps_sorted = sorted(comps, key=lambda c: len(c), reverse=True)
-    largest = comps_sorted[0] if comps_sorted else set()
-    for comp in comps_sorted:
-        if comp is largest:
-            keep = True
-        else:
-            # count edges internal to comp
-            sub = g.subgraph(comp)
-            keep = sub.number_of_edges() >= int(args.drop_components_under_edges)
-        if not keep:
+        # Build contracted segments
+        if not snapped:
             continue
-        for (u, v) in g.subgraph(comp).edges():
-            a, b = (int(u), int(v))
-            keep_edges.add((a, b) if a < b else (b, a))
-
-    pruned_edges: list[dict[str, Any]] = []
-    for e in edges:
-        a = int(e["a"])
-        b = int(e["b"])
-        k = (a, b) if a < b else (b, a)
-        if k in keep_edges:
-            pruned_edges.append(e)
-
-    # Deterministic ordering.
-    pruned_edges.sort(key=lambda e: (int(e["a"]), int(e["b"]), str(e.get("highway") or ""), str(e.get("name") or "")))
-
-    nodes_json = [{"lat": round(n.lat, args.snap_decimals), "lng": round(n.lng, args.snap_decimals)} for n in nodes]
+        # Start at first point
+        last_node_k = snapped[0]
+        seg_geom = [[float(snapped[0][0]), float(snapped[0][1])]]
+        for k in snapped[1:]:
+            seg_geom.append([float(k[0]), float(k[1])])
+            if is_node.get(k, False):
+                flush(k)
 
     payload = {
         "meta": {
             "source": str(inp.relative_to(ROOT)).replace("\\", "/"),
-            "snap_decimals": args.snap_decimals,
+            "snap_decimals": snap_decimals,
             "speed_kmh": SPEED_KMH,
-            "drop_components_under_edges": int(args.drop_components_under_edges),
+            "keep_only_largest_component": True,
         },
-        "nodes": nodes_json,
-        "edges": pruned_edges,
+        "nodes": [{"lat": round(n.lat, snap_decimals), "lng": round(n.lng, snap_decimals)} for n in nodes],
+        "edges": edges,
     }
+
+    # Keep only the largest connected component (by node count) to satisfy routing coverage.
+    g3 = nx.Graph()
+    g3.add_nodes_from(range(len(nodes)))
+    for e in edges:
+        g3.add_edge(int(e["a"]), int(e["b"]))
+    comps3 = list(nx.connected_components(g3))
+    keep_nodes = max(comps3, key=lambda c: len(c)) if comps3 else set()
+    keep_nodes_set = set(int(x) for x in keep_nodes)
+
+    # Remap nodes to a compact id space.
+    id_map: dict[int, int] = {}
+    new_nodes: list[dict[str, float]] = []
+    for old_id in sorted(keep_nodes_set):
+        id_map[old_id] = len(new_nodes)
+        n = nodes[old_id]
+        new_nodes.append({"lat": round(float(n.lat), snap_decimals), "lng": round(float(n.lng), snap_decimals)})
+
+    new_edges: list[dict[str, Any]] = []
+    for e in edges:
+        a = int(e["a"])
+        b = int(e["b"])
+        if a not in id_map or b not in id_map:
+            continue
+        ee = dict(e)
+        ee["a"] = id_map[a]
+        ee["b"] = id_map[b]
+        new_edges.append(ee)
+
+    new_edges.sort(key=lambda e: (int(e["a"]), int(e["b"]), str(e.get("highway") or ""), str(e.get("name") or "")))
+
+    payload["nodes"] = new_nodes
+    payload["edges"] = new_edges
 
     out_text = json.dumps(payload, sort_keys=True, separators=(",", ":"))
     out.write_text(out_text, encoding="utf-8")
@@ -174,34 +244,30 @@ def main() -> int:
     sha_in = hashlib.sha256(raw_text.encode("utf-8")).hexdigest()
     sha_out = hashlib.sha256(out_text.encode("utf-8")).hexdigest()
 
-    # Largest component coverage
-    g2 = nx.Graph()
-    g2.add_nodes_from(range(len(nodes)))
-    for e in pruned_edges:
-        g2.add_edge(int(e["a"]), int(e["b"]))
-    comps2 = list(nx.connected_components(g2))
-    largest2 = max((len(c) for c in comps2), default=0)
-    coverage = (largest2 / max(1, len(nodes))) if nodes else 0.0
+    # Largest component coverage is 1.0 by construction (remapped), but report ratios vs raw.
+    raw_node_count = len(nodes)
+    kept_node_count = len(new_nodes)
+    coverage = (kept_node_count / max(1, raw_node_count)) if raw_node_count else 0.0
 
     meta = {
         "input": {"path": str(inp.relative_to(ROOT)).replace("\\", "/"), "sha256": sha_in},
         "output": {"path": str(out.relative_to(ROOT)).replace("\\", "/"), "sha256": sha_out},
         "params": {
-            "snap_decimals": int(args.snap_decimals),
-            "drop_components_under_edges": int(args.drop_components_under_edges),
+            "snap_decimals": snap_decimals,
+            "keep_only_largest_component": True,
             "speed_kmh": SPEED_KMH,
         },
         "counts": {
             "features": len(feats),
-            "nodes": len(nodes),
-            "edges_raw": len(edges),
-            "edges_pruned": len(pruned_edges),
-            "largest_component_node_coverage": round(float(coverage), 6),
+            "nodes_raw": raw_node_count,
+            "nodes_kept": kept_node_count,
+            "edges": len(new_edges),
+            "kept_node_ratio": round(float(coverage), 6),
         },
     }
     meta_out.write_text(json.dumps(meta, indent=2, sort_keys=True), encoding="utf-8")
 
-    print(f"Wrote {out} nodes={len(nodes)} edges={len(pruned_edges)} coverage={coverage:.3f}")
+    print(f"Wrote {out} nodes={kept_node_count} edges={len(new_edges)} kept_ratio={coverage:.3f}")
     print(f"Wrote {meta_out}")
     return 0
 

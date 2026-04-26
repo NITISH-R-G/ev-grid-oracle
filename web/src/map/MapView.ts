@@ -109,18 +109,31 @@ export class MapView {
     ];
     this.map.fitBounds(bounds as any, { padding: 60, duration: 600, maxZoom: 13.8 });
 
-    // Load roads GeoJSON as a deck PathLayer (thin background mesh)
-    const roadsUrl = staticAssetUrl("maps/bangalore_roads_full.geojson");
-    const gj = await fetch(roadsUrl).then((r) => r.json());
-    const feats = Array.isArray(gj?.features) ? gj.features : [];
+    // Load simplified render paths (much smaller than GeoJSON).
+    // Fallback to GeoJSON only if render file is missing.
     const paths: { path: [number, number][]; highway: string }[] = [];
-    for (const f of feats) {
-      if (f?.geometry?.type !== "LineString") continue;
-      const hw = String(f?.properties?.highway || "");
-      const coords = f?.geometry?.coordinates;
-      if (!Array.isArray(coords) || coords.length < 2) continue;
-      // geojson is [lng,lat] already
-      paths.push({ path: coords as [number, number][], highway: hw });
+    try {
+      const renderUrl = staticAssetUrl("maps/bangalore_roads_render.json");
+      const rows = (await fetch(renderUrl).then((r) => r.json())) as any[];
+      if (Array.isArray(rows)) {
+        for (const row of rows) {
+          const hw = String(row?.highway || "");
+          const coords = row?.path;
+          if (!Array.isArray(coords) || coords.length < 2) continue;
+          paths.push({ path: coords as [number, number][], highway: hw });
+        }
+      }
+    } catch {
+      const roadsUrl = staticAssetUrl("maps/bangalore_roads_full.geojson");
+      const gj = await fetch(roadsUrl).then((r) => r.json());
+      const feats = Array.isArray(gj?.features) ? gj.features : [];
+      for (const f of feats) {
+        if (f?.geometry?.type !== "LineString") continue;
+        const hw = String(f?.properties?.highway || "");
+        const coords = f?.geometry?.coordinates;
+        if (!Array.isArray(coords) || coords.length < 2) continue;
+        paths.push({ path: coords as [number, number][], highway: hw });
+      }
     }
 
     (this as any)._roads = paths;

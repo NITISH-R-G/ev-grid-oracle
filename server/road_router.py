@@ -22,6 +22,7 @@ def haversine_m(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
 class RoadRouter:
     g: nx.Graph
     nodes: list[tuple[float, float]]  # (lat,lng) by node id
+    edge_geom: dict[tuple[int, int], list[list[float]]]
 
     @classmethod
     def load(cls, path: Path) -> "RoadRouter":
@@ -38,10 +39,12 @@ class RoadRouter:
         g = nx.Graph()
         for i, (lat, lng) in enumerate(nodes):
             g.add_node(i, lat=lat, lng=lng)
+        edge_geom: dict[tuple[int, int], list[list[float]]] = {}
         for e in edges_in:
             a = int(e["a"])
             b = int(e["b"])
             w = float(e.get("travel_s") or 0.0)
+            geom = e.get("geom")
             if a == b:
                 continue
             # keep smallest weight if duplicates
@@ -50,8 +53,11 @@ class RoadRouter:
                     g.edges[a, b]["weight"] = w
             else:
                 g.add_edge(a, b, weight=w)
+            if isinstance(geom, list) and len(geom) >= 2:
+                edge_geom[(a, b)] = geom
+                edge_geom[(b, a)] = list(reversed(geom))
 
-        return cls(g=g, nodes=nodes)
+        return cls(g=g, nodes=nodes, edge_geom=edge_geom)
 
     def nearest_node(self, *, lat: float, lng: float) -> int:
         best = 0
@@ -70,7 +76,20 @@ class RoadRouter:
             path = nx.shortest_path(self.g, a, b, weight="weight")  # type: ignore[arg-type]
         except Exception:
             return None
-        return [[self.nodes[i][0], self.nodes[i][1]] for i in path]
+        poly: list[list[float]] = []
+        for u, v in zip(path, path[1:]):
+            seg = self.edge_geom.get((int(u), int(v)))
+            if seg and len(seg) >= 2:
+                if poly:
+                    poly.extend(seg[1:])
+                else:
+                    poly.extend(seg)
+            else:
+                # fallback: straight segment
+                if not poly:
+                    poly.append([self.nodes[int(u)][0], self.nodes[int(u)][1]])
+                poly.append([self.nodes[int(v)][0], self.nodes[int(v)][1]])
+        return poly
 
 
 _ROUTER: RoadRouter | None = None
