@@ -110,7 +110,7 @@ export class MapView {
     this.map.fitBounds(bounds as any, { padding: 60, duration: 600, maxZoom: 13.8 });
 
     // Load roads GeoJSON as a deck PathLayer (thin background mesh)
-    const roadsUrl = staticAssetUrl("maps/bangalore_roads_demo.geojson");
+    const roadsUrl = staticAssetUrl("maps/bangalore_roads_full.geojson");
     const gj = await fetch(roadsUrl).then((r) => r.json());
     const feats = Array.isArray(gj?.features) ? gj.features : [];
     const paths: { path: [number, number][]; highway: string }[] = [];
