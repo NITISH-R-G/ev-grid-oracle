@@ -559,6 +559,8 @@ export function startCommandCenter(args: Args) {
       args.btnRun.disabled = true;
       args.btnNew.disabled = true;
       args.btnStep.textContent = "Stepping…";
+      // Default to follow mode so the judge can track the route/vehicle instantly.
+      args.followEl.checked = true;
       await stepOne();
     } catch (e) {
       reportFatal("STEP ERROR", e);

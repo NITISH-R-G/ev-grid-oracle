@@ -143,6 +143,7 @@ export class MapView {
   private stations: Station[] = [];
   private activeRoute: [number, number][] = [];
   private follow = false;
+  private heroVehicleId: string | null = null;
   private raf: number | null = null;
   private lastTs: number | null = null;
   private staticLayers: any[] = [];
@@ -252,6 +253,7 @@ export class MapView {
 
     const id = String(event?.ev_id || `ev-${Math.random().toString(16).slice(2)}`);
     const now = performance.now();
+    this.heroVehicleId = id;
     const baseColor: [number, number, number, number] =
       this.side === "oracle" ? ([35, 231, 255, 210] as any) : ([255, 90, 138, 190] as any);
     const color: [number, number, number, number] =
@@ -414,8 +416,9 @@ export class MapView {
     };
     const roadWidth = (hw: string) => (hw === "primary" ? 2.4 : hw === "secondary" ? 1.8 : 1.2);
 
-    const routeCore = this.side === "oracle" ? [35, 231, 255, 235] : [232, 236, 255, 220];
+    const routeCore = this.side === "oracle" ? [35, 231, 255, 245] : [232, 236, 255, 235];
     const routeCasing = [0, 0, 0, 190];
+    const routeGlow = this.side === "oracle" ? [35, 231, 255, 110] : [232, 236, 255, 90];
 
     const layers = [
       new PathLayer({
@@ -424,6 +427,20 @@ export class MapView {
         getPath: (d: any) => d.path,
         getColor: (d: any) => roadColor(d.highway),
         getWidth: (d: any) => roadWidth(d.highway),
+        widthUnits: "pixels",
+        rounded: true,
+        capRounded: true,
+        jointRounded: true,
+        pickable: false,
+        parameters: { depthTest: false },
+      }),
+      // Big outer glow so route is visible on dark basemap.
+      new PathLayer({
+        id: `route-glow-${this.side}`,
+        data: this.activeRoute.length ? [{ path: this.activeRoute }] : [],
+        getPath: (d: any) => d.path,
+        getColor: routeGlow as any,
+        getWidth: 22,
         widthUnits: "pixels",
         rounded: true,
         capRounded: true,
@@ -466,6 +483,7 @@ export class MapView {
   }
 
   private makeVehicleLayer() {
+    const heroId = this.heroVehicleId;
     return new IconLayer({
       id: `vehicle-${this.side}`,
       data: [...this.vehicles.values()],
@@ -473,7 +491,10 @@ export class MapView {
       iconMapping: ICON_MAPPING as any,
       getIcon: (d: any) => d.kind,
       sizeUnits: "pixels",
-      getSize: (d: any) => (d.kind === "bike" ? 28 : 32),
+      getSize: (d: any) => {
+        const base = d.kind === "bike" ? 30 : 36;
+        return heroId && d.id === heroId ? base * 1.6 : base;
+      },
       getPosition: (d: any) => d.pos,
       getAngle: (d: any) => d.headingDeg,
       getColor: (d: any) => d.color,
