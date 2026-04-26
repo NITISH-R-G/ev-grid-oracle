@@ -8,7 +8,7 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
         <div class="dot"></div>
         <div>
           <div class="title">EV Grid Oracle — Command Center</div>
-          <div class="subtitle">Split-screen Baseline vs Oracle (Dream → Act)</div>
+          <div class="subtitle">A/B live: heuristic baseline vs GRPO-trained Oracle (Dream → Act)</div>
         </div>
       </div>
 
@@ -61,7 +61,7 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
           <span id="heroMain" class="heroMain">—</span>
           <span id="heroMainUnit" class="heroUnit">avg wait</span>
         </div>
-        <div id="heroSub" class="heroSub">Take 1–2 steps to reveal the delta. Then hit Run 60.</div>
+        <div id="heroSub" class="heroSub">Click Step twice. Watch the “WIN” badge lock in. Then Run 60 for the cinematic proof.</div>
       </div>
       <div class="heroRight">
         <div class="heroMini">
@@ -135,15 +135,15 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
           <pre id="oracle" class="mono">(waiting)</pre>
         </div>
 
-        <div class="card">
-          <div class="cardTitle">Event Stream</div>
+        <details class="card collapsible">
+          <summary class="cardTitle">Explain / Debug (Event Stream)</summary>
           <pre id="events" class="mono">(none)</pre>
-        </div>
+        </details>
 
-        <div class="card">
-          <div class="cardTitle">Negotiation (Multi-Agent)</div>
+        <details class="card collapsible">
+          <summary class="cardTitle">Judge Mode Transcript (Multi-Agent)</summary>
           <pre id="nego" class="mono">(click Judge Mode)</pre>
-        </div>
+        </details>
       </aside>
     </main>
   </div>
