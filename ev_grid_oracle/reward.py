@@ -185,3 +185,46 @@ def compute_reward(
     total = float(sum(v for k, v in r.items() if not k.startswith("_")))
     return total, r, flags, details
 
+
+def split_role_rewards(rb: dict[str, float], *, grid_directive_ok: bool, has_meaningful_messages: bool) -> dict[str, dict[str, float]]:
+    """
+    Deterministic role-level reward views derived from the same underlying breakdown.
+
+    This is intentionally simple and bounded (judge-friendly): it does not claim
+    full MARL credit assignment, but it does make incentives explicit.
+    """
+    def f(x: str) -> float:
+        try:
+            return float(rb.get(x, 0.0))
+        except Exception:
+            return 0.0
+
+    fleet = {
+        "wait": f("wait"),
+        "urgency": f("urgency"),
+        "valid_action_shaping": f("valid_action_shaping"),
+        "anti_hack": f("anti_hack"),
+    }
+    grid = {
+        "peak": f("peak"),
+        "grid_stress": f("grid_stress"),
+        "renewable": f("renewable"),
+        "valid_action_shaping": 0.0,
+        "anti_hack": f("anti_hack"),
+    }
+
+    # Negotiation verifier (bounded): small bonus only when both sides participate
+    # and the dispatcher respected the directive.
+    nego = 0.0
+    if has_meaningful_messages and grid_directive_ok:
+        nego = 0.25
+    elif has_meaningful_messages and not grid_directive_ok:
+        nego = -0.25
+    fleet["negotiation"] = nego * 0.6
+    grid["negotiation"] = nego * 0.4
+
+    fleet["total"] = float(sum(v for k, v in fleet.items() if k != "total"))
+    grid["total"] = float(sum(v for k, v in grid.items() if k != "total"))
+    joint = {"total": float(fleet["total"] + grid["total"])}
+    return {"fleet": fleet, "grid": grid, "joint": joint}
+

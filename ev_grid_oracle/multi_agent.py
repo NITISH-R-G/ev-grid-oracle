@@ -4,7 +4,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from .env import EVGridCore
-from .models import ActionType, EVGridAction, GridDirective, NegotiationMessage
+from .models import ActionType, EVGridAction, EVGridObservation, GridDirective, NegotiationMessage
 from .policies import baseline_policy
 
 
@@ -23,6 +23,7 @@ class MultiAgentSession:
     last_directive: GridDirective = field(default_factory=GridDirective)
     last_resolved_action: EVGridAction | None = None
     last_violations: list[str] = field(default_factory=list)
+    last_obs: EVGridObservation | None = None
 
     def step(
         self,
@@ -31,7 +32,7 @@ class MultiAgentSession:
         fleet_action: EVGridAction,
         grid_message: NegotiationMessage | None,
         fleet_message: NegotiationMessage | None,
-    ) -> EVGridAction:
+    ) -> EVGridObservation:
         self.last_directive = grid_directive
         self.last_violations = []
 
@@ -60,8 +61,9 @@ class MultiAgentSession:
                     resolved = EVGridAction(action_type=ActionType.load_shift, ev_id=resolved.ev_id, defer_minutes=0)
 
         self.last_resolved_action = resolved
-        self.core.step(resolved)
-        return resolved
+        obs = self.core.step(resolved)
+        self.last_obs = obs
+        return obs
 
     def snapshot(self) -> dict[str, Any]:
         """

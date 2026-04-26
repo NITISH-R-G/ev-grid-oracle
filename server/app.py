@@ -33,6 +33,7 @@ from ev_grid_oracle.models import (
 from ev_grid_oracle.oracle_agent import OracleAgent
 from ev_grid_oracle.policies import baseline_policy
 from ev_grid_oracle.parsing import parse_simulation
+from ev_grid_oracle.reward import split_role_rewards
 from ev_grid_oracle.scenarios import ScenarioName
 from ev_grid_oracle.world_model_verifier import rollout_deterministic_5ticks, score_prediction
 from ev_grid_oracle.multi_agent import MultiAgentSession
@@ -305,24 +306,20 @@ def ma_step(payload: MultiAgentStepRequest = Body(...)) -> dict[str, Any]:
     if fm is not None and fm.role != "fleet":
         raise HTTPException(status_code=400, detail="fleet_message.role must be 'fleet'")
 
-    resolved = sess.step(
+    obs = sess.step(
         grid_directive=payload.grid_directive,
         fleet_action=payload.fleet_action,
         grid_message=gm,
         fleet_message=fm,
     )
-    obs = sess.core._grid_state
-    out_obs = (
-        {}
-        if obs is None
-        else EVGridObservation(
-            prompt=_build_prompt(obs),
-            state=obs,
-            done=sess.core.step_count >= sess.core.max_steps,
-            reward_breakdown={},
-            anti_cheat_flags=[],
-            anti_cheat_details={},
-        ).model_dump(mode="json")
+    out_obs = obs.model_dump(mode="json")
+
+    directive_ok = len(sess.last_violations) == 0
+    meaningful = (gm is not None and gm.text.strip() != "") or (fm is not None and fm.text.strip() != "")
+    role_rewards = split_role_rewards(
+        out_obs.get("reward_breakdown", {}) if isinstance(out_obs, dict) else {},
+        grid_directive_ok=directive_ok,
+        has_meaningful_messages=meaningful,
     )
     log.info(
         "ma_step",
@@ -340,9 +337,10 @@ def ma_step(payload: MultiAgentStepRequest = Body(...)) -> dict[str, Any]:
         "scenario": sess.core.scenario,
         "grid_directive": payload.grid_directive.model_dump(mode="json"),
         "fleet_action": payload.fleet_action.model_dump(mode="json"),
-        "resolved_action": resolved.model_dump(mode="json"),
+        "resolved_action": sess.last_resolved_action.model_dump(mode="json") if sess.last_resolved_action else payload.fleet_action.model_dump(mode="json"),
         "violations": list(sess.last_violations),
         "messages": [m.model_dump(mode="json") for m in sess.messages[-50:]],
+        "role_rewards": role_rewards,
     }
 
 
