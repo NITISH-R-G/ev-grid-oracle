@@ -18,7 +18,7 @@ An **OpenEnv RL environment** that simulates Bangalore’s EV charging grid and 
 |------|----------------------------|
 | **#3 World modeling (primary)** | **Partially observable** grid + queues + **strict tool-like** actions; rewards come from **simulator + verifier** (`ev_grid_oracle/reward.py`), not from the model grading itself. Optional **world-model head** in training (`SimulationPrediction` + verifier in `training/train_grpo.ipynb`). |
 | **#2 Long horizon (primary)** | Multi-step episodes (`reset` / `step` over many ticks), **delayed** stress from **scheduled scenarios** (`ev_grid_oracle/scenarios.py`), recovery from early mistakes visible in replay. |
-| **#1 Multi-agent (secondary narrative)** | Not a full multi-LLM MARL stack today; the **reward mixes stakeholder tensions** (wait vs peak vs renewables vs urgency). A credible **stretch** is to pitch **coalition / incentives** (fleet, operator, grid) and reserve explicit multi-agent turns for a follow-on. |
+| **#1 Multi-agent (primary)** | **Explicit multi-agent protocol**: **GridOperator** publishes a verifiable directive (`/ma/*`), **FleetDispatcher** routes EVs under that constraint, and we score **role rewards** + negotiation signal (`ev_grid_oracle/multi_agent.py`, `ev_grid_oracle/reward.py`). The demo UI includes **Judge Mode (MA)** with a negotiation timeline. |
 | **#4 Self-improvement** | Scenario curriculum + trap catalog (`docs/judge-kit/trap-catalog.md`) are a hook for **adaptive difficulty**; training can reweight scenarios (future work). |
 | **#5 Wild card** | Spatial **Bangalore graph** + **City Ops** demo + paired statistical eval are the differentiated story. |
 
@@ -295,6 +295,16 @@ ev-grid-oracle/
 ---
 
 ## Demo UI
+
+### Phaser Command Center (this Space)
+
+- Open the UI at `/ui/` on the Space.
+- Click **Judge Mode (MA)** to run the **explicit multi-agent** demo path:
+  - GridOperator sends a directive (constraint) + message
+  - FleetDispatcher routes under constraints (baseline vs oracle)
+  - UI shows the negotiation timeline + role reward totals
+
+### Gradio (optional separate Space)
 
 The Gradio demo is in `viz/gradio_demo.py` (separate Space recommended).
 
