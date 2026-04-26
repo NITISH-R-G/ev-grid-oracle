@@ -10,6 +10,7 @@ def test_demo_new_and_step_roundtrip():
     r = c.post("/demo/new", json={"seed": 123})
     assert r.status_code == 200
     data = r.json()
+    assert isinstance(data.get("request_id"), str) and data["request_id"]
     assert "session_id" in data and isinstance(data["session_id"], str) and data["session_id"]
     assert "obs" in data and isinstance(data["obs"], dict)
     assert "station_nodes" in data and isinstance(data["station_nodes"], list)
@@ -21,6 +22,7 @@ def test_demo_new_and_step_roundtrip():
     r2 = c.post("/demo/step", json={"session_id": sid, "mode": "baseline", "oracle_lora_repo": ""})
     assert r2.status_code == 200
     data2 = r2.json()
+    assert isinstance(data2.get("request_id"), str) and data2["request_id"]
     assert "obs" in data2 and isinstance(data2["obs"], dict)
     assert "event" in data2 and isinstance(data2["event"], dict)
     assert data2.get("mode") == "baseline"
@@ -35,6 +37,43 @@ def test_demo_new_and_step_roundtrip():
     assert isinstance(data2.get("sim_version"), str) and data2["sim_version"]
     assert isinstance(data2.get("role_kpis"), dict)
     assert isinstance(data2.get("role_reward_breakdown"), dict)
+
+
+def test_demo_step_forced_action_validation_422():
+    from server.app import app
+
+    c = TestClient(app)
+    r = c.post("/demo/new", json={"seed": 123})
+    sid = r.json()["session_id"]
+
+    # Missing required fields for EVGridAction => 422 (not 500).
+    r2 = c.post(
+        "/demo/step",
+        json={
+            "session_id": sid,
+            "mode": "baseline",
+            "oracle_lora_repo": "",
+            "forced_action": {"action_type": "route", "ev_id": "EV-1"},
+        },
+    )
+    assert r2.status_code == 422
+    body = r2.json()
+    assert body.get("detail", {}).get("error") == "invalid_forced_action"
+    assert isinstance(body.get("detail", {}).get("issues"), list)
+
+
+def test_health_shape():
+    from server.app import app
+
+    c = TestClient(app)
+    r = c.get("/healthz")
+    assert r.status_code == 200
+    data = r.json()
+    assert data.get("ok") is True
+    assert isinstance(data.get("request_id"), str) and data["request_id"]
+    assert isinstance(data.get("sim_version"), str) and data["sim_version"]
+    assert isinstance(data.get("schema_version"), str) and data["schema_version"]
+    assert isinstance(data.get("router_ok"), bool)
 
 
 def test_demo_sessions_ttl_eviction():

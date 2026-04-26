@@ -17,7 +17,7 @@ except ImportError as e:  # pragma: no cover
 
 from typing import Any, Literal, cast
 from uuid import uuid4
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, Field
 
 from fastapi import Body, HTTPException, Query, Request
 from fastapi.responses import HTMLResponse
@@ -182,8 +182,8 @@ def root() -> str:
 """
 
 
-@app.get("/health")
-def health(req: Request) -> dict[str, Any]:
+@app.get("/healthz")
+def healthz(req: Request) -> dict[str, Any]:
     """
     HF Spaces / cold-start friendly health endpoint.
     Keep it fast and dependency-safe (no heavy routing work).
@@ -625,8 +625,20 @@ def demo_step(
         if forced_action is not None:
             try:
                 action = EVGridAction.model_validate(forced_action)
-            except ValidationError as ve:
-                raise HTTPException(status_code=422, detail={"error": "invalid_forced_action", "issues": ve.errors()})
+            except Exception as ve:
+                issues = ve.errors() if hasattr(ve, "errors") else [{"msg": str(ve)}]
+                # Pydantic v2 can include non-JSON-serializable objects under `ctx` (e.g., ValueError instances).
+                for it in issues:
+                    if isinstance(it, dict) and "ctx" in it:
+                        try:
+                            ctx = it.get("ctx") or {}
+                            if isinstance(ctx, dict):
+                                it["ctx"] = {str(k): str(v) for k, v in ctx.items()}
+                            else:
+                                it["ctx"] = str(ctx)
+                        except Exception:
+                            it.pop("ctx", None)
+                raise HTTPException(status_code=422, detail={"error": "invalid_forced_action", "issues": issues})
             oracle_llm_active = False
             oracle_text = ""
             dream_score = None
