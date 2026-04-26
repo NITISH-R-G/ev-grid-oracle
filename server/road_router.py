@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+import gzip
 from dataclasses import dataclass
 from math import asin, cos, radians, sin, sqrt
 from pathlib import Path
@@ -56,7 +57,11 @@ class RoadRouter:
 
     @classmethod
     def load(cls, path: Path) -> "RoadRouter":
-        obj = json.loads(path.read_text(encoding="utf-8"))
+        if str(path).endswith(".gz"):
+            with gzip.open(path, "rb") as f:
+                obj = json.loads(f.read().decode("utf-8"))
+        else:
+            obj = json.loads(path.read_text(encoding="utf-8"))
         nodes_in = obj.get("nodes", [])
         edges_in = obj.get("edges", [])
         if not isinstance(nodes_in, list) or not isinstance(edges_in, list):
@@ -133,7 +138,9 @@ def get_router() -> RoadRouter:
     if _ROUTER is not None:
         return _ROUTER
     root = Path(__file__).resolve().parents[1]
-    p = root / "web" / "public" / "maps" / "bangalore_roads_graph.json"
+    # Prefer gz (smaller repo + faster downloads on HF).
+    p_gz = root / "web" / "public" / "maps" / "bangalore_roads_graph.json.gz"
+    p = p_gz if p_gz.exists() else (root / "web" / "public" / "maps" / "bangalore_roads_graph.json")
     _ROUTER = RoadRouter.load(p)
     return _ROUTER
 

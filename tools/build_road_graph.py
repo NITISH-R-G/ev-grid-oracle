@@ -3,6 +3,7 @@ from __future__ import annotations
 import argparse
 import json
 import hashlib
+import gzip
 from dataclasses import dataclass
 from math import asin, cos, radians, sin, sqrt
 from pathlib import Path
@@ -102,6 +103,7 @@ def main() -> int:
     ap.add_argument("--snap-decimals", type=int, default=5, help="Coordinate snapping for intersection merging")
     ap.add_argument("--geom-every", type=int, default=3, help="keep every Nth point in edge geometry (>=1)")
     ap.add_argument("--keep-only-largest-component", action="store_true", default=True)
+    ap.add_argument("--gzip", action="store_true", help="write graph output as .gz (recommended)")
     args = ap.parse_args()
 
     inp = (ROOT / args.inp).resolve()
@@ -282,11 +284,19 @@ def main() -> int:
     payload["edges"] = new_edges
 
     out_text = json.dumps(payload, sort_keys=True, separators=(",", ":"))
-    out.write_text(out_text, encoding="utf-8")
+    if args.gzip:
+        gz_path = Path(str(out) + ".gz")
+        with gzip.open(gz_path, "wb") as f:
+            f.write(out_text.encode("utf-8"))
+        out_written = gz_path
+        out_bytes = gz_path.read_bytes()
+        sha_out = hashlib.sha256(out_bytes).hexdigest()
+    else:
+        out.write_text(out_text, encoding="utf-8")
+        out_written = out
+        sha_out = hashlib.sha256(out_text.encode("utf-8")).hexdigest()
 
     sha_in = hashlib.sha256(raw_text.encode("utf-8")).hexdigest()
-    sha_out = hashlib.sha256(out_text.encode("utf-8")).hexdigest()
-
     # Largest component coverage is 1.0 by construction (remapped), but report ratios vs raw.
     raw_node_count = len(nodes)
     kept_node_count = len(new_nodes)
@@ -294,7 +304,7 @@ def main() -> int:
 
     meta = {
         "input": {"path": str(inp.relative_to(ROOT)).replace("\\", "/"), "sha256": sha_in},
-        "output": {"path": str(out.relative_to(ROOT)).replace("\\", "/"), "sha256": sha_out},
+        "output": {"path": str(out_written.relative_to(ROOT)).replace("\\", "/"), "sha256": sha_out},
         "params": {
             "snap_decimals": snap_decimals,
             "geom_every": geom_every,
@@ -311,7 +321,7 @@ def main() -> int:
     }
     meta_out.write_text(json.dumps(meta, indent=2, sort_keys=True), encoding="utf-8")
 
-    print(f"Wrote {out} nodes={kept_node_count} edges={len(new_edges)} kept_ratio={coverage:.3f}")
+    print(f"Wrote {out_written} nodes={kept_node_count} edges={len(new_edges)} kept_ratio={coverage:.3f}")
     print(f"Wrote {meta_out}")
     return 0
 
