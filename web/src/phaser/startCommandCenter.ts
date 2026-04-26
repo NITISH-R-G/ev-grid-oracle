@@ -149,6 +149,7 @@ export function startCommandCenter(args: Args) {
   let playTimer: number | null = null;
   let playing = false;
   let demoBusy = false;
+  let tourBusy = false;
 
   const seedRand = () => Math.floor(Math.random() * 10_000);
 
@@ -159,6 +160,39 @@ export function startCommandCenter(args: Args) {
   const appendEvent = (line: string) => {
     const prev = args.eventsEl.textContent || "";
     args.eventsEl.textContent = prev ? `${prev}\n${line}` : line;
+  };
+
+  const applyUrlParams = () => {
+    const p = new URLSearchParams(window.location.search || "");
+    const seedQ = p.get("seed");
+    const scenarioQ = p.get("scenario");
+    const followQ = p.get("follow");
+    const loraQ = p.get("lora");
+    const fleetQ = p.get("fleet");
+    const judgeQ = p.get("judge");
+
+    if (scenarioQ) args.scenarioEl.value = scenarioQ;
+    if (seedQ && !Number.isNaN(Number(seedQ))) args.seedEl.value = String(Number(seedQ));
+    if (followQ != null) args.followEl.checked = followQ === "1" || followQ.toLowerCase() === "true";
+    if (loraQ) args.loraEl.value = loraQ;
+    if (args.fleetEl && fleetQ) args.fleetEl.value = fleetQ;
+    if (judgeQ === "1" || judgeQ?.toLowerCase() === "true") judgeMode = true;
+  };
+
+  const updateShareLink = () => {
+    const seed = Number(args.seedEl.value || "0") || 0;
+    const scenario = args.scenarioEl.value || "baseline";
+    const fleet = args.fleetEl ? args.fleetEl.value : "mixed";
+    const params = new URLSearchParams();
+    if (seed) params.set("seed", String(seed));
+    if (scenario) params.set("scenario", scenario);
+    if (fleet) params.set("fleet", fleet);
+    if (args.followEl.checked) params.set("follow", "1");
+    if (judgeMode) params.set("judge", "1");
+    const lora = args.loraEl.value || "";
+    if (lora) params.set("lora", lora);
+    const url = `${window.location.pathname}?${params.toString()}`;
+    appendEvent(`share: ${url}`);
   };
 
   const setReplayUi = () => {
@@ -495,6 +529,65 @@ export function startCommandCenter(args: Args) {
     applyKpis(bKpi, oKpi, dreamScore);
   };
 
+  const runJudgeTour = async () => {
+    if (tourBusy) return;
+    tourBusy = true;
+    const prevScenario = args.scenarioEl.value;
+    const prevSeed = args.seedEl.value;
+    const prevJudge = judgeMode;
+    try {
+      args.followEl.checked = true;
+      judgeMode = false; // tour focuses on crisp route visuals + KPI deltas
+      args.scenarioEl.value = args.scenarioEl.value || "festival_surge";
+      args.seedEl.value = String(Number(args.seedEl.value || "0") || seedRand());
+
+      setVerdict("ready", "TOUR");
+      setText("heroSub", "Judge tour: short scripted sequence (watch neon route + KPI deltas).");
+
+      args.btnDemo.disabled = true;
+      args.btnRun.disabled = true;
+      args.btnStep.disabled = true;
+      args.btnNew.disabled = true;
+      args.btnJudge.disabled = true;
+
+      await initSessions();
+      updateShareLink();
+      await sleep(450);
+
+      const captions: string[] = [
+        "Step 1: route appears under current traffic.",
+        "Step 2: congestion pressure builds — oracle should adapt.",
+        "Step 3: KPI deltas begin separating (avg wait / stress / peak).",
+        "Step 4: follow stays tight — no messy whole-city view.",
+        "Step 5: 'wow' moment — smooth motion + crisp polyline.",
+        "Step 6: wrap-up — hit Run 60 for long-horizon evidence.",
+      ];
+
+      for (let i = 0; i < captions.length; i++) {
+        setText("heroSub", captions[i]);
+        // eslint-disable-next-line no-await-in-loop
+        await stepOne();
+        // eslint-disable-next-line no-await-in-loop
+        await sleep(420);
+      }
+
+      setVerdict("win", "TOUR DONE");
+      setText("heroSub", "Tour complete. Copy the share link in the log, or press Run 60 for full proof.");
+    } catch (e) {
+      reportFatal("TOUR ERROR", e);
+    } finally {
+      args.btnDemo.disabled = false;
+      args.btnRun.disabled = false;
+      args.btnStep.disabled = false;
+      args.btnNew.disabled = false;
+      args.btnJudge.disabled = false;
+      args.scenarioEl.value = prevScenario;
+      args.seedEl.value = prevSeed;
+      judgeMode = prevJudge;
+      tourBusy = false;
+    }
+  };
+
   const replayToTick = async (frameIdx: number) => {
     if (replayBusy) return;
     replayBusy = true;
@@ -551,6 +644,7 @@ export function startCommandCenter(args: Args) {
 
   args.btnNew.onclick = async () => {
     await initSessions();
+    updateShareLink();
   };
 
   args.btnStep.onclick = async () => {
@@ -562,6 +656,7 @@ export function startCommandCenter(args: Args) {
       // Default to follow mode so the judge can track the route/vehicle instantly.
       args.followEl.checked = true;
       await stepOne();
+      updateShareLink();
     } catch (e) {
       reportFatal("STEP ERROR", e);
     } finally {
@@ -584,6 +679,7 @@ export function startCommandCenter(args: Args) {
         // eslint-disable-next-line no-await-in-loop
         await new Promise((r) => setTimeout(r, 90));
       }
+      updateShareLink();
     } catch (e) {
       reportFatal("RUN ERROR", e);
     } finally {
@@ -612,6 +708,7 @@ export function startCommandCenter(args: Args) {
 
       // New session
       await initSessions();
+      updateShareLink();
       await sleep(450);
 
       // Cinematic: 14 ticks at readable pacing
@@ -675,13 +772,24 @@ export function startCommandCenter(args: Args) {
 
   // Auto-start for Spaces (no need to click New)
   window.setTimeout(() => {
+    applyUrlParams();
     void initSessions();
+    const p = new URLSearchParams(window.location.search || "");
+    if (p.get("tour") === "1" || p.get("tour")?.toLowerCase() === "true") {
+      window.setTimeout(() => void runJudgeTour(), 650);
+    }
   }, 200);
 
   args.btnJudge.onclick = async () => {
     judgeMode = true;
     args.eventsEl.textContent = "(Judge Mode enabled — multi-agent protocol)";
     await initSessions();
+    updateShareLink();
   };
+
+  // Power-user keyboard shortcut: Shift+T runs the judge tour.
+  window.addEventListener("keydown", (ev) => {
+    if (ev.key.toLowerCase() === "t" && ev.shiftKey) void runJudgeTour();
+  });
 }
 
