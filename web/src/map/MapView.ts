@@ -46,17 +46,52 @@ function buildIconAtlas(): HTMLCanvasElement {
   };
 
   const drawCar = (ox: number) => {
-    drawGlow(ox + 18, 18, 28, 28);
+    // Readable car silhouette (top-down-ish) with wheels + windshield.
+    drawGlow(ox + 12, 18, 40, 30);
+    ctx.save();
+    ctx.globalAlpha = 0.98;
     ctx.fillStyle = "#ffffff";
-    ctx.globalAlpha = 0.96;
-    roundRect(ctx, ox + 18, 18, 28, 28, 8);
+
+    // Body
+    roundRect(ctx, ox + 14, 22, 36, 24, 10);
+    ctx.fill();
+
+    // Hood / trunk shading
+    ctx.globalAlpha = 0.12;
+    ctx.fillStyle = "#0b0d14";
+    roundRect(ctx, ox + 17, 24, 30, 7, 6);
+    ctx.fill();
+    roundRect(ctx, ox + 17, 38, 30, 6, 6);
+    ctx.fill();
+
+    // Roof / cabin
+    ctx.globalAlpha = 0.98;
+    ctx.fillStyle = "#ffffff";
+    roundRect(ctx, ox + 20, 26, 24, 16, 8);
+    ctx.fill();
+
+    // Windows
+    ctx.fillStyle = "#0b0d14";
+    ctx.globalAlpha = 0.55;
+    roundRect(ctx, ox + 23, 29, 18, 10, 5);
     ctx.fill();
     ctx.globalAlpha = 1;
+
+    // Wheels (dark circles)
     ctx.fillStyle = "#0b0d14";
     ctx.beginPath();
-    ctx.arc(ox + 26, 39, 3.2, 0, Math.PI * 2);
-    ctx.arc(ox + 38, 39, 3.2, 0, Math.PI * 2);
+    ctx.arc(ox + 20, 26, 3.4, 0, Math.PI * 2);
+    ctx.arc(ox + 44, 26, 3.4, 0, Math.PI * 2);
+    ctx.arc(ox + 20, 44, 3.4, 0, Math.PI * 2);
+    ctx.arc(ox + 44, 44, 3.4, 0, Math.PI * 2);
     ctx.fill();
+
+    // Headlights hint (tiny cyan pixels at front)
+    ctx.fillStyle = "#23e7ff";
+    ctx.globalAlpha = 0.85;
+    ctx.fillRect(ox + 18, 21, 3, 2);
+    ctx.fillRect(ox + 45, 21, 3, 2);
+    ctx.restore();
   };
 
   const drawBike = (ox: number) => {
