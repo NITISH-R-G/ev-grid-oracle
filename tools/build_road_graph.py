@@ -23,6 +23,39 @@ def haversine_m(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
     return r * c
 
 
+def _encode_signed(num: int) -> str:
+    num = num << 1
+    if num < 0:
+        num = ~num
+    out = ""
+    while num >= 0x20:
+        out += chr((0x20 | (num & 0x1F)) + 63)
+        num >>= 5
+    out += chr(num + 63)
+    return out
+
+
+def encode_polyline_latlng(points: list[list[float]], *, precision: int = 5) -> str:
+    """
+    Google polyline encoding for [lat,lng] points.
+    Stored as a compact ASCII string to shrink graph artifacts.
+    """
+    if not points:
+        return ""
+    factor = 10**precision
+    prev_lat = 0
+    prev_lng = 0
+    out = ""
+    for lat, lng in points:
+        ilat = int(round(float(lat) * factor))
+        ilng = int(round(float(lng) * factor))
+        out += _encode_signed(ilat - prev_lat)
+        out += _encode_signed(ilng - prev_lng)
+        prev_lat = ilat
+        prev_lng = ilng
+    return out
+
+
 SPEED_KMH = {
     "motorway": 65,
     "trunk": 60,
@@ -178,11 +211,14 @@ def main() -> int:
                     "name": name,
                     "dist_m": round(dist_m, 3),
                     "travel_s": round(travel_s, 4),
-                    "geom": [
-                        [round(float(p[0]), snap_decimals), round(float(p[1]), snap_decimals)]
-                        for idx, p in enumerate(seg_geom)
-                        if geom_every <= 1 or idx in (0, len(seg_geom) - 1) or (idx % geom_every) == 0
-                    ],
+                    "geom_poly": encode_polyline_latlng(
+                        [
+                            [round(float(p[0]), snap_decimals), round(float(p[1]), snap_decimals)]
+                            for idx, p in enumerate(seg_geom)
+                            if geom_every <= 1 or idx in (0, len(seg_geom) - 1) or (idx % geom_every) == 0
+                        ],
+                        precision=snap_decimals,
+                    ),
                 }
             )
 

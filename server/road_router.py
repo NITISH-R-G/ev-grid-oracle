@@ -18,6 +18,36 @@ def haversine_m(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
     return r * c
 
 
+def decode_polyline_latlng(s: str, *, precision: int = 5) -> list[list[float]]:
+    if not s:
+        return []
+    factor = 10**precision
+    idx = 0
+    lat = 0
+    lng = 0
+    out: list[list[float]] = []
+
+    def _next() -> int:
+        nonlocal idx
+        shift = 0
+        result = 0
+        while True:
+            b = ord(s[idx]) - 63
+            idx += 1
+            result |= (b & 0x1F) << shift
+            shift += 5
+            if b < 0x20:
+                break
+        d = ~(result >> 1) if (result & 1) else (result >> 1)
+        return int(d)
+
+    while idx < len(s):
+        lat += _next()
+        lng += _next()
+        out.append([lat / factor, lng / factor])
+    return out
+
+
 @dataclass(frozen=True)
 class RoadRouter:
     g: nx.Graph
@@ -44,7 +74,7 @@ class RoadRouter:
             a = int(e["a"])
             b = int(e["b"])
             w = float(e.get("travel_s") or 0.0)
-            geom = e.get("geom")
+            geom_poly = e.get("geom_poly")
             if a == b:
                 continue
             # keep smallest weight if duplicates
@@ -53,9 +83,12 @@ class RoadRouter:
                     g.edges[a, b]["weight"] = w
             else:
                 g.add_edge(a, b, weight=w)
-            if isinstance(geom, list) and len(geom) >= 2:
-                edge_geom[(a, b)] = geom
-                edge_geom[(b, a)] = list(reversed(geom))
+            if isinstance(geom_poly, str) and geom_poly:
+                precision = int(obj.get("meta", {}).get("snap_decimals", 5) or 5)
+                geom = decode_polyline_latlng(geom_poly, precision=precision)
+                if len(geom) >= 2:
+                    edge_geom[(a, b)] = geom
+                    edge_geom[(b, a)] = list(reversed(geom))
 
         return cls(g=g, nodes=nodes, edge_geom=edge_geom)
 
