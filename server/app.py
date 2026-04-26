@@ -17,7 +17,7 @@ except ImportError as e:  # pragma: no cover
 
 from typing import Any, Literal, cast
 from uuid import uuid4
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, ValidationError
 
 from fastapi import Body, HTTPException, Query, Request
 from fastapi.responses import HTMLResponse
@@ -50,6 +50,10 @@ log = logging.getLogger("ev-grid-oracle")
 if not log.handlers:
     logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
 
+def _request_id(req: Request) -> str:
+    rid = (req.headers.get("x-request-id") or req.headers.get("x-amzn-trace-id") or "").strip()
+    return rid or uuid4().hex
+
 
 def _oracle_skip_llm_env() -> bool:
     return os.getenv("ORACLE_SKIP_LLM", "").strip() not in ("", "0", "false", "False")
@@ -64,7 +68,7 @@ def _rate_limit(req: Request, *, key: str, limit: int, window_sec: int) -> None:
     xs = _RATE_BUCKET.get(ip, [])
     xs = [t for t in xs if now - t < window_sec]
     if len(xs) >= limit:
-        raise HTTPException(status_code=429, detail="Rate limit exceeded")
+        raise HTTPException(status_code=429, detail=f"Rate limit exceeded ({key}). Please wait and retry.")
     xs.append(now)
     _RATE_BUCKET[ip] = xs
 
@@ -176,6 +180,30 @@ def root() -> str:
   </body>
 </html>
 """
+
+
+@app.get("/health")
+def health(req: Request) -> dict[str, Any]:
+    """
+    HF Spaces / cold-start friendly health endpoint.
+    Keep it fast and dependency-safe (no heavy routing work).
+    """
+    rid = _request_id(req)
+    router_ok = True
+    try:
+        # Lazy import / init; should be cached if already loaded.
+        get_router()
+    except Exception:
+        router_ok = False
+    return {
+        "ok": True,
+        "request_id": rid,
+        "sim_version": _SIM_VERSION,
+        "web_ui": bool(_WEB_DIST.exists()),
+        "demo_sessions": len(_demo_sessions),
+        "router_ok": router_ok,
+        "schema_version": "traffic-v1",
+    }
 
 
 # -----------------------------
@@ -510,6 +538,7 @@ def _station_nodes(core: EVGridCore) -> list[dict[str, Any]]:
 def demo_new(req: Request, payload: DemoNewRequest = Body(...)) -> dict[str, Any]:
     _rate_limit(req, key="demo_new", limit=30, window_sec=60)
     t0 = time.time()
+    rid = _request_id(req)
     _demo_session_gc()
     session_id = str(uuid4())
     core = EVGridCore(city_graph=_demo_graph)
@@ -517,8 +546,9 @@ def demo_new(req: Request, payload: DemoNewRequest = Body(...)) -> dict[str, Any
     _demo_sessions[session_id] = (time.time(), core)
     from ev_grid_oracle.scenarios import scenario_schedule
 
-    log.info("demo_new", extra={"sid": session_id, "seed": payload.seed, "scenario": str(obs.state and core.scenario), "ms": int((time.time()-t0)*1000)})
+    log.info("demo_new", extra={"rid": rid, "sid": session_id, "seed": payload.seed, "scenario": str(obs.state and core.scenario), "ms": int((time.time()-t0)*1000)})
     return {
+        "request_id": rid,
         "session_id": session_id,
         "obs": _obs_to_jsonable(obs),
         "station_nodes": _station_nodes(core),
@@ -533,9 +563,10 @@ def demo_new(req: Request, payload: DemoNewRequest = Body(...)) -> dict[str, Any
 def demo_state(req: Request, session_id: str = Query(...)) -> dict[str, Any]:
     _rate_limit(req, key="demo_state", limit=120, window_sec=60)
     t0 = time.time()
+    rid = _request_id(req)
     core = _demo_session_get(session_id)
     if core is None:
-        log.info("demo_state_miss", extra={"sid": session_id, "ms": int((time.time()-t0)*1000)})
+        log.info("demo_state_miss", extra={"rid": rid, "sid": session_id, "ms": int((time.time()-t0)*1000)})
         raise HTTPException(status_code=404, detail="Unknown session_id")
     st = core._grid_state
     if st is None:
@@ -551,8 +582,9 @@ def demo_state(req: Request, session_id: str = Query(...)) -> dict[str, Any]:
         )
     from ev_grid_oracle.scenarios import scenario_schedule
 
-    log.info("demo_state", extra={"sid": session_id, "tick": int(core.step_count), "ms": int((time.time()-t0)*1000)})
+    log.info("demo_state", extra={"rid": rid, "sid": session_id, "tick": int(core.step_count), "ms": int((time.time()-t0)*1000)})
     return {
+        "request_id": rid,
         "session_id": session_id,
         "obs": _obs_to_jsonable(obs),
         "station_nodes": _station_nodes(core),
@@ -572,9 +604,10 @@ def demo_step(
 ) -> dict[str, Any]:
     _rate_limit(req, key="demo_step", limit=120, window_sec=60)
     t0 = time.time()
+    rid = _request_id(req)
     core = _demo_session_get(session_id)
     if core is None:
-        log.info("demo_step_miss", extra={"sid": session_id, "ms": int((time.time()-t0)*1000)})
+        log.info("demo_step_miss", extra={"rid": rid, "sid": session_id, "ms": int((time.time()-t0)*1000)})
         raise HTTPException(status_code=404, detail="Unknown session_id")
 
     try:
@@ -588,8 +621,12 @@ def demo_step(
         dream_pred = None
         dream_true = None
         event: dict[str, Any] = {"type": "noop"}
+        forced = forced_action is not None
         if forced_action is not None:
-            action = EVGridAction.model_validate(forced_action)
+            try:
+                action = EVGridAction.model_validate(forced_action)
+            except ValidationError as ve:
+                raise HTTPException(status_code=422, detail={"error": "invalid_forced_action", "issues": ve.errors()})
             oracle_llm_active = False
             oracle_text = ""
             dream_score = None
@@ -665,33 +702,34 @@ def demo_step(
                     ],
                 }
 
-        # Render-friendly event for frontend animation.
+        # Render-friendly event for frontend animation (skip overwriting if replaying forced_action).
         # v0: polyline path is station-to-station graph path (lat/lng pairs).
-        ev = st.pending_evs[0]
-        src = next((x for x in st.stations if x.neighborhood_slug == ev.neighborhood_slug), None)
-        dst = next((x for x in st.stations if x.station_id == action.station_id), None)
-        if action.action_type == ActionType.route and src is not None and dst is not None:
-            traffic = TrafficModel(seed=int(core._seed_for_bescom), scenario=str(core.scenario))
-            routed = _osm_route_polyline(
-                src_lat=float(src.lat),
-                src_lng=float(src.lng),
-                dst_lat=float(dst.lat),
-                dst_lng=float(dst.lng),
-                traffic=traffic,
-                tick=int(core.step_count),
-            )
-            poly, seg_m_q = routed if routed is not None else ([], None)
-            event = {
-                "type": "route",
-                "ev_id": ev.ev_id,
-                "from": {"station_id": src.station_id, "lat": src.lat, "lng": src.lng},
-                "to": {"station_id": dst.station_id, "lat": dst.lat, "lng": dst.lng},
-                "polyline": (poly or _graph_route_polyline(core, src_station_id=src.station_id, dst_station_id=dst.station_id)),
-                "traffic_seg_m_q": seg_m_q,
-                "reroute_reason": "periodic" if (int(core.step_count) % 6 == 0) else None,
-            }
-        else:
-            event = {"type": action.action_type.value}
+        if not forced and st is not None and st.pending_evs:
+            ev = st.pending_evs[0]
+            src = next((x for x in st.stations if x.neighborhood_slug == ev.neighborhood_slug), None)
+            dst = next((x for x in st.stations if x.station_id == action.station_id), None)
+            if action.action_type == ActionType.route and src is not None and dst is not None:
+                traffic = TrafficModel(seed=int(core._seed_for_bescom), scenario=str(core.scenario))
+                routed = _osm_route_polyline(
+                    src_lat=float(src.lat),
+                    src_lng=float(src.lng),
+                    dst_lat=float(dst.lat),
+                    dst_lng=float(dst.lng),
+                    traffic=traffic,
+                    tick=int(core.step_count),
+                )
+                poly, seg_m_q = routed if routed is not None else ([], None)
+                event = {
+                    "type": "route",
+                    "ev_id": ev.ev_id,
+                    "from": {"station_id": src.station_id, "lat": src.lat, "lng": src.lng},
+                    "to": {"station_id": dst.station_id, "lat": dst.lat, "lng": dst.lng},
+                    "polyline": (poly or _graph_route_polyline(core, src_station_id=src.station_id, dst_station_id=dst.station_id)),
+                    "traffic_seg_m_q": seg_m_q,
+                    "reroute_reason": "periodic" if (int(core.step_count) % 6 == 0) else None,
+                }
+            else:
+                event = {"type": action.action_type.value}
 
         # Ensure the map always looks alive: if action isn't a route, emit a deterministic
         # ambient trip for UI motion (does not affect env dynamics or rewards).
@@ -732,6 +770,7 @@ def demo_step(
         role_kpis = compute_role_kpis(obs)
         role_reward_breakdown = compute_role_reward_breakdown(obs)
         out = {
+            "request_id": rid,
             "obs": _obs_to_jsonable(obs),
             "event": event,
             "scenario": core.scenario,
@@ -760,6 +799,7 @@ def demo_step(
         log.info(
             "demo_step",
             extra={
+                "rid": rid,
                 "sid": session_id,
                 "mode": mode,
                 "tick": int(core.step_count),
@@ -774,7 +814,7 @@ def demo_step(
     except HTTPException:
         raise
     except Exception as e:
-        log.exception("demo_step_error", extra={"sid": session_id, "mode": mode, "ms": int((time.time() - t0) * 1000)})
+        log.exception("demo_step_error", extra={"rid": rid, "sid": session_id, "mode": mode, "ms": int((time.time() - t0) * 1000)})
         raise HTTPException(status_code=500, detail=f"demo_step_error: {type(e).__name__}: {e}")
 
 
