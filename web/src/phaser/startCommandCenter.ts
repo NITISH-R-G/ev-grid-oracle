@@ -298,7 +298,11 @@ export function startCommandCenter(args: Args) {
   };
 
   const stepOne = async () => {
-    if (!baselineSid || !oracleSid) throw new Error("Click New first.");
+    if (!baselineSid || !oracleSid) {
+      appendEvent("(auto: creating sessions)");
+      await initSessions();
+    }
+    if (!baselineSid || !oracleSid) throw new Error("Sessions not ready. Click New and wait for the Space to warm up.");
 
     const oracleRepo = args.loraEl.value || "";
     if (judgeMode) {
@@ -551,14 +555,27 @@ export function startCommandCenter(args: Args) {
 
   args.btnStep.onclick = async () => {
     try {
+      args.btnStep.disabled = true;
+      args.btnRun.disabled = true;
+      args.btnNew.disabled = true;
+      args.btnStep.textContent = "Stepping…";
       await stepOne();
     } catch (e) {
       reportFatal("STEP ERROR", e);
+    } finally {
+      args.btnStep.disabled = false;
+      args.btnRun.disabled = false;
+      args.btnNew.disabled = false;
+      args.btnStep.textContent = "Step";
     }
   };
 
   args.btnRun.onclick = async () => {
     try {
+      args.btnStep.disabled = true;
+      args.btnRun.disabled = true;
+      args.btnNew.disabled = true;
+      args.btnRun.textContent = "Running…";
       for (let i = 0; i < 60; i++) {
         // eslint-disable-next-line no-await-in-loop
         await stepOne();
@@ -567,6 +584,11 @@ export function startCommandCenter(args: Args) {
       }
     } catch (e) {
       reportFatal("RUN ERROR", e);
+    } finally {
+      args.btnStep.disabled = false;
+      args.btnRun.disabled = false;
+      args.btnNew.disabled = false;
+      args.btnRun.textContent = "Run 60";
     }
   };
 
