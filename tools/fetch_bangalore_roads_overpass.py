@@ -42,6 +42,11 @@ def _http_post(url: str, data: dict[str, str], *, retries: int = 3) -> bytes:
     body = urllib.parse.urlencode(data).encode("utf-8")
     req = urllib.request.Request(url, data=body, method="POST")
     req.add_header("content-type", "application/x-www-form-urlencoded")
+    req.add_header("accept", "application/json,text/plain,*/*")
+    req.add_header(
+        "user-agent",
+        "EV-Grid-Oracle/1.0 (offline-extract; contact: hackathon-demo)",
+    )
     last_err: Exception | None = None
     for attempt in range(1, retries + 1):
         try:
