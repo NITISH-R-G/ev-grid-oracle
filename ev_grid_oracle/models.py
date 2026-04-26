@@ -70,6 +70,8 @@ class EVRequest(BaseModel):
     ev_id: str
     battery_pct_0_100: float = Field(..., ge=0.0, le=100.0)
     urgency: float = Field(..., ge=0.0, le=1.0)
+    persona: str = Field("PrivateOwner", description="Fleet persona label (demo)")
+    price_sensitivity: float = Field(0.3, ge=0.0, le=1.0)
     neighborhood_slug: str
     neighborhood_name: str
     target_charge_pct_0_100: float = Field(..., ge=0.0, le=100.0)

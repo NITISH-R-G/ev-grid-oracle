@@ -17,6 +17,7 @@ type Args = {
   btnPlay: HTMLButtonElement;
   followEl: HTMLInputElement;
   loraEl: HTMLInputElement;
+  fleetEl?: HTMLSelectElement;
 
   baselineBadge: HTMLDivElement;
   oracleBadge: HTMLDivElement;
@@ -246,14 +247,15 @@ export function startCommandCenter(args: Args) {
 
     const seed = Number(args.seedEl.value || "0") || seedRand();
     const scenario = args.scenarioEl.value || "baseline";
+    const fleet = args.fleetEl ? args.fleetEl.value : "mixed";
     pill(args.baselineBadge, "warn", "waking server…");
     pill(args.oracleBadge, "warn", "waking server…");
     args.eventsEl.textContent = "(creating sessions — HF Space cold-start may take ~10–30s)";
     try {
       const [b, o] = await withDeadline(
         Promise.all([
-          judgeMode ? maNew(seed, scenario) : demoNew(seed, scenario),
-          judgeMode ? maNew(seed, scenario) : demoNew(seed, scenario),
+          judgeMode ? maNew(seed, scenario, fleet) : demoNew(seed, scenario, fleet),
+          judgeMode ? maNew(seed, scenario, fleet) : demoNew(seed, scenario, fleet),
         ]),
         75_000,
         judgeMode ? "maNew" : "demoNew"
@@ -494,10 +496,11 @@ export function startCommandCenter(args: Args) {
       if (!baselineSid || !oracleSid) return;
       const seed = Number(args.seedEl.value || "0") || 123;
       const scenario = args.scenarioEl.value || "baseline";
+      const fleet = args.fleetEl ? args.fleetEl.value : "mixed";
 
       stopPlay();
 
-      const [b, o] = await Promise.all([demoNew(seed, scenario), demoNew(seed, scenario)]);
+      const [b, o] = await Promise.all([demoNew(seed, scenario, fleet), demoNew(seed, scenario, fleet)]);
       baselineSid = b.session_id;
       oracleSid = o.session_id;
       const [bView, oView] = await withDeadline(Promise.all([baseline.ready, oracle.ready]), 10_000, "mapReady");

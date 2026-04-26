@@ -23,6 +23,7 @@ from .models import (
 from .reward import compute_reward
 from .reward_hack import RewardHackDetector
 from .bescom_feed import BESCOMFeedAPI
+from .personas import FleetMode, choose_persona
 from .scenarios import ScenarioEvent, ScenarioModifiers, ScenarioName, apply_scenario_events, scenario_schedule
 
 
@@ -48,13 +49,21 @@ class EVGridCore:
     _hack_detector: RewardHackDetector = field(default_factory=RewardHackDetector)
     _bescom: BESCOMFeedAPI = field(default_factory=BESCOMFeedAPI)
     _seed_for_bescom: int = 0
+    fleet_mode: FleetMode = "mixed"
 
-    def reset(self, *, seed: Optional[int] = None, scenario: ScenarioName = "baseline") -> EVGridObservation:
+    def reset(
+        self,
+        *,
+        seed: Optional[int] = None,
+        scenario: ScenarioName = "baseline",
+        fleet_mode: FleetMode = "mixed",
+    ) -> EVGridObservation:
         if seed is not None:
             self.rng.seed(seed)
             self._seed_for_bescom = int(seed)
         self.step_count = 0
         self.scenario = scenario
+        self.fleet_mode = fleet_mode
         self._scenario_schedule = scenario_schedule(scenario)
         self._scenario_mods = ScenarioModifiers()
         self._hack_detector.reset()
@@ -90,7 +99,7 @@ class EVGridCore:
         self.last_scenario_events = fired0
         self._apply_tariff_mult(stations)
 
-        pending = [_make_ev(self.rng, i, stations) for i in range(self.rng.randint(3, 8))]
+        pending = [_make_ev(self.rng, i, stations, fleet_mode=self.fleet_mode) for i in range(self.rng.randint(3, 8))]
 
         occupied_total = sum(s.occupied_slots for s in stations)
         grid_load, renewable = update_grid_load(
@@ -168,7 +177,9 @@ class EVGridCore:
         arrivals = sample_arrivals_per_step(self.rng, prev_state.hour, day_type=prev_state.day_type.value)
         arrivals = int(round(arrivals * float(self._scenario_mods.arrivals_mult)))
         for _ in range(arrivals):
-            prev_state.pending_evs.append(_make_ev(self.rng, self.rng.randint(1000, 9999), prev_state.stations))
+            prev_state.pending_evs.append(
+                _make_ev(self.rng, self.rng.randint(1000, 9999), prev_state.stations, fleet_mode=self.fleet_mode)
+            )
 
         # cap pending list for prompt/training cost (env still realistic enough)
         if len(prev_state.pending_evs) > 5:
@@ -246,18 +257,22 @@ def _peak_risk(grid_load_pct: float) -> PeakRisk:
     return PeakRisk.low
 
 
-def _make_ev(rng: Random, i: int, stations: list[StationState]) -> EVRequest:
+def _make_ev(rng: Random, i: int, stations: list[StationState], *, fleet_mode: FleetMode) -> EVRequest:
     s = rng.choice(stations)
-    battery = rng.uniform(5.0, 100.0)
+    p = choose_persona(rng, fleet_mode)
+    battery = rng.uniform(p.battery_min, p.battery_max)
     urgency = 1.0 if battery < 15.0 else rng.uniform(0.0, 1.0)
+    urgency = max(0.0, min(1.0, urgency + p.urgency_bias))
     return EVRequest(
         ev_id=f"EV-{i+1:03d}",
         battery_pct_0_100=round(battery, 1),
         urgency=round(urgency, 2),
+        persona=str(p.persona),
+        price_sensitivity=float(p.price_sensitivity),
         neighborhood_slug=s.neighborhood_slug,
         neighborhood_name=s.neighborhood_name,
         target_charge_pct_0_100=round(rng.uniform(max(battery, 40.0), 95.0), 1),
-        max_wait_minutes=int(rng.choice([15, 20, 30, 45, 60])),
+        max_wait_minutes=int(rng.choice(p.max_wait_choices)),
     )
 
 
@@ -364,6 +379,7 @@ def _build_prompt(state: GridState) -> str:
         crit = " 🔴 CRITICAL" if ev.battery_pct_0_100 < 15.0 else ""
         lines.append("PENDING EV REQUEST:")
         lines.append(f"  EV #{ev.ev_id}")
+        lines.append(f"  Persona: {ev.persona} | Price sensitivity: {ev.price_sensitivity:.2f}")
         lines.append(f"  Battery: {ev.battery_pct_0_100:.1f}%{crit}")
         lines.append(f"  Location: {ev.neighborhood_name}")
         lines.append(f"  Needs: charge to {ev.target_charge_pct_0_100:.1f}%")

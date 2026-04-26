@@ -67,7 +67,7 @@ async function sleep(ms: number) {
   await new Promise((r) => setTimeout(r, ms));
 }
 
-export async function demoNew(seed: number, scenario: string = "baseline"): Promise<DemoNewResponse> {
+export async function demoNew(seed: number, scenario: string = "baseline", fleet_mode: string = "mixed"): Promise<DemoNewResponse> {
   const maxAttempts = 3;
   let lastErr: unknown = null;
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
@@ -78,7 +78,7 @@ export async function demoNew(seed: number, scenario: string = "baseline"): Prom
       const r = await fetch("/demo/new", {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ seed, scenario }),
+        body: JSON.stringify({ seed, scenario, fleet_mode }),
         signal: ctl.signal,
       });
       if (!r.ok) throw new Error(`demoNew failed: ${r.status}`);
@@ -130,11 +130,11 @@ export async function demoStep(args: {
   }
 }
 
-export async function maNew(seed: number, scenario: string = "baseline"): Promise<MANewResponse> {
+export async function maNew(seed: number, scenario: string = "baseline", fleet_mode: string = "mixed"): Promise<MANewResponse> {
   const r = await fetch("/ma/new", {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ seed, scenario }),
+    body: JSON.stringify({ seed, scenario, fleet_mode }),
   });
   if (!r.ok) throw new Error(`maNew failed: ${r.status}`);
   return (await r.json()) as MANewResponse;

@@ -247,6 +247,7 @@ def _demo_session_get(session_id: str) -> EVGridCore | None:
 class DemoNewRequest(BaseModel):
     seed: int = Field(123, ge=0, le=1_000_000)
     scenario: ScenarioName = Field("baseline")
+    fleet_mode: str = Field("mixed", description="Fleet persona mix: mixed|taxi|corporate|delivery|private|emergency")
 
 
 # -----------------------------
@@ -284,6 +285,7 @@ def _ma_get(session_id: str) -> MultiAgentSession | None:
 class MANewRequest(BaseModel):
     seed: int = Field(123, ge=0, le=1_000_000)
     scenario: ScenarioName = Field("baseline")
+    fleet_mode: str = Field("mixed", description="Fleet persona mix: mixed|taxi|corporate|delivery|private|emergency")
 
 
 @app.post("/ma/new")
@@ -293,7 +295,7 @@ def ma_new(req: Request, payload: MANewRequest = Body(...)) -> dict[str, Any]:
     _ma_gc()
     sid = str(uuid4())
     core = EVGridCore(city_graph=_demo_graph)
-    obs = core.reset(seed=payload.seed, scenario=cast(ScenarioName, payload.scenario))
+    obs = core.reset(seed=payload.seed, scenario=cast(ScenarioName, payload.scenario), fleet_mode=cast(Any, payload.fleet_mode))
     sess = MultiAgentSession(core=core)
     _ma_sessions[sid] = (time.time(), sess)
     log.info("ma_new", extra={"sid": sid, "seed": payload.seed, "scenario": str(core.scenario), "ms": int((time.time() - t0) * 1000)})
@@ -499,7 +501,7 @@ def demo_new(req: Request, payload: DemoNewRequest = Body(...)) -> dict[str, Any
     _demo_session_gc()
     session_id = str(uuid4())
     core = EVGridCore(city_graph=_demo_graph)
-    obs = core.reset(seed=payload.seed, scenario=cast(ScenarioName, payload.scenario))
+    obs = core.reset(seed=payload.seed, scenario=cast(ScenarioName, payload.scenario), fleet_mode=cast(Any, payload.fleet_mode))
     _demo_sessions[session_id] = (time.time(), core)
     from ev_grid_oracle.scenarios import scenario_schedule
 

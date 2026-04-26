@@ -30,6 +30,23 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
             <option value="transformer_derate">transformer_derate</option>
             <option value="station_outage">station_outage</option>
             <option value="tariff_shock">tariff_shock</option>
+            <option value="MonsoonStorm">MonsoonStorm</option>
+            <option value="CricketFinal">CricketFinal</option>
+            <option value="AirportRush">AirportRush</option>
+            <option value="SilkBoardJam">SilkBoardJam</option>
+            <option value="WhitefieldNight">WhitefieldNight</option>
+          </select>
+        </label>
+
+        <label class="label">
+          Fleet
+          <select id="fleetMode" class="input">
+            <option value="mixed" selected>mixed</option>
+            <option value="taxi">taxi</option>
+            <option value="corporate">corporate</option>
+            <option value="delivery">delivery</option>
+            <option value="private">private</option>
+            <option value="emergency">emergency</option>
           </select>
         </label>
 
@@ -195,6 +212,7 @@ startCommandCenter({
   btnRun: document.querySelector<HTMLButtonElement>("#btnRun")!,
   btnDemo: document.querySelector<HTMLButtonElement>("#btnDemo")!,
   scenarioEl: document.querySelector<HTMLSelectElement>("#scenario")!,
+  fleetEl: document.querySelector<HTMLSelectElement>("#fleetMode")!,
   seedEl: document.querySelector<HTMLInputElement>("#seed")!,
   tickEl: document.querySelector<HTMLInputElement>("#tick")!,
   tickLabelEl: document.querySelector<HTMLSpanElement>("#tickLabel")!,
