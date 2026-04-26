@@ -8,6 +8,10 @@ from ev_grid_oracle.parsing import parse_action, parse_simulation
 from ev_grid_oracle.policies import baseline_policy
 
 
+_CACHE = {}
+_CACHE_LOCK = None
+
+
 @dataclass
 class OracleAgent:
     """
@@ -26,6 +30,12 @@ class OracleAgent:
     _model = None
 
     def _ensure_loaded(self):
+        global _CACHE_LOCK
+        if _CACHE_LOCK is None:
+            import threading
+
+            _CACHE_LOCK = threading.Lock()
+
         if self._loaded:
             return
         self._loaded = True
@@ -43,6 +53,13 @@ class OracleAgent:
             self.lora_repo_id = None
             return
 
+        cache_key = (self.base_model_id, self.lora_repo_id)
+        with _CACHE_LOCK:
+            cached = _CACHE.get(cache_key)
+            if cached is not None:
+                self._tokenizer, self._model = cached
+                return
+
         # CPU-safe default. (For speed, prefer running inference on a GPU Space later.)
         tok = AutoTokenizer.from_pretrained(self.base_model_id, use_fast=True)
         model = AutoModelForCausalLM.from_pretrained(
@@ -56,6 +73,8 @@ class OracleAgent:
 
         self._tokenizer = tok
         self._model = model
+        with _CACHE_LOCK:
+            _CACHE[cache_key] = (tok, model)
 
     def act(self, state: GridState, prompt: str, graph) -> EVGridAction:
         action, _txt = self.act_with_text(state, prompt, graph)

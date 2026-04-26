@@ -3,6 +3,7 @@ from __future__ import annotations
 import concurrent.futures
 import os
 from pathlib import Path
+import time
 
 try:
     from openenv.core.env_server.http_server import create_app
@@ -56,21 +57,26 @@ def _demo_oracle_act_with_guard(
 
     timeout = float(os.getenv("DEMO_ORACLE_INFERENCE_TIMEOUT_SEC", "90"))
 
+    # Reuse a single executor to avoid spawning threads repeatedly.
+    # Note: cancellation does not reliably stop model load once started, so we keep the timeout
+    # as a *response guard* only. The model cache in OracleAgent prevents repeated cold-loads.
+    global _ORACLE_EXEC
+    try:
+        _ORACLE_EXEC
+    except NameError:
+        _ORACLE_EXEC = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+
     def run() -> tuple[EVGridAction, str, bool]:
         agent = OracleAgent(lora_repo_id=repo)
         action, text = agent.act_with_text(st, _build_prompt(st), core.city_graph)
         return action, text, bool(agent.is_active)
 
-    pool = concurrent.futures.ThreadPoolExecutor(max_workers=1)
-    fut = pool.submit(run)
+    fut = _ORACLE_EXEC.submit(run)
     try:
         action, text, active = fut.result(timeout=timeout)
         return action, text, active, False, False
     except concurrent.futures.TimeoutError:
-        fut.cancel()
-        return baseline_policy(st, core.city_graph), "[timeout] baseline fallback (model load too slow for Space CPU)", False, True, False
-    finally:
-        pool.shutdown(wait=False, cancel_futures=True)
+        return baseline_policy(st, core.city_graph), "[timeout] baseline fallback (oracle too slow)", False, True, False
 
 
 app = create_app(EVGridEnvironment, EVGridAction, EVGridObservation, env_name="ev-grid-oracle", max_concurrent_envs=1)
