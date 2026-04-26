@@ -41,7 +41,7 @@ pinned: false
 
 ### What judges see (live Command Center)
 
-![EV Grid Oracle Command Center screenshot](images/command-center.png)
+![EV Grid Oracle Command Center screenshot](https://raw.githubusercontent.com/NITISH-R-G/ev-grid-oracle/main/docs/images/command-center.png)
 
 If you only read one thing, read the repo's **"Judges - non-negotiables"** table in [`README.md`](https://github.com/NITISH-R-G/ev-grid-oracle/blob/main/README.md) (Space + Colab + plots + writeup in one place).
 
@@ -295,51 +295,51 @@ All images currently in this repo are embedded below (plus the Command Center sc
 
 ### One-page dashboard
 
-![Six-panel evaluation dashboard](../artifacts/eval_dashboard_summary.png)
+![Six-panel evaluation dashboard](https://raw.githubusercontent.com/NITISH-R-G/ev-grid-oracle/main/artifacts/eval_dashboard_summary.png)
 
 ### Aggregate KPI comparison
 
-![Baseline vs Oracle - mean KPIs](../artifacts/kpi_comparison.png)
+![Baseline vs Oracle - mean KPIs](https://raw.githubusercontent.com/NITISH-R-G/ev-grid-oracle/main/artifacts/kpi_comparison.png)
 
 ### Per-episode trajectories (paired seeds)
 
-![Wait, peak ticks, stress ticks vs episode index](../artifacts/eval_episode_trajectories.png)
+![Wait, peak ticks, stress ticks vs episode index](https://raw.githubusercontent.com/NITISH-R-G/ev-grid-oracle/main/artifacts/eval_episode_trajectories.png)
 
 ### Paired deltas (oracle − baseline)
 
-![Per-episode delta histograms](../artifacts/eval_delta_histograms.png)
+![Per-episode delta histograms](https://raw.githubusercontent.com/NITISH-R-G/ev-grid-oracle/main/artifacts/eval_delta_histograms.png)
 
 ### Reward breakdown (mean components)
 
-![Reward breakdown bars](../artifacts/eval_reward_breakdown_bars.png)
+![Reward breakdown bars](https://raw.githubusercontent.com/NITISH-R-G/ev-grid-oracle/main/artifacts/eval_reward_breakdown_bars.png)
 
 ### Distribution over episodes
 
-![Boxplots by policy](../artifacts/eval_boxplots_by_policy.png)
+![Boxplots by policy](https://raw.githubusercontent.com/NITISH-R-G/ev-grid-oracle/main/artifacts/eval_boxplots_by_policy.png)
 
 ### Head-to-head win rates
 
-![Oracle win rates](../artifacts/eval_oracle_win_rates.png)
+![Oracle win rates](https://raw.githubusercontent.com/NITISH-R-G/ev-grid-oracle/main/artifacts/eval_oracle_win_rates.png)
 
 ### Paired scatter: wait
 
-![Paired scatter wait](../artifacts/eval_paired_scatter_wait.png)
+![Paired scatter wait](https://raw.githubusercontent.com/NITISH-R-G/ev-grid-oracle/main/artifacts/eval_paired_scatter_wait.png)
 
 ### Binary timeline (baseline difficulty map)
 
-![Binary timeline baseline](../artifacts/eval_binary_timeline_baseline.png)
+![Binary timeline baseline](https://raw.githubusercontent.com/NITISH-R-G/ev-grid-oracle/main/artifacts/eval_binary_timeline_baseline.png)
 
 ### Wilson intervals (binary rates)
 
-![Binary rates with Wilson intervals](../artifacts/eval_fair_binary_rates.png)
+![Binary rates with Wilson intervals](https://raw.githubusercontent.com/NITISH-R-G/ev-grid-oracle/main/artifacts/eval_fair_binary_rates.png)
 
 ### McNemar p-values (paired test)
 
-![McNemar p-values](../artifacts/eval_mcnemar_pvalues.png)
+![McNemar p-values](https://raw.githubusercontent.com/NITISH-R-G/ev-grid-oracle/main/artifacts/eval_mcnemar_pvalues.png)
 
 ### Fair-eval chart
 
-![Wilson chart](../artifacts/fair_eval_chart.png)
+![Wilson chart](https://raw.githubusercontent.com/NITISH-R-G/ev-grid-oracle/main/artifacts/fair_eval_chart.png)
 
 ---
 
