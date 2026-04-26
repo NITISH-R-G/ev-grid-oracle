@@ -22,12 +22,20 @@ from fastapi.staticfiles import StaticFiles
 
 from ev_grid_oracle.city_graph import build_city_graph
 from ev_grid_oracle.env import EVGridCore, _build_prompt
-from ev_grid_oracle.models import ActionType, EVGridAction, EVGridObservation
+from ev_grid_oracle.models import (
+    ActionType,
+    EVGridAction,
+    EVGridObservation,
+    GridDirective,
+    MultiAgentStepRequest,
+    NegotiationMessage,
+)
 from ev_grid_oracle.oracle_agent import OracleAgent
 from ev_grid_oracle.policies import baseline_policy
 from ev_grid_oracle.parsing import parse_simulation
 from ev_grid_oracle.scenarios import ScenarioName
 from ev_grid_oracle.world_model_verifier import rollout_deterministic_5ticks, score_prediction
+from ev_grid_oracle.multi_agent import MultiAgentSession
 from server.ev_grid_environment import EVGridEnvironment
 from server.role_metrics import compute_role_kpis, compute_role_reward_breakdown, summarize_action
 
@@ -188,6 +196,154 @@ def _demo_session_get(session_id: str) -> EVGridCore | None:
 class DemoNewRequest(BaseModel):
     seed: int = Field(123, ge=0, le=1_000_000)
     scenario: ScenarioName = Field("baseline")
+
+
+# -----------------------------
+# Multi-agent demo API (Theme #1)
+# -----------------------------
+
+_MA_SESSION_TTL_SEC = int(os.getenv("MA_SESSION_TTL_SEC", "3600"))
+_MA_MAX_SESSIONS = int(os.getenv("MA_MAX_SESSIONS", "64"))
+_ma_sessions: "OrderedDict[str, tuple[float, MultiAgentSession]]" = OrderedDict()
+
+
+def _ma_gc(now: float | None = None) -> None:
+    t = float(now if now is not None else time.time())
+    expired: list[str] = []
+    for sid, (ts, _sess) in _ma_sessions.items():
+        if t - float(ts) > float(_MA_SESSION_TTL_SEC):
+            expired.append(sid)
+    for sid in expired:
+        _ma_sessions.pop(sid, None)
+    while len(_ma_sessions) > int(_MA_MAX_SESSIONS):
+        _ma_sessions.popitem(last=False)
+
+
+def _ma_get(session_id: str) -> MultiAgentSession | None:
+    _ma_gc()
+    row = _ma_sessions.get(session_id)
+    if row is None:
+        return None
+    _ts, sess = row
+    _ma_sessions.move_to_end(session_id, last=True)
+    _ma_sessions[session_id] = (time.time(), sess)
+    return sess
+
+
+class MANewRequest(BaseModel):
+    seed: int = Field(123, ge=0, le=1_000_000)
+    scenario: ScenarioName = Field("baseline")
+
+
+@app.post("/ma/new")
+def ma_new(payload: MANewRequest = Body(...)) -> dict[str, Any]:
+    t0 = time.time()
+    _ma_gc()
+    sid = str(uuid4())
+    core = EVGridCore(city_graph=_demo_graph)
+    obs = core.reset(seed=payload.seed, scenario=cast(ScenarioName, payload.scenario))
+    sess = MultiAgentSession(core=core)
+    _ma_sessions[sid] = (time.time(), sess)
+    log.info("ma_new", extra={"sid": sid, "seed": payload.seed, "scenario": str(core.scenario), "ms": int((time.time() - t0) * 1000)})
+    return {
+        "session_id": sid,
+        "obs": _obs_to_jsonable(obs),
+        "station_nodes": _station_nodes(core),
+        "scenario": core.scenario,
+        "seed": payload.seed,
+        "sim_version": _SIM_VERSION,
+        "messages": [],
+        "grid_directive": GridDirective().model_dump(mode="json"),
+    }
+
+
+@app.get("/ma/state")
+def ma_state(session_id: str = Query(...)) -> dict[str, Any]:
+    t0 = time.time()
+    sess = _ma_get(session_id)
+    if sess is None:
+        log.info("ma_state_miss", extra={"sid": session_id, "ms": int((time.time() - t0) * 1000)})
+        raise HTTPException(status_code=404, detail="Unknown session_id")
+    core = sess.core
+    st = core._grid_state
+    if st is None:
+        obs = core.reset(seed=123, scenario=core.scenario)
+    else:
+        obs = EVGridObservation(
+            prompt=_build_prompt(st),
+            state=st,
+            done=False,
+            reward_breakdown={},
+            anti_cheat_flags=[],
+            anti_cheat_details={},
+        )
+    return {
+        "session_id": session_id,
+        "obs": _obs_to_jsonable(obs),
+        "station_nodes": _station_nodes(core),
+        "scenario": core.scenario,
+        "tick": core.step_count,
+        "messages": [m.model_dump(mode="json") for m in sess.messages[-50:]],
+        "grid_directive": sess.last_directive.model_dump(mode="json"),
+        "violations": list(sess.last_violations),
+        "resolved_action": sess.last_resolved_action.model_dump(mode="json") if sess.last_resolved_action else None,
+    }
+
+
+@app.post("/ma/step")
+def ma_step(payload: MultiAgentStepRequest = Body(...)) -> dict[str, Any]:
+    t0 = time.time()
+    sess = _ma_get(payload.session_id)
+    if sess is None:
+        log.info("ma_step_miss", extra={"sid": payload.session_id, "ms": int((time.time() - t0) * 1000)})
+        raise HTTPException(status_code=404, detail="Unknown session_id")
+
+    gm = payload.grid_message
+    fm = payload.fleet_message
+    if gm is not None and gm.role != "grid":
+        raise HTTPException(status_code=400, detail="grid_message.role must be 'grid'")
+    if fm is not None and fm.role != "fleet":
+        raise HTTPException(status_code=400, detail="fleet_message.role must be 'fleet'")
+
+    resolved = sess.step(
+        grid_directive=payload.grid_directive,
+        fleet_action=payload.fleet_action,
+        grid_message=gm,
+        fleet_message=fm,
+    )
+    obs = sess.core._grid_state
+    out_obs = (
+        {}
+        if obs is None
+        else EVGridObservation(
+            prompt=_build_prompt(obs),
+            state=obs,
+            done=sess.core.step_count >= sess.core.max_steps,
+            reward_breakdown={},
+            anti_cheat_flags=[],
+            anti_cheat_details={},
+        ).model_dump(mode="json")
+    )
+    log.info(
+        "ma_step",
+        extra={
+            "sid": payload.session_id,
+            "tick": int(sess.core.step_count),
+            "viol": ",".join(sess.last_violations),
+            "ms": int((time.time() - t0) * 1000),
+        },
+    )
+    return {
+        "session_id": payload.session_id,
+        "obs": out_obs,
+        "tick": sess.core.step_count,
+        "scenario": sess.core.scenario,
+        "grid_directive": payload.grid_directive.model_dump(mode="json"),
+        "fleet_action": payload.fleet_action.model_dump(mode="json"),
+        "resolved_action": resolved.model_dump(mode="json"),
+        "violations": list(sess.last_violations),
+        "messages": [m.model_dump(mode="json") for m in sess.messages[-50:]],
+    }
 
 
 def _obs_to_jsonable(obs: EVGridObservation) -> dict[str, Any]:

@@ -54,3 +54,28 @@ def test_demo_sessions_ttl_eviction():
     r2 = c.get("/demo/state", params={"session_id": sid})
     assert r2.status_code == 404
 
+
+def test_ma_new_and_step_roundtrip():
+    from server.app import app
+
+    c = TestClient(app)
+    r = c.post("/ma/new", json={"seed": 123, "scenario": "baseline"})
+    assert r.status_code == 200
+    data = r.json()
+    sid = data["session_id"]
+    assert isinstance(data.get("grid_directive"), dict)
+
+    step = {
+        "session_id": sid,
+        "grid_directive": {"max_grid_load_pct": 0.88, "station_blacklist": [], "price_mult": 1.0},
+        "grid_message": {"role": "grid", "text": "Keep peak under 0.88."},
+        "fleet_action": {"action_type": "load_shift", "ev_id": "EV-000", "defer_minutes": 0},
+        "fleet_message": {"role": "fleet", "text": "Applying load shift to reduce peak."},
+    }
+    r2 = c.post("/ma/step", json=step)
+    assert r2.status_code == 200
+    data2 = r2.json()
+    assert data2["session_id"] == sid
+    assert isinstance(data2.get("messages"), list)
+    assert isinstance(data2.get("resolved_action"), dict)
+

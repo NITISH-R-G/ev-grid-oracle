@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Any, Optional
+from typing import Any, Literal, Optional
 
 from openenv.core.env_server.types import Action, Observation
 
@@ -124,6 +124,64 @@ class EVGridObservation(Observation):
     reward_breakdown: dict[str, float] = Field(default_factory=dict)
     anti_cheat_flags: list[str] = Field(default_factory=list)
     anti_cheat_details: dict[str, str] = Field(default_factory=dict)
+
+
+Role = Literal["fleet", "grid"]
+
+
+class NegotiationMessage(BaseModel):
+    """
+    A short, bounded message used in the explicit multi-agent protocol.
+
+    This is *not* a free-form chat reward. It exists so judges can see
+    negotiation/constraints explicitly and we can penalize empty spam.
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    role: Role
+    text: str = Field(..., min_length=1, max_length=320)
+
+
+class GridDirective(BaseModel):
+    """
+    GridOperator -> FleetDispatcher constraint signal (verifiable).
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    max_grid_load_pct: float = Field(0.88, ge=0.0, le=1.0)
+    station_blacklist: list[str] = Field(default_factory=list, max_length=10)
+    price_mult: float = Field(1.0, ge=0.5, le=3.0)
+
+
+class MultiAgentStepRequest(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    session_id: str
+    seed: int | None = Field(None, ge=0, le=1_000_000)
+    scenario: str | None = None
+
+    grid_directive: GridDirective
+    grid_message: NegotiationMessage | None = None
+
+    fleet_action: EVGridAction
+    fleet_message: NegotiationMessage | None = None
+
+
+class MultiAgentStepResponse(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
+    session_id: str
+    obs: dict[str, Any]
+    tick: int
+    scenario: str
+
+    grid_directive: dict[str, Any]
+    fleet_action: dict[str, Any]
+    resolved_action: dict[str, Any]
+    violations: list[str]
+    messages: list[dict[str, Any]]
 
 
 class SimTopStation(BaseModel):
