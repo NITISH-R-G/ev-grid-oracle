@@ -91,6 +91,21 @@ export function startCommandCenter(args: Args) {
   window.addEventListener("error", (ev) => reportFatal("RUNTIME ERROR", (ev as ErrorEvent).error || (ev as ErrorEvent).message));
   window.addEventListener("unhandledrejection", (ev) => reportFatal("PROMISE REJECTION", (ev as PromiseRejectionEvent).reason));
 
+  const waitForScene = async (game: Phaser.Game, timeoutMs: number): Promise<PixelCityScene> => {
+    const startedAt = performance.now();
+    // Phaser may take a moment to actually create/start the scene on slower HF Space CPUs.
+    // Poll until the scene exists and has been initialized enough to accept method calls.
+    // (The crash you saw was calling `setSide()` too early.)
+    // eslint-disable-next-line no-constant-condition
+    while (true) {
+      const s = game.scene.getScene("PixelCityScene") as PixelCityScene | null;
+      if (s && typeof (s as any).setSide === "function") return s;
+      if (performance.now() - startedAt > timeoutMs) throw new Error("Phaser scene startup timed out");
+      // eslint-disable-next-line no-await-in-loop
+      await new Promise((r) => window.setTimeout(r, 50));
+    }
+  };
+
   const mkGame = (mount: HTMLElement) => {
     const config: Phaser.Types.Core.GameConfig = {
       type: Phaser.AUTO,
@@ -115,16 +130,17 @@ export function startCommandCenter(args: Args) {
         loraEl: args.loraEl,
       },
     });
-    const scene = () => game.scene.getScene("PixelCityScene") as PixelCityScene;
-    return { game, scene };
+    const ready = waitForScene(game, 8000);
+    const scene = () => (game.scene.getScene("PixelCityScene") as PixelCityScene | null) || null;
+    return { game, scene, ready };
   };
 
   const baseline = mkGame(mountBaseline);
   const oracle = mkGame(mountOracle);
 
   // Side-specific vibe (baseline = jittery, oracle = smooth)
-  baseline.scene().setSide("baseline");
-  oracle.scene().setSide("oracle");
+  void baseline.ready.then((s) => s.setSide("baseline")).catch((e) => reportFatal("PHASER ERROR", e));
+  void oracle.ready.then((s) => s.setSide("oracle")).catch((e) => reportFatal("PHASER ERROR", e));
 
   let baselineSid: string | null = null;
   let oracleSid: string | null = null;
@@ -206,8 +222,9 @@ export function startCommandCenter(args: Args) {
       const [b, o] = await withDeadline(Promise.all([demoNew(seed, scenario), demoNew(seed, scenario)]), 75_000, "demoNew");
       baselineSid = b.session_id;
       oracleSid = o.session_id;
+      const [bScene, oScene] = await withDeadline(Promise.all([baseline.ready, oracle.ready]), 10_000, "phaserReady");
       await withDeadline(
-        Promise.all([baseline.scene().bindSession(b.session_id, b.station_nodes), oracle.scene().bindSession(o.session_id, o.station_nodes)]),
+        Promise.all([bScene.bindSession(b.session_id, b.station_nodes), oScene.bindSession(o.session_id, o.station_nodes)]),
         25_000,
         "bindSession"
       );
@@ -261,8 +278,9 @@ export function startCommandCenter(args: Args) {
     }
 
     // animate
-    await baseline.scene().playExternalEvent(bRes.event);
-    await oracle.scene().playExternalEvent(oRes.event);
+    const [bScene, oScene] = await withDeadline(Promise.all([baseline.ready, oracle.ready]), 10_000, "phaserReady");
+    await bScene.playExternalEvent(bRes.event);
+    await oScene.playExternalEvent(oRes.event);
 
     // badges
     pill(args.baselineBadge, "warn", "heuristic");
@@ -358,8 +376,9 @@ export function startCommandCenter(args: Args) {
       const [b, o] = await Promise.all([demoNew(seed, scenario), demoNew(seed, scenario)]);
       baselineSid = b.session_id;
       oracleSid = o.session_id;
-      await baseline.scene().bindSession(b.session_id, b.station_nodes);
-      await oracle.scene().bindSession(o.session_id, o.station_nodes);
+      const [bScene, oScene] = await withDeadline(Promise.all([baseline.ready, oracle.ready]), 10_000, "phaserReady");
+      await bScene.bindSession(b.session_id, b.station_nodes);
+      await oScene.bindSession(o.session_id, o.station_nodes);
 
       const oracleRepo = args.loraEl.value || "";
       const f = Math.max(0, Math.min(frameIdx, baselineFrames.length - 1, oracleFrames.length - 1));
@@ -386,8 +405,9 @@ export function startCommandCenter(args: Args) {
       }
 
       if (bLast && oLast) {
-        await baseline.scene().playExternalEvent(bLast.event);
-        await oracle.scene().playExternalEvent(oLast.event);
+        const [bScene2, oScene2] = await withDeadline(Promise.all([baseline.ready, oracle.ready]), 10_000, "phaserReady");
+        await bScene2.playExternalEvent(bLast.event);
+        await oScene2.playExternalEvent(oLast.event);
       }
     } finally {
       isReplaying = false;
