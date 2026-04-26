@@ -207,6 +207,21 @@ export class MapView {
   private staticLayers: any[] = [];
   private vehicles: Map<string, Vehicle> = new Map();
 
+  private nearestProgMOnRoute(pos: [number, number], route: [number, number][], cumM: number[]) {
+    if (!route.length || cumM.length !== route.length) return 0;
+    let bestI = 0;
+    let bestD = 1e18;
+    for (let i = 0; i < route.length; i++) {
+      const p = route[i];
+      const d = this.haversineM(pos[1], pos[0], p[1], p[0]);
+      if (d < bestD) {
+        bestD = d;
+        bestI = i;
+      }
+    }
+    return Number(cumM[bestI] || 0);
+  }
+
   constructor(mount: HTMLElement) {
     // MapLibre requires a real element size; ensure mount is empty.
     mount.innerHTML = "";
@@ -326,21 +341,43 @@ export class MapView {
       cumM.push(acc);
     }
 
-    const v: Vehicle = {
-      id,
-      kind,
-      color,
-      route: poly,
-      cumM,
-      totalM: acc,
-      progM: 0,
-      pos: poly[0],
-      headingDeg: this.headingDeg(poly[0], poly[1]),
-      lastSeenTs: now,
-      segMq,
-      speedMps: undefined,
-    };
-    this.vehicles.set(id, v);
+    // If we already have this vehicle, update its route but keep its current position/progress
+    // so the animation feels continuous (no teleport to the start of the new polyline).
+    const prev = this.vehicles.get(id);
+    if (prev) {
+      prev.kind = kind;
+      prev.color = color;
+      prev.route = poly;
+      prev.cumM = cumM;
+      prev.totalM = acc;
+      prev.segMq = segMq;
+      prev.lastSeenTs = now;
+      // Anchor progress to the closest point on the new route.
+      const anchored = this.nearestProgMOnRoute(prev.pos, poly, cumM);
+      prev.progM = Math.max(0, Math.min(acc, anchored));
+      // Update heading based on the next point (if any).
+      const p = this.pointAtOn(prev.route, prev.cumM, prev.totalM, prev.progM);
+      if (p) {
+        prev.pos = p.pos;
+        prev.headingDeg = p.headingDeg;
+      }
+    } else {
+      const v: Vehicle = {
+        id,
+        kind,
+        color,
+        route: poly,
+        cumM,
+        totalM: acc,
+        progM: 0,
+        pos: poly[0],
+        headingDeg: this.headingDeg(poly[0], poly[1]),
+        lastSeenTs: now,
+        segMq,
+        speedMps: undefined,
+      };
+      this.vehicles.set(id, v);
+    }
 
     // Keep the map clean: cap number of vehicles (oldest removed).
     const maxVehicles = 90;
