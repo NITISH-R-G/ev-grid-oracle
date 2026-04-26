@@ -1,6 +1,6 @@
-import Phaser from "phaser";
 import { demoNew, demoStep, maAutoStep, maNew } from "../evgrid/api";
-import { PixelCityScene } from "./PixelCityScene";
+import type { StationNode } from "../evgrid/api";
+import { MapView } from "../map/MapView";
 
 type Args = {
   baselineMountId: string;
@@ -124,56 +124,17 @@ export function startCommandCenter(args: Args) {
   window.addEventListener("error", (ev) => reportFatal("RUNTIME ERROR", (ev as ErrorEvent).error || (ev as ErrorEvent).message));
   window.addEventListener("unhandledrejection", (ev) => reportFatal("PROMISE REJECTION", (ev as PromiseRejectionEvent).reason));
 
-  const waitForScene = async (game: Phaser.Game, timeoutMs: number): Promise<PixelCityScene> => {
-    const startedAt = performance.now();
-    // Phaser may take a moment to actually create/start the scene on slower HF Space CPUs.
-    // Poll until the scene exists and has been initialized enough to accept method calls.
-    // (The crash you saw was calling `setSide()` too early.)
-    // eslint-disable-next-line no-constant-condition
-    while (true) {
-      const s = game.scene.getScene("PixelCityScene") as PixelCityScene | null;
-      if (s && typeof (s as any).setSide === "function") return s;
-      if (performance.now() - startedAt > timeoutMs) throw new Error("Phaser scene startup timed out");
-      // eslint-disable-next-line no-await-in-loop
-      await new Promise((r) => window.setTimeout(r, 50));
-    }
+  const mkMap = (mount: HTMLElement) => {
+    const view = new MapView(mount);
+    const ready = Promise.resolve(view);
+    return { view, ready };
   };
 
-  const mkGame = (mount: HTMLElement) => {
-    const config: Phaser.Types.Core.GameConfig = {
-      type: Phaser.AUTO,
-      parent: mount,
-      width: 1280,
-      height: 720,
-      backgroundColor: "#070911",
-      pixelArt: true,
-      antialias: false,
-      physics: { default: "arcade" },
-      scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH },
-      scene: [PixelCityScene],
-    };
-    const game = new Phaser.Game(config);
-    game.scene.start("PixelCityScene", {
-      ui: {
-        // PixelCityScene expects ui refs; we only use follow/lora via its updateRoadLod hook.
-        statusEl: document.createElement("pre"),
-        eventEl: document.createElement("pre"),
-        modeEl: document.createElement("select"),
-        followEl: args.followEl,
-        loraEl: args.loraEl,
-      },
-    });
-    const ready = waitForScene(game, 8000);
-    const scene = () => (game.scene.getScene("PixelCityScene") as PixelCityScene | null) || null;
-    return { game, scene, ready };
-  };
+  const baseline = mkMap(mountBaseline);
+  const oracle = mkMap(mountOracle);
 
-  const baseline = mkGame(mountBaseline);
-  const oracle = mkGame(mountOracle);
-
-  // Side-specific vibe (baseline = jittery, oracle = smooth)
-  void baseline.ready.then((s) => s.setSide("baseline")).catch((e) => reportFatal("PHASER ERROR", e));
-  void oracle.ready.then((s) => s.setSide("oracle")).catch((e) => reportFatal("PHASER ERROR", e));
+  void baseline.ready.then((s) => s.setSide("baseline")).catch((e) => reportFatal("MAP ERROR", e));
+  void oracle.ready.then((s) => s.setSide("oracle")).catch((e) => reportFatal("MAP ERROR", e));
 
   let baselineSid: string | null = null;
   let oracleSid: string | null = null;
@@ -293,9 +254,12 @@ export function startCommandCenter(args: Args) {
       );
       baselineSid = b.session_id;
       oracleSid = o.session_id;
-      const [bScene, oScene] = await withDeadline(Promise.all([baseline.ready, oracle.ready]), 10_000, "phaserReady");
+      const [bView, oView] = await withDeadline(Promise.all([baseline.ready, oracle.ready]), 10_000, "mapReady");
       await withDeadline(
-        Promise.all([bScene.bindSession(b.session_id, b.station_nodes), oScene.bindSession(o.session_id, o.station_nodes)]),
+        Promise.all([
+          bView.bindSession(b.session_id, b.station_nodes as StationNode[]),
+          oView.bindSession(o.session_id, o.station_nodes as StationNode[]),
+        ]),
         25_000,
         "bindSession"
       );
@@ -417,9 +381,11 @@ export function startCommandCenter(args: Args) {
     }
 
     // animate
-    const [bScene, oScene] = await withDeadline(Promise.all([baseline.ready, oracle.ready]), 10_000, "phaserReady");
-    await bScene.playExternalEvent(bRes.event);
-    await oScene.playExternalEvent(oRes.event);
+    const [bView, oView] = await withDeadline(Promise.all([baseline.ready, oracle.ready]), 10_000, "mapReady");
+    bView.setFollowVehicle(args.followEl.checked);
+    oView.setFollowVehicle(args.followEl.checked);
+    await bView.playExternalEvent(bRes.event);
+    await oView.playExternalEvent(oRes.event);
 
     // badges
     pill(args.baselineBadge, "warn", "heuristic");
@@ -528,9 +494,9 @@ export function startCommandCenter(args: Args) {
       const [b, o] = await Promise.all([demoNew(seed, scenario), demoNew(seed, scenario)]);
       baselineSid = b.session_id;
       oracleSid = o.session_id;
-      const [bScene, oScene] = await withDeadline(Promise.all([baseline.ready, oracle.ready]), 10_000, "phaserReady");
-      await bScene.bindSession(b.session_id, b.station_nodes);
-      await oScene.bindSession(o.session_id, o.station_nodes);
+      const [bView, oView] = await withDeadline(Promise.all([baseline.ready, oracle.ready]), 10_000, "mapReady");
+      await bView.bindSession(b.session_id, b.station_nodes as StationNode[]);
+      await oView.bindSession(o.session_id, o.station_nodes as StationNode[]);
 
       const oracleRepo = args.loraEl.value || "";
       const f = Math.max(0, Math.min(frameIdx, baselineFrames.length - 1, oracleFrames.length - 1));
@@ -557,9 +523,9 @@ export function startCommandCenter(args: Args) {
       }
 
       if (bLast && oLast) {
-        const [bScene2, oScene2] = await withDeadline(Promise.all([baseline.ready, oracle.ready]), 10_000, "phaserReady");
-        await bScene2.playExternalEvent(bLast.event);
-        await oScene2.playExternalEvent(oLast.event);
+        const [bView2, oView2] = await withDeadline(Promise.all([baseline.ready, oracle.ready]), 10_000, "mapReady");
+        await bView2.playExternalEvent(bLast.event);
+        await oView2.playExternalEvent(oLast.event);
       }
     } finally {
       isReplaying = false;

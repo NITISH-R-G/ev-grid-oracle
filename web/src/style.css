@@ -599,6 +599,14 @@ body::after {
   display: block;
 }
 
+/* MapLibre canvas in the same mount div */
+#gameBaseline .maplibregl-canvas,
+#gameOracle .maplibregl-canvas {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+
 .gameHeader {
   display: flex;
   align-items: center;
