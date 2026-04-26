@@ -5,6 +5,7 @@ import os
 from pathlib import Path
 import time
 from collections import OrderedDict
+import logging
 
 try:
     from openenv.core.env_server.http_server import create_app
@@ -29,6 +30,10 @@ from ev_grid_oracle.scenarios import ScenarioName
 from ev_grid_oracle.world_model_verifier import rollout_deterministic_5ticks, score_prediction
 from server.ev_grid_environment import EVGridEnvironment
 from server.role_metrics import compute_role_kpis, compute_role_reward_breakdown, summarize_action
+
+log = logging.getLogger("ev-grid-oracle")
+if not log.handlers:
+    logging.basicConfig(level=os.getenv("LOG_LEVEL", "INFO"))
 
 
 def _oracle_skip_llm_env() -> bool:
@@ -209,6 +214,7 @@ def _station_nodes(core: EVGridCore) -> list[dict[str, Any]]:
 
 @app.post("/demo/new")
 def demo_new(payload: DemoNewRequest = Body(...)) -> dict[str, Any]:
+    t0 = time.time()
     _demo_session_gc()
     session_id = str(uuid4())
     core = EVGridCore(city_graph=_demo_graph)
@@ -216,6 +222,7 @@ def demo_new(payload: DemoNewRequest = Body(...)) -> dict[str, Any]:
     _demo_sessions[session_id] = (time.time(), core)
     from ev_grid_oracle.scenarios import scenario_schedule
 
+    log.info("demo_new", extra={"sid": session_id, "seed": payload.seed, "scenario": str(obs.state and core.scenario), "ms": int((time.time()-t0)*1000)})
     return {
         "session_id": session_id,
         "obs": _obs_to_jsonable(obs),
@@ -229,8 +236,10 @@ def demo_new(payload: DemoNewRequest = Body(...)) -> dict[str, Any]:
 
 @app.get("/demo/state")
 def demo_state(session_id: str = Query(...)) -> dict[str, Any]:
+    t0 = time.time()
     core = _demo_session_get(session_id)
     if core is None:
+        log.info("demo_state_miss", extra={"sid": session_id, "ms": int((time.time()-t0)*1000)})
         raise HTTPException(status_code=404, detail="Unknown session_id")
     st = core._grid_state
     if st is None:
@@ -246,6 +255,7 @@ def demo_state(session_id: str = Query(...)) -> dict[str, Any]:
         )
     from ev_grid_oracle.scenarios import scenario_schedule
 
+    log.info("demo_state", extra={"sid": session_id, "tick": int(core.step_count), "ms": int((time.time()-t0)*1000)})
     return {
         "session_id": session_id,
         "obs": _obs_to_jsonable(obs),
@@ -263,8 +273,10 @@ def demo_step(
     oracle_lora_repo: str = Body("", embed=True),
     forced_action: dict[str, Any] | None = Body(None),
 ) -> dict[str, Any]:
+    t0 = time.time()
     core = _demo_session_get(session_id)
     if core is None:
+        log.info("demo_step_miss", extra={"sid": session_id, "ms": int((time.time()-t0)*1000)})
         raise HTTPException(status_code=404, detail="Unknown session_id")
 
     st = core._grid_state
@@ -363,7 +375,7 @@ def demo_step(
     anti_details = obs.anti_cheat_details
     role_kpis = compute_role_kpis(obs)
     role_reward_breakdown = compute_role_reward_breakdown(obs)
-    return {
+    out = {
         "obs": _obs_to_jsonable(obs),
         "event": event,
         "scenario": core.scenario,
@@ -387,6 +399,20 @@ def demo_step(
         "dream_true": dream_true,
         "forced_action": forced_action is not None,
     }
+    log.info(
+        "demo_step",
+        extra={
+            "sid": session_id,
+            "mode": mode,
+            "tick": int(core.step_count),
+            "oracle_active": bool(oracle_llm_active),
+            "oracle_timeout": bool(oracle_timed_out),
+            "oracle_skipped": bool(oracle_skipped_env),
+            "forced": bool(forced_action is not None),
+            "ms": int((time.time() - t0) * 1000),
+        },
+    )
+    return out
 
 
 def main(host: str = "0.0.0.0", port: int = 8000):
