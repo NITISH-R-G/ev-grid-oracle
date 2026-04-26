@@ -28,6 +28,7 @@ import networkx as nx
 from ev_grid_oracle.env import EVGridCore, _build_prompt
 from ev_grid_oracle.models import (
     ActionType,
+    EVRequest,
     EVGridAction,
     EVGridObservation,
     GridDirective,
@@ -45,6 +46,7 @@ from server.ev_grid_environment import EVGridEnvironment
 from server.ev_grid_road_environment import EVGridRoadEnvironment
 from ev_grid_oracle.road_models import RoadAction, RoadObservation
 from server.role_metrics import compute_role_kpis, compute_role_reward_breakdown, summarize_action
+from server.road_router import haversine_m
 
 log = logging.getLogger("ev-grid-oracle")
 if not log.handlers:
@@ -256,6 +258,41 @@ def _graph_route_polyline(core: EVGridCore, *, src_station_id: str, dst_station_
         n = core.city_graph.nodes[sid]
         out.append([float(n["lat"]), float(n["lng"])])
     return out
+
+
+def _spawn_road_point_away_from_stations(
+    *,
+    core: EVGridCore,
+    min_station_dist_m: float,
+    seed_key: str,
+    attempts: int = 80,
+) -> tuple[float, float]:
+    """
+    Pick a deterministic road-graph node location (lat,lng) that is not within
+    `min_station_dist_m` of any station. Deterministic for a given seed_key.
+    """
+    router = get_router()
+    st = core._grid_state
+    if st is None:
+        raise ValueError("core not initialized")
+    stations = st.stations
+    if not stations:
+        raise ValueError("no stations")
+
+    h = hashlib.sha1(seed_key.encode("utf-8")).digest()
+    base = int.from_bytes(h[:4], "big")
+    n = len(router.nodes)
+    for k in range(attempts):
+        idx = (base + k * 9973) % max(1, n)
+        lat, lng = router.nodes[int(idx)]
+        ok = True
+        for s in stations:
+            if haversine_m(float(lat), float(lng), float(s.lat), float(s.lng)) < float(min_station_dist_m):
+                ok = False
+                break
+        if ok:
+            return float(lat), float(lng)
+    raise ValueError("could_not_find_spawn_point")
 
 
 def _demo_session_gc(now: float | None = None) -> None:
@@ -596,6 +633,120 @@ def demo_state(req: Request, session_id: str = Query(...)) -> dict[str, Any]:
         "scenario": core.scenario,
         "sim_version": _SIM_VERSION,
         "scenario_schedule": scenario_schedule(core.scenario),
+    }
+
+
+class DemoSpawnVehicleRequest(BaseModel):
+    session_id: str
+    min_station_dist_m: float = Field(250.0, ge=50.0, le=3000.0)
+    battery_threshold_pct: float = Field(30.0, ge=1.0, le=80.0)
+
+
+@app.post("/demo/spawn_vehicle")
+def demo_spawn_vehicle(req: Request, payload: DemoSpawnVehicleRequest = Body(...)) -> dict[str, Any]:
+    """
+    Spawn a new EV at a valid road location (away from stations) and immediately compute
+    an assignment + route event for the frontend.
+    """
+    _rate_limit(req, key="demo_spawn_vehicle", limit=80, window_sec=60)
+    t0 = time.time()
+    rid = _request_id(req)
+    core = _demo_session_get(payload.session_id)
+    if core is None:
+        log.info("demo_spawn_vehicle_miss", extra={"rid": rid, "sid": payload.session_id, "ms": int((time.time()-t0)*1000)})
+        raise HTTPException(status_code=404, detail="Unknown session_id")
+    st = core._grid_state
+    if st is None:
+        raise HTTPException(status_code=400, detail="Session not initialized")
+
+    # deterministic id and spawn point
+    ev_id = f"SPAWN-{uuid4().hex[:10]}"
+    seed_key = f"{core._seed_for_bescom}|{core.scenario}|{core.step_count}|{len(st.pending_evs)}|{ev_id}"
+    try:
+        lat, lng = _spawn_road_point_away_from_stations(
+            core=core,
+            min_station_dist_m=float(payload.min_station_dist_m),
+            seed_key=seed_key,
+        )
+    except ValueError as e:
+        raise HTTPException(status_code=409, detail=str(e))
+
+    # Pick nearest station just to fill neighborhood fields (used by policies + prompt).
+    nearest = min(st.stations, key=lambda s: haversine_m(lat, lng, float(s.lat), float(s.lng)))
+    # Force low battery so it needs charging.
+    battery = min(float(payload.battery_threshold_pct) - 1.0, 25.0)
+    if battery < 2.0:
+        battery = float(payload.battery_threshold_pct) * 0.5
+    battery = max(1.0, battery)
+
+    spawned = EVRequest(
+        ev_id=ev_id,
+        battery_pct_0_100=round(float(battery), 1),
+        urgency=round(0.9 if battery < 15.0 else 0.7, 2),
+        persona="PrivateOwner",
+        price_sensitivity=0.35,
+        neighborhood_slug=str(nearest.neighborhood_slug),
+        neighborhood_name=str(nearest.neighborhood_name),
+        target_charge_pct_0_100=90.0,
+        max_wait_minutes=30,
+    )
+    st.pending_evs.insert(0, spawned)
+
+    # Assignment: re-use the baseline scoring (distance + wait + stress + price),
+    # and require capacity (avoid full stations). If none, respond gracefully.
+    candidates = [s for s in st.stations if int(s.occupied_slots) < int(s.total_slots)]
+    if not candidates:
+        return {
+            "request_id": rid,
+            "session_id": payload.session_id,
+            "spawned_ev": spawned.model_dump(mode="json"),
+            "assignment": None,
+            "event": {"type": "no_station", "reason": "all_stations_full"},
+            "ms": int((time.time() - t0) * 1000),
+        }
+
+    try:
+        action = baseline_policy(st, core.city_graph)
+    except Exception:
+        # last-resort: pick nearest non-full station
+        best = min(candidates, key=lambda s: haversine_m(lat, lng, float(s.lat), float(s.lng)))
+        action = EVGridAction(action_type=ActionType.route, ev_id=ev_id, station_id=str(best.station_id), defer_minutes=0)
+
+    assigned_station_id = getattr(action, "station_id", None)
+    dst = next((s for s in st.stations if assigned_station_id and s.station_id == assigned_station_id), None)
+    if action.action_type != ActionType.route or dst is None:
+        return {
+            "request_id": rid,
+            "session_id": payload.session_id,
+            "spawned_ev": spawned.model_dump(mode="json"),
+            "assignment": action.model_dump(mode="json"),
+            "event": {"type": "no_station", "reason": "policy_defer_or_invalid"},
+            "ms": int((time.time() - t0) * 1000),
+        }
+
+    traffic = TrafficModel(seed=int(core._seed_for_bescom), scenario=str(core.scenario))
+    routed = _osm_route_polyline(src_lat=lat, src_lng=lng, dst_lat=float(dst.lat), dst_lng=float(dst.lng), traffic=traffic, tick=int(core.step_count))
+    poly, seg_m_q = routed if routed is not None else ([], None)
+    event = {
+        "type": "route",
+        "ev_id": ev_id,
+        "from": {"station_id": "ROAD", "lat": lat, "lng": lng},
+        "to": {"station_id": dst.station_id, "lat": dst.lat, "lng": dst.lng},
+        "polyline": (poly or [[lat, lng], [float(dst.lat), float(dst.lng)]]),
+        "traffic_seg_m_q": seg_m_q,
+        "reroute_reason": "spawn",
+    }
+    log.info(
+        "demo_spawn_vehicle",
+        extra={"rid": rid, "sid": payload.session_id, "ev_id": ev_id, "to": str(dst.station_id), "ms": int((time.time() - t0) * 1000)},
+    )
+    return {
+        "request_id": rid,
+        "session_id": payload.session_id,
+        "spawned_ev": spawned.model_dump(mode="json"),
+        "assignment": action.model_dump(mode="json"),
+        "event": event,
+        "ms": int((time.time() - t0) * 1000),
     }
 
 

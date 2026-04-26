@@ -39,6 +39,25 @@ def test_demo_new_and_step_roundtrip():
     assert isinstance(data2.get("role_reward_breakdown"), dict)
 
 
+def test_demo_spawn_vehicle_route_event():
+    from server.app import app
+
+    c = TestClient(app)
+    r = c.post("/demo/new", json={"seed": 123})
+    sid = r.json()["session_id"]
+
+    r2 = c.post("/demo/spawn_vehicle", json={"session_id": sid, "min_station_dist_m": 200, "battery_threshold_pct": 30})
+    assert r2.status_code == 200
+    data = r2.json()
+    assert isinstance(data.get("request_id"), str) and data["request_id"]
+    assert data.get("session_id") == sid
+    assert isinstance(data.get("spawned_ev"), dict)
+    assert float(data["spawned_ev"]["battery_pct_0_100"]) < 30.0
+    assert isinstance(data.get("event"), dict)
+    # Usually a route; if no capacity, it's allowed to be no_station.
+    assert data["event"].get("type") in ("route", "no_station")
+
+
 def test_demo_step_forced_action_validation_422():
     from server.app import app
 

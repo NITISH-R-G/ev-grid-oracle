@@ -1,4 +1,4 @@
-import { demoNew, demoStep, maAutoStep, maNew } from "../evgrid/api";
+import { demoNew, demoSpawnVehicle, demoStep, maAutoStep, maNew } from "../evgrid/api";
 import type { StationNode } from "../evgrid/api";
 import { MapView } from "../map/MapView";
 
@@ -8,6 +8,7 @@ type Args = {
   btnNew: HTMLButtonElement;
   btnStep: HTMLButtonElement;
   btnRun: HTMLButtonElement;
+  btnSpawn: HTMLButtonElement;
   btnDemo: HTMLButtonElement;
   btnJudge: HTMLButtonElement;
   btnExport: HTMLButtonElement;
@@ -714,11 +715,49 @@ export function startCommandCenter(args: Args) {
     updateShareLink();
   };
 
+  args.btnSpawn.onclick = async () => {
+    try {
+      args.btnSpawn.disabled = true;
+      args.btnStep.disabled = true;
+      args.btnRun.disabled = true;
+      args.btnNew.disabled = true;
+      args.btnExport.disabled = true;
+      args.btnSpawn.textContent = "Spawning…";
+
+      if (!baselineSid || !oracleSid) await initSessions();
+      if (!baselineSid || !oracleSid) throw new Error("Sessions not ready.");
+
+      const [bRes, oRes] = await Promise.all([
+        demoSpawnVehicle({ session_id: baselineSid, min_station_dist_m: 250, battery_threshold_pct: 30 }),
+        demoSpawnVehicle({ session_id: oracleSid, min_station_dist_m: 250, battery_threshold_pct: 30 }),
+      ]);
+
+      const [bView, oView] = await withDeadline(Promise.all([baseline.ready, oracle.ready]), 10_000, "mapReady");
+      bView.setFollowVehicle(true);
+      oView.setFollowVehicle(true);
+      if (bRes?.event) await bView.playExternalEvent({ ...(bRes.event || {}), persona: String(bRes?.spawned_ev?.persona || "") });
+      if (oRes?.event) await oView.playExternalEvent({ ...(oRes.event || {}), persona: String(oRes?.spawned_ev?.persona || "") });
+
+      appendEvent(`spawned: ${String(oRes?.spawned_ev?.ev_id || bRes?.spawned_ev?.ev_id || "")}`);
+      updateShareLink();
+    } catch (e) {
+      reportFatal("SPAWN ERROR", e);
+    } finally {
+      args.btnSpawn.disabled = false;
+      args.btnStep.disabled = false;
+      args.btnRun.disabled = false;
+      args.btnNew.disabled = false;
+      args.btnExport.disabled = false;
+      args.btnSpawn.textContent = "New Vehicle";
+    }
+  };
+
   args.btnStep.onclick = async () => {
     try {
       args.btnStep.disabled = true;
       args.btnRun.disabled = true;
       args.btnNew.disabled = true;
+      args.btnSpawn.disabled = true;
       args.btnStep.textContent = "Stepping…";
       // Default to follow mode so the judge can track the route/vehicle instantly.
       args.followEl.checked = true;
@@ -730,6 +769,7 @@ export function startCommandCenter(args: Args) {
       args.btnStep.disabled = false;
       args.btnRun.disabled = false;
       args.btnNew.disabled = false;
+      args.btnSpawn.disabled = false;
       args.btnStep.textContent = "Step";
     }
   };
@@ -739,6 +779,7 @@ export function startCommandCenter(args: Args) {
       args.btnStep.disabled = true;
       args.btnRun.disabled = true;
       args.btnNew.disabled = true;
+      args.btnSpawn.disabled = true;
       args.btnRun.textContent = "Running…";
       for (let i = 0; i < 60; i++) {
         // eslint-disable-next-line no-await-in-loop
@@ -753,6 +794,7 @@ export function startCommandCenter(args: Args) {
       args.btnStep.disabled = false;
       args.btnRun.disabled = false;
       args.btnNew.disabled = false;
+      args.btnSpawn.disabled = false;
       args.btnRun.textContent = "Run 60";
     }
   };

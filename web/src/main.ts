@@ -17,6 +17,7 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
           <button id="btnNew" class="btn primary">New</button>
           <button id="btnStep" class="btn">Step</button>
           <button id="btnRun" class="btn">Run 60</button>
+          <button id="btnSpawn" class="btn">New Vehicle</button>
           <button id="btnDemo" class="btn glow">Guided Demo</button>
           <button id="btnJudge" class="btn">Judge Mode</button>
           <button id="btnExport" class="btn ghost" type="button" title="Download recorded steps as JSON">Export JSON</button>
@@ -216,6 +217,7 @@ startCommandCenter({
   btnNew: document.querySelector<HTMLButtonElement>("#btnNew")!,
   btnStep: document.querySelector<HTMLButtonElement>("#btnStep")!,
   btnRun: document.querySelector<HTMLButtonElement>("#btnRun")!,
+  btnSpawn: document.querySelector<HTMLButtonElement>("#btnSpawn")!,
   btnDemo: document.querySelector<HTMLButtonElement>("#btnDemo")!,
   scenarioEl: document.querySelector<HTMLSelectElement>("#scenario")!,
   fleetEl: document.querySelector<HTMLSelectElement>("#fleetMode")!,

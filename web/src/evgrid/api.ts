@@ -39,6 +39,15 @@ export type DemoStepResponse = {
   forced_action?: boolean;
 };
 
+export type DemoSpawnVehicleResponse = {
+  request_id?: string;
+  session_id: string;
+  spawned_ev?: any;
+  assignment?: any;
+  event?: any;
+  ms?: number;
+};
+
 export type MANewResponse = {
   session_id: string;
   obs: any;
@@ -156,6 +165,34 @@ export async function demoStep(args: {
   } finally {
     window.clearTimeout(t);
   }
+}
+
+export async function demoSpawnVehicle(args: {
+  session_id: string;
+  min_station_dist_m?: number;
+  battery_threshold_pct?: number;
+}): Promise<DemoSpawnVehicleResponse> {
+  const r = await fetch("/demo/spawn_vehicle", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(args),
+  });
+  if (!r.ok) {
+    let detail = "";
+    try {
+      const j = await r.json();
+      detail = j?.detail ? ` — ${String(j.detail)}` : ` — ${JSON.stringify(j).slice(0, 500)}`;
+    } catch {
+      try {
+        const txt = await r.text();
+        detail = txt ? ` — ${txt.slice(0, 500)}` : "";
+      } catch {
+        detail = "";
+      }
+    }
+    throw new Error(`demoSpawnVehicle failed: ${r.status}${detail}`);
+  }
+  return (await r.json()) as DemoSpawnVehicleResponse;
 }
 
 export async function maNew(seed: number, scenario: string = "baseline", fleet_mode: string = "mixed"): Promise<MANewResponse> {
