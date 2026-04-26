@@ -7,6 +7,7 @@ import time
 from collections import OrderedDict
 import logging
 from server.road_router import get_router
+from ev_grid_oracle.traffic import TrafficModel
 
 try:
     from openenv.core.env_server.http_server import create_app
@@ -189,9 +190,19 @@ _demo_graph = build_city_graph()
 _SIM_VERSION = "2026-04-26.1"
 
 
-def _osm_route_polyline(*, src_lat: float, src_lng: float, dst_lat: float, dst_lng: float) -> list[list[float]] | None:
+def _osm_route_polyline(
+    *,
+    src_lat: float,
+    src_lng: float,
+    dst_lat: float,
+    dst_lng: float,
+    traffic: TrafficModel | None = None,
+    tick: int | None = None,
+) -> tuple[list[list[float]], list[int]] | None:
     try:
-        return get_router().route_polyline(src_lat=src_lat, src_lng=src_lng, dst_lat=dst_lat, dst_lng=dst_lng)
+        return get_router().route_polyline(
+            src_lat=src_lat, src_lng=src_lng, dst_lat=dst_lat, dst_lng=dst_lng, traffic=traffic, tick=tick
+        )
     except Exception:
         return None
 
@@ -589,13 +600,24 @@ def demo_step(
             src = next((x for x in st.stations if ev is not None and x.neighborhood_slug == ev.neighborhood_slug), None)
             dst = next((x for x in st.stations if action.station_id and x.station_id == action.station_id), None)
             if action.action_type == ActionType.route and ev is not None and src is not None and dst is not None:
-                poly = _osm_route_polyline(src_lat=float(src.lat), src_lng=float(src.lng), dst_lat=float(dst.lat), dst_lng=float(dst.lng))
+                traffic = TrafficModel(seed=int(core._seed_for_bescom), scenario=str(core.scenario))
+                routed = _osm_route_polyline(
+                    src_lat=float(src.lat),
+                    src_lng=float(src.lng),
+                    dst_lat=float(dst.lat),
+                    dst_lng=float(dst.lng),
+                    traffic=traffic,
+                    tick=int(core.step_count),
+                )
+                poly, seg_m_q = routed if routed is not None else ([], None)
                 event = {
                     "type": "route",
                     "ev_id": ev.ev_id,
                     "from": {"station_id": src.station_id, "lat": src.lat, "lng": src.lng},
                     "to": {"station_id": dst.station_id, "lat": dst.lat, "lng": dst.lng},
-                    "polyline": poly or _graph_route_polyline(core, src_station_id=src.station_id, dst_station_id=dst.station_id),
+                    "polyline": (poly or _graph_route_polyline(core, src_station_id=src.station_id, dst_station_id=dst.station_id)),
+                    "traffic_seg_m_q": seg_m_q,
+                    "reroute_reason": "periodic" if (int(core.step_count) % 6 == 0) else None,
                 }
             else:
                 event = {"type": "forced_action", "action_type": str(action.action_type.value)}
@@ -647,13 +669,24 @@ def demo_step(
         src = next((x for x in st.stations if x.neighborhood_slug == ev.neighborhood_slug), None)
         dst = next((x for x in st.stations if x.station_id == action.station_id), None)
         if action.action_type == ActionType.route and src is not None and dst is not None:
-            poly = _osm_route_polyline(src_lat=float(src.lat), src_lng=float(src.lng), dst_lat=float(dst.lat), dst_lng=float(dst.lng))
+            traffic = TrafficModel(seed=int(core._seed_for_bescom), scenario=str(core.scenario))
+            routed = _osm_route_polyline(
+                src_lat=float(src.lat),
+                src_lng=float(src.lng),
+                dst_lat=float(dst.lat),
+                dst_lng=float(dst.lng),
+                traffic=traffic,
+                tick=int(core.step_count),
+            )
+            poly, seg_m_q = routed if routed is not None else ([], None)
             event = {
                 "type": "route",
                 "ev_id": ev.ev_id,
                 "from": {"station_id": src.station_id, "lat": src.lat, "lng": src.lng},
                 "to": {"station_id": dst.station_id, "lat": dst.lat, "lng": dst.lng},
-                "polyline": poly or _graph_route_polyline(core, src_station_id=src.station_id, dst_station_id=dst.station_id),
+                "polyline": (poly or _graph_route_polyline(core, src_station_id=src.station_id, dst_station_id=dst.station_id)),
+                "traffic_seg_m_q": seg_m_q,
+                "reroute_reason": "periodic" if (int(core.step_count) % 6 == 0) else None,
             }
         else:
             event = {"type": action.action_type.value}
@@ -669,6 +702,8 @@ def demo_step(
         "scenario": core.scenario,
         "scenario_events_at_tick": core.last_scenario_events,
         "tick": core.step_count,
+        "tick_dt_s": float(core.step_minutes) * 60.0,
+        "schema_version": "traffic-v1",
         "sim_version": _SIM_VERSION,
         "anti_cheat_flags": anti_flags,
         "anti_cheat_details": anti_details,

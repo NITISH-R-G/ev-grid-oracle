@@ -5,9 +5,11 @@ import gzip
 from dataclasses import dataclass
 from math import asin, cos, radians, sin, sqrt
 from pathlib import Path
-from typing import Iterable, Optional
+from typing import Callable, Optional
 
 import networkx as nx
+
+from ev_grid_oracle.traffic import TrafficModel
 
 
 def haversine_m(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
@@ -107,27 +109,64 @@ class RoadRouter:
                 best = i
         return best
 
-    def route_polyline(self, *, src_lat: float, src_lng: float, dst_lat: float, dst_lng: float) -> Optional[list[list[float]]]:
+    def route_polyline(
+        self,
+        *,
+        src_lat: float,
+        src_lng: float,
+        dst_lat: float,
+        dst_lng: float,
+        traffic: TrafficModel | None = None,
+        tick: int | None = None,
+    ) -> Optional[tuple[list[list[float]], list[int]]]:
         a = self.nearest_node(lat=src_lat, lng=src_lng)
         b = self.nearest_node(lat=dst_lat, lng=dst_lng)
         try:
-            path = nx.shortest_path(self.g, a, b, weight="weight")  # type: ignore[arg-type]
+            weight_fn: str | Callable[[int, int, dict], float] = "weight"
+            if traffic is not None and tick is not None:
+                # Use traffic-weighted travel time. We normalize (u,v) order inside TrafficModel.
+                def _w(u: int, v: int, attrs: dict) -> float:
+                    base = float(attrs.get("weight") or 0.0)
+                    la1, lo1 = self.nodes[int(u)]
+                    la2, lo2 = self.nodes[int(v)]
+                    mid_lat = (la1 + la2) / 2.0
+                    mid_lng = (lo1 + lo2) / 2.0
+                    m = traffic.multiplier_for_edge(u=int(u), v=int(v), mid_lat=mid_lat, mid_lng=mid_lng, tick=int(tick))
+                    return base * m
+
+                weight_fn = _w
+
+            path = nx.shortest_path(self.g, a, b, weight=weight_fn)  # type: ignore[arg-type]
         except Exception:
             return None
         poly: list[list[float]] = []
+        seg_m_q: list[int] = []
         for u, v in zip(path, path[1:]):
             seg = self.edge_geom.get((int(u), int(v)))
+            # Edge traffic multiplier used for this segment (quantized).
+            if traffic is not None and tick is not None:
+                la1, lo1 = self.nodes[int(u)]
+                la2, lo2 = self.nodes[int(v)]
+                mid_lat = (la1 + la2) / 2.0
+                mid_lng = (lo1 + lo2) / 2.0
+                m = traffic.multiplier_for_edge(u=int(u), v=int(v), mid_lat=mid_lat, mid_lng=mid_lng, tick=int(tick))
+            else:
+                m = 1.0
+            m_q = int(max(350, min(1150, round(m * 1000.0))))
             if seg and len(seg) >= 2:
                 if poly:
                     poly.extend(seg[1:])
                 else:
                     poly.extend(seg)
+                # Repeat edge multiplier per geometry segment so client can vary speed along route.
+                seg_m_q.extend([m_q] * (len(seg) - 1))
             else:
                 # fallback: straight segment
                 if not poly:
                     poly.append([self.nodes[int(u)][0], self.nodes[int(u)][1]])
                 poly.append([self.nodes[int(v)][0], self.nodes[int(v)][1]])
-        return poly
+                seg_m_q.append(m_q)
+        return poly, seg_m_q
 
 
 _ROUTER: RoadRouter | None = None

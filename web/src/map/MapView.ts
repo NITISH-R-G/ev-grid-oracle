@@ -135,6 +135,8 @@ type Vehicle = {
   pos: [number, number];
   headingDeg: number;
   lastSeenTs: number;
+  segMq?: number[] | null; // traffic multiplier per segment (q=1000 => 1.0)
+  speedMps?: number; // smoothed instantaneous speed
 };
 
 export class MapView {
@@ -245,6 +247,7 @@ export class MapView {
     const poly = ensureLngLat(event.polyline);
     if (poly.length < 2) return;
     this.activeRoute = poly;
+    const segMq = Array.isArray(event?.traffic_seg_m_q) ? (event.traffic_seg_m_q as number[]) : null;
 
     // Decide vehicle type from persona if present (taxi/corp/private/emergency -> car; delivery -> bike).
     const persona = String(event?.persona || "");
@@ -277,6 +280,8 @@ export class MapView {
       pos: poly[0],
       headingDeg: this.headingDeg(poly[0], poly[1]),
       lastSeenTs: now,
+      segMq,
+      speedMps: undefined,
     };
     this.vehicles.set(id, v);
 
@@ -310,8 +315,11 @@ export class MapView {
           this.vehicles.delete(id);
           continue;
         }
-        const speed = v.kind === "bike" ? baseSpeedMps * 0.78 : baseSpeedMps;
-        v.progM = Math.min(v.totalM, v.progM + speed * dt);
+        const base = v.kind === "bike" ? baseSpeedMps * 0.78 : baseSpeedMps;
+        const m = this.multAt(v);
+        const targetSpeed = base / Math.max(0.35, Math.min(1.15, m));
+        v.speedMps = v.speedMps == null ? targetSpeed : v.speedMps * 0.84 + targetSpeed * 0.16;
+        v.progM = Math.min(v.totalM, v.progM + (v.speedMps || targetSpeed) * dt);
         const p = this.pointAtOn(v.route, v.cumM, v.totalM, v.progM);
         if (p) {
           v.pos = p.pos;
@@ -365,6 +373,16 @@ export class MapView {
     const lng = a[0] + (b[0] - a[0]) * t;
     const lat = a[1] + (b[1] - a[1]) * t;
     return { pos: [lng, lat], headingDeg: this.headingDeg(a, b) };
+  }
+
+  private multAt(v: Vehicle): number {
+    const segMq = v.segMq;
+    if (!segMq || segMq.length < 1) return 1.0;
+    let i = 1;
+    while (i < v.cumM.length && v.cumM[i] < v.progM) i++;
+    const segIdx = Math.max(0, Math.min(segMq.length - 1, i - 1));
+    const q = Number(segMq[segIdx] || 1000);
+    return q / 1000.0;
   }
 
   private headingDeg(a: [number, number], b: [number, number]) {
