@@ -16,22 +16,64 @@ function ensureLngLat(poly: any[]): [number, number][] {
   return looksLikeLngLat ? (poly as any) : (poly as any).map(([lat, lng]: any) => [lng, lat]);
 }
 
-const CAR_ICON_ATLAS =
+// One SVG atlas containing: car | bike | station (Uber/Ola-like minimal glyphs)
+const ICON_ATLAS =
   "data:image/svg+xml," +
   encodeURIComponent(
-    `<svg xmlns="http://www.w3.org/2000/svg" width="64" height="64">
+    `<svg xmlns="http://www.w3.org/2000/svg" width="192" height="64" viewBox="0 0 192 64">
       <defs>
         <filter id="g" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur stdDeviation="2" result="b"/>
+          <feGaussianBlur stdDeviation="1.5" result="b"/>
           <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
         </filter>
       </defs>
-      <rect x="18" y="18" width="28" height="28" rx="7" fill="#0b0d14" opacity="0.85"/>
-      <path filter="url(#g)" d="M22 36c0-7 3-13 10-13s10 6 10 13" fill="#23e7ff"/>
-      <circle cx="26" cy="39" r="3" fill="#e8ecff"/>
-      <circle cx="38" cy="39" r="3" fill="#e8ecff"/>
+
+      <!-- CAR (0..64) -->
+      <g transform="translate(0,0)">
+        <rect x="18" y="18" width="28" height="28" rx="8" fill="#ffffff" opacity="0.95"/>
+        <path filter="url(#g)" d="M22 36c0-7 3-13 10-13s10 6 10 13" fill="#ffffff"/>
+        <circle cx="26" cy="39" r="3" fill="#000000"/>
+        <circle cx="38" cy="39" r="3" fill="#000000"/>
+      </g>
+
+      <!-- BIKE (64..128) -->
+      <g transform="translate(64,0)">
+        <circle cx="22" cy="40" r="7" fill="none" stroke="#ffffff" stroke-width="3"/>
+        <circle cx="42" cy="40" r="7" fill="none" stroke="#ffffff" stroke-width="3"/>
+        <path d="M26 40 L33 26 L40 40" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M33 26 L28 26" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+        <path d="M33 26 L38 22" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+      </g>
+
+      <!-- STATION (128..192) -->
+      <g transform="translate(128,0)">
+        <rect x="24" y="14" width="18" height="28" rx="4" fill="#ffffff"/>
+        <rect x="28" y="18" width="10" height="8" rx="2" fill="#000000" opacity="0.9"/>
+        <path d="M42 24 C50 28,50 38,42 42" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
+        <path d="M32 28 L28 36 L34 36 L30 44" fill="none" stroke="#000000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+      </g>
     </svg>`
   );
+
+const ICON_MAPPING = {
+  car: { x: 0, y: 0, width: 64, height: 64, mask: true, anchorY: 52 },
+  bike: { x: 64, y: 0, width: 64, height: 64, mask: true, anchorY: 52 },
+  station: { x: 128, y: 0, width: 64, height: 64, mask: true, anchorY: 52 },
+} as const;
+
+type VehicleKind = "car" | "bike";
+type Vehicle = {
+  id: string;
+  kind: VehicleKind;
+  color: [number, number, number, number];
+  route: [number, number][]; // [lng,lat]
+  cumM: number[];
+  totalM: number;
+  progM: number;
+  pos: [number, number];
+  headingDeg: number;
+  lastSeenTs: number;
+};
 
 export class MapView {
   private map: MapLibreMap;
@@ -39,15 +81,11 @@ export class MapView {
   private side: "baseline" | "oracle" = "oracle";
   private stations: Station[] = [];
   private activeRoute: [number, number][] = [];
-  private vehiclePos: [number, number] | null = null; // [lng,lat]
-  private vehicleHeadingDeg = 0;
   private follow = false;
   private raf: number | null = null;
   private lastTs: number | null = null;
-  private routeCumM: number[] = [];
-  private routeTotalM = 0;
-  private routeProgM = 0;
   private staticLayers: any[] = [];
+  private vehicles: Map<string, Vehicle> = new Map();
 
   constructor(mount: HTMLElement) {
     // MapLibre requires a real element size; ensure mount is empty.
@@ -145,21 +183,48 @@ export class MapView {
     const poly = ensureLngLat(event.polyline);
     if (poly.length < 2) return;
     this.activeRoute = poly;
-    this.vehiclePos = poly[0];
 
-    // Precompute cumulative meters for time-based interpolation
-    this.routeCumM = [0];
+    // Decide vehicle type from persona if present (taxi/corp/private/emergency -> car; delivery -> bike).
+    const persona = String(event?.persona || "");
+    const kind: VehicleKind = /Delivery/i.test(persona) ? "bike" : "car";
+
+    const id = String(event?.ev_id || `ev-${Math.random().toString(16).slice(2)}`);
+    const now = performance.now();
+    const baseColor: [number, number, number, number] =
+      this.side === "oracle" ? ([35, 231, 255, 210] as any) : ([255, 90, 138, 190] as any);
+    const color: [number, number, number, number] =
+      /Emergency/i.test(persona) ? ([255, 72, 72, 220] as any) : baseColor;
+
+    const cumM = [0];
     let acc = 0;
     for (let i = 1; i < poly.length; i++) {
       const a = poly[i - 1];
       const b = poly[i];
       acc += this.haversineM(a[1], a[0], b[1], b[0]); // lat,lng
-      this.routeCumM.push(acc);
+      cumM.push(acc);
     }
-    this.routeTotalM = acc;
-    this.routeProgM = 0;
 
-    // Rebuild static layers (roads/stations/route) once; vehicle anim updates icon only.
+    const v: Vehicle = {
+      id,
+      kind,
+      color,
+      route: poly,
+      cumM,
+      totalM: acc,
+      progM: 0,
+      pos: poly[0],
+      headingDeg: this.headingDeg(poly[0], poly[1]),
+      lastSeenTs: now,
+    };
+    this.vehicles.set(id, v);
+
+    // Keep the map clean: cap number of vehicles (oldest removed).
+    const maxVehicles = 90;
+    if (this.vehicles.size > maxVehicles) {
+      const oldest = [...this.vehicles.values()].sort((a, b) => a.lastSeenTs - b.lastSeenTs)[0];
+      if (oldest) this.vehicles.delete(oldest.id);
+    }
+
     this.renderStatic();
     this.kickAnim();
   }
@@ -173,18 +238,34 @@ export class MapView {
       this.lastTs = ts;
 
       // Simple speed model (can be upgraded to per-road-type later).
-      const speedMps = this.side === "oracle" ? 14.5 : 10.5; // ~52km/h vs ~38km/h
-      this.routeProgM = Math.min(this.routeTotalM, this.routeProgM + speedMps * dt);
+      const baseSpeedMps = this.side === "oracle" ? 14.5 : 10.5; // ~52km/h vs ~38km/h
 
-      const p = this.pointAt(this.routeProgM);
-      if (p) {
-        this.vehiclePos = p.pos;
-        this.vehicleHeadingDeg = p.headingDeg;
-        this.renderVehicleOnly();
-        if (this.follow && this.vehiclePos) this.map.easeTo({ center: this.vehiclePos, duration: 120 });
+      const now = performance.now();
+      // TTL: fade out old vehicles so the map doesn't become messy.
+      const ttlMs = 22_000;
+      for (const [id, v] of this.vehicles) {
+        if (now - v.lastSeenTs > ttlMs) {
+          this.vehicles.delete(id);
+          continue;
+        }
+        const speed = v.kind === "bike" ? baseSpeedMps * 0.78 : baseSpeedMps;
+        v.progM = Math.min(v.totalM, v.progM + speed * dt);
+        const p = this.pointAtOn(v.route, v.cumM, v.totalM, v.progM);
+        if (p) {
+          v.pos = p.pos;
+          v.headingDeg = p.headingDeg;
+        }
       }
 
-      if (this.routeProgM < this.routeTotalM) {
+      // Follow the most recently updated vehicle (if enabled)
+      if (this.follow) {
+        const latest = [...this.vehicles.values()].sort((a, b) => b.lastSeenTs - a.lastSeenTs)[0];
+        if (latest?.pos) this.map.easeTo({ center: latest.pos, duration: 120 });
+      }
+
+      this.renderVehicleOnly();
+
+      if (this.vehicles.size > 0) {
         this.raf = requestAnimationFrame(tick);
       } else {
         this.raf = null;
@@ -193,27 +274,31 @@ export class MapView {
     this.raf = requestAnimationFrame(tick);
   }
 
-  private pointAt(m: number): { pos: [number, number]; headingDeg: number } | null {
-    if (!this.activeRoute.length || this.routeCumM.length !== this.activeRoute.length) return null;
+  private pointAtOn(
+    route: [number, number][],
+    cumM: number[],
+    totalM: number,
+    m: number
+  ): { pos: [number, number]; headingDeg: number } | null {
+    if (!route.length || cumM.length !== route.length) return null;
     if (m <= 0) {
-      const a = this.activeRoute[0];
-      const b = this.activeRoute[1];
+      const a = route[0];
+      const b = route[1];
       return { pos: a, headingDeg: this.headingDeg(a, b) };
     }
-    if (m >= this.routeTotalM) {
-      const n = this.activeRoute.length;
-      const a = this.activeRoute[n - 2];
-      const b = this.activeRoute[n - 1];
+    if (m >= totalM) {
+      const n = route.length;
+      const a = route[n - 2];
+      const b = route[n - 1];
       return { pos: b, headingDeg: this.headingDeg(a, b) };
     }
-    // Find segment
     let i = 1;
-    while (i < this.routeCumM.length && this.routeCumM[i] < m) i++;
+    while (i < cumM.length && cumM[i] < m) i++;
     const i0 = Math.max(1, i);
-    const a = this.activeRoute[i0 - 1];
-    const b = this.activeRoute[i0];
-    const m0 = this.routeCumM[i0 - 1];
-    const m1 = this.routeCumM[i0];
+    const a = route[i0 - 1];
+    const b = route[i0];
+    const m0 = cumM[i0 - 1];
+    const m1 = cumM[i0];
     const t = m1 <= m0 ? 0 : (m - m0) / (m1 - m0);
     const lng = a[0] + (b[0] - a[0]) * t;
     const lat = a[1] + (b[1] - a[1]) * t;
@@ -238,7 +323,8 @@ export class MapView {
 
   private renderVehicleOnly() {
     const vehicleLayer = this.makeVehicleLayer();
-    this.overlay.setProps({ layers: [...this.staticLayers, vehicleLayer] });
+    const stationLayer = this.makeStationIconLayer();
+    this.overlay.setProps({ layers: [...this.staticLayers, stationLayer, vehicleLayer] });
   }
 
   private renderStatic() {
@@ -315,38 +401,42 @@ export class MapView {
         },
         parameters: { depthTest: false },
       }),
-      new IconLayer({
-        // placeholder; replaced on every tick by renderVehicleOnly
-        id: `vehicle-placeholder-${this.side}`,
-        data: [],
-        iconAtlas: CAR_ICON_ATLAS,
-        iconMapping: { car: { x: 0, y: 0, width: 64, height: 64, mask: false, anchorY: 52 } },
-        getIcon: () => "car",
-        sizeUnits: "pixels",
-        getSize: 34,
-        getPosition: (d: any) => (d as any).pos,
-        getAngle: (d: any) => (d as any).angle,
-        billboard: false,
-        pickable: false,
-        parameters: { depthTest: false },
-      }),
+      // vehicles/stations are appended by renderVehicleOnly() for smooth updates
     ];
-    this.staticLayers = layers.slice(0, layers.length - 1);
-    this.overlay.setProps({ layers: [...this.staticLayers, this.makeVehicleLayer()] });
+    this.staticLayers = layers;
+    this.overlay.setProps({ layers: [...this.staticLayers, this.makeStationIconLayer(), this.makeVehicleLayer()] });
   }
 
   private makeVehicleLayer() {
     return new IconLayer({
       id: `vehicle-${this.side}`,
-      data: this.vehiclePos ? [{ pos: this.vehiclePos, angle: this.vehicleHeadingDeg }] : [],
-      iconAtlas: CAR_ICON_ATLAS,
-      iconMapping: { car: { x: 0, y: 0, width: 64, height: 64, mask: false, anchorY: 52 } },
-      getIcon: () => "car",
+      data: [...this.vehicles.values()],
+      iconAtlas: ICON_ATLAS,
+      iconMapping: ICON_MAPPING as any,
+      getIcon: (d: any) => d.kind,
       sizeUnits: "pixels",
-      getSize: 34,
+      getSize: (d: any) => (d.kind === "bike" ? 24 : 28),
       getPosition: (d: any) => d.pos,
-      getAngle: (d: any) => d.angle,
+      getAngle: (d: any) => d.headingDeg,
+      getColor: (d: any) => d.color,
       billboard: false,
+      pickable: false,
+      parameters: { depthTest: false },
+    });
+  }
+
+  private makeStationIconLayer() {
+    return new IconLayer({
+      id: `station-icons-${this.side}`,
+      data: this.stations,
+      iconAtlas: ICON_ATLAS,
+      iconMapping: ICON_MAPPING as any,
+      getIcon: () => "station",
+      sizeUnits: "pixels",
+      getSize: 22,
+      getPosition: (d: Station) => [d.lng, d.lat],
+      getColor: this.side === "oracle" ? ([35, 231, 255, 170] as any) : ([232, 236, 255, 120] as any),
+      billboard: true,
       pickable: false,
       parameters: { depthTest: false },
     });

@@ -392,8 +392,11 @@ export function startCommandCenter(args: Args) {
     const [bView, oView] = await withDeadline(Promise.all([baseline.ready, oracle.ready]), 10_000, "mapReady");
     bView.setFollowVehicle(args.followEl.checked);
     oView.setFollowVehicle(args.followEl.checked);
-    await bView.playExternalEvent(bRes.event);
-    await oView.playExternalEvent(oRes.event);
+    // Enrich route events with persona so MapView can pick car vs bike cleanly.
+    const bEvt = { ...(bRes.event || {}), persona: String(bRes.obs?.state?.pending_evs?.[0]?.persona || "") };
+    const oEvt = { ...(oRes.event || {}), persona: String(oRes.obs?.state?.pending_evs?.[0]?.persona || "") };
+    await bView.playExternalEvent(bEvt);
+    await oView.playExternalEvent(oEvt);
 
     // badges
     pill(args.baselineBadge, "warn", "heuristic");
