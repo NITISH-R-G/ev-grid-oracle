@@ -550,15 +550,23 @@ export function startCommandCenter(args: Args) {
   };
 
   args.btnStep.onclick = async () => {
-    await stepOne();
+    try {
+      await stepOne();
+    } catch (e) {
+      reportFatal("STEP ERROR", e);
+    }
   };
 
   args.btnRun.onclick = async () => {
-    for (let i = 0; i < 60; i++) {
-      // eslint-disable-next-line no-await-in-loop
-      await stepOne();
-      // eslint-disable-next-line no-await-in-loop
-      await new Promise((r) => setTimeout(r, 90));
+    try {
+      for (let i = 0; i < 60; i++) {
+        // eslint-disable-next-line no-await-in-loop
+        await stepOne();
+        // eslint-disable-next-line no-await-in-loop
+        await new Promise((r) => setTimeout(r, 90));
+      }
+    } catch (e) {
+      reportFatal("RUN ERROR", e);
     }
   };
 
