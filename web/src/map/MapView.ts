@@ -53,6 +53,26 @@ function dropNearDuplicates(path: [number, number][], minMeters: number): [numbe
   return out.length >= 2 ? out : path;
 }
 
+// Light polyline smoothing to reduce harsh angles (keeps endpoints).
+function chaikinSmooth(path: [number, number][], iterations: number): [number, number][] {
+  if (path.length < 3 || iterations <= 0) return path;
+  let cur = path;
+  for (let it = 0; it < iterations; it++) {
+    const out: [number, number][] = [];
+    out.push([cur[0][0], cur[0][1]]);
+    for (let i = 0; i < cur.length - 1; i++) {
+      const a = cur[i];
+      const b = cur[i + 1];
+      const q: [number, number] = [a[0] * 0.75 + b[0] * 0.25, a[1] * 0.75 + b[1] * 0.25];
+      const r: [number, number] = [a[0] * 0.25 + b[0] * 0.75, a[1] * 0.25 + b[1] * 0.75];
+      out.push(q, r);
+    }
+    out.push([cur[cur.length - 1][0], cur[cur.length - 1][1]]);
+    cur = out;
+  }
+  return cur;
+}
+
 // Canvas atlas containing: car | bike | station
 // (data-URL SVG atlases can fail to load in some deck.gl environments)
 function buildIconAtlas(): HTMLCanvasElement {
@@ -563,8 +583,8 @@ export class MapView {
       remaining.push([end[0], end[1]]);
     }
     return {
-      traveled: dropNearDuplicates(simplifyPathLngLat(traveled, 220), 2.0),
-      remaining: dropNearDuplicates(simplifyPathLngLat(remaining, 360), 2.0),
+      traveled: chaikinSmooth(dropNearDuplicates(simplifyPathLngLat(traveled, 220), 2.0), 1),
+      remaining: chaikinSmooth(dropNearDuplicates(simplifyPathLngLat(remaining, 360), 2.0), 1),
     };
   }
 
