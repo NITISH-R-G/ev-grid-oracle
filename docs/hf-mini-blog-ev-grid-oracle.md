@@ -39,6 +39,10 @@ pinned: false
 - **Replayable evidence:** baseline vs oracle is evaluated on the **same seeds** (paired, deterministic).  
 - **Engineer-grade outputs:** plots + stats are committed as PNG/JSON artifacts so judges can audit without rerunning everything.
 
+### What judges see (live Command Center)
+
+![EV Grid Oracle Command Center screenshot](images/command-center.png)
+
 If you only read one thing, read the repo's **"Judges - non-negotiables"** table in [`README.md`](https://github.com/NITISH-R-G/ev-grid-oracle/blob/main/README.md) (Space + Colab + plots + writeup in one place).
 
 ---
