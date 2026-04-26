@@ -370,24 +370,33 @@ def ma_new(req: Request, payload: MANewRequest = Body(...)) -> dict[str, Any]:
     _rate_limit(req, key="ma_new", limit=30, window_sec=60)
     t0 = time.time()
     rid = _request_id(req)
-    _ma_gc()
-    sid = str(uuid4())
-    core = EVGridCore(city_graph=_demo_graph)
-    obs = core.reset(seed=payload.seed, scenario=cast(ScenarioName, payload.scenario), fleet_mode=cast(Any, payload.fleet_mode))
-    sess = MultiAgentSession(core=core)
-    _ma_sessions[sid] = (time.time(), sess)
-    log.info("ma_new", extra={"rid": rid, "sid": sid, "seed": payload.seed, "scenario": str(core.scenario), "ms": int((time.time() - t0) * 1000)})
-    return {
-        "request_id": rid,
-        "session_id": sid,
-        "obs": _obs_to_jsonable(obs),
-        "station_nodes": _station_nodes(core),
-        "scenario": core.scenario,
-        "seed": payload.seed,
-        "sim_version": _SIM_VERSION,
-        "messages": [],
-        "grid_directive": GridDirective().model_dump(mode="json"),
-    }
+    try:
+        _ma_gc()
+        sid = str(uuid4())
+        core = EVGridCore(city_graph=_demo_graph)
+        obs = core.reset(seed=payload.seed, scenario=cast(ScenarioName, payload.scenario), fleet_mode=cast(Any, payload.fleet_mode))
+        sess = MultiAgentSession(core=core)
+        _ma_sessions[sid] = (time.time(), sess)
+        log.info(
+            "ma_new",
+            extra={"rid": rid, "sid": sid, "seed": payload.seed, "scenario": str(core.scenario), "ms": int((time.time() - t0) * 1000)},
+        )
+        return {
+            "request_id": rid,
+            "session_id": sid,
+            "obs": _obs_to_jsonable(obs),
+            "station_nodes": _station_nodes(core),
+            "scenario": core.scenario,
+            "seed": payload.seed,
+            "sim_version": _SIM_VERSION,
+            "messages": [],
+            "grid_directive": GridDirective().model_dump(mode="json"),
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        log.exception("ma_new_error", extra={"rid": rid, "ms": int((time.time() - t0) * 1000)})
+        raise HTTPException(status_code=500, detail=f"ma_new_error: {type(e).__name__}: {e}")
 
 
 def _grid_policy(st) -> tuple[GridDirective, NegotiationMessage]:
@@ -581,24 +590,33 @@ def demo_new(req: Request, payload: DemoNewRequest = Body(...)) -> dict[str, Any
     _rate_limit(req, key="demo_new", limit=30, window_sec=60)
     t0 = time.time()
     rid = _request_id(req)
-    _demo_session_gc()
-    session_id = str(uuid4())
-    core = EVGridCore(city_graph=_demo_graph)
-    obs = core.reset(seed=payload.seed, scenario=cast(ScenarioName, payload.scenario), fleet_mode=cast(Any, payload.fleet_mode))
-    _demo_sessions[session_id] = (time.time(), core)
-    from ev_grid_oracle.scenarios import scenario_schedule
+    try:
+        _demo_session_gc()
+        session_id = str(uuid4())
+        core = EVGridCore(city_graph=_demo_graph)
+        obs = core.reset(seed=payload.seed, scenario=cast(ScenarioName, payload.scenario), fleet_mode=cast(Any, payload.fleet_mode))
+        _demo_sessions[session_id] = (time.time(), core)
+        from ev_grid_oracle.scenarios import scenario_schedule
 
-    log.info("demo_new", extra={"rid": rid, "sid": session_id, "seed": payload.seed, "scenario": str(obs.state and core.scenario), "ms": int((time.time()-t0)*1000)})
-    return {
-        "request_id": rid,
-        "session_id": session_id,
-        "obs": _obs_to_jsonable(obs),
-        "station_nodes": _station_nodes(core),
-        "scenario": core.scenario,
-        "seed": payload.seed,
-        "sim_version": _SIM_VERSION,
-        "scenario_schedule": scenario_schedule(core.scenario),
-    }
+        log.info(
+            "demo_new",
+            extra={"rid": rid, "sid": session_id, "seed": payload.seed, "scenario": str(obs.state and core.scenario), "ms": int((time.time()-t0)*1000)},
+        )
+        return {
+            "request_id": rid,
+            "session_id": session_id,
+            "obs": _obs_to_jsonable(obs),
+            "station_nodes": _station_nodes(core),
+            "scenario": core.scenario,
+            "seed": payload.seed,
+            "sim_version": _SIM_VERSION,
+            "scenario_schedule": scenario_schedule(core.scenario),
+        }
+    except HTTPException:
+        raise
+    except Exception as e:
+        log.exception("demo_new_error", extra={"rid": rid, "ms": int((time.time() - t0) * 1000)})
+        raise HTTPException(status_code=500, detail=f"demo_new_error: {type(e).__name__}: {e}")
 
 
 @app.get("/demo/state")
