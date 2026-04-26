@@ -82,22 +82,25 @@ All server step responses that include traffic-aware mobility MUST include:
 **Route event (per `ev_id`)**
 
 - `ev_id`: string
-- `polyline`: array of `[lng, lat]` (WGS84)
+- `polyline`: array of `[lat, lng]` (WGS84). This matches current server behavior; the frontend converts to `[lng,lat]` for Deck rendering.
 - `eta_s`: float (seconds; computed by server using the same edge weights used for routing at this `tick`)
 - `reroute_reason`: string | null (one of: `"periodic"`, `"traffic_spike"`, `"queue_growth"`, `"grid_constraint"`)
 
 **Traffic snapshot (`traffic`)** (used for rendering only; routing uses the same underlying model)
 
-- `traffic.encoding`: string (one of: `"edge_mult_v1"`)
-- `traffic.edges`: array of `{ edge_id: int, m_q: int }` where `m = m_q / 1000.0` and `m` is clamped to `[0.35, 1.15]`
-- `traffic.edge_id` MUST match the server’s directed edge index used by the router for the current road graph build.
+- `traffic.encoding`: string (one of: `"uv_mult_v1"`)
+- `traffic.edges`: array of `{ u: int, v: int, m_q: int }` where:
+  - `(u,v)` are road-graph node ids for the (undirected) edge
+  - `m = m_q / 1000.0` and `m` is clamped to `[0.35, 1.15]`
+  - `(u,v)` order is normalized by the server as `u <= v` to keep join keys stable.
+- Frontend joins traffic to render geometry by matching `(u,v)` against render-edge metadata (see “Traffic overlay join” below).
 
 ### Data model
 
 Add to server step outputs (demo + MA):
 
 - `traffic`: a compact snapshot for rendering
-  - **Shape**: list of `{ u: int, v: int, m: float }` or a packed dict keyed by edge id
+  - **Encoding**: must follow `traffic.encoding="uv_mult_v1"` above
   - **Rate**: updated every tick (or every 2 ticks if perf needs)
 - For each route event already returned:
   - include `eta_s` (estimated travel time along chosen route under current traffic)
@@ -121,10 +124,9 @@ Module: `ev_grid_oracle/traffic.py` (new)
 Module: `server/road_router.py` (existing)
 
 - Extend shortest-path weight to:
-  - \(w(u,v) = base\_time(u,v) \cdot traffic(u,v,tick) + intersection\_penalty\)
-- Base time derived from:
-  - edge length meters / speed_by_highway_mps
-  - speed table: motorway/trunk/primary/secondary/tertiary/residential
+  - \(w(u,v) = travel\_s(u,v) \cdot traffic(u,v,tick) + intersection\_penalty\)
+- `travel_s(u,v)` is the precomputed base travel time already stored in the baked road graph (stable + deterministic).
+- Optional follow-up (non-blocking): incorporate highway class and/or turn penalties into the graph build step to improve realism.
 
 ### Agent decision (GridOperator vs FleetDispatcher)
 
@@ -155,6 +157,19 @@ Module: `web/src/map/MapView.ts` (existing)
   - when new event for same `ev_id` arrives with a different polyline, replace route
   - briefly pulse route layer and show a tiny “recalculating…” badge near vehicle (optional)
 
+### Traffic overlay join (render ↔ router)
+
+To render traffic on roads, the frontend needs a stable key to join server `traffic.edges` to drawn road segments.
+
+We will extend the render-optimized road asset build (`tools/build_roads_render.py`) to emit **render edges**:
+
+- new artifact: `web/public/maps/bangalore_roads_edges_render.json`
+- shape: array of `{ u: int, v: int, highway: string, path: [[lng,lat], ...] }`
+- `(u,v)` correspond to the **same** road-graph node ids used by the router graph file.
+- frontend:
+  - renders traffic overlay from this file
+  - uses `(min(u,v), max(u,v))` as join key to `traffic.edges`
+
 ## Performance + stability
 
 - Must handle **100–500 vehicles**:
@@ -167,6 +182,11 @@ Module: `web/src/map/MapView.ts` (existing)
 - HF Spaces:
   - no external traffic APIs
   - deterministic simulation for reproducible demos
+
+Backward compatibility:
+
+- During rollout, `schema_version`, `tick_dt_s`, and `traffic` are **additive** fields for `/demo/step` and `/ma/step`.
+- UI should treat them as optional until both server + client are deployed.
 
 ## Test plan
 
