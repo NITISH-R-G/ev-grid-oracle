@@ -59,6 +59,42 @@ If you only read one thing, read the repo's **"Judges - non-negotiables"** table
 
 ---
 
+## Architecture (end to end, in one diagram)
+
+This is the full loop: prompt -> action -> environment -> reward -> GRPO update -> deploy and replay.
+
+```mermaid
+flowchart LR
+  subgraph HF[Hugging Face Space: EV Grid Oracle]
+    API[FastAPI server\nserver/app.py]
+    ENV[EVGridEnvironment\nOpenEnv API]
+    CORE[Simulator core\nEVGridCore / RoadCore]
+    REW[Verifier reward\nreward breakdown + anti-hack flags]
+    API --> ENV --> CORE --> REW
+  end
+
+  subgraph TRAIN[Colab training]
+    NB[training/train_grpo.ipynb]
+    TRL[TRL GRPOTrainer]
+    UNS[Unsloth runtime\nfast sampling + QLoRA adapters]
+    TB[TensorBoard logs\nev_oracle_grpo_road]
+    NB --> TRL --> UNS --> TB
+  end
+
+  MODEL[Small LLM policy\nQwen2.5-3B + LoRA]
+  USER[Judge / user]
+
+  USER -->|Calls /reset and /step| API
+  REW -->|reward + next obs| USER
+  TRL -->|samples completions| MODEL
+  MODEL -->|action text| TRL
+  TRL -->|reward_funcs calls\nRoadCore.step| CORE
+  CORE -->|reward breakdown| TRL
+  TRL -->|updates adapters| MODEL
+```
+
+---
+
 ## Problem statement (why it matters)
 
 Grid operators (and fleet dispatchers) are constantly making routing decisions under:
@@ -139,6 +175,35 @@ This is where most hackathon projects win or lose: **if reward is crisp and hard
 
 ---
 
+## Tech stack (what we used, where, and why)
+
+### OpenEnv
+
+- **Where used:** `openenv.yaml`, request/response schema, environment endpoints, client compatibility.
+- **Why:** standard interface for reset/step/state, easier judge replay, easier deployment on Spaces.
+
+### Hugging Face Spaces
+
+- **Where used:** environment is hosted as a Space and is runnable for judges from a URL.
+- **Why:** discoverable, reproducible, easy to demo, easy for teams to share a single canonical env.
+
+### TRL (GRPO)
+
+- **Where used:** `training/train_grpo.ipynb` uses `GRPOTrainer` and `GRPOConfig`.
+- **Why:** GRPO is designed for multiple samples per prompt and works well with verifiable reward functions.
+
+### Unsloth + QLoRA
+
+- **Where used:** the notebook installs Unsloth and saves adapters.
+- **Why:** small model + adapters makes iteration fast. This increases the number of real runs you can do.
+
+### PyTorch
+
+- **Where used:** training backend through Transformers, TRL, and Unsloth.
+- **Why:** standard ecosystem for modern LLM training and post-training.
+
+---
+
 ## Training (Colab + TRL GRPO + Unsloth)
 
 **Public training notebook:**
@@ -208,6 +273,18 @@ These two files are the simplest "we actually trained" evidence judges look for.
 
 ---
 
+## Business impact (why this is not just a toy)
+
+If you frame this as "grid ops + fleet dispatch," the impact is direct:
+
+- **Lower wait time** for EV drivers during demand spikes
+- **Fewer peak violations** and **fewer stress events** on constrained feeders
+- **More load shifted** into renewable windows when possible
+
+In practice, this is a policy problem. Operators need actions they can trust. A verifier-based environment gives you a path to train and audit that policy.
+
+---
+
 ## Visualization gallery (what judges can scan fast)
 
 ### One-page dashboard
@@ -257,6 +334,30 @@ These two files are the simplest "we actually trained" evidence judges look for.
 ### Fair-eval chart
 
 ![Wilson chart](../artifacts/fair_eval_chart.png)
+
+---
+
+## Research references (what we read and took inspiration from)
+
+We did not invent these ideas in a vacuum. This project is built from a few proven building blocks:
+
+- **GRPO (Group Relative Policy Optimization):** introduced in DeepSeekMath as a memory-lean PPO variant that uses group-relative rewards.  
+  Paper: `https://arxiv.org/abs/2402.03300`
+
+- **QLoRA (4-bit adapter finetuning):** efficient finetuning of quantized LLMs with LoRA adapters.  
+  Paper: `https://arxiv.org/abs/2305.14314`
+
+- **Reinforcement learning with verifiable rewards (RLVR) direction:** verifiable reward signals reduce reward model dependence and reduce "judge hacking."  
+  Related paper (reference-based verifiable rewards): `http://arxiv.org/abs/2601.18533`
+
+- **OpenEnv rubrics and trajectory scoring:** OpenEnv RFCs show how to structure composable reward functions and delayed/trajectory rewards.  
+  RFC: `https://github.com/meta-pytorch/OpenEnv/blob/main/rfcs/004-rubrics.md`
+
+What we took from these:
+
+- Use verifiable checks and multiple reward components, not a single scalar with fuzzy meaning.
+- Sample multiple completions per prompt, score them, then update the policy to prefer higher reward behavior.
+- Use adapters and small models to iterate quickly and produce real plots and evidence.
 
 ---
 
