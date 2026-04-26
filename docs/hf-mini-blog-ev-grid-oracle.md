@@ -291,6 +291,8 @@ In practice, this is a policy problem. Operators need actions they can trust. A 
 
 ## Visualization gallery (what judges can scan fast)
 
+All images currently in this repo are embedded below (plus the Command Center screenshot near the top).
+
 ### One-page dashboard
 
 ![Six-panel evaluation dashboard](../artifacts/eval_dashboard_summary.png)
