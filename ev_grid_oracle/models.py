@@ -84,6 +84,7 @@ class GridState(BaseModel):
     grid_load_pct: float = Field(..., ge=0.0, le=1.0)
     renewable_pct: float = Field(..., ge=0.0, le=1.0)
     hour: int = Field(..., ge=0, le=23)
+    minute_of_day: int = Field(0, ge=0, le=24 * 60 - 1)
     day_type: DayType
     peak_risk: PeakRisk
 

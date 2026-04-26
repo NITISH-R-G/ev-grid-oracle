@@ -52,7 +52,8 @@ class EVGridCore:
         self._scenario_schedule = scenario_schedule(scenario)
         self._scenario_mods = ScenarioModifiers()
 
-        hour = self.rng.randint(0, 23)
+        minute_of_day = int(self.rng.randint(0, 23) * 60)
+        hour = int(minute_of_day // 60)
         day_type = self.rng.choice([DayType.weekday, DayType.weekend])
 
         stations = [
@@ -100,6 +101,7 @@ class EVGridCore:
             grid_load_pct=grid_load,
             renewable_pct=renewable,
             hour=hour,
+            minute_of_day=minute_of_day,
             day_type=day_type,
             peak_risk=peak_risk,
         )
@@ -146,8 +148,9 @@ class EVGridCore:
         # 1) apply action (deterministic validation + state mutation)
         action_effect = _apply_action(prev_state, action)
 
-        # 2) advance sim 5 minutes
-        prev_state.hour = (prev_state.hour + (self.step_minutes // 60)) % 24  # stays same for 5-min steps
+        # 2) advance sim time
+        prev_state.minute_of_day = int((int(prev_state.minute_of_day) + int(self.step_minutes)) % (24 * 60))
+        prev_state.hour = int(prev_state.minute_of_day // 60)
         _drain_queues_and_charging(prev_state)
 
         # 3) new arrivals
