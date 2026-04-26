@@ -457,7 +457,8 @@ export class PixelCityScene extends Phaser.Scene {
 
       spr.on("pointerover", () => {
         spr.setScale(1.9);
-        this.showHover(`Station: ${n.station_id}\nSlots: ${n.total_slots}\nType: ${n.station_type || "charger"}`, p.x, p.y);
+        const stype = String((n as any).station_type || "charger");
+        this.showHover(`Station: ${n.station_id}\nSlots: ${n.total_slots}\nType: ${stype}`, p.x, p.y);
       });
       spr.on("pointerout", () => {
         spr.setScale(1.6);

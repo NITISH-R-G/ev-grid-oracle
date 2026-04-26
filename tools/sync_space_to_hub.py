@@ -50,7 +50,8 @@ def main() -> int:
 
     if not args.skip_build:
         print("Running: npm --prefix web run build...")
-        subprocess.run(["npm", "--prefix", "web", "run", "build"], cwd=ROOT, check=True)
+        npm = "npm.cmd" if os.name == "nt" else "npm"
+        subprocess.run([npm, "--prefix", "web", "run", "build"], cwd=ROOT, check=True)
 
     from huggingface_hub import HfApi
 
