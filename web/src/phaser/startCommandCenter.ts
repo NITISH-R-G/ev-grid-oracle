@@ -67,7 +67,29 @@ async function withDeadline<T>(p: Promise<T>, ms: number, label: string): Promis
 export function startCommandCenter(args: Args) {
   const mountBaseline = document.getElementById(args.baselineMountId);
   const mountOracle = document.getElementById(args.oracleMountId);
-  if (!mountBaseline || !mountOracle) throw new Error("Mount nodes missing");
+  if (!mountBaseline || !mountOracle) {
+    pill(args.baselineBadge, "bad", "UI ERROR");
+    pill(args.oracleBadge, "bad", "UI ERROR");
+    args.eventsEl.textContent =
+      "ERROR: mount nodes missing.\n\n" +
+      `baselineMountId=${args.baselineMountId} oracleMountId=${args.oracleMountId}\n` +
+      "This is a frontend wiring issue (DOM ids).";
+    return;
+  }
+
+  // Surface unexpected runtime errors in the UI (HF Spaces users often don't open DevTools).
+  const reportFatal = (label: string, detail: unknown) => {
+    pill(args.baselineBadge, "bad", label);
+    pill(args.oracleBadge, "bad", label);
+    const msg = detail instanceof Error ? `${detail.name}: ${detail.message}` : String(detail);
+    args.eventsEl.textContent = `${label}\n${msg}`;
+    args.oracleEl.textContent = `${label}\n${msg}`;
+    args.dreamEl.textContent =
+      `${label}\n${msg}\n\n` +
+      "Tip: hard refresh (Ctrl+F5) to clear cached JS after a Space rebuild.";
+  };
+  window.addEventListener("error", (ev) => reportFatal("RUNTIME ERROR", (ev as ErrorEvent).error || (ev as ErrorEvent).message));
+  window.addEventListener("unhandledrejection", (ev) => reportFatal("PROMISE REJECTION", (ev as PromiseRejectionEvent).reason));
 
   const mkGame = (mount: HTMLElement) => {
     const config: Phaser.Types.Core.GameConfig = {
