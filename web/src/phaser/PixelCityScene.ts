@@ -1,7 +1,7 @@
 import Phaser from "phaser";
 import type { DemoMode, DemoStepResponse, StationNode } from "../evgrid/api";
 import { demoStep } from "../evgrid/api";
-import { computeBBox, makeProjector } from "../evgrid/project";
+import { computeBBox } from "../evgrid/project";
 import { staticAssetUrl } from "../paths";
 
 /** One fetch + parse for all Phaser maps (baseline + oracle) — avoids duplicate work on “New”. */
@@ -92,6 +92,9 @@ export class PixelCityScene extends Phaser.Scene {
   private reactor: Phaser.GameObjects.Container | null = null;
   private roadsFallbackEdges: Array<{ a: { x: number; y: number }; b: { x: number; y: number } }> = [];
   private terrainRt: Phaser.GameObjects.RenderTexture | null = null;
+  private tilesLayer: Phaser.GameObjects.Container | null = null;
+  private tileSprites: Phaser.GameObjects.Image[] = [];
+  private osmAttribution: Phaser.GameObjects.Text | null = null;
 
   constructor() {
     super("PixelCityScene");
@@ -163,12 +166,24 @@ export class PixelCityScene extends Phaser.Scene {
     this.roadsLayer = this.add.container(0, 0);
     this.stationsLayer = this.add.container(0, 0);
     this.fxLayer = this.add.container(0, 0);
+    this.tilesLayer = this.add.container(0, 0);
+    this.tilesLayer.setDepth(-6);
 
     // Stylized terrain base (reads more “real map” than a plain grid)
     this.terrainRt = this.add.renderTexture(0, 0, w, h);
     this.terrainRt.setOrigin(0, 0);
     this.terrainRt.setDepth(-10);
     this.drawTerrain();
+
+    // OSM attribution (required if we show real tiles)
+    this.osmAttribution = this.add.text(w - 12, h - 10, "© OpenStreetMap contributors", {
+      fontFamily: "monospace",
+      fontSize: "10px",
+      color: "#cbd5ff",
+    });
+    this.osmAttribution.setOrigin(1, 1);
+    this.osmAttribution.setAlpha(0.0);
+    this.osmAttribution.setDepth(9998);
 
     // Subtle vignette (readability): darken edges/top/bottom without noisy gradients.
     const vig = this.add.graphics();
@@ -251,12 +266,21 @@ export class PixelCityScene extends Phaser.Scene {
     this.sessionId = sessionId;
     this.nodes = station_nodes;
     const bbox = computeBBox(this.nodes);
-    this.projector = makeProjector(bbox, this.scale.width, this.scale.height, 70);
+    this.projector = this.makeMercatorProjector(bbox, this.scale.width, this.scale.height, 70);
     this.drawStations();
     this.snapCameraToCity();
     this.drawTerrain();
     this.ensureReactorHub();
     this.startAmbientEnergy();
+
+    // Real basemap tiles (best effort). If it fails, we keep stylized terrain.
+    void (async () => {
+      try {
+        await withTimeout(this.loadAndDrawOsmTiles(bbox), 12_000);
+      } catch {
+        // ignore; keep terrain
+      }
+    })();
 
     // Roads are optional; do not block session readiness on them.
     void (async () => {
@@ -472,6 +496,111 @@ export class PixelCityScene extends Phaser.Scene {
       this.stationMarks.set(n.station_id, { glow, ring, base });
       this.stationUi.set(n.station_id, { root, label });
     }
+  }
+
+  private makeMercatorProjector(bbox: { latLo: number; latHi: number; lngLo: number; lngHi: number }, w: number, h: number, pad = 40) {
+    // Web mercator world px at zoom=0 with tileSize=256
+    const mercY = (lat: number) => {
+      const rad = (lat * Math.PI) / 180;
+      const y = Math.log(Math.tan(Math.PI / 4 + rad / 2));
+      return y;
+    };
+    const x0 = bbox.lngLo;
+    const x1 = bbox.lngHi;
+    const y0 = mercY(bbox.latLo);
+    const y1 = mercY(bbox.latHi);
+    const dx = Math.max(1e-9, x1 - x0);
+    const dy = Math.max(1e-9, y1 - y0);
+    return (lat: number, lng: number) => {
+      const nx = (lng - x0) / dx;
+      const ny = 1 - (mercY(lat) - y0) / dy;
+      const x = pad + nx * (w - pad * 2);
+      const y = pad + ny * (h - pad * 2);
+      return { x, y };
+    };
+  }
+
+  private async loadAndDrawOsmTiles(bbox: { latLo: number; latHi: number; lngLo: number; lngHi: number }) {
+    if (!this.tilesLayer) return;
+
+    // Clean previous tiles
+    for (const s of this.tileSprites) s.destroy();
+    this.tileSprites = [];
+    this.tilesLayer.removeAll(true);
+
+    // Pick a zoom that looks “real” but doesn’t request too many tiles.
+    const zoom = 12;
+    const n = 2 ** zoom;
+    const clampLat = (lat: number) => Math.max(-85.05112878, Math.min(85.05112878, lat));
+    const lon2tile = (lon: number) => Math.floor(((lon + 180) / 360) * n);
+    const lat2tile = (lat: number) => {
+      const r = (clampLat(lat) * Math.PI) / 180;
+      return Math.floor(((1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2) * n);
+    };
+    const tile2lon = (x: number) => (x / n) * 360 - 180;
+    const tile2lat = (y: number) => {
+      const a = Math.PI - (2 * Math.PI * y) / n;
+      return (180 / Math.PI) * Math.atan(0.5 * (Math.exp(a) - Math.exp(-a)));
+    };
+
+    // Tile range (+1 padding)
+    const xMin = Math.max(0, lon2tile(bbox.lngLo) - 1);
+    const xMax = Math.min(n - 1, lon2tile(bbox.lngHi) + 1);
+    const yMin = Math.max(0, lat2tile(bbox.latHi) - 1);
+    const yMax = Math.min(n - 1, lat2tile(bbox.latLo) + 1);
+
+    // Avoid exploding requests on weird bbox
+    const maxTiles = 28;
+    const total = (xMax - xMin + 1) * (yMax - yMin + 1);
+    if (total > maxTiles) return;
+
+    // Map tile corners to screen using the *same* projector as overlays (mercator-based)
+    if (!this.projector) return;
+
+    const loadTile = (key: string, url: string) =>
+      new Promise<void>((resolve, reject) => {
+        if (this.textures.exists(key)) {
+          resolve();
+          return;
+        }
+        this.load.image(key, url);
+        this.load.once(Phaser.Loader.Events.FILE_LOAD_ERROR, (file: any) => {
+          if (file?.key === key) reject(new Error("tile load failed"));
+        });
+        this.load.once(Phaser.Loader.Events.COMPLETE, () => resolve());
+        this.load.start();
+      });
+
+    // Sequential loads (gentle on tile server + Phaser loader)
+    for (let y = yMin; y <= yMax; y++) {
+      for (let x = xMin; x <= xMax; x++) {
+        const key = `osm_${zoom}_${x}_${y}`;
+        const url = `https://tile.openstreetmap.org/${zoom}/${x}/${y}.png`;
+        // eslint-disable-next-line no-await-in-loop
+        await loadTile(key, url);
+
+        // Tile bbox in lat/lon; project corners to screen
+        const lonL = tile2lon(x);
+        const lonR = tile2lon(x + 1);
+        const latT = tile2lat(y);
+        const latB = tile2lat(y + 1);
+
+        const pTL = this.projector(latT, lonL);
+        const pBR = this.projector(latB, lonR);
+        const tw = Math.abs(pBR.x - pTL.x);
+        const th = Math.abs(pBR.y - pTL.y);
+
+        const img = this.add.image(pTL.x, pTL.y, key).setOrigin(0, 0);
+        img.setDisplaySize(tw, th);
+        img.setAlpha(0.78);
+        this.tilesLayer.add(img);
+        this.tileSprites.push(img);
+      }
+    }
+
+    // If tiles are present, fade out terrain and show attribution
+    this.terrainRt?.setAlpha(0.18);
+    this.osmAttribution?.setAlpha(0.85);
   }
 
   private drawTerrain() {
