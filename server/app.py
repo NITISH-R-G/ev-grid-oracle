@@ -577,63 +577,64 @@ def demo_step(
         log.info("demo_step_miss", extra={"sid": session_id, "ms": int((time.time()-t0)*1000)})
         raise HTTPException(status_code=404, detail="Unknown session_id")
 
-    st = core._grid_state
-    oracle_llm_active = False
-    oracle_text = ""
-    oracle_timed_out = False
-    oracle_skipped_env = False
-    dream_score = None
-    dream_breakdown: dict[str, float] = {}
-    dream_pred = None
-    dream_true = None
-    event: dict[str, Any] = {"type": "noop"}
-    if forced_action is not None:
-        action = EVGridAction.model_validate(forced_action)
+    try:
+        st = core._grid_state
         oracle_llm_active = False
         oracle_text = ""
+        oracle_timed_out = False
+        oracle_skipped_env = False
         dream_score = None
-        dream_breakdown = {}
+        dream_breakdown: dict[str, float] = {}
         dream_pred = None
         dream_true = None
-        # Keep animation useful even when replaying stored actions.
-        if st is not None:
-            ev = next((e for e in st.pending_evs if e.ev_id == action.ev_id), st.pending_evs[0] if st.pending_evs else None)
-            src = next((x for x in st.stations if ev is not None and x.neighborhood_slug == ev.neighborhood_slug), None)
-            dst = next((x for x in st.stations if action.station_id and x.station_id == action.station_id), None)
-            if action.action_type == ActionType.route and ev is not None and src is not None and dst is not None:
-                traffic = TrafficModel(seed=int(core._seed_for_bescom), scenario=str(core.scenario))
-                routed = _osm_route_polyline(
-                    src_lat=float(src.lat),
-                    src_lng=float(src.lng),
-                    dst_lat=float(dst.lat),
-                    dst_lng=float(dst.lng),
-                    traffic=traffic,
-                    tick=int(core.step_count),
-                )
-                poly, seg_m_q = routed if routed is not None else ([], None)
-                event = {
-                    "type": "route",
-                    "ev_id": ev.ev_id,
-                    "from": {"station_id": src.station_id, "lat": src.lat, "lng": src.lng},
-                    "to": {"station_id": dst.station_id, "lat": dst.lat, "lng": dst.lng},
-                    "polyline": (poly or _graph_route_polyline(core, src_station_id=src.station_id, dst_station_id=dst.station_id)),
-                    "traffic_seg_m_q": seg_m_q,
-                    "reroute_reason": "periodic" if (int(core.step_count) % 6 == 0) else None,
-                }
+        event: dict[str, Any] = {"type": "noop"}
+        if forced_action is not None:
+            action = EVGridAction.model_validate(forced_action)
+            oracle_llm_active = False
+            oracle_text = ""
+            dream_score = None
+            dream_breakdown = {}
+            dream_pred = None
+            dream_true = None
+            # Keep animation useful even when replaying stored actions.
+            if st is not None:
+                ev = next((e for e in st.pending_evs if e.ev_id == action.ev_id), st.pending_evs[0] if st.pending_evs else None)
+                src = next((x for x in st.stations if ev is not None and x.neighborhood_slug == ev.neighborhood_slug), None)
+                dst = next((x for x in st.stations if action.station_id and x.station_id == action.station_id), None)
+                if action.action_type == ActionType.route and ev is not None and src is not None and dst is not None:
+                    traffic = TrafficModel(seed=int(core._seed_for_bescom), scenario=str(core.scenario))
+                    routed = _osm_route_polyline(
+                        src_lat=float(src.lat),
+                        src_lng=float(src.lng),
+                        dst_lat=float(dst.lat),
+                        dst_lng=float(dst.lng),
+                        traffic=traffic,
+                        tick=int(core.step_count),
+                    )
+                    poly, seg_m_q = routed if routed is not None else ([], None)
+                    event = {
+                        "type": "route",
+                        "ev_id": ev.ev_id,
+                        "from": {"station_id": src.station_id, "lat": src.lat, "lng": src.lng},
+                        "to": {"station_id": dst.station_id, "lat": dst.lat, "lng": dst.lng},
+                        "polyline": (poly or _graph_route_polyline(core, src_station_id=src.station_id, dst_station_id=dst.station_id)),
+                        "traffic_seg_m_q": seg_m_q,
+                        "reroute_reason": "periodic" if (int(core.step_count) % 6 == 0) else None,
+                    }
+                else:
+                    event = {"type": "forced_action", "action_type": str(action.action_type.value)}
             else:
-                event = {"type": "forced_action", "action_type": str(action.action_type.value)}
+                event = {"type": "forced_action"}
+        elif st is None or not st.pending_evs:
+            action = EVGridAction(action_type=ActionType.load_shift, ev_id="EV-000", defer_minutes=0)
+            event = {"type": "idle"}
         else:
-            event = {"type": "forced_action"}
-    elif st is None or not st.pending_evs:
-        action = EVGridAction(action_type=ActionType.load_shift, ev_id="EV-000", defer_minutes=0)
-        event = {"type": "idle"}
-    else:
-        if mode == "baseline":
-            action = baseline_policy(st, core.city_graph)
-        else:
-            action, oracle_text, oracle_llm_active, oracle_timed_out, oracle_skipped_env = _demo_oracle_act_with_guard(
-                st=st, core=core, oracle_lora_repo=oracle_lora_repo
-            )
+            if mode == "baseline":
+                action = baseline_policy(st, core.city_graph)
+            else:
+                action, oracle_text, oracle_llm_active, oracle_timed_out, oracle_skipped_env = _demo_oracle_act_with_guard(
+                    st=st, core=core, oracle_lora_repo=oracle_lora_repo
+                )
 
             # If oracle produced a <SIMULATE> block, score it against a deterministic T+5 rollout.
             pred = parse_simulation(oracle_text) if oracle_text else None
@@ -725,7 +726,7 @@ def demo_step(
                 "reroute_reason": "ambient",
             }
 
-    obs = core.step(action)
+        obs = core.step(action)
     anti_flags = obs.anti_cheat_flags
     anti_details = obs.anti_cheat_details
     role_kpis = compute_role_kpis(obs)
@@ -756,20 +757,25 @@ def demo_step(
         "dream_true": dream_true,
         "forced_action": forced_action is not None,
     }
-    log.info(
-        "demo_step",
-        extra={
-            "sid": session_id,
-            "mode": mode,
-            "tick": int(core.step_count),
-            "oracle_active": bool(oracle_llm_active),
-            "oracle_timeout": bool(oracle_timed_out),
-            "oracle_skipped": bool(oracle_skipped_env),
-            "forced": bool(forced_action is not None),
-            "ms": int((time.time() - t0) * 1000),
-        },
-    )
-    return out
+        log.info(
+            "demo_step",
+            extra={
+                "sid": session_id,
+                "mode": mode,
+                "tick": int(core.step_count),
+                "oracle_active": bool(oracle_llm_active),
+                "oracle_timeout": bool(oracle_timed_out),
+                "oracle_skipped": bool(oracle_skipped_env),
+                "forced": bool(forced_action is not None),
+                "ms": int((time.time() - t0) * 1000),
+            },
+        )
+        return out
+    except HTTPException:
+        raise
+    except Exception as e:
+        log.exception("demo_step_error", extra={"sid": session_id, "mode": mode, "ms": int((time.time() - t0) * 1000)})
+        raise HTTPException(status_code=500, detail=f"demo_step_error: {type(e).__name__}: {e}")
 
 
 def main(host: str = "0.0.0.0", port: int = 8000):

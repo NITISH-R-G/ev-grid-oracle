@@ -118,7 +118,21 @@ export async function demoStep(args: {
       body: JSON.stringify(args),
       signal: ctl.signal,
     });
-    if (!r.ok) throw new Error(`demoStep failed: ${r.status}`);
+    if (!r.ok) {
+      let detail = "";
+      try {
+        const j = await r.json();
+        detail = j?.detail ? ` — ${String(j.detail)}` : ` — ${JSON.stringify(j).slice(0, 500)}`;
+      } catch {
+        try {
+          const txt = await r.text();
+          detail = txt ? ` — ${txt.slice(0, 500)}` : "";
+        } catch {
+          detail = "";
+        }
+      }
+      throw new Error(`demoStep failed: ${r.status}${detail}`);
+    }
     return (await r.json()) as DemoStepResponse;
   } catch (e: any) {
     if (e?.name === "AbortError") {
