@@ -21,6 +21,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 
 from ev_grid_oracle.city_graph import build_city_graph
+import networkx as nx
 from ev_grid_oracle.env import EVGridCore, _build_prompt
 from ev_grid_oracle.models import (
     ActionType,
@@ -179,6 +180,28 @@ _DEMO_MAX_SESSIONS = int(os.getenv("DEMO_MAX_SESSIONS", "64"))
 _demo_sessions: "OrderedDict[str, tuple[float, EVGridCore]]" = OrderedDict()
 _demo_graph = build_city_graph()
 _SIM_VERSION = "2026-04-26.1"
+
+
+def _graph_route_polyline(core: EVGridCore, *, src_station_id: str, dst_station_id: str) -> list[list[float]]:
+    """
+    Return a render-friendly polyline (lat/lng pairs) along the station graph.
+    v0 fallback was a straight line; this produces a multi-point path so the UI reads like navigation.
+    """
+    if src_station_id == dst_station_id:
+        n = core.city_graph.nodes[src_station_id]
+        return [[float(n["lat"]), float(n["lng"])]]
+    try:
+        path = cast(list[str], nx.shortest_path(core.city_graph, src_station_id, dst_station_id, weight="weight_minutes"))
+    except Exception:
+        # Fallback: direct
+        a = core.city_graph.nodes[src_station_id]
+        b = core.city_graph.nodes[dst_station_id]
+        return [[float(a["lat"]), float(a["lng"])], [float(b["lat"]), float(b["lng"])]]
+    out: list[list[float]] = []
+    for sid in path:
+        n = core.city_graph.nodes[sid]
+        out.append([float(n["lat"]), float(n["lng"])])
+    return out
 
 
 def _demo_session_gc(now: float | None = None) -> None:
@@ -555,7 +578,7 @@ def demo_step(
                     "ev_id": ev.ev_id,
                     "from": {"station_id": src.station_id, "lat": src.lat, "lng": src.lng},
                     "to": {"station_id": dst.station_id, "lat": dst.lat, "lng": dst.lng},
-                    "polyline": [[src.lat, src.lng], [dst.lat, dst.lng]],
+                    "polyline": _graph_route_polyline(core, src_station_id=src.station_id, dst_station_id=dst.station_id),
                 }
             else:
                 event = {"type": "forced_action", "action_type": str(action.action_type.value)}
@@ -612,7 +635,7 @@ def demo_step(
                 "ev_id": ev.ev_id,
                 "from": {"station_id": src.station_id, "lat": src.lat, "lng": src.lng},
                 "to": {"station_id": dst.station_id, "lat": dst.lat, "lng": dst.lng},
-                "polyline": [[src.lat, src.lng], [dst.lat, dst.lng]],
+                "polyline": _graph_route_polyline(core, src_station_id=src.station_id, dst_station_id=dst.station_id),
             }
         else:
             event = {"type": action.action_type.value}

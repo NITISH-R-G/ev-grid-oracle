@@ -903,9 +903,16 @@ export class PixelCityScene extends Phaser.Scene {
 
     // ACTUAL PATH: solid glow (oracle brighter, baseline dimmer)
     const g = this.add.graphics();
-    const core = this.side === "oracle" ? 0x35ffb8 : 0x6d7aa6;
-    const alpha = this.side === "oracle" ? 0.26 : 0.12;
-    g.lineStyle(6, core, alpha);
+    // Google-ish route styling: dark casing + bright core
+    const casing = this.side === "oracle" ? 0x000000 : 0x000000;
+    const core = this.side === "oracle" ? 0x23e7ff : 0xbcc6e5;
+    g.lineStyle(10, casing, 0.20);
+    g.beginPath();
+    g.moveTo(pts[0].x, pts[0].y);
+    for (let i = 1; i < pts.length; i++) g.lineTo(pts[i].x, pts[i].y);
+    g.strokePath();
+
+    g.lineStyle(6, core, this.side === "oracle" ? 0.40 : 0.22);
     g.beginPath();
     g.moveTo(pts[0].x, pts[0].y);
     for (let i = 1; i < pts.length; i++) g.lineTo(pts[i].x, pts[i].y);
