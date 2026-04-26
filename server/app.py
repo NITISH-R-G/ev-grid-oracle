@@ -8,6 +8,7 @@ from collections import OrderedDict
 import logging
 from server.road_router import get_router
 from ev_grid_oracle.traffic import TrafficModel
+import hashlib
 
 try:
     from openenv.core.env_server.http_server import create_app
@@ -690,6 +691,39 @@ def demo_step(
             }
         else:
             event = {"type": action.action_type.value}
+
+        # Ensure the map always looks alive: if action isn't a route, emit a deterministic
+        # ambient trip for UI motion (does not affect env dynamics or rewards).
+        if (event.get("type") != "route") and st is not None and len(st.stations) >= 2:
+            tick_i = int(core.step_count)
+            seed_i = int(core._seed_for_bescom)
+            scen = str(core.scenario)
+            h = hashlib.sha1(f"{seed_i}|{scen}|{mode}|ambient|{tick_i}".encode("utf-8")).digest()
+            a_i = int.from_bytes(h[:2], "big") % len(st.stations)
+            b_i = int.from_bytes(h[2:4], "big") % len(st.stations)
+            if b_i == a_i:
+                b_i = (b_i + 1) % len(st.stations)
+            src2 = st.stations[a_i]
+            dst2 = st.stations[b_i]
+            traffic2 = TrafficModel(seed=seed_i, scenario=scen)
+            routed2 = _osm_route_polyline(
+                src_lat=float(src2.lat),
+                src_lng=float(src2.lng),
+                dst_lat=float(dst2.lat),
+                dst_lng=float(dst2.lng),
+                traffic=traffic2,
+                tick=tick_i,
+            )
+            poly2, seg2 = routed2 if routed2 is not None else ([], None)
+            event = {
+                "type": "route",
+                "ev_id": f"AMBIENT-{mode}-{a_i}-{b_i}",
+                "from": {"station_id": src2.station_id, "lat": src2.lat, "lng": src2.lng},
+                "to": {"station_id": dst2.station_id, "lat": dst2.lat, "lng": dst2.lng},
+                "polyline": (poly2 or _graph_route_polyline(core, src_station_id=src2.station_id, dst_station_id=dst2.station_id)),
+                "traffic_seg_m_q": seg2,
+                "reroute_reason": "ambient",
+            }
 
     obs = core.step(action)
     anti_flags = obs.anti_cheat_flags
