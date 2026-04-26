@@ -17,6 +17,7 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
           <button id="btnNew" class="btn primary">New</button>
           <button id="btnStep" class="btn">Step</button>
           <button id="btnRun" class="btn">Run 60</button>
+          <button id="btnDemo" class="btn glow">Guided Demo</button>
           <button id="btnJudge" class="btn">Judge Mode</button>
         </div>
 
@@ -192,6 +193,7 @@ startCommandCenter({
   btnNew: document.querySelector<HTMLButtonElement>("#btnNew")!,
   btnStep: document.querySelector<HTMLButtonElement>("#btnStep")!,
   btnRun: document.querySelector<HTMLButtonElement>("#btnRun")!,
+  btnDemo: document.querySelector<HTMLButtonElement>("#btnDemo")!,
   scenarioEl: document.querySelector<HTMLSelectElement>("#scenario")!,
   seedEl: document.querySelector<HTMLInputElement>("#seed")!,
   tickEl: document.querySelector<HTMLInputElement>("#tick")!,

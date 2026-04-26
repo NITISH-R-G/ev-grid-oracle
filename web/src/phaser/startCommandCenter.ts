@@ -8,6 +8,7 @@ type Args = {
   btnNew: HTMLButtonElement;
   btnStep: HTMLButtonElement;
   btnRun: HTMLButtonElement;
+  btnDemo: HTMLButtonElement;
   btnJudge: HTMLButtonElement;
   scenarioEl: HTMLSelectElement;
   seedEl: HTMLInputElement;
@@ -146,8 +147,13 @@ export function startCommandCenter(args: Args) {
   let replayBusy = false;
   let playTimer: number | null = null;
   let playing = false;
+  let demoBusy = false;
 
   const seedRand = () => Math.floor(Math.random() * 10_000);
+
+  const sleep = async (ms: number) => {
+    await new Promise((r) => window.setTimeout(r, ms));
+  };
 
   const appendEvent = (line: string) => {
     const prev = args.eventsEl.textContent || "";
@@ -547,6 +553,50 @@ export function startCommandCenter(args: Args) {
       await stepOne();
       // eslint-disable-next-line no-await-in-loop
       await new Promise((r) => setTimeout(r, 90));
+    }
+  };
+
+  args.btnDemo.onclick = async () => {
+    if (demoBusy) return;
+    demoBusy = true;
+    const prevScenario = args.scenarioEl.value;
+    const prevSeed = args.seedEl.value;
+    try {
+      args.followEl.checked = true;
+      args.scenarioEl.value = "festival_surge";
+      args.seedEl.value = String(seedRand());
+      setText("heroSub", "Guided demo: chaos spike → Oracle reroutes → KPI win banner. Watch the neon path + smooth car motion.");
+      setVerdict("risk", "DEMO");
+      args.btnDemo.disabled = true;
+      args.btnRun.disabled = true;
+      args.btnStep.disabled = true;
+      args.btnNew.disabled = true;
+
+      // New session
+      await initSessions();
+      await sleep(450);
+
+      // Cinematic: 14 ticks at readable pacing
+      for (let i = 0; i < 14; i++) {
+        await stepOne();
+        if (i === 2) setText("heroSub", "Congestion builds. Baseline keeps pushing straight into it.");
+        if (i === 5) setText("heroSub", "Oracle uses road-level routing — follow mode stays glued to the moving EV.");
+        if (i === 9) setText("heroSub", "Delta stabilizes. This is your “wow” moment on a projector.");
+        await sleep(320);
+      }
+
+      setVerdict("win", "WIN");
+      setText("heroSub", "Guided demo complete. Now hit Run 60 for the longer replay proof, or scrub the timeline.");
+    } catch (e) {
+      reportFatal("DEMO ERROR", e);
+    } finally {
+      args.btnDemo.disabled = false;
+      args.btnRun.disabled = false;
+      args.btnStep.disabled = false;
+      args.btnNew.disabled = false;
+      args.scenarioEl.value = prevScenario;
+      args.seedEl.value = prevSeed;
+      demoBusy = false;
     }
   };
 
