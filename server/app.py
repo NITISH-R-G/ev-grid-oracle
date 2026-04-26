@@ -6,6 +6,8 @@ from pathlib import Path
 import time
 from collections import OrderedDict
 import logging
+import json
+from math import asin, cos, radians, sin, sqrt
 
 try:
     from openenv.core.env_server.http_server import create_app
@@ -180,6 +182,113 @@ _DEMO_MAX_SESSIONS = int(os.getenv("DEMO_MAX_SESSIONS", "64"))
 _demo_sessions: "OrderedDict[str, tuple[float, EVGridCore]]" = OrderedDict()
 _demo_graph = build_city_graph()
 _SIM_VERSION = "2026-04-26.1"
+
+
+def _haversine_km(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
+    r = 6371.0
+    dlat = radians(lat2 - lat1)
+    dlng = radians(lng2 - lng1)
+    a = sin(dlat / 2) ** 2 + cos(radians(lat1)) * cos(radians(lat2)) * sin(dlng / 2) ** 2
+    c = 2 * asin(sqrt(a))
+    return r * c
+
+
+_OSM_GRAPH: nx.Graph | None = None
+_OSM_NODES: list[tuple[float, float]] | None = None  # (lat,lng)
+
+
+def _load_osm_graph() -> tuple[nx.Graph, list[tuple[float, float]]]:
+    """
+    Build a lightweight road graph from the pruned demo GeoJSON.
+    This is intentionally small (arterials only) and CPU-safe for HF Spaces.
+    """
+    global _OSM_GRAPH, _OSM_NODES
+    if _OSM_GRAPH is not None and _OSM_NODES is not None:
+        return _OSM_GRAPH, _OSM_NODES
+
+    root = Path(__file__).resolve().parents[1]
+    gj_path = root / "web" / "public" / "maps" / "bangalore_roads_demo.geojson"
+    if not gj_path.exists():
+        raise FileNotFoundError(f"missing {gj_path}")
+
+    gj = json.loads(gj_path.read_text(encoding="utf-8"))
+    feats = gj.get("features", [])
+    if not isinstance(feats, list):
+        raise ValueError("invalid geojson: features not list")
+
+    g = nx.Graph()
+
+    def key(lat: float, lng: float) -> tuple[float, float]:
+        # snap to a tiny grid so endpoints merge between ways
+        return (round(lat, 5), round(lng, 5))
+
+    for f in feats:
+        geom = (f or {}).get("geometry", {}) if isinstance(f, dict) else {}
+        if not isinstance(geom, dict) or geom.get("type") != "LineString":
+            continue
+        coords = geom.get("coordinates")
+        if not isinstance(coords, list) or len(coords) < 2:
+            continue
+
+        prev_k: tuple[float, float] | None = None
+        prev_lat = prev_lng = 0.0
+        for c in coords:
+            if not isinstance(c, list) or len(c) < 2:
+                continue
+            lng = float(c[0])
+            lat = float(c[1])
+            k = key(lat, lng)
+            if k not in g:
+                g.add_node(k, lat=float(k[0]), lng=float(k[1]))
+            if prev_k is not None and prev_k != k:
+                w = _haversine_km(prev_lat, prev_lng, lat, lng)
+                # keep smallest edge if duplicates happen
+                if g.has_edge(prev_k, k):
+                    if w < float(g.edges[prev_k, k].get("weight_km", 1e9)):
+                        g.edges[prev_k, k]["weight_km"] = w
+                else:
+                    g.add_edge(prev_k, k, weight_km=w)
+            prev_k = k
+            prev_lat, prev_lng = lat, lng
+
+    nodes = [(float(g.nodes[k]["lat"]), float(g.nodes[k]["lng"])) for k in g.nodes]
+    _OSM_GRAPH = g
+    _OSM_NODES = nodes
+    return g, nodes
+
+
+def _nearest_osm_node(g: nx.Graph, *, lat: float, lng: float) -> tuple[float, float]:
+    # Brute force is OK for the pruned demo graph.
+    best: tuple[float, float] | None = None
+    best_d = 1e9
+    for k in g.nodes:
+        d = _haversine_km(lat, lng, float(k[0]), float(k[1]))
+        if d < best_d:
+            best_d = d
+            best = k
+    if best is None:
+        raise RuntimeError("empty osm graph")
+    return best
+
+
+def _osm_route_polyline(*, src_lat: float, src_lng: float, dst_lat: float, dst_lng: float) -> list[list[float]] | None:
+    """
+    Return a road-following polyline using the demo OSM graph.
+    Returns None if graph not available / no path.
+    """
+    try:
+        g, _ = _load_osm_graph()
+    except Exception:
+        return None
+    try:
+        a = _nearest_osm_node(g, lat=src_lat, lng=src_lng)
+        b = _nearest_osm_node(g, lat=dst_lat, lng=dst_lng)
+        path = cast(list[tuple[float, float]], nx.shortest_path(g, a, b, weight="weight_km"))
+    except Exception:
+        return None
+
+    # Convert to [lat,lng] pairs
+    return [[float(lat), float(lng)] for (lat, lng) in path]
 
 
 def _graph_route_polyline(core: EVGridCore, *, src_station_id: str, dst_station_id: str) -> list[list[float]]:
@@ -573,12 +682,13 @@ def demo_step(
             src = next((x for x in st.stations if ev is not None and x.neighborhood_slug == ev.neighborhood_slug), None)
             dst = next((x for x in st.stations if action.station_id and x.station_id == action.station_id), None)
             if action.action_type == ActionType.route and ev is not None and src is not None and dst is not None:
+                poly = _osm_route_polyline(src_lat=float(src.lat), src_lng=float(src.lng), dst_lat=float(dst.lat), dst_lng=float(dst.lng))
                 event = {
                     "type": "route",
                     "ev_id": ev.ev_id,
                     "from": {"station_id": src.station_id, "lat": src.lat, "lng": src.lng},
                     "to": {"station_id": dst.station_id, "lat": dst.lat, "lng": dst.lng},
-                    "polyline": _graph_route_polyline(core, src_station_id=src.station_id, dst_station_id=dst.station_id),
+                    "polyline": poly or _graph_route_polyline(core, src_station_id=src.station_id, dst_station_id=dst.station_id),
                 }
             else:
                 event = {"type": "forced_action", "action_type": str(action.action_type.value)}
@@ -630,12 +740,13 @@ def demo_step(
         src = next((x for x in st.stations if x.neighborhood_slug == ev.neighborhood_slug), None)
         dst = next((x for x in st.stations if x.station_id == action.station_id), None)
         if action.action_type == ActionType.route and src is not None and dst is not None:
+            poly = _osm_route_polyline(src_lat=float(src.lat), src_lng=float(src.lng), dst_lat=float(dst.lat), dst_lng=float(dst.lng))
             event = {
                 "type": "route",
                 "ev_id": ev.ev_id,
                 "from": {"station_id": src.station_id, "lat": src.lat, "lng": src.lng},
                 "to": {"station_id": dst.station_id, "lat": dst.lat, "lng": dst.lng},
-                "polyline": _graph_route_polyline(core, src_station_id=src.station_id, dst_station_id=dst.station_id),
+                "polyline": poly or _graph_route_polyline(core, src_station_id=src.station_id, dst_station_id=dst.station_id),
             }
         else:
             event = {"type": action.action_type.value}
