@@ -1,6 +1,6 @@
 import maplibregl, { type LngLatLike, type Map as MapLibreMap } from "maplibre-gl";
 import { MapboxOverlay } from "@deck.gl/mapbox";
-import { PathLayer, IconLayer } from "@deck.gl/layers";
+import { PathLayer, IconLayer, ScatterplotLayer } from "@deck.gl/layers";
 import { staticAssetUrl } from "../paths";
 import { cartoDarkStyle } from "./basemap";
 
@@ -403,8 +403,9 @@ export class MapView {
 
   private renderVehicleOnly() {
     const vehicleLayer = this.makeVehicleLayer();
+    const vehicleDotLayer = this.makeVehicleDotLayer();
     const stationLayer = this.makeStationIconLayer();
-    this.overlay.setProps({ layers: [...this.staticLayers, stationLayer, vehicleLayer] });
+    this.overlay.setProps({ layers: [...this.staticLayers, stationLayer, vehicleDotLayer, vehicleLayer] });
   }
 
   private renderStatic() {
@@ -416,8 +417,8 @@ export class MapView {
     };
     const roadWidth = (hw: string) => (hw === "primary" ? 2.4 : hw === "secondary" ? 1.8 : 1.2);
 
-    const routeCore = this.side === "oracle" ? [35, 231, 255, 220] : [188, 198, 229, 190];
-    const routeCasing = [0, 0, 0, 160];
+    const routeCore = this.side === "oracle" ? [35, 231, 255, 235] : [232, 236, 255, 220];
+    const routeCasing = [0, 0, 0, 190];
 
     const layers = [
       new PathLayer({
@@ -438,7 +439,7 @@ export class MapView {
         data: this.activeRoute.length ? [{ path: this.activeRoute }] : [],
         getPath: (d: any) => d.path,
         getColor: routeCasing as any,
-        getWidth: 10,
+        getWidth: 12,
         widthUnits: "pixels",
         rounded: true,
         capRounded: true,
@@ -451,7 +452,7 @@ export class MapView {
         data: this.activeRoute.length ? [{ path: this.activeRoute }] : [],
         getPath: (d: any) => d.path,
         getColor: routeCore as any,
-        getWidth: 6,
+        getWidth: 7,
         widthUnits: "pixels",
         rounded: true,
         capRounded: true,
@@ -462,7 +463,9 @@ export class MapView {
       // stations + vehicles are appended by renderVehicleOnly() for smooth updates
     ];
     this.staticLayers = layers;
-    this.overlay.setProps({ layers: [...this.staticLayers, this.makeStationIconLayer(), this.makeVehicleLayer()] });
+    this.overlay.setProps({
+      layers: [...this.staticLayers, this.makeStationIconLayer(), this.makeVehicleDotLayer(), this.makeVehicleLayer()],
+    });
   }
 
   private makeVehicleLayer() {
@@ -478,6 +481,24 @@ export class MapView {
       getAngle: (d: any) => d.headingDeg,
       getColor: (d: any) => d.color,
       billboard: false,
+      pickable: false,
+      parameters: { depthTest: false },
+    });
+  }
+
+  private makeVehicleDotLayer() {
+    return new ScatterplotLayer({
+      id: `vehicle-dots-${this.side}`,
+      data: [...this.vehicles.values()],
+      getPosition: (d: any) => d.pos,
+      radiusUnits: "pixels",
+      getRadius: (d: any) => (d.kind === "bike" ? 4.5 : 5.5),
+      getFillColor: (d: any) => d.color,
+      getLineColor: [0, 0, 0, 140] as any,
+      lineWidthUnits: "pixels",
+      lineWidthMinPixels: 1,
+      stroked: true,
+      filled: true,
       pickable: false,
       parameters: { depthTest: false },
     });
