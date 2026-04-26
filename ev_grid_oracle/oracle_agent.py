@@ -12,6 +12,52 @@ _CACHE = {}
 _CACHE_LOCK = None
 
 
+class OracleRuntime:
+    """
+    Singleton-style loader that prefers CUDA when available.
+
+    This keeps T4 Spaces fast and makes oracle behavior undeniable.
+    """
+
+    _lock = None
+    _loaded: dict[tuple[str, str, str], tuple[object, object]] = {}
+
+    @classmethod
+    def load(cls, *, base_model_id: str, lora_repo_id: str, device: str) -> tuple[object, object] | None:
+        if not lora_repo_id:
+            return None
+        if cls._lock is None:
+            import threading
+
+            cls._lock = threading.Lock()
+        key = (base_model_id, lora_repo_id, device)
+        with cls._lock:
+            if key in cls._loaded:
+                return cls._loaded[key]
+
+        try:
+            import torch
+            from peft import PeftModel
+            from transformers import AutoModelForCausalLM, AutoTokenizer
+        except Exception:
+            return None
+
+        dtype = torch.float16 if device.startswith("cuda") else torch.float32
+        tok = AutoTokenizer.from_pretrained(base_model_id, use_fast=True)
+        model = AutoModelForCausalLM.from_pretrained(
+            base_model_id,
+            device_map=device if device != "cuda" else "auto",
+            torch_dtype=dtype,
+            low_cpu_mem_usage=True,
+        )
+        model = PeftModel.from_pretrained(model, lora_repo_id)
+        model.eval()
+
+        with cls._lock:
+            cls._loaded[key] = (tok, model)
+        return tok, model
+
+
 @dataclass
 class OracleAgent:
     """
@@ -60,16 +106,13 @@ class OracleAgent:
                 self._tokenizer, self._model = cached
                 return
 
-        # CPU-safe default. (For speed, prefer running inference on a GPU Space later.)
-        tok = AutoTokenizer.from_pretrained(self.base_model_id, use_fast=True)
-        model = AutoModelForCausalLM.from_pretrained(
-            self.base_model_id,
-            device_map="cpu",
-            torch_dtype=torch.float32,
-            low_cpu_mem_usage=True,
-        )
-        model = PeftModel.from_pretrained(model, self.lora_repo_id)
-        model.eval()
+        # Prefer CUDA when available (T4 Space).
+        device = "cuda" if torch.cuda.is_available() else "cpu"
+        loaded = OracleRuntime.load(base_model_id=self.base_model_id, lora_repo_id=self.lora_repo_id, device=device)
+        if loaded is None:
+            self.lora_repo_id = None
+            return
+        tok, model = loaded
 
         self._tokenizer = tok
         self._model = model
