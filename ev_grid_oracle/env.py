@@ -21,6 +21,7 @@ from .models import (
     StationState,
 )
 from .reward import compute_reward
+from .reward_hack import RewardHackDetector
 from .scenarios import ScenarioEvent, ScenarioModifiers, ScenarioName, apply_scenario_events, scenario_schedule
 
 
@@ -43,6 +44,7 @@ class EVGridCore:
     _scenario_schedule: list[ScenarioEvent] = field(default_factory=list)
     _scenario_mods: ScenarioModifiers = field(default_factory=ScenarioModifiers)
     last_scenario_events: list[ScenarioEvent] = field(default_factory=list)
+    _hack_detector: RewardHackDetector = field(default_factory=RewardHackDetector)
 
     def reset(self, *, seed: Optional[int] = None, scenario: ScenarioName = "baseline") -> EVGridObservation:
         if seed is not None:
@@ -51,6 +53,7 @@ class EVGridCore:
         self.scenario = scenario
         self._scenario_schedule = scenario_schedule(scenario)
         self._scenario_mods = ScenarioModifiers()
+        self._hack_detector.reset()
 
         minute_of_day = int(self.rng.randint(0, 23) * 60)
         hour = int(minute_of_day // 60)
@@ -185,6 +188,14 @@ class EVGridCore:
             city_graph=self.city_graph,
             step_minutes=self.step_minutes,
         )
+
+        # Stateful reward-hack detection (multi-step exploits).
+        hack_rb, hack_flags, hack_details = self._hack_detector.step(prev=pre_action_state, action=action, next=prev_state)
+        reward_breakdown = {**reward_breakdown, **hack_rb}
+        for f in hack_flags:
+            if f not in anti_flags:
+                anti_flags.append(f)
+        anti_details = {**anti_details, **hack_details}
 
         # merge effects into breakdown (debug)
         reward_breakdown = {**reward_breakdown, **action_effect}
