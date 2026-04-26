@@ -4,6 +4,7 @@ import concurrent.futures
 import os
 from pathlib import Path
 import time
+from collections import OrderedDict
 
 try:
     from openenv.core.env_server.http_server import create_app
@@ -144,9 +145,39 @@ def root() -> str:
 # Demo API (Phaser frontend)
 # -----------------------------
 
-_demo_sessions: dict[str, EVGridCore] = {}
+_DEMO_SESSION_TTL_SEC = int(os.getenv("DEMO_SESSION_TTL_SEC", "3600"))  # 1h
+_DEMO_MAX_SESSIONS = int(os.getenv("DEMO_MAX_SESSIONS", "64"))
+
+# Ordered for deterministic eviction of oldest sessions.
+_demo_sessions: "OrderedDict[str, tuple[float, EVGridCore]]" = OrderedDict()
 _demo_graph = build_city_graph()
 _SIM_VERSION = "2026-04-26.1"
+
+
+def _demo_session_gc(now: float | None = None) -> None:
+    t = float(now if now is not None else time.time())
+    # TTL eviction
+    expired: list[str] = []
+    for sid, (ts, _core) in _demo_sessions.items():
+        if t - float(ts) > float(_DEMO_SESSION_TTL_SEC):
+            expired.append(sid)
+    for sid in expired:
+        _demo_sessions.pop(sid, None)
+    # size eviction
+    while len(_demo_sessions) > int(_DEMO_MAX_SESSIONS):
+        _demo_sessions.popitem(last=False)
+
+
+def _demo_session_get(session_id: str) -> EVGridCore | None:
+    _demo_session_gc()
+    row = _demo_sessions.get(session_id)
+    if row is None:
+        return None
+    ts, core = row
+    # touch (LRU-ish)
+    _demo_sessions.move_to_end(session_id, last=True)
+    _demo_sessions[session_id] = (time.time(), core)
+    return core
 
 
 class DemoNewRequest(BaseModel):
@@ -178,10 +209,11 @@ def _station_nodes(core: EVGridCore) -> list[dict[str, Any]]:
 
 @app.post("/demo/new")
 def demo_new(payload: DemoNewRequest = Body(...)) -> dict[str, Any]:
+    _demo_session_gc()
     session_id = str(uuid4())
     core = EVGridCore(city_graph=_demo_graph)
     obs = core.reset(seed=payload.seed, scenario=cast(ScenarioName, payload.scenario))
-    _demo_sessions[session_id] = core
+    _demo_sessions[session_id] = (time.time(), core)
     from ev_grid_oracle.scenarios import scenario_schedule
 
     return {
@@ -197,7 +229,7 @@ def demo_new(payload: DemoNewRequest = Body(...)) -> dict[str, Any]:
 
 @app.get("/demo/state")
 def demo_state(session_id: str = Query(...)) -> dict[str, Any]:
-    core = _demo_sessions.get(session_id)
+    core = _demo_session_get(session_id)
     if core is None:
         raise HTTPException(status_code=404, detail="Unknown session_id")
     st = core._grid_state
@@ -231,7 +263,7 @@ def demo_step(
     oracle_lora_repo: str = Body("", embed=True),
     forced_action: dict[str, Any] | None = Body(None),
 ) -> dict[str, Any]:
-    core = _demo_sessions.get(session_id)
+    core = _demo_session_get(session_id)
     if core is None:
         raise HTTPException(status_code=404, detail="Unknown session_id")
 

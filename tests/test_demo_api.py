@@ -36,3 +36,21 @@ def test_demo_new_and_step_roundtrip():
     assert isinstance(data2.get("role_kpis"), dict)
     assert isinstance(data2.get("role_reward_breakdown"), dict)
 
+
+def test_demo_sessions_ttl_eviction():
+    # Make sure GC logic is wired (even if defaults are large).
+    import server.app as appmod
+    from server.app import app
+
+    # Force tiny TTL for the module under test.
+    appmod._DEMO_SESSION_TTL_SEC = 0
+    appmod._DEMO_MAX_SESSIONS = 8
+
+    c = TestClient(app)
+    r = c.post("/demo/new", json={"seed": 123})
+    sid = r.json()["session_id"]
+
+    # Next access should GC it away due to TTL=0
+    r2 = c.get("/demo/state", params={"session_id": sid})
+    assert r2.status_code == 404
+
