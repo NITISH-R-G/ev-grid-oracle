@@ -727,36 +727,36 @@ def demo_step(
             }
 
         obs = core.step(action)
-    anti_flags = obs.anti_cheat_flags
-    anti_details = obs.anti_cheat_details
-    role_kpis = compute_role_kpis(obs)
-    role_reward_breakdown = compute_role_reward_breakdown(obs)
-    out = {
-        "obs": _obs_to_jsonable(obs),
-        "event": event,
-        "scenario": core.scenario,
-        "scenario_events_at_tick": core.last_scenario_events,
-        "tick": core.step_count,
-        "tick_dt_s": float(core.step_minutes) * 60.0,
-        "schema_version": "traffic-v1",
-        "sim_version": _SIM_VERSION,
-        "anti_cheat_flags": anti_flags,
-        "anti_cheat_details": anti_details,
-        "role_kpis": role_kpis,
-        "role_reward_breakdown": role_reward_breakdown,
-        "mode": mode,
-        "oracle_lora_repo": (oracle_lora_repo or "").strip(),
-        "oracle_llm_active": oracle_llm_active,
-        "oracle_timed_out": oracle_timed_out,
-        "oracle_skipped_env": oracle_skipped_env,
-        "action": summarize_action(action),
-        "oracle_text": oracle_text,
-        "dream_score": dream_score,
-        "dream_breakdown": dream_breakdown,
-        "dream_pred": dream_pred,
-        "dream_true": dream_true,
-        "forced_action": forced_action is not None,
-    }
+        anti_flags = obs.anti_cheat_flags
+        anti_details = obs.anti_cheat_details
+        role_kpis = compute_role_kpis(obs)
+        role_reward_breakdown = compute_role_reward_breakdown(obs)
+        out = {
+            "obs": _obs_to_jsonable(obs),
+            "event": event,
+            "scenario": core.scenario,
+            "scenario_events_at_tick": core.last_scenario_events,
+            "tick": core.step_count,
+            "tick_dt_s": float(core.step_minutes) * 60.0,
+            "schema_version": "traffic-v1",
+            "sim_version": _SIM_VERSION,
+            "anti_cheat_flags": anti_flags,
+            "anti_cheat_details": anti_details,
+            "role_kpis": role_kpis,
+            "role_reward_breakdown": role_reward_breakdown,
+            "mode": mode,
+            "oracle_lora_repo": (oracle_lora_repo or "").strip(),
+            "oracle_llm_active": oracle_llm_active,
+            "oracle_timed_out": oracle_timed_out,
+            "oracle_skipped_env": oracle_skipped_env,
+            "action": summarize_action(action),
+            "oracle_text": oracle_text,
+            "dream_score": dream_score,
+            "dream_breakdown": dream_breakdown,
+            "dream_pred": dream_pred,
+            "dream_true": dream_true,
+            "forced_action": forced_action is not None,
+        }
         log.info(
             "demo_step",
             extra={
