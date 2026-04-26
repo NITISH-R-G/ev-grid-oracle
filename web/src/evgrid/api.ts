@@ -72,7 +72,7 @@ export async function demoNew(seed: number, scenario: string = "baseline", fleet
   let lastErr: unknown = null;
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
     const ctl = new AbortController();
-    const timeoutMs = 60_000;
+    const timeoutMs = 90_000;
     const t = window.setTimeout(() => ctl.abort(), timeoutMs);
     try {
       const r = await fetch("/demo/new", {
@@ -81,7 +81,21 @@ export async function demoNew(seed: number, scenario: string = "baseline", fleet
         body: JSON.stringify({ seed, scenario, fleet_mode }),
         signal: ctl.signal,
       });
-      if (!r.ok) throw new Error(`demoNew failed: ${r.status}`);
+      if (!r.ok) {
+        let detail = "";
+        try {
+          const j = await r.json();
+          detail = j?.detail ? ` — ${String(j.detail)}` : ` — ${JSON.stringify(j).slice(0, 500)}`;
+        } catch {
+          try {
+            const txt = await r.text();
+            detail = txt ? ` — ${txt.slice(0, 500)}` : "";
+          } catch {
+            detail = "";
+          }
+        }
+        throw new Error(`demoNew failed: ${r.status}${detail}`);
+      }
       return (await r.json()) as DemoNewResponse;
     } catch (e: any) {
       lastErr = e;
@@ -89,7 +103,7 @@ export async function demoNew(seed: number, scenario: string = "baseline", fleet
       if (attempt >= maxAttempts) {
         if (isAbort) {
           throw new Error(
-            "demoNew timed out (60s). The Space may be cold-starting. Wait ~30s and refresh, or try again."
+            "demoNew timed out (90s). The Space may be cold-starting. Wait ~30s and refresh, or try again."
           );
         }
         throw e;
