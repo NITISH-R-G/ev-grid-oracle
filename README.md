@@ -286,6 +286,8 @@ Note: On CPU-only machines, loading a 3B model can be slow or fail; use **Colab 
 Open:
 - `training/train_grpo.ipynb`
 
+**Winning tip:** Prefer a **small** base model and **many** short training iterations over squeezing a huge model into memory for one or two lucky runs. Judges weight **environment quality**, **clear reward signals**, and **evidence** (curves, paired eval) more than raw parameter count. Use **QLoRA**, budget GPU time, tighten the env loop first—then scale `num_generations` / epochs when rollouts are stable.
+
 Notes:
 - start with 1 epoch + small `num_generations`, then scale
 - sample rollouts every N steps to detect reward hacking
