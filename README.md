@@ -112,6 +112,18 @@ REASON: max 20 words
 CONFIDENCE: 0.0-1.0
 ```
 
+### Road-graph RL (connected-edge actions)
+
+This repo also includes a road-graph RL environment mounted under `POST /road/reset` and `POST /road/step`.
+Its action schema is:
+
+```text
+CURRENT_NODE: <int>
+NEXT_NODE: <int>
+REASON: max 20 words
+CONFIDENCE: 0.0-1.0
+```
+
 ### Reward (verifiable + anti‑hack)
 
 Total reward is the sum of components (each logged) in `ev_grid_oracle/reward.py`:
