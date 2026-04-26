@@ -1,5 +1,5 @@
 import Phaser from "phaser";
-import { demoNew, demoStep } from "../evgrid/api";
+import { demoNew, demoStep, maAutoStep, maNew } from "../evgrid/api";
 import { PixelCityScene } from "./PixelCityScene";
 
 type Args = {
@@ -8,6 +8,7 @@ type Args = {
   btnNew: HTMLButtonElement;
   btnStep: HTMLButtonElement;
   btnRun: HTMLButtonElement;
+  btnJudge: HTMLButtonElement;
   scenarioEl: HTMLSelectElement;
   seedEl: HTMLInputElement;
   tickEl: HTMLInputElement;
@@ -28,6 +29,7 @@ type Args = {
   dreamEl: HTMLPreElement;
   oracleEl: HTMLPreElement;
   eventsEl: HTMLPreElement;
+  negoEl: HTMLPreElement;
 };
 
 type TurnFrame = {
@@ -144,6 +146,7 @@ export function startCommandCenter(args: Args) {
 
   let baselineSid: string | null = null;
   let oracleSid: string | null = null;
+  let judgeMode = false;
 
   const baselineFrames: TurnFrame[] = [];
   const oracleFrames: TurnFrame[] = [];
@@ -219,7 +222,14 @@ export function startCommandCenter(args: Args) {
     pill(args.oracleBadge, "warn", "waking server…");
     args.eventsEl.textContent = "(creating sessions — HF Space cold-start may take ~10–30s)";
     try {
-      const [b, o] = await withDeadline(Promise.all([demoNew(seed, scenario), demoNew(seed, scenario)]), 75_000, "demoNew");
+      const [b, o] = await withDeadline(
+        Promise.all([
+          judgeMode ? maNew(seed, scenario) : demoNew(seed, scenario),
+          judgeMode ? maNew(seed, scenario) : demoNew(seed, scenario),
+        ]),
+        75_000,
+        judgeMode ? "maNew" : "demoNew"
+      );
       baselineSid = b.session_id;
       oracleSid = o.session_id;
       const [bScene, oScene] = await withDeadline(Promise.all([baseline.ready, oracle.ready]), 10_000, "phaserReady");
@@ -229,12 +239,13 @@ export function startCommandCenter(args: Args) {
         "bindSession"
       );
       pill(args.baselineBadge, "warn", "heuristic");
-      pill(args.oracleBadge, "good", "ready");
+      pill(args.oracleBadge, "good", judgeMode ? "ready (MA)" : "ready");
       args.eventsEl.textContent = `seed=${seed}\nscenario=${scenario}\nbaseline=${baselineSid}\noracle=${oracleSid}`;
       args.dreamEl.textContent =
         "Sessions ready. Click STEP (first oracle step may download Qwen+LoRA on CPU — can take minutes; Space uses a server timeout fallback).\n\nTip: LoRA id must match Hub exactly, e.g. NITISHRG15102007/ev-oracle-lora";
       args.oracleEl.textContent = "(click STEP — no auto-run avoids blocking on model load)";
       appendEvent("(ready — click STEP or RUN 60)");
+      if (judgeMode) args.negoEl.textContent = "Judge Mode enabled. STEP runs multi-agent auto policies (grid+fleet).";
       setReplayUi();
     } catch (e: any) {
       pill(args.oracleBadge, "bad", "API ERROR");
@@ -254,6 +265,70 @@ export function startCommandCenter(args: Args) {
     if (!baselineSid || !oracleSid) throw new Error("Click New first.");
 
     const oracleRepo = args.loraEl.value || "";
+    if (judgeMode) {
+      const bRes = await maAutoStep({ session_id: baselineSid, fleet_policy: "baseline", oracle_lora_repo: "" });
+      const oRes = await maAutoStep({ session_id: oracleSid, fleet_policy: "oracle", oracle_lora_repo: oracleRepo });
+
+      pill(args.baselineBadge, "warn", "heuristic");
+      pill(args.oracleBadge, "good", "MA ACTIVE");
+
+      // No Phaser event animation in MA v0 (server doesn't emit polylines yet).
+      const rb = (oRes.obs?.reward_breakdown || {}) as Record<string, number>;
+      const top = Object.entries(rb)
+        .filter(([k]) => k !== "total")
+        .sort((a, b) => Math.abs(b[1]) - Math.abs(a[1]))
+        .slice(0, 8)
+        .map(([k, v]) => `${k}=${v.toFixed(3)}`)
+        .join(" | ");
+      const st = oRes.obs?.state;
+      args.oracleEl.textContent =
+        `ACTION: ${String(oRes.resolved_action?.action_type || "")} station=${String(oRes.resolved_action?.station_id || "NONE")}\n` +
+        `GRID: load=${((st?.grid_load_pct ?? 0) * 100).toFixed(1)}% renew=${((st?.renewable_pct ?? 0) * 100).toFixed(
+          1
+        )}% peak=${String(st?.peak_risk || "")}\n` +
+        `REWARD: total=${Number(rb.total ?? 0).toFixed(3)}\n` +
+        `BREAKDOWN: ${top || "(empty)"}`;
+
+      args.eventsEl.textContent = JSON.stringify(
+        {
+          baseline: { tick: bRes.tick, violations: bRes.violations, role_rewards: bRes.role_rewards },
+          oracle: { tick: oRes.tick, violations: oRes.violations, role_rewards: oRes.role_rewards },
+        },
+        null,
+        2
+      );
+      const msgs = (oRes.messages || []).slice(-6);
+      args.negoEl.textContent = msgs.map((m: any) => `[${m.role}] ${m.text}`).join("\n") || "(no messages)";
+
+      // KPI delta: lightweight approximations from obs
+      const bKpi = {
+        baseline: {
+          avg_wait_minutes:
+            Number(bRes.obs?.state?.stations?.reduce((a: number, s: any) => a + s.avg_wait_minutes, 0) ?? 0) /
+            Math.max(1, bRes.obs?.state?.stations?.length ?? 1),
+          peak_violations: Number(bRes.obs?.state?.grid_load_pct ?? 0) > 0.8 ? 1 : 0,
+          grid_stress_events: Number(
+            (bRes.obs?.state?.stations ?? []).filter((s: any) => s.occupied_slots / Math.max(1, s.total_slots) > 0.85).length
+          ),
+          renewable_mean: Number(bRes.obs?.state?.renewable_pct ?? 0),
+        },
+      };
+      const oKpi = {
+        oracle: {
+          avg_wait_minutes:
+            Number(oRes.obs?.state?.stations?.reduce((a: number, s: any) => a + s.avg_wait_minutes, 0) ?? 0) /
+            Math.max(1, oRes.obs?.state?.stations?.length ?? 1),
+          peak_violations: Number(oRes.obs?.state?.grid_load_pct ?? 0) > 0.8 ? 1 : 0,
+          grid_stress_events: Number(
+            (oRes.obs?.state?.stations ?? []).filter((s: any) => s.occupied_slots / Math.max(1, s.total_slots) > 0.85).length
+          ),
+          renewable_mean: Number(oRes.obs?.state?.renewable_pct ?? 0),
+        },
+      };
+      applyKpis(bKpi, oKpi, null);
+      return;
+    }
+
     const bRes = await demoStep({ session_id: baselineSid, mode: "baseline", oracle_lora_repo: "" });
     const oRes = await demoStep({ session_id: oracleSid, mode: "oracle", oracle_lora_repo: oracleRepo });
 
@@ -284,15 +359,15 @@ export function startCommandCenter(args: Args) {
 
     // badges
     pill(args.baselineBadge, "warn", "heuristic");
-    if ((oRes as any).oracle_timed_out) {
+    if (!judgeMode && (oRes as any).oracle_timed_out) {
       pill(args.oracleBadge, "bad", "TIMEOUT→baseline");
-    } else if ((oRes as any).oracle_skipped_env) {
+    } else if (!judgeMode && (oRes as any).oracle_skipped_env) {
       pill(args.oracleBadge, "warn", "SKIP LLM env");
     } else {
       pill(
         args.oracleBadge,
-        oRes.oracle_llm_active ? "good" : "warn",
-        oRes.oracle_llm_active ? "LLM ACTIVE" : "FALLBACK"
+        judgeMode ? "good" : (oRes as any).oracle_llm_active ? "good" : "warn",
+        judgeMode ? "MA ACTIVE" : (oRes as any).oracle_llm_active ? "LLM ACTIVE" : "FALLBACK"
       );
     }
 
@@ -322,15 +397,28 @@ export function startCommandCenter(args: Args) {
       `REWARD: total=${Number(rb.total ?? 0).toFixed(3)}\n` +
       `BREAKDOWN: ${top || "(empty)"}`;
 
-    // event stream
-    args.eventsEl.textContent = JSON.stringify(
-      {
-        baseline: { tick: bRes.tick, event: bRes.event, action: bRes.action, anti: bRes.anti_cheat_flags },
-        oracle: { tick: oRes.tick, event: oRes.event, action: oRes.action, anti: oRes.anti_cheat_flags },
-      },
-      null,
-      2
-    );
+    // event stream + negotiation
+    if (!judgeMode) {
+      args.eventsEl.textContent = JSON.stringify(
+        {
+          baseline: { tick: (bRes as any).tick, event: (bRes as any).event, action: (bRes as any).action, anti: (bRes as any).anti_cheat_flags },
+          oracle: { tick: (oRes as any).tick, event: (oRes as any).event, action: (oRes as any).action, anti: (oRes as any).anti_cheat_flags },
+        },
+        null,
+        2
+      );
+    } else {
+      args.eventsEl.textContent = JSON.stringify(
+        {
+          baseline: { tick: (bRes as any).tick, violations: (bRes as any).violations, role_rewards: (bRes as any).role_rewards },
+          oracle: { tick: (oRes as any).tick, violations: (oRes as any).violations, role_rewards: (oRes as any).role_rewards },
+        },
+        null,
+        2
+      );
+      const msgs = ((oRes as any).messages || []).slice(-6);
+      args.negoEl.textContent = msgs.map((m: any) => `[${m.role}] ${m.text}`).join("\n") || "(no messages)";
+    }
 
     // KPI delta: use evaluate-style summary approximations from obs (lightweight)
     const bKpi = {
@@ -471,5 +559,11 @@ export function startCommandCenter(args: Args) {
   window.setTimeout(() => {
     void initSessions();
   }, 200);
+
+  args.btnJudge.onclick = async () => {
+    judgeMode = true;
+    args.eventsEl.textContent = "(Judge Mode enabled — multi-agent protocol)";
+    await initSessions();
+  };
 }
 

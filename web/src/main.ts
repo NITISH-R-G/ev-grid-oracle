@@ -16,6 +16,7 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
         <button id="btnNew" class="btn">New</button>
         <button id="btnStep" class="btn">Step</button>
         <button id="btnRun" class="btn">Run 60 (cinematic)</button>
+        <button id="btnJudge" class="btn">Judge Mode (MA)</button>
 
         <label class="label">
           Scenario
@@ -103,6 +104,11 @@ document.querySelector<HTMLDivElement>("#app")!.innerHTML = `
           <div class="cardTitle">Event Stream</div>
           <pre id="events" class="mono">(none)</pre>
         </div>
+
+        <div class="card">
+          <div class="cardTitle">Negotiation (Multi-Agent)</div>
+          <pre id="nego" class="mono">(click Judge Mode)</pre>
+        </div>
       </aside>
     </main>
   </div>
@@ -138,4 +144,6 @@ startCommandCenter({
   dreamEl: document.querySelector<HTMLPreElement>("#dream")!,
   oracleEl: document.querySelector<HTMLPreElement>("#oracle")!,
   eventsEl: document.querySelector<HTMLPreElement>("#events")!,
+  negoEl: document.querySelector<HTMLPreElement>("#nego")!,
+  btnJudge: document.querySelector<HTMLButtonElement>("#btnJudge")!,
 });

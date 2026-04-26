@@ -39,6 +39,30 @@ export type DemoStepResponse = {
   forced_action?: boolean;
 };
 
+export type MANewResponse = {
+  session_id: string;
+  obs: any;
+  station_nodes: StationNode[];
+  scenario?: string;
+  seed?: number;
+  sim_version?: string;
+  messages?: any[];
+  grid_directive?: any;
+};
+
+export type MAStepResponse = {
+  session_id: string;
+  obs: any;
+  tick?: number;
+  scenario?: string;
+  grid_directive?: any;
+  fleet_action?: any;
+  resolved_action?: any;
+  violations?: string[];
+  messages?: any[];
+  role_rewards?: any;
+};
+
 async function sleep(ms: number) {
   await new Promise((r) => setTimeout(r, ms));
 }
@@ -104,5 +128,29 @@ export async function demoStep(args: {
   } finally {
     window.clearTimeout(t);
   }
+}
+
+export async function maNew(seed: number, scenario: string = "baseline"): Promise<MANewResponse> {
+  const r = await fetch("/ma/new", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({ seed, scenario }),
+  });
+  if (!r.ok) throw new Error(`maNew failed: ${r.status}`);
+  return (await r.json()) as MANewResponse;
+}
+
+export async function maAutoStep(args: {
+  session_id: string;
+  fleet_policy: "baseline" | "oracle";
+  oracle_lora_repo?: string;
+}): Promise<MAStepResponse> {
+  const r = await fetch("/ma/auto_step", {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify(args),
+  });
+  if (!r.ok) throw new Error(`maAutoStep failed: ${r.status}`);
+  return (await r.json()) as MAStepResponse;
 }
 
