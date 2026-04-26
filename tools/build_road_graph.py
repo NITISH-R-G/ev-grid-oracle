@@ -67,6 +67,7 @@ def main() -> int:
     ap.add_argument("--out", dest="out", default="web/public/maps/bangalore_roads_graph.json")
     ap.add_argument("--meta-out", dest="meta_out", default="web/public/maps/bangalore_roads_build_meta.json")
     ap.add_argument("--snap-decimals", type=int, default=5, help="Coordinate snapping for intersection merging")
+    ap.add_argument("--geom-every", type=int, default=3, help="keep every Nth point in edge geometry (>=1)")
     ap.add_argument("--keep-only-largest-component", action="store_true", default=True)
     args = ap.parse_args()
 
@@ -82,6 +83,7 @@ def main() -> int:
         raise SystemExit("invalid geojson: features[] missing")
 
     snap_decimals = int(args.snap_decimals)
+    geom_every = max(1, int(args.geom_every))
 
     # Pass 1: build point adjacency over snapped coordinates.
     adj: dict[tuple[float, float], set[tuple[float, float]]] = {}
@@ -176,7 +178,11 @@ def main() -> int:
                     "name": name,
                     "dist_m": round(dist_m, 3),
                     "travel_s": round(travel_s, 4),
-                    "geom": [[round(float(x[0]), snap_decimals), round(float(x[1]), snap_decimals)] for x in seg_geom],
+                    "geom": [
+                        [round(float(p[0]), snap_decimals), round(float(p[1]), snap_decimals)]
+                        for idx, p in enumerate(seg_geom)
+                        if geom_every <= 1 or idx in (0, len(seg_geom) - 1) or (idx % geom_every) == 0
+                    ],
                 }
             )
 
@@ -198,6 +204,7 @@ def main() -> int:
         "meta": {
             "source": str(inp.relative_to(ROOT)).replace("\\", "/"),
             "snap_decimals": snap_decimals,
+            "geom_every": geom_every,
             "speed_kmh": SPEED_KMH,
             "keep_only_largest_component": True,
         },
@@ -254,6 +261,7 @@ def main() -> int:
         "output": {"path": str(out.relative_to(ROOT)).replace("\\", "/"), "sha256": sha_out},
         "params": {
             "snap_decimals": snap_decimals,
+            "geom_every": geom_every,
             "keep_only_largest_component": True,
             "speed_kmh": SPEED_KMH,
         },
