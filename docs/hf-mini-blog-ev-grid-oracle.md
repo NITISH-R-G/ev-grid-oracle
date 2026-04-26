@@ -80,6 +80,12 @@ The first notebook cell **clones this repository** and runs `pip install -e .` s
 
 ---
 
+## Submission bundle (last push)
+
+For reviewers who want **env + scripts + logs** in one place: **[`docs/submission/training-artifacts-and-logs.md`](submission/training-artifacts-and-logs.md)** (TensorBoard / `trainer_state.json`, eval JSON, what to commit). Under–2 minute **video shot list**: [`docs/submission/youtube-under-2min-outline.md`](submission/youtube-under-2min-outline.md).
+
+---
+
 ## Links (canonical)
 
 - **GitHub:** `https://github.com/NITISH-R-G/ev-grid-oracle`  

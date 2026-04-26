@@ -22,3 +22,8 @@ web/node_modules/
 web/dist/
 web/dist-ssr/
 
+# Local GRPO / adapter outputs (export curves or tail logs to artifacts/; see docs/submission/training-artifacts-and-logs.md)
+ev_oracle_grpo_road/
+ev_oracle_lora/
+ev_oracle_merged_16bit/
+

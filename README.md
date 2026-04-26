@@ -72,10 +72,21 @@ An **OpenEnv RL environment** that simulates Bangalore’s EV charging grid and 
 - **Colab (opens `main` notebook on a clean VM)**: `https://colab.research.google.com/github/NITISH-R-G/ev-grid-oracle/blob/main/training/train_grpo.ipynb`
 - **Notebook source (same file as Colab)**: `https://github.com/NITISH-R-G/ev-grid-oracle/blob/main/training/train_grpo.ipynb`
 - **HF mini-blog / article (markdown in this repo — paste into a Hub post or link raw)**: `https://github.com/NITISH-R-G/ev-grid-oracle/blob/main/docs/hf-mini-blog-ev-grid-oracle.md`
-- **2‑minute video**: TODO (YouTube/HF post link)
+- **2‑minute video**: TODO (YouTube/HF post link) — shot list: [`docs/submission/youtube-under-2min-outline.md`](docs/submission/youtube-under-2min-outline.md)
 - **LoRA repo**: `https://huggingface.co/NITISHRG15102007/ev-oracle-lora`
 
 **Submission tips:** Hugging Face accepts long-form writeups as **markdown in your repo** (see `docs/hf-mini-blog-ev-grid-oracle.md`). Keep the **Colab link** and **GitHub `.ipynb` link** both in the README so judges can open Colab directly or review the notebook on GitHub. The training notebook’s **first code cell clones this repo and `pip install -e .`** so Colab runs stay reproducible.
+
+### Submission bundle (env + training scripts + logs)
+
+| Deliverable | Where |
+|-------------|--------|
+| Shared **environment** | HF Space + `openenv.yaml` (links above) |
+| **Training script** | [`training/train_grpo.ipynb`](training/train_grpo.ipynb) (+ Colab quick link) |
+| **Eval / fair-stats scripts** | `training/evaluate.py`, `training/fair_eval.py`, `training/make_plots.py` |
+| **Training logs** (GRPO) | TensorBoard under `ev_oracle_grpo_road/` during a run; export PNGs or a console tail — **[`docs/submission/training-artifacts-and-logs.md`](docs/submission/training-artifacts-and-logs.md)** |
+| **Eval evidence** (JSON + plots) | `training/eval_results.json`, `artifacts/fair_eval_results.json`, `artifacts/*.png` |
+| **Video storyboard** | [`docs/submission/youtube-under-2min-outline.md`](docs/submission/youtube-under-2min-outline.md) |
 
 ### Official hackathon resources (OpenEnv + HF + tutorials)
 
@@ -248,7 +259,7 @@ python training/make_plots.py --eval-json training/eval_results.json --fair-json
 
 ### GRPO training curves (loss / reward vs step)
 
-TRL / Unsloth logs are most trustworthy when exported from a real run. In `training/train_grpo.ipynb`, set `report_to=["tensorboard"]` in `GRPOConfig`, train on GPU, then add **exported PNGs** (e.g. `artifacts/grpo_reward_mean.png`, `artifacts/grpo_loss.png`) here and commit — judges reward **labeled axes** and **same-run** comparisons.
+TRL / Unsloth logs are most trustworthy when exported from a real run. In `training/train_grpo.ipynb`, `GRPOConfig` uses `report_to=["tensorboard"]` (logs under `ev_oracle_grpo_road/`). Train on GPU, then add **exported PNGs** (e.g. `artifacts/grpo_reward_mean.png`, `artifacts/grpo_loss.png`) or a console tail under `artifacts/training_logs/` — see [`docs/submission/training-artifacts-and-logs.md`](docs/submission/training-artifacts-and-logs.md). Judges reward **labeled axes** and **same-run** comparisons.
 
 Note: On CPU-only machines, loading a 3B model can be slow or fail; use **Colab GPU** for final “evidence of learning” artifacts and training curves.
 
@@ -293,7 +304,7 @@ python -m uvicorn server.app:app --host 0.0.0.0 --port 8000
 
 - [ ] **OpenEnv (current stack):** `openenv.yaml` + `openenv-core` per `pyproject.toml`; env runnable from **HF Space URL** (submit this URL).
 - [ ] **Training:** Colab **or** repo path — [`training/train_grpo.ipynb`](training/train_grpo.ipynb) + [Open in Colab](https://colab.research.google.com/github/NITISH-R-G/ev-grid-oracle/blob/main/training/train_grpo.ipynb) using **Unsloth / TRL**.
-- [ ] **Evidence of real training:** committed **readable plots** (axes interpretable) — full **Evidence & visualizations** gallery above + optional GRPO TensorBoard exports; link Wandb/Trackio **per run** if you use them.
+- [ ] **Evidence of real training:** committed **readable plots** (axes interpretable) — full **Evidence & visualizations** gallery above + **GRPO logs** (TensorBoard screenshots and/or `artifacts/training_logs/` — see [`docs/submission/training-artifacts-and-logs.md`](docs/submission/training-artifacts-and-logs.md)); link Wandb/Trackio **per run** if you use them.
 - [ ] **Writeup:** **HF mini-blog** ([`docs/hf-mini-blog-ev-grid-oracle.md`](docs/hf-mini-blog-ev-grid-oracle.md)) **or** an **under 2 minute** video (YouTube/HF) — **link only** (no large video files in the Space repo).
 - [ ] **README:** motivates **problem**, explains **env + reward**, shows **results**, says **why it matters**; includes **Space + Colab + blog/video + LoRA** links (see Quick links).
 - [ ] **One submission per team:** freeze the Space URL you give judges; avoid post-deadline reliance on unpinned `main` unless rules allow.
