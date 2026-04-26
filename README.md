@@ -24,6 +24,22 @@ An **OpenEnv RL environment** that simulates Bangalore’s EV charging grid and 
 
 **Dual framing:** OpenEnv Hackathon + AI for Bharat (BESCOM Theme 9).
 
+### Judges — non‑negotiables (all links in one place)
+
+Submissions are expected to meet the official checklist **with public URLs only** (do **not** commit large video binaries to the Hub Space repo).
+
+| Requirement | Where |
+|---------------|--------|
+| **OpenEnv (build on the framework)** | This repo uses **`openenv-core>=0.2.3`** on [PyPI](https://pypi.org/project/openenv-core/) (current release line), plus [`openenv.yaml`](openenv.yaml) and the FastAPI server under `server/`. |
+| **Runnable env on Hugging Face Spaces** | [**Space (card)**](https://huggingface.co/spaces/NITISHRG15102007/ev-grid-oracle) · [**Live app**](https://nitishrg15102007-ev-grid-oracle.hf.space) |
+| **Training script (TRL + Unsloth, re‑runnable)** | [**Open in Colab**](https://colab.research.google.com/github/NITISH-R-G/ev-grid-oracle/blob/main/training/train_grpo.ipynb) · [Notebook on GitHub](https://github.com/NITISH-R-G/ev-grid-oracle/blob/main/training/train_grpo.ipynb) · same file in repo: [`training/train_grpo.ipynb`](training/train_grpo.ipynb) |
+| **Evidence of real training (loss + reward)** | After a GPU run, TensorBoard logs land in `ev_oracle_grpo_road/`. Export PNGs: `python tools/export_grpo_tensorboard_plots.py --logdir ev_oracle_grpo_road --out-dir artifacts` → commit **`artifacts/grpo_loss.png`** and **`artifacts/grpo_reward.png`** (see [training artifacts doc](docs/submission/training-artifacts-and-logs.md)). *Until those exist from your run, add them before final submission.* |
+| **Mini‑blog or under‑2‑minute video (link only)** | **Writeup:** [HF mini‑blog source (markdown)](https://github.com/NITISH-R-G/ev-grid-oracle/blob/main/docs/hf-mini-blog-ev-grid-oracle.md) — paste into a Hub post or link the raw file. **Video:** *add your YouTube/HF public URL when ready* — shot list: [`docs/submission/youtube-under-2min-outline.md`](docs/submission/youtube-under-2min-outline.md). |
+| **Adapter weights (optional but linked)** | [LoRA on Hub](https://huggingface.co/NITISHRG15102007/ev-oracle-lora) |
+| **Extra materials** | Judge kit: [`docs/judge-kit/credit-assessment-pattern-map.md`](docs/judge-kit/credit-assessment-pattern-map.md) · official resources: [`docs/hackathon-official-resources.md`](docs/hackathon-official-resources.md) |
+
+**Eval / behavior evidence (complements GRPO curves):** paired baseline vs oracle plots live under `artifacts/` (see [Evidence & visualizations](#evidence--visualizations-baseline-vs-oracle--judge-pack) below).
+
 ### How this maps to judging (40 / 30 / 20 / 10)
 
 | Criterion (weight) | What judges ask | Where we answer |
@@ -259,7 +275,7 @@ python training/make_plots.py --eval-json training/eval_results.json --fair-json
 
 ### GRPO training curves (loss / reward vs step)
 
-TRL / Unsloth logs are most trustworthy when exported from a real run. In `training/train_grpo.ipynb`, `GRPOConfig` uses `report_to=["tensorboard"]` (logs under `ev_oracle_grpo_road/`). Train on GPU, then add **exported PNGs** (e.g. `artifacts/grpo_reward_mean.png`, `artifacts/grpo_loss.png`) or a console tail under `artifacts/training_logs/` — see [`docs/submission/training-artifacts-and-logs.md`](docs/submission/training-artifacts-and-logs.md). Judges reward **labeled axes** and **same-run** comparisons.
+TRL / Unsloth logs are most trustworthy when exported from a real run. In `training/train_grpo.ipynb`, `GRPOConfig` uses `report_to=["tensorboard"]` (logs under `ev_oracle_grpo_road/`). Train on GPU, then add **exported PNGs** (`artifacts/grpo_loss.png`, `artifacts/grpo_reward.png` via `tools/export_grpo_tensorboard_plots.py` or TensorBoard screenshots) or a console tail under `artifacts/training_logs/` — see [`docs/submission/training-artifacts-and-logs.md`](docs/submission/training-artifacts-and-logs.md). Judges reward **labeled axes** and **same-run** comparisons.
 
 Note: On CPU-only machines, loading a 3B model can be slow or fail; use **Colab GPU** for final “evidence of learning” artifacts and training curves.
 

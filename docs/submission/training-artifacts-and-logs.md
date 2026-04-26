@@ -44,7 +44,9 @@ In [`training/train_grpo.ipynb`](../../training/train_grpo.ipynb), `GRPOConfig` 
 
 **What to commit for judges (pick one or more):**
 
-1. **TensorBoard PNGs** — open TensorBoard on the run folder, screenshot *reward* and *loss* curves with **labeled axes**, save as e.g. `artifacts/grpo_reward_mean.png`, `artifacts/grpo_loss.png`, and commit.  
+1. **TensorBoard PNGs** — open TensorBoard on the run folder and screenshot *reward* and *loss*, **or** run  
+   `python tools/export_grpo_tensorboard_plots.py --logdir ev_oracle_grpo_road --out-dir artifacts`  
+   (requires `pip install tensorboard matplotlib`, or `pip install -e ".[dev]"` from repo root) to emit `artifacts/grpo_loss.png` and `artifacts/grpo_reward.png`, then commit.  
 2. **Short text log** — paste the last ~50 lines of Colab output (step, reported reward) into `artifacts/training_logs/colab_console_tail.txt` (create the folder).  
 3. **Hub / W&B / Trackio** — if you log to a hosted run, add the **run URL** to [`README.md`](../../README.md) *Quick links*.
 

@@ -12,6 +12,8 @@ pinned: false
 
 **TL;DR:** We built an **OpenEnv**-style environment that simulates EV charging stress on a city graph, exposed it on **Hugging Face Spaces**, and trained a small **Qwen2.5‑3B** policy with **TRL GRPO** using **verifier-style rewards** (strict action schema + reward breakdown + anti-cheat flags). Judges can replay **paired** baseline vs oracle episodes on the **same seeds** and read **Wilson + McNemar** summaries from `training/fair_eval.py`.
 
+**One‑screen checklist (Space, Colab, plots, writeup):** see the **“Judges — non‑negotiables”** table in the repo root [`README.md`](https://github.com/NITISH-R-G/ev-grid-oracle/blob/main/README.md).
+
 ---
 
 ## OpenEnv Hackathon themes (how we fit)

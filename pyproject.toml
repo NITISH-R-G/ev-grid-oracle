@@ -15,6 +15,7 @@ dependencies = [
 dev = [
   "pytest>=8.0",
   "matplotlib>=3.8",
+  "tensorboard>=2.14",
 ]
 demo = [
   "gradio>=4.44",
