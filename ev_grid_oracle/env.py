@@ -22,6 +22,7 @@ from .models import (
 )
 from .reward import compute_reward
 from .reward_hack import RewardHackDetector
+from .bescom_feed import BESCOMFeedAPI
 from .scenarios import ScenarioEvent, ScenarioModifiers, ScenarioName, apply_scenario_events, scenario_schedule
 
 
@@ -45,10 +46,13 @@ class EVGridCore:
     _scenario_mods: ScenarioModifiers = field(default_factory=ScenarioModifiers)
     last_scenario_events: list[ScenarioEvent] = field(default_factory=list)
     _hack_detector: RewardHackDetector = field(default_factory=RewardHackDetector)
+    _bescom: BESCOMFeedAPI = field(default_factory=BESCOMFeedAPI)
+    _seed_for_bescom: int = 0
 
     def reset(self, *, seed: Optional[int] = None, scenario: ScenarioName = "baseline") -> EVGridObservation:
         if seed is not None:
             self.rng.seed(seed)
+            self._seed_for_bescom = int(seed)
         self.step_count = 0
         self.scenario = scenario
         self._scenario_schedule = scenario_schedule(scenario)
@@ -107,6 +111,10 @@ class EVGridCore:
             minute_of_day=minute_of_day,
             day_type=day_type,
             peak_risk=peak_risk,
+        )
+        # BESCOM feeder snapshot (deterministic mock)
+        self._grid_state.bescom_feeders = self._bescom.snapshot(
+            state=self._grid_state, tick=self.step_count, scenario=str(self.scenario), seed=self._seed_for_bescom
         )
 
         _update_station_waits(self._grid_state, step_minutes=self.step_minutes)
@@ -178,6 +186,11 @@ class EVGridCore:
         prev_state.grid_load_pct = max(0.0, min(1.0, grid_load + float(self._scenario_mods.grid_load_delta)))
         prev_state.renewable_pct = renewable
         prev_state.peak_risk = _peak_risk(prev_state.grid_load_pct)
+
+        # Update BESCOM feeder snapshot for this tick.
+        prev_state.bescom_feeders = self._bescom.snapshot(
+            state=prev_state, tick=self.step_count, scenario=str(self.scenario), seed=self._seed_for_bescom
+        )
 
         # 5) wait estimates + reward
         _update_station_waits(prev_state, step_minutes=self.step_minutes)
@@ -328,7 +341,15 @@ def _build_prompt(state: GridState) -> str:
         f"Time: {state.hour:02d}:00 | Day: {state.day_type.value} | Grid Load: {state.grid_load_pct*100:.1f}% | Renewable: {state.renewable_pct*100:.1f}%"
     )
     lines.append(f"Peak Risk: {state.peak_risk.value}")
+    if state.bescom_feeders:
+        hot = max(state.bescom_feeders, key=lambda f: float(f.load_pct - f.limit_pct))
+        lines.append(f"BESCOM Feeder Hotspot: {hot.feeder_id} ({hot.zone}) {hot.load_pct*100:.1f}% / limit {hot.limit_pct*100:.1f}%")
     lines.append("")
+    if state.bescom_feeders:
+        lines.append("BESCOM FEEDERS (mock): [feeder_id | zone | load | limit]")
+        for f in state.bescom_feeders[:6]:
+            lines.append(f"{f.feeder_id} | {f.zone} | {f.load_pct*100:.0f}% | {f.limit_pct*100:.0f}%")
+        lines.append("")
     lines.append("CHARGING STATIONS:")
     lines.append("[station_id | type | load | queue | price]")
     for s in state.stations[:10]:

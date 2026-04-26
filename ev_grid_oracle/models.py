@@ -76,6 +76,19 @@ class EVRequest(BaseModel):
     max_wait_minutes: int = Field(..., ge=0)
 
 
+class BESCOMFeederState(BaseModel):
+    """
+    Lightweight, judge-friendly feeder snapshot (mocked but deterministic).
+    """
+
+    model_config = ConfigDict(extra="forbid")
+
+    feeder_id: str
+    zone: str
+    load_pct: float = Field(..., ge=0.0, le=1.0)
+    limit_pct: float = Field(..., ge=0.0, le=1.0)
+
+
 class GridState(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
@@ -87,6 +100,7 @@ class GridState(BaseModel):
     minute_of_day: int = Field(0, ge=0, le=24 * 60 - 1)
     day_type: DayType
     peak_risk: PeakRisk
+    bescom_feeders: list[BESCOMFeederState] = Field(default_factory=list, max_length=12)
 
 
 class EVGridAction(Action):
