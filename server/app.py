@@ -258,6 +258,78 @@ def ma_new(payload: MANewRequest = Body(...)) -> dict[str, Any]:
     }
 
 
+def _grid_policy(st) -> tuple[GridDirective, NegotiationMessage]:
+    # Deterministic grid-side directive: tighten budget during high/critical risk,
+    # and blacklist top-loaded stations to prevent local overload.
+    peak = getattr(st, "peak_risk", None)
+    max_grid = 0.92
+    if peak and str(peak.value) == "high":
+        max_grid = 0.88
+    if peak and str(peak.value) == "critical":
+        max_grid = 0.84
+    # blacklist top-2 load stations
+    stations = list(getattr(st, "stations", []) or [])
+    top = sorted(stations, key=lambda s: (s.occupied_slots / max(1, s.total_slots), s.queue_length), reverse=True)[:2]
+    bl = [s.station_id for s in top]
+    d = GridDirective(max_grid_load_pct=float(max_grid), station_blacklist=bl, price_mult=1.0)
+    msg = NegotiationMessage(role="grid", text=f"Keep grid<= {max_grid:.2f}. Avoid {', '.join(bl) if bl else 'none'}.")
+    return d, msg
+
+
+class MAAutoStepRequest(BaseModel):
+    session_id: str
+    fleet_policy: Literal["baseline", "oracle"] = "baseline"
+    oracle_lora_repo: str = ""
+
+
+@app.post("/ma/auto_step")
+def ma_auto_step(payload: MAAutoStepRequest = Body(...)) -> dict[str, Any]:
+    """
+    Convenience endpoint for the demo UI: server computes both roles' actions/messages
+    while still using the explicit multi-agent protocol internally.
+    """
+    sess = _ma_get(payload.session_id)
+    if sess is None:
+        raise HTTPException(status_code=404, detail="Unknown session_id")
+    st = sess.core._grid_state
+    if st is None:
+        raise HTTPException(status_code=400, detail="Session not initialized")
+
+    directive, grid_msg = _grid_policy(st)
+
+    if payload.fleet_policy == "baseline":
+        fleet_action = baseline_policy(st, sess.core.city_graph)
+        fleet_msg = NegotiationMessage(role="fleet", text="Routing using heuristic baseline under grid constraints.")
+    else:
+        action, _txt, active, timed_out, skipped = _demo_oracle_act_with_guard(st=st, core=sess.core, oracle_lora_repo=payload.oracle_lora_repo)
+        fleet_action = action
+        tag = "LLM" if active else "fallback"
+        fleet_msg = NegotiationMessage(role="fleet", text=f"Routing with oracle ({tag}).")
+
+    obs = sess.step(
+        grid_directive=directive,
+        fleet_action=fleet_action,
+        grid_message=grid_msg,
+        fleet_message=fleet_msg,
+    )
+    directive_ok = len(sess.last_violations) == 0
+    meaningful = True
+    rr = split_role_rewards(obs.reward_breakdown, grid_directive_ok=directive_ok, has_meaningful_messages=meaningful)
+
+    return {
+        "session_id": payload.session_id,
+        "obs": obs.model_dump(mode="json"),
+        "tick": sess.core.step_count,
+        "scenario": sess.core.scenario,
+        "grid_directive": directive.model_dump(mode="json"),
+        "fleet_action": fleet_action.model_dump(mode="json"),
+        "resolved_action": sess.last_resolved_action.model_dump(mode="json") if sess.last_resolved_action else fleet_action.model_dump(mode="json"),
+        "violations": list(sess.last_violations),
+        "messages": [m.model_dump(mode="json") for m in sess.messages[-50:]],
+        "role_rewards": rr,
+    }
+
+
 @app.get("/ma/state")
 def ma_state(session_id: str = Query(...)) -> dict[str, Any]:
     t0 = time.time()
