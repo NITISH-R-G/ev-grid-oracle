@@ -292,7 +292,37 @@ export class MapView {
     }
 
     this.renderStatic();
+    this.fitViewToRoute(poly);
     this.kickAnim();
+  }
+
+  /** Tight camera frame around the active route so Step feels like Ola/Uber navigation, not a whole-city mess. */
+  private fitViewToRoute(poly: [number, number][]) {
+    if (!poly.length) return;
+    let minLng = poly[0][0];
+    let maxLng = poly[0][0];
+    let minLat = poly[0][1];
+    let maxLat = poly[0][1];
+    for (const [lng, lat] of poly) {
+      minLng = Math.min(minLng, lng);
+      maxLng = Math.max(maxLng, lng);
+      minLat = Math.min(minLat, lat);
+      maxLat = Math.max(maxLat, lat);
+    }
+    const padLng = Math.max(0.002, (maxLng - minLng) * 0.12);
+    const padLat = Math.max(0.002, (maxLat - minLat) * 0.12);
+    const sw: [number, number] = [minLng - padLng, minLat - padLat];
+    const ne: [number, number] = [maxLng + padLng, maxLat + padLat];
+    try {
+      this.map.fitBounds([sw, ne] as any, {
+        padding: { top: 56, bottom: 56, left: 56, right: 56 },
+        duration: 700,
+        maxZoom: 15.2,
+        minZoom: 11.2,
+      });
+    } catch {
+      // ignore map timing errors
+    }
   }
 
   private kickAnim() {
