@@ -26,7 +26,9 @@ class RewardHackDetector:
         self.last_station_id = None
         self.station_streak = 0
 
-    def step(self, *, prev: GridState, action: EVGridAction, next: GridState) -> tuple[dict[str, float], list[str], dict[str, str]]:
+    def step(
+        self, *, prev: GridState, action: EVGridAction, next_state: GridState
+    ) -> tuple[dict[str, float], list[str], dict[str, str]]:
         rb: dict[str, float] = {}
         flags: list[str] = []
         details: dict[str, str] = {}
@@ -59,7 +61,7 @@ class RewardHackDetector:
 
             # If queue is growing while we keep piling onto same station, flag it.
             st_prev = next((s for s in prev.stations if s.station_id == sid), None)
-            st_next = next((s for s in next.stations if s.station_id == sid), None)
+            st_next = next((s for s in next_state.stations if s.station_id == sid), None)
             if st_prev and st_next:
                 grew = int(st_next.queue_length) > int(st_prev.queue_length)
                 if self.station_streak >= 3 and (int(st_next.queue_length) >= 6 or grew):

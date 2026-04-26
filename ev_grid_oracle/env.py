@@ -214,7 +214,7 @@ class EVGridCore:
         )
 
         # Stateful reward-hack detection (multi-step exploits).
-        hack_rb, hack_flags, hack_details = self._hack_detector.step(prev=pre_action_state, action=action, next=prev_state)
+        hack_rb, hack_flags, hack_details = self._hack_detector.step(prev=pre_action_state, action=action, next_state=prev_state)
         reward_breakdown = {**reward_breakdown, **hack_rb}
         for f in hack_flags:
             if f not in anti_flags:
