@@ -45,7 +45,10 @@ Non-goals (for hackathon scope):
   - multiplied by traffic multiplier
   - optional intersection penalty (small) to bias smoother routes
 - Reroute cadence:
-  - every **6 ticks**, with per-vehicle jitter \(\pm 1\) tick to avoid robotic sync
+  - every **6 ticks**, with **deterministic** per-vehicle jitter in \(\{-1,0,+1\}\) computed as:
+    - `jitter = hash32(seed, scenario, ev_id) % 3 - 1`
+    - `reroute_tick = (tick % 6 == (3 + jitter))`
+  - This MUST be stable across restarts and independent of vehicle iteration order.
 
 Pros: reliable, easy to demo, no external deps, judge-friendly determinism.  
 Cons: traffic is synthetic (but believable).
@@ -67,6 +70,27 @@ Cons: not convincing; agents can’t optimize against it.
 We choose **Option A**.
 
 ## System design
+
+### API contract (authoritative, versioned)
+
+All server step responses that include traffic-aware mobility MUST include:
+
+- `tick`: int (monotonic sim tick)
+- `tick_dt_s`: float (seconds per tick; constant per scenario)
+- `schema_version`: string (e.g. `"traffic-v1"`)
+
+**Route event (per `ev_id`)**
+
+- `ev_id`: string
+- `polyline`: array of `[lng, lat]` (WGS84)
+- `eta_s`: float (seconds; computed by server using the same edge weights used for routing at this `tick`)
+- `reroute_reason`: string | null (one of: `"periodic"`, `"traffic_spike"`, `"queue_growth"`, `"grid_constraint"`)
+
+**Traffic snapshot (`traffic`)** (used for rendering only; routing uses the same underlying model)
+
+- `traffic.encoding`: string (one of: `"edge_mult_v1"`)
+- `traffic.edges`: array of `{ edge_id: int, m_q: int }` where `m = m_q / 1000.0` and `m` is clamped to `[0.35, 1.15]`
+- `traffic.edge_id` MUST match the server’s directed edge index used by the router for the current road graph build.
 
 ### Data model
 
@@ -136,6 +160,10 @@ Module: `web/src/map/MapView.ts` (existing)
 - Must handle **100–500 vehicles**:
   - keep current vehicle cap + TTL logic (clean map)
   - avoid rebuilding static layers every frame
+- Traffic payload + render stability:
+  - **Traffic payload budget**: `traffic` MUST be ≤ **200 KB per tick** at 500 vehicles. If exceeded, server MUST fall back to updating every 2 ticks and/or sending only edges near active vehicles’ route corridors.
+  - **Spatial filtering rule**: server sends traffic only for edges whose midpoint is within **R meters** (configurable; default 750m) of any active vehicle position or any point along its current route polyline (sampled).
+  - **Client caching**: frontend MUST treat missing edges as `m = 1.0` and cache the last received multiplier per `edge_id` until replaced (to avoid flicker).
 - HF Spaces:
   - no external traffic APIs
   - deterministic simulation for reproducible demos
