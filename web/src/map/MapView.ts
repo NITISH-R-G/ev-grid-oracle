@@ -446,9 +446,10 @@ export class MapView {
     };
     const roadWidth = (hw: string) => (hw === "primary" ? 2.4 : hw === "secondary" ? 1.8 : 1.2);
 
-    const routeCore = this.side === "oracle" ? [35, 231, 255, 245] : [232, 236, 255, 235];
-    const routeCasing = [0, 0, 0, 190];
-    const routeGlow = this.side === "oracle" ? [35, 231, 255, 110] : [232, 236, 255, 90];
+    // Thin core + sharp-edged halo/casing: thick lines with round caps/joints draw a "bead" at every vertex.
+    const routeCore = this.side === "oracle" ? [55, 240, 255, 255] : [240, 244, 255, 250];
+    const routeCasing = [8, 10, 18, 235];
+    const routeHalo = this.side === "oracle" ? [35, 200, 230, 55] : [200, 210, 245, 45];
 
     const layers = [
       new PathLayer({
@@ -464,17 +465,16 @@ export class MapView {
         pickable: false,
         parameters: { depthTest: false },
       }),
-      // Big outer glow so route is visible on dark basemap.
+      // Soft halo: butt caps + miter joints so wide stroke does not blob at vertices.
       new PathLayer({
-        id: `route-glow-${this.side}`,
+        id: `route-halo-${this.side}`,
         data: this.activeRoute.length ? [{ path: this.activeRoute }] : [],
         getPath: (d: any) => d.path,
-        getColor: routeGlow as any,
-        getWidth: 22,
+        getColor: routeHalo as any,
+        getWidth: 7,
         widthUnits: "pixels",
-        rounded: true,
-        capRounded: true,
-        jointRounded: true,
+        capRounded: false,
+        jointRounded: false,
         pickable: false,
         parameters: { depthTest: false },
       }),
@@ -483,11 +483,10 @@ export class MapView {
         data: this.activeRoute.length ? [{ path: this.activeRoute }] : [],
         getPath: (d: any) => d.path,
         getColor: routeCasing as any,
-        getWidth: 12,
+        getWidth: 5,
         widthUnits: "pixels",
-        rounded: true,
-        capRounded: true,
-        jointRounded: true,
+        capRounded: false,
+        jointRounded: false,
         pickable: false,
         parameters: { depthTest: false },
       }),
@@ -496,7 +495,7 @@ export class MapView {
         data: this.activeRoute.length ? [{ path: this.activeRoute }] : [],
         getPath: (d: any) => d.path,
         getColor: routeCore as any,
-        getWidth: 7,
+        getWidth: 2.75,
         widthUnits: "pixels",
         rounded: true,
         capRounded: true,
