@@ -40,6 +40,8 @@ from ev_grid_oracle.scenarios import ScenarioName
 from ev_grid_oracle.world_model_verifier import rollout_deterministic_5ticks, score_prediction
 from ev_grid_oracle.multi_agent import MultiAgentSession
 from server.ev_grid_environment import EVGridEnvironment
+from server.ev_grid_road_environment import EVGridRoadEnvironment
+from ev_grid_oracle.road_models import RoadAction, RoadObservation
 from server.role_metrics import compute_role_kpis, compute_role_reward_breakdown, summarize_action
 
 log = logging.getLogger("ev-grid-oracle")
@@ -110,6 +112,10 @@ def _demo_oracle_act_with_guard(
 
 
 app = create_app(EVGridEnvironment, EVGridAction, EVGridObservation, env_name="ev-grid-oracle", max_concurrent_envs=1)
+
+# Mount a separate “real road graph” RL environment under /road/.
+road_app = create_app(EVGridRoadEnvironment, RoadAction, RoadObservation, env_name="ev-grid-oracle-road", max_concurrent_envs=1)
+app.mount("/road", road_app)
 
 _WEB_DIST = (Path(__file__).resolve().parents[1] / "web" / "dist").resolve()
 if _WEB_DIST.exists():
