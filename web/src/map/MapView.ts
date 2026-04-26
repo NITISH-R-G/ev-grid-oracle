@@ -42,6 +42,12 @@ export class MapView {
   private vehiclePos: [number, number] | null = null; // [lng,lat]
   private vehicleHeadingDeg = 0;
   private follow = false;
+  private raf: number | null = null;
+  private lastTs: number | null = null;
+  private routeCumM: number[] = [];
+  private routeTotalM = 0;
+  private routeProgM = 0;
+  private staticLayers: any[] = [];
 
   constructor(mount: HTMLElement) {
     // MapLibre requires a real element size; ensure mount is empty.
@@ -75,6 +81,7 @@ export class MapView {
 
   destroy() {
     try {
+      if (this.raf != null) cancelAnimationFrame(this.raf);
       this.map.remove();
     } catch {
       // ignore
@@ -83,7 +90,7 @@ export class MapView {
 
   setSide(side: "baseline" | "oracle") {
     this.side = side;
-    this.render();
+    this.renderStatic();
   }
 
   setFollowVehicle(on: boolean) {
@@ -117,7 +124,7 @@ export class MapView {
     }
 
     (this as any)._roads = paths;
-    this.render();
+    this.renderStatic();
   }
 
   async playExternalEvent(event: any) {
@@ -127,16 +134,101 @@ export class MapView {
     this.activeRoute = poly;
     this.vehiclePos = poly[0];
 
-    // approximate heading from first segment
-    const [a, b] = [poly[0], poly[1]];
-    const dx = b[0] - a[0];
-    const dy = b[1] - a[1];
-    this.vehicleHeadingDeg = (Math.atan2(dy, dx) * 180) / Math.PI;
+    // Precompute cumulative meters for time-based interpolation
+    this.routeCumM = [0];
+    let acc = 0;
+    for (let i = 1; i < poly.length; i++) {
+      const a = poly[i - 1];
+      const b = poly[i];
+      acc += this.haversineM(a[1], a[0], b[1], b[0]); // lat,lng
+      this.routeCumM.push(acc);
+    }
+    this.routeTotalM = acc;
+    this.routeProgM = 0;
 
-    this.render();
+    // Rebuild static layers (roads/stations/route) once; vehicle anim updates icon only.
+    this.renderStatic();
+    this.kickAnim();
   }
 
-  private render() {
+  private kickAnim() {
+    if (this.raf != null) cancelAnimationFrame(this.raf);
+    this.lastTs = null;
+    const tick = (ts: number) => {
+      if (this.lastTs == null) this.lastTs = ts;
+      const dt = Math.max(0, Math.min(0.05, (ts - this.lastTs) / 1000));
+      this.lastTs = ts;
+
+      // Simple speed model (can be upgraded to per-road-type later).
+      const speedMps = this.side === "oracle" ? 14.5 : 10.5; // ~52km/h vs ~38km/h
+      this.routeProgM = Math.min(this.routeTotalM, this.routeProgM + speedMps * dt);
+
+      const p = this.pointAt(this.routeProgM);
+      if (p) {
+        this.vehiclePos = p.pos;
+        this.vehicleHeadingDeg = p.headingDeg;
+        this.renderVehicleOnly();
+        if (this.follow && this.vehiclePos) this.map.easeTo({ center: this.vehiclePos, duration: 120 });
+      }
+
+      if (this.routeProgM < this.routeTotalM) {
+        this.raf = requestAnimationFrame(tick);
+      } else {
+        this.raf = null;
+      }
+    };
+    this.raf = requestAnimationFrame(tick);
+  }
+
+  private pointAt(m: number): { pos: [number, number]; headingDeg: number } | null {
+    if (!this.activeRoute.length || this.routeCumM.length !== this.activeRoute.length) return null;
+    if (m <= 0) {
+      const a = this.activeRoute[0];
+      const b = this.activeRoute[1];
+      return { pos: a, headingDeg: this.headingDeg(a, b) };
+    }
+    if (m >= this.routeTotalM) {
+      const n = this.activeRoute.length;
+      const a = this.activeRoute[n - 2];
+      const b = this.activeRoute[n - 1];
+      return { pos: b, headingDeg: this.headingDeg(a, b) };
+    }
+    // Find segment
+    let i = 1;
+    while (i < this.routeCumM.length && this.routeCumM[i] < m) i++;
+    const i0 = Math.max(1, i);
+    const a = this.activeRoute[i0 - 1];
+    const b = this.activeRoute[i0];
+    const m0 = this.routeCumM[i0 - 1];
+    const m1 = this.routeCumM[i0];
+    const t = m1 <= m0 ? 0 : (m - m0) / (m1 - m0);
+    const lng = a[0] + (b[0] - a[0]) * t;
+    const lat = a[1] + (b[1] - a[1]) * t;
+    return { pos: [lng, lat], headingDeg: this.headingDeg(a, b) };
+  }
+
+  private headingDeg(a: [number, number], b: [number, number]) {
+    const dx = b[0] - a[0];
+    const dy = b[1] - a[1];
+    return (Math.atan2(dy, dx) * 180) / Math.PI;
+  }
+
+  private haversineM(lat1: number, lng1: number, lat2: number, lng2: number) {
+    const R = 6371000;
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLng = ((lng2 - lng1) * Math.PI) / 180;
+    const sLat1 = (lat1 * Math.PI) / 180;
+    const sLat2 = (lat2 * Math.PI) / 180;
+    const a = Math.sin(dLat / 2) ** 2 + Math.cos(sLat1) * Math.cos(sLat2) * Math.sin(dLng / 2) ** 2;
+    return 2 * R * Math.asin(Math.sqrt(a));
+  }
+
+  private renderVehicleOnly() {
+    const vehicleLayer = this.makeVehicleLayer();
+    this.overlay.setProps({ layers: [...this.staticLayers, vehicleLayer] });
+  }
+
+  private renderStatic() {
     const roads: { path: [number, number][]; highway: string }[] = (this as any)._roads || [];
     const roadColor = (hw: string) => {
       if (hw === "motorway" || hw === "trunk" || hw === "primary") return [230, 235, 255, 55] as any;
@@ -211,26 +303,40 @@ export class MapView {
         parameters: { depthTest: false },
       }),
       new IconLayer({
-        id: `vehicle-${this.side}`,
-        data: this.vehiclePos ? [{ pos: this.vehiclePos, angle: this.vehicleHeadingDeg }] : [],
+        // placeholder; replaced on every tick by renderVehicleOnly
+        id: `vehicle-placeholder-${this.side}`,
+        data: [],
         iconAtlas: CAR_ICON_ATLAS,
         iconMapping: { car: { x: 0, y: 0, width: 64, height: 64, mask: false, anchorY: 52 } },
         getIcon: () => "car",
         sizeUnits: "pixels",
         getSize: 34,
-        getPosition: (d: any) => d.pos,
-        getAngle: (d: any) => d.angle,
+        getPosition: (d: any) => (d as any).pos,
+        getAngle: (d: any) => (d as any).angle,
         billboard: false,
         pickable: false,
         parameters: { depthTest: false },
       }),
     ];
+    this.staticLayers = layers.slice(0, layers.length - 1);
+    this.overlay.setProps({ layers: [...this.staticLayers, this.makeVehicleLayer()] });
+  }
 
-    this.overlay.setProps({ layers });
-
-    if (this.follow && this.vehiclePos) {
-      this.map.easeTo({ center: this.vehiclePos, duration: 250 });
-    }
+  private makeVehicleLayer() {
+    return new IconLayer({
+      id: `vehicle-${this.side}`,
+      data: this.vehiclePos ? [{ pos: this.vehiclePos, angle: this.vehicleHeadingDeg }] : [],
+      iconAtlas: CAR_ICON_ATLAS,
+      iconMapping: { car: { x: 0, y: 0, width: 64, height: 64, mask: false, anchorY: 52 } },
+      getIcon: () => "car",
+      sizeUnits: "pixels",
+      getSize: 34,
+      getPosition: (d: any) => d.pos,
+      getAngle: (d: any) => d.angle,
+      billboard: false,
+      pickable: false,
+      parameters: { depthTest: false },
+    });
   }
 }
 
