@@ -46,60 +46,13 @@ function buildIconAtlas(): HTMLCanvasElement {
   };
 
   const drawCar = (ox: number) => {
-    // Prefer literal emoji for clarity (requested). Keep vector silhouette as fallback.
-    drawGlow(ox + 10, 14, 44, 40);
+    // Exact emoji only (requested): no outline/glow/fallback styling.
     ctx.save();
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
     ctx.font = "34px \"Segoe UI Emoji\", \"Apple Color Emoji\", \"Noto Color Emoji\", system-ui";
-
-    // Outline pass for contrast on dark basemap.
-    ctx.globalAlpha = 0.6;
-    ctx.fillStyle = "#0b0d14";
-    ctx.fillText("🚗", ox + 32 + 1.4, 34 + 1.4);
-    ctx.fillText("🚗", ox + 32 - 1.4, 34 + 1.4);
-    ctx.fillText("🚗", ox + 32 + 1.4, 34 - 1.4);
-    ctx.fillText("🚗", ox + 32 - 1.4, 34 - 1.4);
-
-    // Main emoji
     ctx.globalAlpha = 1;
-    ctx.fillStyle = "#ffffff";
     ctx.fillText("🚗", ox + 32, 34);
-
-    // Fallback: if emoji doesn't render (some environments), draw the previous silhouette.
-    const probe = ctx.measureText("🚗");
-    if (!probe || !Number.isFinite(probe.width) || probe.width < 10) {
-      ctx.globalAlpha = 0.98;
-      ctx.fillStyle = "#ffffff";
-      roundRect(ctx, ox + 14, 22, 36, 24, 10);
-      ctx.fill();
-      ctx.globalAlpha = 0.12;
-      ctx.fillStyle = "#0b0d14";
-      roundRect(ctx, ox + 17, 24, 30, 7, 6);
-      ctx.fill();
-      roundRect(ctx, ox + 17, 38, 30, 6, 6);
-      ctx.fill();
-      ctx.globalAlpha = 0.98;
-      ctx.fillStyle = "#ffffff";
-      roundRect(ctx, ox + 20, 26, 24, 16, 8);
-      ctx.fill();
-      ctx.fillStyle = "#0b0d14";
-      ctx.globalAlpha = 0.55;
-      roundRect(ctx, ox + 23, 29, 18, 10, 5);
-      ctx.fill();
-      ctx.globalAlpha = 1;
-      ctx.fillStyle = "#0b0d14";
-      ctx.beginPath();
-      ctx.arc(ox + 20, 26, 3.4, 0, Math.PI * 2);
-      ctx.arc(ox + 44, 26, 3.4, 0, Math.PI * 2);
-      ctx.arc(ox + 20, 44, 3.4, 0, Math.PI * 2);
-      ctx.arc(ox + 44, 44, 3.4, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.fillStyle = "#23e7ff";
-      ctx.globalAlpha = 0.85;
-      ctx.fillRect(ox + 18, 21, 3, 2);
-      ctx.fillRect(ox + 45, 21, 3, 2);
-    }
     ctx.restore();
   };
 
