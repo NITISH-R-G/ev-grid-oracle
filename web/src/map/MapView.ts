@@ -1,7 +1,6 @@
 import maplibregl, { type LngLatLike, type Map as MapLibreMap } from "maplibre-gl";
 import { MapboxOverlay } from "@deck.gl/mapbox";
-import { PathLayer, IconLayer, ScatterplotLayer } from "@deck.gl/layers";
-import type { PickingInfo } from "@deck.gl/core";
+import { PathLayer, IconLayer } from "@deck.gl/layers";
 import { staticAssetUrl } from "../paths";
 import { cartoDarkStyle } from "./basemap";
 
@@ -16,44 +15,107 @@ function ensureLngLat(poly: any[]): [number, number][] {
   return looksLikeLngLat ? (poly as any) : (poly as any).map(([lat, lng]: any) => [lng, lat]);
 }
 
-// One SVG atlas containing: car | bike | station (Uber/Ola-like minimal glyphs)
-const ICON_ATLAS =
-  "data:image/svg+xml," +
-  encodeURIComponent(
-    `<svg xmlns="http://www.w3.org/2000/svg" width="192" height="64" viewBox="0 0 192 64">
-      <defs>
-        <filter id="g" x="-50%" y="-50%" width="200%" height="200%">
-          <feGaussianBlur stdDeviation="1.5" result="b"/>
-          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
-        </filter>
-      </defs>
+// Canvas atlas containing: car | bike | station
+// (data-URL SVG atlases can fail to load in some deck.gl environments)
+function buildIconAtlas(): HTMLCanvasElement {
+  const c = document.createElement("canvas");
+  c.width = 192;
+  c.height = 64;
+  const ctx = c.getContext("2d")!;
+  ctx.clearRect(0, 0, c.width, c.height);
 
-      <!-- CAR (0..64) -->
-      <g transform="translate(0,0)">
-        <rect x="18" y="18" width="28" height="28" rx="8" fill="#ffffff" opacity="0.95"/>
-        <path filter="url(#g)" d="M22 36c0-7 3-13 10-13s10 6 10 13" fill="#ffffff"/>
-        <circle cx="26" cy="39" r="3" fill="#000000"/>
-        <circle cx="38" cy="39" r="3" fill="#000000"/>
-      </g>
+  const drawGlow = (x: number, y: number, w: number, h: number) => {
+    ctx.save();
+    ctx.globalAlpha = 0.28;
+    ctx.fillStyle = "#23e7ff";
+    ctx.shadowColor = "#23e7ff";
+    ctx.shadowBlur = 10;
+    ctx.fillRect(x, y, w, h);
+    ctx.restore();
+  };
 
-      <!-- BIKE (64..128) -->
-      <g transform="translate(64,0)">
-        <circle cx="22" cy="40" r="7" fill="none" stroke="#ffffff" stroke-width="3"/>
-        <circle cx="42" cy="40" r="7" fill="none" stroke="#ffffff" stroke-width="3"/>
-        <path d="M26 40 L33 26 L40 40" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-        <path d="M33 26 L28 26" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
-        <path d="M33 26 L38 22" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
-      </g>
+  const drawCar = (ox: number) => {
+    drawGlow(ox + 18, 18, 28, 28);
+    ctx.fillStyle = "#ffffff";
+    ctx.globalAlpha = 0.96;
+    roundRect(ctx, ox + 18, 18, 28, 28, 8);
+    ctx.fill();
+    ctx.globalAlpha = 1;
+    ctx.fillStyle = "#0b0d14";
+    ctx.beginPath();
+    ctx.arc(ox + 26, 39, 3.2, 0, Math.PI * 2);
+    ctx.arc(ox + 38, 39, 3.2, 0, Math.PI * 2);
+    ctx.fill();
+  };
 
-      <!-- STATION (128..192) -->
-      <g transform="translate(128,0)">
-        <rect x="24" y="14" width="18" height="28" rx="4" fill="#ffffff"/>
-        <rect x="28" y="18" width="10" height="8" rx="2" fill="#000000" opacity="0.9"/>
-        <path d="M42 24 C50 28,50 38,42 42" fill="none" stroke="#ffffff" stroke-width="3" stroke-linecap="round"/>
-        <path d="M32 28 L28 36 L34 36 L30 44" fill="none" stroke="#000000" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
-      </g>
-    </svg>`
-  );
+  const drawBike = (ox: number) => {
+    ctx.save();
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.arc(ox + 22, 40, 7, 0, Math.PI * 2);
+    ctx.arc(ox + 42, 40, 7, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.lineCap = "round";
+    ctx.lineJoin = "round";
+    ctx.beginPath();
+    ctx.moveTo(ox + 26, 40);
+    ctx.lineTo(ox + 33, 26);
+    ctx.lineTo(ox + 40, 40);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(ox + 33, 26);
+    ctx.lineTo(ox + 28, 26);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(ox + 33, 26);
+    ctx.lineTo(ox + 38, 22);
+    ctx.stroke();
+    ctx.restore();
+  };
+
+  const drawStation = (ox: number) => {
+    drawGlow(ox + 24, 14, 18, 28);
+    ctx.fillStyle = "#ffffff";
+    roundRect(ctx, ox + 24, 14, 18, 28, 4);
+    ctx.fill();
+    ctx.fillStyle = "#0b0d14";
+    roundRect(ctx, ox + 28, 18, 10, 8, 2);
+    ctx.fill();
+    ctx.strokeStyle = "#ffffff";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(ox + 42, 24);
+    ctx.bezierCurveTo(50 + ox, 28, 50 + ox, 38, ox + 42, 42);
+    ctx.stroke();
+    ctx.strokeStyle = "#0b0d14";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.moveTo(ox + 32, 28);
+    ctx.lineTo(ox + 28, 36);
+    ctx.lineTo(ox + 34, 36);
+    ctx.lineTo(ox + 30, 44);
+    ctx.stroke();
+  };
+
+  const roundRect = (cx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) => {
+    const rr = Math.min(r, w / 2, h / 2);
+    cx.beginPath();
+    cx.moveTo(x + rr, y);
+    cx.arcTo(x + w, y, x + w, y + h, rr);
+    cx.arcTo(x + w, y + h, x, y + h, rr);
+    cx.arcTo(x, y + h, x, y, rr);
+    cx.arcTo(x, y, x + w, y, rr);
+    cx.closePath();
+  };
+
+  drawCar(0);
+  drawBike(64);
+  drawStation(128);
+  return c;
+}
+
+const ICON_ATLAS = buildIconAtlas() as any;
 
 const ICON_MAPPING = {
   car: { x: 0, y: 0, width: 64, height: 64, mask: true, anchorY: 52 },
@@ -379,29 +441,7 @@ export class MapView {
         pickable: false,
         parameters: { depthTest: false },
       }),
-      new ScatterplotLayer({
-        id: `stations-${this.side}`,
-        data: this.stations,
-        getPosition: (d: Station) => [d.lng, d.lat],
-        getRadius: 26,
-        radiusUnits: "meters",
-        getFillColor: this.side === "oracle" ? ([35, 231, 255, 160] as any) : ([255, 90, 138, 120] as any),
-        getLineColor: [232, 236, 255, 90] as any,
-        lineWidthUnits: "pixels",
-        lineWidthMinPixels: 1,
-        stroked: true,
-        filled: true,
-        pickable: true,
-        autoHighlight: true,
-        onClick: (info: PickingInfo) => {
-          if (!info?.object) return;
-          const s = info.object as any;
-          // focus a bit (micro-interaction)
-          this.map.easeTo({ center: [s.lng, s.lat], zoom: Math.max(this.map.getZoom(), 13.2), duration: 420 });
-        },
-        parameters: { depthTest: false },
-      }),
-      // vehicles/stations are appended by renderVehicleOnly() for smooth updates
+      // stations + vehicles are appended by renderVehicleOnly() for smooth updates
     ];
     this.staticLayers = layers;
     this.overlay.setProps({ layers: [...this.staticLayers, this.makeStationIconLayer(), this.makeVehicleLayer()] });
@@ -411,11 +451,11 @@ export class MapView {
     return new IconLayer({
       id: `vehicle-${this.side}`,
       data: [...this.vehicles.values()],
-      iconAtlas: ICON_ATLAS,
+      iconAtlas: ICON_ATLAS as any,
       iconMapping: ICON_MAPPING as any,
       getIcon: (d: any) => d.kind,
       sizeUnits: "pixels",
-      getSize: (d: any) => (d.kind === "bike" ? 24 : 28),
+      getSize: (d: any) => (d.kind === "bike" ? 28 : 32),
       getPosition: (d: any) => d.pos,
       getAngle: (d: any) => d.headingDeg,
       getColor: (d: any) => d.color,
@@ -429,11 +469,11 @@ export class MapView {
     return new IconLayer({
       id: `station-icons-${this.side}`,
       data: this.stations,
-      iconAtlas: ICON_ATLAS,
+      iconAtlas: ICON_ATLAS as any,
       iconMapping: ICON_MAPPING as any,
       getIcon: () => "station",
       sizeUnits: "pixels",
-      getSize: 22,
+      getSize: 24,
       getPosition: (d: Station) => [d.lng, d.lat],
       getColor: this.side === "oracle" ? ([35, 231, 255, 170] as any) : ([232, 236, 255, 120] as any),
       billboard: true,
