@@ -4,7 +4,7 @@ from dataclasses import dataclass
 from typing import Optional, Tuple
 
 from ev_grid_oracle.models import EVGridAction, GridState
-from ev_grid_oracle.parsing import parse_action, parse_simulation
+from ev_grid_oracle.parsing import parse_action
 from ev_grid_oracle.policies import baseline_policy
 
 
@@ -92,8 +92,6 @@ class OracleAgent:
         # Lazy import to keep Space CPU demo alive even without ML deps.
         try:
             import torch
-            from transformers import AutoModelForCausalLM, AutoTokenizer
-            from peft import PeftModel
         except Exception:
             # No deps -> baseline fallback
             self.lora_repo_id = None

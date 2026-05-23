@@ -43,10 +43,10 @@ def sample_arrivals_per_step(
     lam = expected_arrivals_per_step(hour, day_type=day_type, params=params)
     if lam <= 0:
         return 0
-    l = exp(-lam)
+    l_val = exp(-lam)
     k = 0
     p = 1.0
-    while p > l:
+    while p > l_val:
         k += 1
         p *= rng.random()
     return max(0, k - 1)

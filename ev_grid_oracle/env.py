@@ -11,7 +11,6 @@ from .demand_sim import sample_arrivals_per_step
 from .grid_sim import update_grid_load
 from .models import (
     ActionType,
-    ChargeRate,
     DayType,
     EVGridAction,
     EVGridObservation,
