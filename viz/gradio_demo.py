@@ -1,11 +1,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from statistics import mean
 from typing import Literal
 
 import gradio as gr
-from PIL import Image, ImageDraw, ImageFont
+from PIL import Image, ImageDraw
 
 from ev_grid_oracle.city_graph import build_city_graph
 from ev_grid_oracle.env import EVGridCore, _build_prompt

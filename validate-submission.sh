@@ -18,7 +18,7 @@ OUT="$ROOT/assets/validation_output.txt"
   python -m pytest tests/ -q --tb=line
   if command -v openenv >/dev/null 2>&1; then
     echo "--- openenv validate ---"
-    openenv validate "$ROOT/openenv.yaml"
+    openenv validate "$ROOT"
   else
     echo "--- openenv validate (skipped: openenv not on PATH) ---"
   fi

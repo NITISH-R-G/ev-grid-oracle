@@ -105,7 +105,7 @@ def analyze_per_episode(per_episode: list[dict[str, Any]]) -> dict[str, Any]:
         parts = key.split("_", 1)
         if len(parts) < 2:
             continue
-        prefix, rest = parts[0], parts[1]
+        prefix = parts[0]
         if prefix not in ("baseline", "oracle"):
             continue
         successes = sum(1 for row in per_episode if (row.get("binary") or {}).get(key))

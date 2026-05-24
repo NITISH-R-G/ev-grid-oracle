@@ -245,7 +245,6 @@ def plot_binary_timeline(rows: list[dict[str, Any]], out_dir: Path) -> Path | No
         ("Anti-cheat", "baseline_any_anti_cheat"),
         ("Crit. defer", "baseline_any_critical_defer"),
     ]
-    n = len(rows)
     mat = []
     for _, k in keys:
         row_vals = []
