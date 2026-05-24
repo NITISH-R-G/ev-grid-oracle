@@ -12,7 +12,12 @@ from ev_grid_oracle.city_graph import build_city_graph
 from ev_grid_oracle.env import EVGridCore
 from ev_grid_oracle.models import ActionType, EVGridAction
 from ev_grid_oracle.oracle_agent import OracleAgent
-from ev_grid_oracle.policies import baseline_policy
+from ev_grid_oracle.policies import (
+    always_defer_policy,
+    always_load_shift_policy,
+    baseline_policy,
+    nearest_travel_only_policy,
+)
 from ev_grid_oracle.scenarios import ScenarioName
 
 
@@ -78,6 +83,12 @@ def run_episode(
         else:
             if policy == "baseline":
                 action = baseline_policy(state, graph)
+            elif policy == "always_defer":
+                action = always_defer_policy(state, graph)
+            elif policy == "always_load_shift":
+                action = always_load_shift_policy(state, graph)
+            elif policy == "nearest_travel_only":
+                action = nearest_travel_only_policy(state, graph)
             else:
                 action = oracle.act(state, obs.prompt, graph) if oracle else baseline_policy(state, graph)
 
@@ -166,14 +177,23 @@ def main():
 
     baseline_runs: list[EpisodeMetrics] = []
     oracle_runs: list[EpisodeMetrics] = []
+    always_defer_runs: list[EpisodeMetrics] = []
+    always_load_shift_runs: list[EpisodeMetrics] = []
+    nearest_travel_only_runs: list[EpisodeMetrics] = []
     per_episode: list[dict[str, Any]] = []
 
     for i in range(args.episodes):
         episode_seed = args.seed + i
         b = run_episode(env, policy="baseline", seed=episode_seed, scenario=scenario, oracle_repo=oracle_repo)
         o = run_episode(env, policy="oracle", seed=episode_seed, scenario=scenario, oracle_repo=oracle_repo)
+        ad = run_episode(env, policy="always_defer", seed=episode_seed, scenario=scenario, oracle_repo=oracle_repo)
+        als = run_episode(env, policy="always_load_shift", seed=episode_seed, scenario=scenario, oracle_repo=oracle_repo)
+        nto = run_episode(env, policy="nearest_travel_only", seed=episode_seed, scenario=scenario, oracle_repo=oracle_repo)
         baseline_runs.append(b)
         oracle_runs.append(o)
+        always_defer_runs.append(ad)
+        always_load_shift_runs.append(als)
+        nearest_travel_only_runs.append(nto)
 
         per_episode.append(
             {
@@ -182,15 +202,30 @@ def main():
                 "scenario": scenario,
                 "baseline": _episode_metrics_to_json(b),
                 "oracle": _episode_metrics_to_json(o),
+                "always_defer": _episode_metrics_to_json(ad),
+                "always_load_shift": _episode_metrics_to_json(als),
+                "nearest_travel_only": _episode_metrics_to_json(nto),
                 "binary": {
                     "baseline_any_peak_violation": b.peak_violations > 0,
                     "oracle_any_peak_violation": o.peak_violations > 0,
+                    "always_defer_any_peak_violation": ad.peak_violations > 0,
+                    "always_load_shift_any_peak_violation": als.peak_violations > 0,
+                    "nearest_travel_only_any_peak_violation": nto.peak_violations > 0,
                     "baseline_any_anti_cheat": b.anti_cheat_steps > 0,
                     "oracle_any_anti_cheat": o.anti_cheat_steps > 0,
+                    "always_defer_any_anti_cheat": ad.anti_cheat_steps > 0,
+                    "always_load_shift_any_anti_cheat": als.anti_cheat_steps > 0,
+                    "nearest_travel_only_any_anti_cheat": nto.anti_cheat_steps > 0,
                     "baseline_any_critical_defer": b.critical_deferred > 0,
                     "oracle_any_critical_defer": o.critical_deferred > 0,
+                    "always_defer_any_critical_defer": ad.critical_deferred > 0,
+                    "always_load_shift_any_critical_defer": als.critical_deferred > 0,
+                    "nearest_travel_only_any_critical_defer": nto.critical_deferred > 0,
                     "baseline_high_stress": b.grid_stress_events > int(env.max_steps * 0.25),
                     "oracle_high_stress": o.grid_stress_events > int(env.max_steps * 0.25),
+                    "always_defer_high_stress": ad.grid_stress_events > int(env.max_steps * 0.25),
+                    "always_load_shift_high_stress": als.grid_stress_events > int(env.max_steps * 0.25),
+                    "nearest_travel_only_high_stress": nto.grid_stress_events > int(env.max_steps * 0.25),
                 },
             }
         )
@@ -202,8 +237,14 @@ def main():
         "paired_same_world": True,
         "baseline": summarize(baseline_runs),
         "oracle": summarize(oracle_runs),
+        "always_defer": summarize(always_defer_runs),
+        "always_load_shift": summarize(always_load_shift_runs),
+        "nearest_travel_only": summarize(nearest_travel_only_runs),
         "baseline_reward_breakdown_mean": summarize_reward_breakdown(baseline_runs),
         "oracle_reward_breakdown_mean": summarize_reward_breakdown(oracle_runs),
+        "always_defer_reward_breakdown_mean": summarize_reward_breakdown(always_defer_runs),
+        "always_load_shift_reward_breakdown_mean": summarize_reward_breakdown(always_load_shift_runs),
+        "nearest_travel_only_reward_breakdown_mean": summarize_reward_breakdown(nearest_travel_only_runs),
         "per_episode": per_episode,
         "note": "Per-episode: identical episode_seed for baseline and oracle. Oracle uses ORACLE_LORA_REPO if set; "
         "ORACLE_SKIP_LLM forces baseline policy inside oracle path.",
