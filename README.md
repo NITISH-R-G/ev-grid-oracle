@@ -358,3 +358,16 @@ ev-grid-oracle/
 
 The Gradio demo is in `viz/gradio_demo.py` (separate Space recommended).
 
+---
+
+## Continuous Engineering & Agile Workflow
+
+This repository strictly follows an **Agile Scrum continuous improvement methodology**. Our objective is to treat this repository as a living, elite engineering product. Every improvement cycle operates on a fixed loop:
+
+1. **Analyze**: Identify tech debt, missing features, or missing optimizations.
+2. **Benchmark**: Perform competitor analysis against top-tier open source tools.
+3. **Plan**: Output a clear Sprint Plan and prioritize work by impact (Repository Health Reports).
+4. **Execute**: Maintain strong coding standards (SOLID, DRY, `ruff` linting, and 100% type-safety using `mypy`).
+5. **Review**: Produce automated reports containing the Metrics Improved.
+
+To participate, contributors must respect local validation tools via `./validate-submission.sh`. No code is merged unless it passes formatting, type checking, and test suites. See `CYCLE_1_REPORT.md` for our current sprint benchmarks.

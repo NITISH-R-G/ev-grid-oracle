@@ -120,14 +120,15 @@ def compute_reward(
 
     if action.action_type == ActionType.route:
         station = next((s for s in next_state.stations if s.station_id == action.station_id), None)
-        ev = next((e for e in prev_state.pending_evs if e.ev_id == action.ev_id), None)
-        src = next((s for s in prev_state.stations if s.neighborhood_slug == (ev.neighborhood_slug if ev else "")), None)
+        # mypy complains about variable type "EVRequest" being reassigned to EVRequest|None
+        ev_req = next((e for e in prev_state.pending_evs if e.ev_id == action.ev_id), None)
+        src = next((s for s in prev_state.stations if s.neighborhood_slug == (ev_req.neighborhood_slug if ev_req else "")), None)
 
         if station is None:
             r["anti_hack"] -= w.anti_hack_base
             add_flag("phantom_capacity", f"Unknown station_id={action.station_id!r}")
             shaping_ok = False
-        elif ev is None:
+        elif ev_req is None:
             r["anti_hack"] -= w.anti_hack_base
             add_flag("phantom_capacity", f"Unknown ev_id={action.ev_id!r}")
             shaping_ok = False
@@ -168,8 +169,8 @@ def compute_reward(
                 shaping_ok = False
 
     if action.action_type == ActionType.defer:
-        ev = next((e for e in prev_state.pending_evs if e.ev_id == action.ev_id), None)
-        if ev is not None and int(action.defer_minutes) > int(ev.max_wait_minutes):
+        ev_req2 = next((e for e in prev_state.pending_evs if e.ev_id == action.ev_id), None)
+        if ev_req2 is not None and int(action.defer_minutes) > int(ev_req2.max_wait_minutes):
             r["anti_hack"] -= w.time_window_violation
             add_flag(
                 "time_window_violation",

@@ -140,8 +140,8 @@ def compute_kpis(seed: int, *, episodes: int = 10, oracle_lora_repo: str = "") -
         "note": "oracle uses LoRA repo if provided, else baseline fallback.",
     }
     # Human-readable
-    b = out["baseline"]
-    o = out["oracle"]
+    b: dict = out["baseline"] # type: ignore
+    o: dict = out["oracle"] # type: ignore
     return (
         f"Episodes={episodes}\n"
         f"Baseline avg_wait={b['avg_wait_minutes']:.2f}m | stress={b['grid_stress_events']:.1f} | peak_viol={b['peak_violations']:.1f}\n"

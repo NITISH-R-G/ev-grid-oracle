@@ -37,3 +37,5 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools]
 packages = ["ev_grid_oracle", "server"]
 
+[tool.mypy]
+ignore_missing_imports = true
