@@ -62,6 +62,7 @@ def _oracle_skip_llm_env() -> bool:
 
 
 _RATE_BUCKET: dict[str, list[float]] = {}
+_ORACLE_EXEC: concurrent.futures.ThreadPoolExecutor | None = None
 
 
 def _rate_limit(req: Request, *, key: str, limit: int, window_sec: int) -> None:
@@ -101,9 +102,7 @@ def _demo_oracle_act_with_guard(
     # Note: cancellation does not reliably stop model load once started, so we keep the timeout
     # as a *response guard* only. The model cache in OracleAgent prevents repeated cold-loads.
     global _ORACLE_EXEC
-    try:
-        _ORACLE_EXEC
-    except NameError:
+    if _ORACLE_EXEC is None:
         _ORACLE_EXEC = concurrent.futures.ThreadPoolExecutor(max_workers=1)
 
     def run() -> tuple[EVGridAction, str, bool]:

@@ -1,14 +1,14 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Optional, Tuple
+from typing import Any, Optional, Tuple
 
 from ev_grid_oracle.models import EVGridAction, GridState
 from ev_grid_oracle.parsing import parse_action
 from ev_grid_oracle.policies import baseline_policy
 
 
-_CACHE = {}
+_CACHE: dict[tuple[str, Optional[str]], tuple[Any, Any]] = {}
 _CACHE_LOCK = None
 
 
