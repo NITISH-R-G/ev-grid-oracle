@@ -51,7 +51,7 @@ def mcnemar_discordant(b01: int, b10: int) -> dict[str, float | int]:
 def paired_mcnemar_analysis(per_episode: list[dict[str, Any]]) -> dict[str, Any]:
     """Paired McNemar for headline binaries (same rows as Wilson chart)."""
 
-    def pair(bk: str, ok: str) -> dict[str, float | int]:
+    def pair(bk: str, ok: str) -> dict[str, Any]:
         b01 = sum(
             1
             for row in per_episode
@@ -62,7 +62,7 @@ def paired_mcnemar_analysis(per_episode: list[dict[str, Any]]) -> dict[str, Any]
             for row in per_episode
             if not (row.get("binary") or {}).get(bk) and (row.get("binary") or {}).get(ok)
         )
-        out = mcnemar_discordant(b01, b10)
+        out: dict[str, Any] = dict(mcnemar_discordant(b01, b10))
         out["baseline_key"] = bk
         out["oracle_key"] = ok
         return out

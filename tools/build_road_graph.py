@@ -269,16 +269,16 @@ def main() -> int:
 
     new_edges: list[dict[str, Any]] = []
     for e in edges:
-        a = int(e["a"])
-        b = int(e["b"])
-        if a not in id_map or b not in id_map:
+        a_id = int(e["a"])
+        b_id = int(e["b"])
+        if a_id not in id_map or b_id not in id_map:
             continue
         ee = dict(e)
-        ee["a"] = id_map[a]
-        ee["b"] = id_map[b]
+        ee["a"] = id_map[a_id]
+        ee["b"] = id_map[b_id]
         new_edges.append(ee)
 
-    new_edges.sort(key=lambda e: (int(e["a"]), int(e["b"]), str(e.get("highway") or ""), str(e.get("name") or "")))
+    new_edges.sort(key=lambda x: (int(x["a"]), int(x["b"]), str(x.get("highway") or ""), str(x.get("name") or "")))
 
     payload["nodes"] = new_nodes
     payload["edges"] = new_edges
