@@ -38,7 +38,9 @@ def test_oracle_matches_baseline_when_skip_llm(monkeypatch: pytest.MonkeyPatch) 
     assert base == ora
 
 
-def test_evaluate_cli_paired_json(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+def test_evaluate_cli_paired_json(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
     monkeypatch.setenv("ORACLE_SKIP_LLM", "1")
     out = tmp_path / "eval_results.json"
     subprocess.check_call(

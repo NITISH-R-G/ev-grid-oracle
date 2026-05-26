@@ -20,14 +20,24 @@ def baseline_policy(state: GridState, graph) -> EVGridAction:
             continue
 
         try:
-            from_station = next(x for x in state.stations if x.neighborhood_slug == ev.neighborhood_slug)
-            tmin = travel_time_minutes(graph, from_station.station_id, s.station_id, default_if_missing=90.0)
+            from_station = next(
+                x for x in state.stations if x.neighborhood_slug == ev.neighborhood_slug
+            )
+            tmin = travel_time_minutes(
+                graph, from_station.station_id, s.station_id, default_if_missing=90.0
+            )
         except Exception:
             tmin = 60.0
 
         load = s.occupied_slots / max(1, s.total_slots)
         stress = 50.0 if load > 0.85 else 0.0
-        score = tmin + s.avg_wait_minutes * 1.2 + stress + s.price_per_kwh * 0.3 + s.queue_length * 2.0
+        score = (
+            tmin
+            + s.avg_wait_minutes * 1.2
+            + stress
+            + s.price_per_kwh * 0.3
+            + s.queue_length * 2.0
+        )
         if score < best_score:
             best_score = score
             best_station = s
@@ -47,7 +57,9 @@ def baseline_policy(state: GridState, graph) -> EVGridAction:
 def always_defer_policy(state: GridState, graph) -> EVGridAction:
     """Collapse baseline: always defer (reward-hack / fairness stressor)."""
     if not state.pending_evs:
-        return EVGridAction(action_type=ActionType.load_shift, ev_id="EV-000", defer_minutes=0)
+        return EVGridAction(
+            action_type=ActionType.load_shift, ev_id="EV-000", defer_minutes=0
+        )
     ev = state.pending_evs[0]
     return EVGridAction(action_type=ActionType.defer, ev_id=ev.ev_id, defer_minutes=5)
 
@@ -55,9 +67,13 @@ def always_defer_policy(state: GridState, graph) -> EVGridAction:
 def always_load_shift_policy(state: GridState, graph) -> EVGridAction:
     """Collapse baseline: always load_shift on head EV (ignores queues / grid)."""
     if not state.pending_evs:
-        return EVGridAction(action_type=ActionType.load_shift, ev_id="EV-000", defer_minutes=0)
+        return EVGridAction(
+            action_type=ActionType.load_shift, ev_id="EV-000", defer_minutes=0
+        )
     ev = state.pending_evs[0]
-    return EVGridAction(action_type=ActionType.load_shift, ev_id=ev.ev_id, defer_minutes=0)
+    return EVGridAction(
+        action_type=ActionType.load_shift, ev_id=ev.ev_id, defer_minutes=0
+    )
 
 
 def nearest_travel_only_policy(state: GridState, graph) -> EVGridAction:
@@ -66,13 +82,17 @@ def nearest_travel_only_policy(state: GridState, graph) -> EVGridAction:
     Used to show greedy multi-objective baseline is not trivially dominated.
     """
     if not state.pending_evs:
-        return EVGridAction(action_type=ActionType.load_shift, ev_id="EV-000", defer_minutes=0)
+        return EVGridAction(
+            action_type=ActionType.load_shift, ev_id="EV-000", defer_minutes=0
+        )
     ev = state.pending_evs[0]
     ev_id = ev.ev_id
     best_station = None
     best_t = float("inf")
     try:
-        from_station = next(x for x in state.stations if x.neighborhood_slug == ev.neighborhood_slug)
+        from_station = next(
+            x for x in state.stations if x.neighborhood_slug == ev.neighborhood_slug
+        )
     except StopIteration:
         return EVGridAction(action_type=ActionType.defer, ev_id=ev_id, defer_minutes=5)
 
@@ -80,7 +100,9 @@ def nearest_travel_only_policy(state: GridState, graph) -> EVGridAction:
         if s.occupied_slots >= s.total_slots:
             continue
         try:
-            tmin = travel_time_minutes(graph, from_station.station_id, s.station_id, default_if_missing=90.0)
+            tmin = travel_time_minutes(
+                graph, from_station.station_id, s.station_id, default_if_missing=90.0
+            )
         except Exception:
             tmin = 60.0
         if tmin < best_t:
@@ -96,4 +118,3 @@ def nearest_travel_only_policy(state: GridState, graph) -> EVGridAction:
         charge_rate=ChargeRate.fast,
         defer_minutes=0,
     )
-

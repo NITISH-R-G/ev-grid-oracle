@@ -18,7 +18,9 @@ def _clamp01(x: float) -> float:
     return 0.0 if x < 0.0 else 1.0 if x > 1.0 else x
 
 
-def baseline_grid_load(hour: int, *, day_type: str, params: GridParams = GridParams()) -> float:
+def baseline_grid_load(
+    hour: int, *, day_type: str, params: GridParams = GridParams()
+) -> float:
     # Two-peak-ish load using cosine: highest around evening, lower around midday.
     # Map hour->angle with peak near 18:00.
     angle = 2 * pi * ((hour - 18) / 24.0)
@@ -47,4 +49,3 @@ def update_grid_load(
     load = _clamp01(base + added - load_shift_action_strength)
     ren = renewable_pct(hour, params=params)
     return load, ren
-

@@ -53,4 +53,6 @@ def test_ev_grid_action_rejects_malformed_payload(payload: dict) -> None:
 
 def test_route_action_requires_station() -> None:
     with pytest.raises(ValidationError):
-        EVGridAction(action_type=ActionType.route, ev_id="EV-1", station_id=None, defer_minutes=0)
+        EVGridAction(
+            action_type=ActionType.route, ev_id="EV-1", station_id=None, defer_minutes=0
+        )

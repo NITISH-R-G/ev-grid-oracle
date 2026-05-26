@@ -45,4 +45,3 @@ class RoadObservation(Observation):
     reward_breakdown: dict[str, float] = Field(default_factory=dict)
     anti_cheat_flags: list[str] = Field(default_factory=list)
     anti_cheat_details: dict[str, str] = Field(default_factory=dict)
-

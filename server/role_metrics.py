@@ -10,10 +10,16 @@ Role = str  # "discom" | "cpo" | "fleet" | "driver"
 def compute_role_kpis(obs: EVGridObservation) -> dict[Role, dict[str, float]]:
     st = obs.state
     avg_wait = (
-        sum(s.avg_wait_minutes for s in st.stations) / max(1, len(st.stations)) if st.stations else 0.0
+        sum(s.avg_wait_minutes for s in st.stations) / max(1, len(st.stations))
+        if st.stations
+        else 0.0
     )
     max_queue = float(max((s.queue_length for s in st.stations), default=0))
-    max_occ = float(max((s.occupied_slots / max(1, s.total_slots) for s in st.stations), default=0.0))
+    max_occ = float(
+        max(
+            (s.occupied_slots / max(1, s.total_slots) for s in st.stations), default=0.0
+        )
+    )
     pending = len(st.pending_evs)
     top_urgency = float(max((ev.urgency for ev in st.pending_evs), default=0.0))
 
@@ -39,7 +45,9 @@ def compute_role_kpis(obs: EVGridObservation) -> dict[Role, dict[str, float]]:
     }
 
 
-def compute_role_reward_breakdown(obs: EVGridObservation) -> dict[Role, dict[str, float]]:
+def compute_role_reward_breakdown(
+    obs: EVGridObservation,
+) -> dict[Role, dict[str, float]]:
     """
     Lightweight, explainable credit assignment for demo storytelling.
 
@@ -47,7 +55,15 @@ def compute_role_reward_breakdown(obs: EVGridObservation) -> dict[Role, dict[str
     values across roles with fixed weights so totals remain easy to interpret.
     """
     rb = obs.reward_breakdown or {}
-    keys = ["wait", "grid_stress", "peak", "renewable", "urgency", "anti_hack", "valid_action_shaping"]
+    keys = [
+        "wait",
+        "grid_stress",
+        "peak",
+        "renewable",
+        "urgency",
+        "anti_hack",
+        "valid_action_shaping",
+    ]
 
     def part(key: str) -> float:
         v = rb.get(key, 0.0)
@@ -66,10 +82,17 @@ def compute_role_reward_breakdown(obs: EVGridObservation) -> dict[Role, dict[str
         "renewable": {"discom": 0.70, "cpo": 0.05, "fleet": 0.15, "driver": 0.10},
         "urgency": {"discom": 0.05, "cpo": 0.05, "fleet": 0.70, "driver": 0.20},
         "anti_hack": {"discom": 0.35, "cpo": 0.35, "fleet": 0.20, "driver": 0.10},
-        "valid_action_shaping": {"discom": 0.15, "cpo": 0.15, "fleet": 0.40, "driver": 0.30},
+        "valid_action_shaping": {
+            "discom": 0.15,
+            "cpo": 0.15,
+            "fleet": 0.40,
+            "driver": 0.30,
+        },
     }
 
-    out: dict[Role, dict[str, float]] = {r: {k: 0.0 for k in keys} for r in ("discom", "cpo", "fleet", "driver")}
+    out: dict[Role, dict[str, float]] = {
+        r: {k: 0.0 for k in keys} for r in ("discom", "cpo", "fleet", "driver")
+    }
     for k in keys:
         wmap = weights.get(k, {})
         for r in out.keys():
@@ -85,7 +108,9 @@ def compute_role_reward_breakdown(obs: EVGridObservation) -> dict[Role, dict[str
 
 
 def _peak_risk_score(peak_risk: str) -> float:
-    return {"low": 0.0, "medium": 0.33, "high": 0.66, "critical": 1.0}.get(peak_risk, 0.0)
+    return {"low": 0.0, "medium": 0.33, "high": 0.66, "critical": 1.0}.get(
+        peak_risk, 0.0
+    )
 
 
 def summarize_action(action: EVGridAction) -> dict[str, Any]:

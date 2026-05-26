@@ -71,7 +71,13 @@ class CityMapRenderer:
         y = int(self.cfg.margin + (1.0 - _norm(lat, self.lat_lo, self.lat_hi)) * h)
         return x, y
 
-    def draw_arrow(self, surf: pygame.Surface, a: tuple[int, int], b: tuple[int, int], color=(0, 200, 255)):
+    def draw_arrow(
+        self,
+        surf: pygame.Surface,
+        a: tuple[int, int],
+        b: tuple[int, int],
+        color=(0, 200, 255),
+    ):
         ax, ay = a
         bx, by = b
         pygame.draw.line(surf, color, a, b, 3)
@@ -81,7 +87,13 @@ class CityMapRenderer:
         right = (bx - head * math.cos(ang + 0.4), by - head * math.sin(ang + 0.4))
         pygame.draw.polygon(surf, color, [(bx, by), left, right])
 
-    def render(self, surf: pygame.Surface, *, last_action: Optional[EVGridAction] = None, mode_label: str = ""):
+    def render(
+        self,
+        surf: pygame.Surface,
+        *,
+        last_action: Optional[EVGridAction] = None,
+        mode_label: str = "",
+    ):
         cfg = self.cfg
         self._t += 1.0 / max(1, cfg.fps)
         self._draw_background(surf)
@@ -104,17 +116,30 @@ class CityMapRenderer:
 
             # queue dots
             for i in range(min(5, st.queue_length)):
-                pygame.draw.circle(surf, (245, 245, 245), (x - 10 + i * 6, y - radius - 10), 3)
+                pygame.draw.circle(
+                    surf, (245, 245, 245), (x - 10 + i * 6, y - radius - 10), 3
+                )
 
             label = self._font_sm.render(st.station_id, True, (220, 220, 220))
             surf.blit(label, (x + radius + 6, y - 8))
 
         # draw arrow: from EV neighborhood's station -> chosen station
-        if last_action and last_action.action_type == ActionType.route and last_action.station_id and state.pending_evs:
+        if (
+            last_action
+            and last_action.action_type == ActionType.route
+            and last_action.station_id
+            and state.pending_evs
+        ):
             ev = state.pending_evs[0]
             try:
-                from_station = next(s for s in state.stations if s.neighborhood_slug == ev.neighborhood_slug)
-                to_station = next(s for s in state.stations if s.station_id == last_action.station_id)
+                from_station = next(
+                    s
+                    for s in state.stations
+                    if s.neighborhood_slug == ev.neighborhood_slug
+                )
+                to_station = next(
+                    s for s in state.stations if s.station_id == last_action.station_id
+                )
                 self._draw_animated_route(
                     surf,
                     self.xy(from_station.lat, from_station.lng),
@@ -145,10 +170,12 @@ class CityMapRenderer:
         if mode_label:
             blit_line(48, f"Mode: {mode_label}")
         blit_line(74, f"Time: {state.hour:02d}:00  {state.day_type.value}")
-        blit_line(98, f"Grid load: {state.grid_load_pct*100:5.1f}%")
-        blit_line(122, f"Renewable: {state.renewable_pct*100:5.1f}%")
+        blit_line(98, f"Grid load: {state.grid_load_pct * 100:5.1f}%")
+        blit_line(122, f"Renewable: {state.renewable_pct * 100:5.1f}%")
         blit_line(146, f"Peak risk: {state.peak_risk.value}")
-        avg_wait = sum(s.avg_wait_minutes for s in state.stations) / max(1, len(state.stations))
+        avg_wait = sum(s.avg_wait_minutes for s in state.stations) / max(
+            1, len(state.stations)
+        )
         blit_line(170, f"Avg wait: {avg_wait:5.1f} min")
         blit_line(196, f"Pending EVs: {len(state.pending_evs)}")
 
@@ -202,12 +229,14 @@ class CityMapRenderer:
             pygame.draw.circle(s, (*col, alpha), (r + 1, r + 1), r)
             surf.blit(s, (x - r - 1, y - r - 1))
 
-    def _draw_animated_route(self, surf: pygame.Surface, a: tuple[int, int], b: tuple[int, int]) -> None:
+    def _draw_animated_route(
+        self, surf: pygame.Surface, a: tuple[int, int], b: tuple[int, int]
+    ) -> None:
         # arrow + moving dot along path
         self.draw_arrow(surf, a, b, color=(0, 200, 255))
         ax, ay = a
         bx, by = b
-        t = (math.sin(self._t * 4.0) * 0.5 + 0.5)
+        t = math.sin(self._t * 4.0) * 0.5 + 0.5
         x = int(ax + (bx - ax) * t)
         y = int(ay + (by - ay) * t)
         pygame.draw.circle(surf, (0, 220, 255), (x, y), 6)
@@ -235,7 +264,11 @@ def run_live(seed: int = 123, *, mode: str = "baseline"):
                     # one sim tick
                     st = env._grid_state
                     if st is None or not st.pending_evs:
-                        action = EVGridAction(action_type=ActionType.load_shift, ev_id="EV-000", defer_minutes=0)
+                        action = EVGridAction(
+                            action_type=ActionType.load_shift,
+                            ev_id="EV-000",
+                            defer_minutes=0,
+                        )
                     else:
                         action = baseline_policy(st, env.city_graph)
                     last_action = action
@@ -250,4 +283,3 @@ def run_live(seed: int = 123, *, mode: str = "baseline"):
 
 if __name__ == "__main__":
     run_live()
-

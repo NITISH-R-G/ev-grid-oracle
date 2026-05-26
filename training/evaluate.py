@@ -74,12 +74,18 @@ def run_episode(
     for _ in range(env.max_steps):
         state = obs.state
         waits.append(mean([s.avg_wait_minutes for s in state.stations]))
-        grid_stress += sum(1 for s in state.stations if (s.occupied_slots / max(1, s.total_slots)) > 0.85)
+        grid_stress += sum(
+            1
+            for s in state.stations
+            if (s.occupied_slots / max(1, s.total_slots)) > 0.85
+        )
         peak_violations += 1 if state.grid_load_pct > 0.80 else 0
         renewable.append(state.renewable_pct)
 
         if not state.pending_evs:
-            action = EVGridAction(action_type=ActionType.load_shift, ev_id="EV-000", defer_minutes=0)
+            action = EVGridAction(
+                action_type=ActionType.load_shift, ev_id="EV-000", defer_minutes=0
+            )
         else:
             if policy == "baseline":
                 action = baseline_policy(state, graph)
@@ -90,9 +96,16 @@ def run_episode(
             elif policy == "nearest_travel_only":
                 action = nearest_travel_only_policy(state, graph)
             else:
-                action = oracle.act(state, obs.prompt, graph) if oracle else baseline_policy(state, graph)
+                action = (
+                    oracle.act(state, obs.prompt, graph)
+                    if oracle
+                    else baseline_policy(state, graph)
+                )
 
-            if action.action_type == ActionType.defer and state.pending_evs[0].battery_pct_0_100 < 15.0:
+            if (
+                action.action_type == ActionType.defer
+                and state.pending_evs[0].battery_pct_0_100 < 15.0
+            ):
                 critical_deferred += 1
 
         obs = env.step(action)
@@ -154,8 +167,10 @@ SCENARIO_CHOICES: tuple[str, ...] = (
 )
 
 
-def main():
-    ap = argparse.ArgumentParser(description="Paired baseline vs oracle rollouts (same seed + scenario per episode).")
+def main() -> None:
+    ap = argparse.ArgumentParser(
+        description="Paired baseline vs oracle rollouts (same seed + scenario per episode)."
+    )
     ap.add_argument("--episodes", type=int, default=50)
     ap.add_argument("--seed", type=int, default=123)
     ap.add_argument(
@@ -168,7 +183,7 @@ def main():
     ap.add_argument("--out", type=str, default="training/eval_results.json")
     args = ap.parse_args()
 
-    scenario: ScenarioName = args.scenario  # type: ignore[assignment]
+    scenario: ScenarioName = args.scenario
 
     graph = build_city_graph()
     env = EVGridCore(city_graph=graph)
@@ -184,11 +199,41 @@ def main():
 
     for i in range(args.episodes):
         episode_seed = args.seed + i
-        b = run_episode(env, policy="baseline", seed=episode_seed, scenario=scenario, oracle_repo=oracle_repo)
-        o = run_episode(env, policy="oracle", seed=episode_seed, scenario=scenario, oracle_repo=oracle_repo)
-        ad = run_episode(env, policy="always_defer", seed=episode_seed, scenario=scenario, oracle_repo=oracle_repo)
-        als = run_episode(env, policy="always_load_shift", seed=episode_seed, scenario=scenario, oracle_repo=oracle_repo)
-        nto = run_episode(env, policy="nearest_travel_only", seed=episode_seed, scenario=scenario, oracle_repo=oracle_repo)
+        b = run_episode(
+            env,
+            policy="baseline",
+            seed=episode_seed,
+            scenario=scenario,
+            oracle_repo=oracle_repo,
+        )
+        o = run_episode(
+            env,
+            policy="oracle",
+            seed=episode_seed,
+            scenario=scenario,
+            oracle_repo=oracle_repo,
+        )
+        ad = run_episode(
+            env,
+            policy="always_defer",
+            seed=episode_seed,
+            scenario=scenario,
+            oracle_repo=oracle_repo,
+        )
+        als = run_episode(
+            env,
+            policy="always_load_shift",
+            seed=episode_seed,
+            scenario=scenario,
+            oracle_repo=oracle_repo,
+        )
+        nto = run_episode(
+            env,
+            policy="nearest_travel_only",
+            seed=episode_seed,
+            scenario=scenario,
+            oracle_repo=oracle_repo,
+        )
         baseline_runs.append(b)
         oracle_runs.append(o)
         always_defer_runs.append(ad)
@@ -221,11 +266,16 @@ def main():
                     "always_defer_any_critical_defer": ad.critical_deferred > 0,
                     "always_load_shift_any_critical_defer": als.critical_deferred > 0,
                     "nearest_travel_only_any_critical_defer": nto.critical_deferred > 0,
-                    "baseline_high_stress": b.grid_stress_events > int(env.max_steps * 0.25),
-                    "oracle_high_stress": o.grid_stress_events > int(env.max_steps * 0.25),
-                    "always_defer_high_stress": ad.grid_stress_events > int(env.max_steps * 0.25),
-                    "always_load_shift_high_stress": als.grid_stress_events > int(env.max_steps * 0.25),
-                    "nearest_travel_only_high_stress": nto.grid_stress_events > int(env.max_steps * 0.25),
+                    "baseline_high_stress": b.grid_stress_events
+                    > int(env.max_steps * 0.25),
+                    "oracle_high_stress": o.grid_stress_events
+                    > int(env.max_steps * 0.25),
+                    "always_defer_high_stress": ad.grid_stress_events
+                    > int(env.max_steps * 0.25),
+                    "always_load_shift_high_stress": als.grid_stress_events
+                    > int(env.max_steps * 0.25),
+                    "nearest_travel_only_high_stress": nto.grid_stress_events
+                    > int(env.max_steps * 0.25),
                 },
             }
         )
@@ -242,9 +292,15 @@ def main():
         "nearest_travel_only": summarize(nearest_travel_only_runs),
         "baseline_reward_breakdown_mean": summarize_reward_breakdown(baseline_runs),
         "oracle_reward_breakdown_mean": summarize_reward_breakdown(oracle_runs),
-        "always_defer_reward_breakdown_mean": summarize_reward_breakdown(always_defer_runs),
-        "always_load_shift_reward_breakdown_mean": summarize_reward_breakdown(always_load_shift_runs),
-        "nearest_travel_only_reward_breakdown_mean": summarize_reward_breakdown(nearest_travel_only_runs),
+        "always_defer_reward_breakdown_mean": summarize_reward_breakdown(
+            always_defer_runs
+        ),
+        "always_load_shift_reward_breakdown_mean": summarize_reward_breakdown(
+            always_load_shift_runs
+        ),
+        "nearest_travel_only_reward_breakdown_mean": summarize_reward_breakdown(
+            nearest_travel_only_runs
+        ),
         "per_episode": per_episode,
         "note": "Per-episode: identical episode_seed for baseline and oracle. Oracle uses ORACLE_LORA_REPO if set; "
         "ORACLE_SKIP_LLM forces baseline policy inside oracle path.",

@@ -30,15 +30,21 @@ def _chunk(xs: list[str], n: int) -> list[list[str]]:
     return out
 
 
-def _overpass_query(bbox: tuple[float, float, float, float], highways: list[str]) -> str:
+def _overpass_query(
+    bbox: tuple[float, float, float, float], highways: list[str]
+) -> str:
     south, west, north, east = bbox
     # Use `out geom` so each way includes geometry points (no extra node fetch).
     # Split the highway filter into OR clauses to avoid huge regexes.
-    clauses = "".join([f'way["highway"="{h}"]({south},{west},{north},{east});' for h in highways])
+    clauses = "".join(
+        [f'way["highway"="{h}"]({south},{west},{north},{east});' for h in highways]
+    )
     return f"[out:json][timeout:180];({clauses});out geom;"
 
 
-def _tile_bbox(bbox: tuple[float, float, float, float], tiles: int) -> list[tuple[float, float, float, float]]:
+def _tile_bbox(
+    bbox: tuple[float, float, float, float], tiles: int
+) -> list[tuple[float, float, float, float]]:
     if tiles <= 1:
         return [bbox]
     south, west, north, east = bbox
@@ -77,7 +83,9 @@ def _http_post(url: str, data: dict[str, str], *, retries: int = 3) -> bytes:
     raise RuntimeError("overpass request failed") from last_err
 
 
-def _to_geojson(overpass_json: dict[str, Any], *, simplify_every: int) -> dict[str, Any]:
+def _to_geojson(
+    overpass_json: dict[str, Any], *, simplify_every: int
+) -> dict[str, Any]:
     feats: list[dict[str, Any]] = []
     for el in overpass_json.get("elements", []):
         if not isinstance(el, dict):
@@ -95,7 +103,11 @@ def _to_geojson(overpass_json: dict[str, Any], *, simplify_every: int) -> dict[s
 
         coords = []
         for i, p in enumerate(geom):
-            if simplify_every > 1 and (i % simplify_every) != 0 and i not in (0, len(geom) - 1):
+            if (
+                simplify_every > 1
+                and (i % simplify_every) != 0
+                and i not in (0, len(geom) - 1)
+            ):
                 continue
             if not isinstance(p, dict):
                 continue
@@ -121,11 +133,23 @@ def _to_geojson(overpass_json: dict[str, Any], *, simplify_every: int) -> dict[s
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--out", default="web/public/maps/bangalore_roads_full.geojson")
-    ap.add_argument("--bbox", default="12.75,77.35,13.18,77.85", help="south,west,north,east")
+    ap.add_argument(
+        "--bbox", default="12.75,77.35,13.18,77.85", help="south,west,north,east"
+    )
     ap.add_argument("--highways", default=",".join(DEFAULT_HIGHWAYS))
-    ap.add_argument("--simplify-every", type=int, default=2, help="keep every Nth point per way (>=1)")
+    ap.add_argument(
+        "--simplify-every",
+        type=int,
+        default=2,
+        help="keep every Nth point per way (>=1)",
+    )
     ap.add_argument("--endpoint", default="https://overpass-api.de/api/interpreter")
-    ap.add_argument("--tiles", type=int, default=3, help="split bbox into NxN tiles to avoid huge queries")
+    ap.add_argument(
+        "--tiles",
+        type=int,
+        default=3,
+        help="split bbox into NxN tiles to avoid huge queries",
+    )
     args = ap.parse_args()
 
     south, west, north, east = [float(x.strip()) for x in str(args.bbox).split(",")]
@@ -149,17 +173,20 @@ def main() -> int:
             # Merge by OSM way id (tile overlap duplicates).
             if oid and oid not in features_by_id:
                 features_by_id[oid] = f
-        print(f"tile {idx+1}/{len(tiles)} features={len(gj_part.get('features', []))} unique_total={len(features_by_id)}")
+        print(
+            f"tile {idx + 1}/{len(tiles)} features={len(gj_part.get('features', []))} unique_total={len(features_by_id)}"
+        )
 
     gj = {"type": "FeatureCollection", "features": list(features_by_id.values())}
 
     out = (ROOT / args.out).resolve()
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(gj), encoding="utf-8")
-    print(f"Wrote {out} features={len(gj.get('features', []))} tiles={total_tiles}x{total_tiles} simplify_every={simplify_every}")
+    print(
+        f"Wrote {out} features={len(gj.get('features', []))} tiles={total_tiles}x{total_tiles} simplify_every={simplify_every}"
+    )
     return 0
 
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

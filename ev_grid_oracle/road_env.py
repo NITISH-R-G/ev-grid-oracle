@@ -32,7 +32,9 @@ class RoadCore:
         self.battery_pct = float(rng.uniform(55, 92))
         self.target_station_id = rng.choice([s.station_id for s in STATIONS])
         self.steps_remaining = 220
-        return self._obs(prompt="Choose the next connected road node toward the target station.")
+        return self._obs(
+            prompt="Choose the next connected road node toward the target station."
+        )
 
     def step(self, action: RoadAction) -> RoadObservation:
         flags: list[str] = []
@@ -41,7 +43,9 @@ class RoadCore:
 
         if action.current_node != self.node:
             flags.append("invalid_current_node")
-            details["invalid_current_node"] = f"expected {self.node} got {action.current_node}"
+            details["invalid_current_node"] = (
+                f"expected {self.node} got {action.current_node}"
+            )
             return self._obs(
                 prompt="Invalid action: current_node mismatch.",
                 done=True,
@@ -61,7 +65,9 @@ class RoadCore:
                 anti_cheat_details=details,
             )
 
-        w_s = float(self.g.edges[action.current_node, action.next_node].get("weight", 5.0))
+        w_s = float(
+            self.g.edges[action.current_node, action.next_node].get("weight", 5.0)
+        )
         self.node = int(action.next_node)
         self.steps_remaining = max(0, self.steps_remaining - 1)
 
@@ -72,7 +78,9 @@ class RoadCore:
         rb["time_min"] = dist_pen
 
         # Done when close to target station.
-        tgt = next((s for s in STATIONS if s.station_id == self.target_station_id), STATIONS[0])
+        tgt = next(
+            (s for s in STATIONS if s.station_id == self.target_station_id), STATIONS[0]
+        )
         lat, lng = self.nodes[self.node]
         d_m = haversine_m(lat, lng, tgt.lat, tgt.lng)
         rb["target_dist_km"] = -float(d_m / 1000.0) * 0.02
@@ -86,7 +94,13 @@ class RoadCore:
         total = float(sum(rb.values()))
         rb["total"] = total
         prompt = "Pick next_node among connected neighbors. Minimize time and distance to target."
-        return self._obs(prompt=prompt, done=done, reward_breakdown=rb, anti_cheat_flags=flags, anti_cheat_details=details)
+        return self._obs(
+            prompt=prompt,
+            done=done,
+            reward_breakdown=rb,
+            anti_cheat_flags=flags,
+            anti_cheat_details=details,
+        )
 
     def _obs(
         self,
@@ -97,7 +111,9 @@ class RoadCore:
         anti_cheat_flags: list[str] | None = None,
         anti_cheat_details: dict[str, str] | None = None,
     ) -> RoadObservation:
-        tgt = next((s for s in STATIONS if s.station_id == self.target_station_id), STATIONS[0])
+        tgt = next(
+            (s for s in STATIONS if s.station_id == self.target_station_id), STATIONS[0]
+        )
         lat, lng = self.nodes[self.node]
         st = RoadState(
             node=int(self.node),
@@ -117,4 +133,3 @@ class RoadCore:
             anti_cheat_flags=anti_cheat_flags or [],
             anti_cheat_details=anti_cheat_details or {},
         )
-

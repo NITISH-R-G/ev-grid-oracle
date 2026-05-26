@@ -32,7 +32,9 @@ class TrafficModel:
     seed: int
     scenario: str
 
-    def multiplier_for_edge(self, *, u: int, v: int, mid_lat: float, mid_lng: float, tick: int) -> float:
+    def multiplier_for_edge(
+        self, *, u: int, v: int, mid_lat: float, mid_lng: float, tick: int
+    ) -> float:
         # Base: stable per-edge noise, gently time-modulated.
         base = _stable_u01(self.seed, self.scenario, "edge", min(u, v), max(u, v))
         t = tick / 12.0
@@ -66,4 +68,3 @@ class TrafficModel:
         # Keep mid around 1.0 with bounded range.
         m = 0.85 + 0.18 * wobble + 0.55 * hot + 0.08 * (base - 0.5)
         return _clamp(m, 0.35, 1.15)
-

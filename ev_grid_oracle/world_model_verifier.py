@@ -4,7 +4,12 @@ import copy
 from dataclasses import dataclass
 from statistics import mean
 
-from .env import _apply_action, _drain_queues_and_charging, _peak_risk, _update_station_waits
+from .env import (
+    _apply_action,
+    _drain_queues_and_charging,
+    _peak_risk,
+    _update_station_waits,
+)
 from .grid_sim import update_grid_load
 from .models import EVGridAction, GridState, SimulationPrediction
 
@@ -24,7 +29,9 @@ def _top3(st: GridState) -> list[tuple[str, float, int]]:
     return rows[:3]
 
 
-def rollout_deterministic_5ticks(prev_state: GridState, action: EVGridAction) -> GridState:
+def rollout_deterministic_5ticks(
+    prev_state: GridState, action: EVGridAction
+) -> GridState:
     """
     Deterministic verifier rollout: apply action once, then advance 5 ticks with *no new arrivals*.
     This is intentionally verifier-friendly (stable + reproducible) for RLVR.
@@ -53,7 +60,9 @@ def rollout_deterministic_5ticks(prev_state: GridState, action: EVGridAction) ->
     return st
 
 
-def score_prediction(prev_state: GridState, action: EVGridAction, pred: SimulationPrediction) -> PredictionScore:
+def score_prediction(
+    prev_state: GridState, action: EVGridAction, pred: SimulationPrediction
+) -> PredictionScore:
     """
     Score dream-state prediction accuracy against a deterministic T+5 verifier rollout.
     Returns score in [0,1].
@@ -96,4 +105,3 @@ def score_prediction(prev_state: GridState, action: EVGridAction, pred: Simulati
             "pred/top3_value_score": float(overlap_score),
         },
     )
-

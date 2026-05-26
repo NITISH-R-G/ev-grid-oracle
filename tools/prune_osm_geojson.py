@@ -12,11 +12,19 @@ if str(ROOT) not in sys.path:
 from ev_grid_oracle.city_graph import STATIONS
 
 
-def _pad_bbox(lat_lo: float, lat_hi: float, lng_lo: float, lng_hi: float, pad_deg: float) -> tuple[float, float, float, float]:
+def _pad_bbox(
+    lat_lo: float, lat_hi: float, lng_lo: float, lng_hi: float, pad_deg: float
+) -> tuple[float, float, float, float]:
     return lat_lo - pad_deg, lat_hi + pad_deg, lng_lo - pad_deg, lng_hi + pad_deg
 
 
-def _line_intersects_bbox(coords: list[list[float]], lat_lo: float, lat_hi: float, lng_lo: float, lng_hi: float) -> bool:
+def _line_intersects_bbox(
+    coords: list[list[float]],
+    lat_lo: float,
+    lat_hi: float,
+    lng_lo: float,
+    lng_hi: float,
+) -> bool:
     # Cheap bbox test: any point inside OR segment crosses bbox edges (approx via point-in bbox only).
     for lon, lat in coords:
         if lat_lo <= lat <= lat_hi and lng_lo <= lon <= lng_hi:
@@ -24,7 +32,9 @@ def _line_intersects_bbox(coords: list[list[float]], lat_lo: float, lat_hi: floa
     return False
 
 
-def _simplify_uniform(coords: list[list[float]], *, max_points: int) -> list[list[float]]:
+def _simplify_uniform(
+    coords: list[list[float]], *, max_points: int
+) -> list[list[float]]:
     if len(coords) <= max_points:
         return coords
     step = max(1, len(coords) // max_points)
@@ -34,10 +44,14 @@ def _simplify_uniform(coords: list[list[float]], *, max_points: int) -> list[lis
     return out
 
 
-def main():
+def main() -> None:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--in", dest="inp", type=str, default="web/public/maps/bangalore_roads.geojson")
-    ap.add_argument("--out", type=str, default="web/public/maps/bangalore_roads_demo.geojson")
+    ap.add_argument(
+        "--in", dest="inp", type=str, default="web/public/maps/bangalore_roads.geojson"
+    )
+    ap.add_argument(
+        "--out", type=str, default="web/public/maps/bangalore_roads_demo.geojson"
+    )
     ap.add_argument("--pad-deg", type=float, default=0.06)
     ap.add_argument("--max-features", type=int, default=1400)
     ap.add_argument("--max-points-per-way", type=int, default=40)
@@ -51,7 +65,9 @@ def main():
     lngs = [s.lng for s in STATIONS]
     lat_lo, lat_hi = min(lats), max(lats)
     lng_lo, lng_hi = min(lngs), max(lngs)
-    lat_lo, lat_hi, lng_lo, lng_hi = _pad_bbox(lat_lo, lat_hi, lng_lo, lng_hi, args.pad_deg)
+    lat_lo, lat_hi, lng_lo, lng_hi = _pad_bbox(
+        lat_lo, lat_hi, lng_lo, lng_hi, args.pad_deg
+    )
 
     gj = json.loads(inp.read_text(encoding="utf-8"))
     feats_in = gj.get("features", [])
@@ -91,8 +107,13 @@ def main():
             }
         )
 
-    out.write_text(json.dumps({"type": "FeatureCollection", "features": out_feats}, indent=2), encoding="utf-8")
-    print(f"Wrote {out} with {len(out_feats)} features (bbox around {len(STATIONS)} stations)")
+    out.write_text(
+        json.dumps({"type": "FeatureCollection", "features": out_feats}, indent=2),
+        encoding="utf-8",
+    )
+    print(
+        f"Wrote {out} with {len(out_feats)} features (bbox around {len(STATIONS)} stations)"
+    )
 
 
 if __name__ == "__main__":

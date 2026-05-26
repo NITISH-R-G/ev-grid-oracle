@@ -55,12 +55,14 @@ def paired_mcnemar_analysis(per_episode: list[dict[str, Any]]) -> dict[str, Any]
         b01 = sum(
             1
             for row in per_episode
-            if (row.get("binary") or {}).get(bk) and not (row.get("binary") or {}).get(ok)
+            if (row.get("binary") or {}).get(bk)
+            and not (row.get("binary") or {}).get(ok)
         )
         b10 = sum(
             1
             for row in per_episode
-            if not (row.get("binary") or {}).get(bk) and (row.get("binary") or {}).get(ok)
+            if not (row.get("binary") or {}).get(bk)
+            and (row.get("binary") or {}).get(ok)
         )
         out: dict[str, Any] = dict(mcnemar_discordant(b01, b10))
         out["baseline_key"] = bk
@@ -68,14 +70,20 @@ def paired_mcnemar_analysis(per_episode: list[dict[str, Any]]) -> dict[str, Any]
         return out
 
     return {
-        "any_peak_violation": pair("baseline_any_peak_violation", "oracle_any_peak_violation"),
+        "any_peak_violation": pair(
+            "baseline_any_peak_violation", "oracle_any_peak_violation"
+        ),
         "any_anti_cheat": pair("baseline_any_anti_cheat", "oracle_any_anti_cheat"),
-        "any_critical_defer": pair("baseline_any_critical_defer", "oracle_any_critical_defer"),
+        "any_critical_defer": pair(
+            "baseline_any_critical_defer", "oracle_any_critical_defer"
+        ),
         "high_stress": pair("baseline_high_stress", "oracle_high_stress"),
     }
 
 
-def wilson_interval(successes: int, n: int, z: float = 1.96) -> tuple[float, float, float]:
+def wilson_interval(
+    successes: int, n: int, z: float = 1.96
+) -> tuple[float, float, float]:
     """
     Wilson score interval for a binomial proportion.
     Returns (low, high, p_hat). For n==0 returns (nan, nan, nan).
@@ -147,9 +155,16 @@ def _paired_improvement_counts(per_episode: list[dict[str, Any]]) -> dict[str, A
         os_ = b.get("oracle_high_stress", False)
         if bs and not os_:
             improved_stress += 1
+
     def rate(k: int) -> dict[str, float | int]:
         lo, hi, phat = wilson_interval(k, n)
-        return {"successes": k, "n": n, "p_hat": phat, "wilson_low": lo, "wilson_high": hi}
+        return {
+            "successes": k,
+            "n": n,
+            "p_hat": phat,
+            "wilson_low": lo,
+            "wilson_high": hi,
+        }
 
     return {
         "oracle_strictly_better_peak_violation_episodes": rate(improved_peak),
@@ -162,9 +177,17 @@ def _paired_improvement_counts(per_episode: list[dict[str, Any]]) -> dict[str, A
 def plot_fair_eval(binary_rates: dict[str, Any], out_path: Path) -> None:
     """Bar chart: select headline baseline vs oracle binary rates with Wilson error bars."""
     pairs = [
-        ("baseline_any_peak_violation", "oracle_any_peak_violation", "Any peak violation"),
+        (
+            "baseline_any_peak_violation",
+            "oracle_any_peak_violation",
+            "Any peak violation",
+        ),
         ("baseline_any_anti_cheat", "oracle_any_anti_cheat", "Any anti-cheat step"),
-        ("baseline_any_critical_defer", "oracle_any_critical_defer", "Any critical defer"),
+        (
+            "baseline_any_critical_defer",
+            "oracle_any_critical_defer",
+            "Any critical defer",
+        ),
     ]
     labels: list[str] = []
     lows_b: list[float] = []
@@ -195,8 +218,13 @@ def plot_fair_eval(binary_rates: dict[str, Any], out_path: Path) -> None:
     fig = plt.figure(figsize=(10, 4.5))
     ax = fig.add_subplot(111)
 
-    def errs(mids: list[float], lows: list[float], highs: list[float]) -> list[list[float]]:
-        return [[m - lo for m, lo in zip(mids, lows)], [hi - m for m, hi in zip(mids, highs)]]
+    def errs(
+        mids: list[float], lows: list[float], highs: list[float]
+    ) -> list[list[float]]:
+        return [
+            [m - lo for m, lo in zip(mids, lows)],
+            [hi - m for m, hi in zip(mids, highs)],
+        ]
 
     eb_b = ax.errorbar(
         [i - w / 2 for i in x],

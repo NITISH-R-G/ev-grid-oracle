@@ -7,7 +7,7 @@ from ev_grid_oracle.road_models import RoadAction, RoadState
 
 
 def main() -> int:
-    core = RoadCore(g=None, nodes=[])  # type: ignore[arg-type]
+    core = RoadCore(g=None, nodes=[])
     obs = core.reset(seed=0)
     st = obs.state
     nb = list(core.g.neighbors(st.node))[0]
@@ -45,4 +45,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

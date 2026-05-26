@@ -19,7 +19,10 @@ def haversine_m(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
     r = 6371000.0
     dlat = radians(lat2 - lat1)
     dlng = radians(lng2 - lng1)
-    a = sin(dlat / 2) ** 2 + cos(radians(lat1)) * cos(radians(lat2)) * sin(dlng / 2) ** 2
+    a = (
+        sin(dlat / 2) ** 2
+        + cos(radians(lat1)) * cos(radians(lat2)) * sin(dlng / 2) ** 2
+    )
     c = 2 * asin(sqrt(a))
     return r * c
 
@@ -97,13 +100,33 @@ def _coords_latlng_from_geojson_line(coords: Any) -> list[tuple[float, float]]:
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--in", dest="inp", default="web/public/maps/bangalore_roads_full.geojson")
-    ap.add_argument("--out", dest="out", default="web/public/maps/bangalore_roads_graph.json")
-    ap.add_argument("--meta-out", dest="meta_out", default="web/public/maps/bangalore_roads_build_meta.json")
-    ap.add_argument("--snap-decimals", type=int, default=5, help="Coordinate snapping for intersection merging")
-    ap.add_argument("--geom-every", type=int, default=3, help="keep every Nth point in edge geometry (>=1)")
+    ap.add_argument(
+        "--in", dest="inp", default="web/public/maps/bangalore_roads_full.geojson"
+    )
+    ap.add_argument(
+        "--out", dest="out", default="web/public/maps/bangalore_roads_graph.json"
+    )
+    ap.add_argument(
+        "--meta-out",
+        dest="meta_out",
+        default="web/public/maps/bangalore_roads_build_meta.json",
+    )
+    ap.add_argument(
+        "--snap-decimals",
+        type=int,
+        default=5,
+        help="Coordinate snapping for intersection merging",
+    )
+    ap.add_argument(
+        "--geom-every",
+        type=int,
+        default=3,
+        help="keep every Nth point in edge geometry (>=1)",
+    )
     ap.add_argument("--keep-only-largest-component", action="store_true", default=True)
-    ap.add_argument("--gzip", action="store_true", help="write graph output as .gz (recommended)")
+    ap.add_argument(
+        "--gzip", action="store_true", help="write graph output as .gz (recommended)"
+    )
     args = ap.parse_args()
 
     inp = (ROOT / args.inp).resolve()
@@ -143,7 +166,9 @@ def main() -> int:
             add_neighbor(a, b)
 
     # Intersections/endpoints are nodes where degree != 2.
-    is_node: dict[tuple[float, float], bool] = {k: (len(v) != 2) for k, v in adj.items()}
+    is_node: dict[tuple[float, float], bool] = {
+        k: (len(v) != 2) for k, v in adj.items()
+    }
 
     node_id: dict[tuple[float, float], int] = {}
     nodes: list[Node] = []
@@ -215,9 +240,14 @@ def main() -> int:
                     "travel_s": round(travel_s, 4),
                     "geom_poly": encode_polyline_latlng(
                         [
-                            [round(float(p[0]), snap_decimals), round(float(p[1]), snap_decimals)]
+                            [
+                                round(float(p[0]), snap_decimals),
+                                round(float(p[1]), snap_decimals),
+                            ]
                             for idx, p in enumerate(seg_geom)
-                            if geom_every <= 1 or idx in (0, len(seg_geom) - 1) or (idx % geom_every) == 0
+                            if geom_every <= 1
+                            or idx in (0, len(seg_geom) - 1)
+                            or (idx % geom_every) == 0
                         ],
                         precision=snap_decimals,
                     ),
@@ -246,7 +276,10 @@ def main() -> int:
             "speed_kmh": SPEED_KMH,
             "keep_only_largest_component": True,
         },
-        "nodes": [{"lat": round(n.lat, snap_decimals), "lng": round(n.lng, snap_decimals)} for n in nodes],
+        "nodes": [
+            {"lat": round(n.lat, snap_decimals), "lng": round(n.lng, snap_decimals)}
+            for n in nodes
+        ],
         "edges": edges,
     }
 
@@ -265,7 +298,12 @@ def main() -> int:
     for old_id in sorted(keep_nodes_set):
         id_map[old_id] = len(new_nodes)
         n = nodes[old_id]
-        new_nodes.append({"lat": round(float(n.lat), snap_decimals), "lng": round(float(n.lng), snap_decimals)})
+        new_nodes.append(
+            {
+                "lat": round(float(n.lat), snap_decimals),
+                "lng": round(float(n.lng), snap_decimals),
+            }
+        )
 
     new_edges: list[dict[str, Any]] = []
     for e in edges:
@@ -278,7 +316,14 @@ def main() -> int:
         ee["b"] = id_map[b_id]
         new_edges.append(ee)
 
-    new_edges.sort(key=lambda x: (int(x["a"]), int(x["b"]), str(x.get("highway") or ""), str(x.get("name") or "")))
+    new_edges.sort(
+        key=lambda x: (
+            int(x["a"]),
+            int(x["b"]),
+            str(x.get("highway") or ""),
+            str(x.get("name") or ""),
+        )
+    )
 
     payload["nodes"] = new_nodes
     payload["edges"] = new_edges
@@ -303,8 +348,14 @@ def main() -> int:
     coverage = (kept_node_count / max(1, raw_node_count)) if raw_node_count else 0.0
 
     meta = {
-        "input": {"path": str(inp.relative_to(ROOT)).replace("\\", "/"), "sha256": sha_in},
-        "output": {"path": str(out_written.relative_to(ROOT)).replace("\\", "/"), "sha256": sha_out},
+        "input": {
+            "path": str(inp.relative_to(ROOT)).replace("\\", "/"),
+            "sha256": sha_in,
+        },
+        "output": {
+            "path": str(out_written.relative_to(ROOT)).replace("\\", "/"),
+            "sha256": sha_out,
+        },
         "params": {
             "snap_decimals": snap_decimals,
             "geom_every": geom_every,
@@ -321,11 +372,12 @@ def main() -> int:
     }
     meta_out.write_text(json.dumps(meta, indent=2, sort_keys=True), encoding="utf-8")
 
-    print(f"Wrote {out_written} nodes={kept_node_count} edges={len(new_edges)} kept_ratio={coverage:.3f}")
+    print(
+        f"Wrote {out_written} nodes={kept_node_count} edges={len(new_edges)} kept_ratio={coverage:.3f}"
+    )
     print(f"Wrote {meta_out}")
     return 0
 
 
 if __name__ == "__main__":
     raise SystemExit(main())
-

@@ -11,7 +11,11 @@ def test_demo_new_and_step_roundtrip():
     assert r.status_code == 200
     data = r.json()
     assert isinstance(data.get("request_id"), str) and data["request_id"]
-    assert "session_id" in data and isinstance(data["session_id"], str) and data["session_id"]
+    assert (
+        "session_id" in data
+        and isinstance(data["session_id"], str)
+        and data["session_id"]
+    )
     assert "obs" in data and isinstance(data["obs"], dict)
     assert "station_nodes" in data and isinstance(data["station_nodes"], list)
     assert data.get("scenario") == "baseline"
@@ -19,7 +23,10 @@ def test_demo_new_and_step_roundtrip():
     assert isinstance(data.get("scenario_schedule"), list)
 
     sid = data["session_id"]
-    r2 = c.post("/demo/step", json={"session_id": sid, "mode": "baseline", "oracle_lora_repo": ""})
+    r2 = c.post(
+        "/demo/step",
+        json={"session_id": sid, "mode": "baseline", "oracle_lora_repo": ""},
+    )
     assert r2.status_code == 200
     data2 = r2.json()
     assert isinstance(data2.get("request_id"), str) and data2["request_id"]
@@ -46,7 +53,14 @@ def test_demo_spawn_vehicle_route_event():
     r = c.post("/demo/new", json={"seed": 123})
     sid = r.json()["session_id"]
 
-    r2 = c.post("/demo/spawn_vehicle", json={"session_id": sid, "min_station_dist_m": 200, "battery_threshold_pct": 30})
+    r2 = c.post(
+        "/demo/spawn_vehicle",
+        json={
+            "session_id": sid,
+            "min_station_dist_m": 200,
+            "battery_threshold_pct": 30,
+        },
+    )
     assert r2.status_code == 200
     data = r2.json()
     assert isinstance(data.get("request_id"), str) and data["request_id"]
@@ -126,10 +140,21 @@ def test_ma_new_and_step_roundtrip():
 
     step = {
         "session_id": sid,
-        "grid_directive": {"max_grid_load_pct": 0.88, "station_blacklist": [], "price_mult": 1.0},
+        "grid_directive": {
+            "max_grid_load_pct": 0.88,
+            "station_blacklist": [],
+            "price_mult": 1.0,
+        },
         "grid_message": {"role": "grid", "text": "Keep peak under 0.88."},
-        "fleet_action": {"action_type": "load_shift", "ev_id": "EV-000", "defer_minutes": 0},
-        "fleet_message": {"role": "fleet", "text": "Applying load shift to reduce peak."},
+        "fleet_action": {
+            "action_type": "load_shift",
+            "ev_id": "EV-000",
+            "defer_minutes": 0,
+        },
+        "fleet_message": {
+            "role": "fleet",
+            "text": "Applying load shift to reduce peak.",
+        },
     }
     r2 = c.post("/ma/step", json=step)
     assert r2.status_code == 200
@@ -138,4 +163,3 @@ def test_ma_new_and_step_roundtrip():
     assert data2["session_id"] == sid
     assert isinstance(data2.get("messages"), list)
     assert isinstance(data2.get("resolved_action"), dict)
-

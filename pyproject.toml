@@ -39,3 +39,4 @@ packages = ["ev_grid_oracle", "server"]
 
 [tool.mypy]
 ignore_missing_imports = true
+check_untyped_defs = true

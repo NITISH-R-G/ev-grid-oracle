@@ -17,12 +17,12 @@ class EVGridEnvironment(Environment):
         self._state = State(episode_id=str(uuid4()), step_count=0)
         self._core = EVGridCore(city_graph=build_city_graph())
 
-    def reset(self, seed=None, episode_id=None, **kwargs) -> EVGridObservation:  # type: ignore[override]
+    def reset(self, seed=None, episode_id=None, **kwargs) -> EVGridObservation:
         self._state = State(episode_id=episode_id or str(uuid4()), step_count=0)
         obs = self._core.reset(seed=seed)
         return obs
 
-    def step(self, action: EVGridAction) -> EVGridObservation:  # type: ignore[override]
+    def step(self, action: EVGridAction) -> EVGridObservation:
         self._state.step_count += 1
         obs = self._core.step(action)
         return obs
@@ -30,4 +30,3 @@ class EVGridEnvironment(Environment):
     @property
     def state(self) -> State:
         return self._state
-

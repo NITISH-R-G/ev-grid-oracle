@@ -70,16 +70,35 @@ def render_map(env: EVGridCore, *, w: int = 900, h: int = 600) -> Image.Image:
         draw.ellipse((x - r, y - r, x + r, y + r), fill=c, outline=(0, 0, 0), width=2)
         # queue dots
         for i in range(min(5, s.queue_length)):
-            draw.ellipse((x - 3, y - r - 8 - i * 6, x + 3, y - r - 2 - i * 6), fill=(245, 245, 245))
+            draw.ellipse(
+                (x - 3, y - r - 8 - i * 6, x + 3, y - r - 2 - i * 6),
+                fill=(245, 245, 245),
+            )
         draw.text((x + r + 4, y - 8), s.station_id, fill=(220, 220, 220))
 
     # HUD
     draw.rectangle((w - 260, 20, w - 20, 160), fill=(18, 20, 32), outline=(80, 90, 120))
-    draw.text((w - 245, 30), f"Time: {state.hour:02d}:00  {state.day_type.value}", fill=(240, 240, 240))
-    draw.text((w - 245, 55), f"Grid load: {state.grid_load_pct*100:.1f}%", fill=(240, 240, 240))
-    draw.text((w - 245, 80), f"Renewable: {state.renewable_pct*100:.1f}%", fill=(240, 240, 240))
-    draw.text((w - 245, 105), f"Peak risk: {state.peak_risk.value}", fill=(240, 240, 240))
-    avg_wait = sum(s.avg_wait_minutes for s in state.stations) / max(1, len(state.stations))
+    draw.text(
+        (w - 245, 30),
+        f"Time: {state.hour:02d}:00  {state.day_type.value}",
+        fill=(240, 240, 240),
+    )
+    draw.text(
+        (w - 245, 55),
+        f"Grid load: {state.grid_load_pct * 100:.1f}%",
+        fill=(240, 240, 240),
+    )
+    draw.text(
+        (w - 245, 80),
+        f"Renewable: {state.renewable_pct * 100:.1f}%",
+        fill=(240, 240, 240),
+    )
+    draw.text(
+        (w - 245, 105), f"Peak risk: {state.peak_risk.value}", fill=(240, 240, 240)
+    )
+    avg_wait = sum(s.avg_wait_minutes for s in state.stations) / max(
+        1, len(state.stations)
+    )
     draw.text((w - 245, 130), f"Avg wait: {avg_wait:.1f} min", fill=(240, 240, 240))
 
     return img
@@ -100,10 +119,14 @@ def new_session(seed: int) -> Session:
     return Session(env=env, seed=seed)
 
 
-def step_once(sess: Session, mode: Mode, oracle_lora_repo: str) -> tuple[Image.Image, str, str]:
+def step_once(
+    sess: Session, mode: Mode, oracle_lora_repo: str
+) -> tuple[Image.Image, str, str]:
     state = sess.env._grid_state
     if state is None or not state.pending_evs:
-        action = EVGridAction(action_type=ActionType.load_shift, ev_id="EV-000", defer_minutes=0)
+        action = EVGridAction(
+            action_type=ActionType.load_shift, ev_id="EV-000", defer_minutes=0
+        )
         sess.last_action_text = "ACTION: load_shift (no pending EVs)"
     else:
         if mode == "Untrained Baseline":
@@ -115,8 +138,16 @@ def step_once(sess: Session, mode: Mode, oracle_lora_repo: str) -> tuple[Image.I
                 sess.oracle_lora_repo = oracle_lora_repo
                 sess.oracle = OracleAgent(lora_repo_id=oracle_lora_repo or None)
             prompt = _build_prompt(state)
-            action = sess.oracle.act(state, prompt, sess.env.city_graph) if sess.oracle else baseline_policy(state, sess.env.city_graph)
-            tag = "Oracle" if sess.oracle and sess.oracle.is_active else "Oracle (fallback)"
+            action = (
+                sess.oracle.act(state, prompt, sess.env.city_graph)
+                if sess.oracle
+                else baseline_policy(state, sess.env.city_graph)
+            )
+            tag = (
+                "Oracle"
+                if sess.oracle and sess.oracle.is_active
+                else "Oracle (fallback)"
+            )
             sess.last_action_text = f"{tag} picked {action.action_type.value} -> {action.station_id or 'NONE'}"
 
     obs = sess.env.step(action)
@@ -128,10 +159,15 @@ def step_once(sess: Session, mode: Mode, oracle_lora_repo: str) -> tuple[Image.I
 def compute_kpis(seed: int, *, episodes: int = 10, oracle_lora_repo: str = "") -> str:
     graph = build_city_graph()
     env = EVGridCore(city_graph=graph)
-    baseline = [run_episode(env, policy="baseline", seed=seed + i) for i in range(episodes)]
+    baseline = [
+        run_episode(env, policy="baseline", seed=seed + i) for i in range(episodes)
+    ]
     oracle_repo = (oracle_lora_repo or "").strip() or None
     oracle = [
-        run_episode(env, policy="oracle", seed=seed + 10_000 + i, oracle_repo=oracle_repo) for i in range(episodes)
+        run_episode(
+            env, policy="oracle", seed=seed + 10_000 + i, oracle_repo=oracle_repo
+        )
+        for i in range(episodes)
     ]
     out = {
         "episodes": episodes,
@@ -140,8 +176,8 @@ def compute_kpis(seed: int, *, episodes: int = 10, oracle_lora_repo: str = "") -
         "note": "oracle uses LoRA repo if provided, else baseline fallback.",
     }
     # Human-readable
-    b: dict = out["baseline"] # type: ignore
-    o: dict = out["oracle"] # type: ignore
+    b: dict = out["baseline"]  # type: ignore
+    o: dict = out["oracle"]  # type: ignore
     return (
         f"Episodes={episodes}\n"
         f"Baseline avg_wait={b['avg_wait_minutes']:.2f}m | stress={b['grid_stress_events']:.1f} | peak_viol={b['peak_violations']:.1f}\n"
@@ -153,10 +189,16 @@ def compute_kpis(seed: int, *, episodes: int = 10, oracle_lora_repo: str = "") -
 
 
 with gr.Blocks(title="EV Grid Oracle") as demo:
-    gr.Markdown("## EV Grid Oracle — Bangalore EV charging dispatch (baseline vs oracle)")
+    gr.Markdown(
+        "## EV Grid Oracle — Bangalore EV charging dispatch (baseline vs oracle)"
+    )
 
     with gr.Row():
-        mode = gr.Radio(["Untrained Baseline", "Oracle Agent"], value="Untrained Baseline", label="Mode")
+        mode = gr.Radio(
+            ["Untrained Baseline", "Oracle Agent"],
+            value="Untrained Baseline",
+            label="Mode",
+        )
         seed = gr.Slider(0, 10_000, value=123, step=1, label="Scenario seed")
         autoplay = gr.Checkbox(value=False, label="Autoplay (stream 60 ticks)")
 
@@ -190,7 +232,9 @@ with gr.Blocks(title="EV Grid Oracle") as demo:
         im, t, k = step_once(sess, mode_val, oracle_lora_repo)
         return sess, im, t, k
 
-    step.click(_step, inputs=[state, mode, oracle_lora], outputs=[state, img, thought, kpi])
+    step.click(
+        _step, inputs=[state, mode, oracle_lora], outputs=[state, img, thought, kpi]
+    )
 
     def _run60(sess: Session, mode_val: Mode, oracle_lora_repo: str):
         if sess is None:
@@ -199,10 +243,14 @@ with gr.Blocks(title="EV Grid Oracle") as demo:
             im, t, k = step_once(sess, mode_val, oracle_lora_repo)
             yield sess, im, t, k
 
-    run60.click(_run60, inputs=[state, mode, oracle_lora], outputs=[state, img, thought, kpi])
+    run60.click(
+        _run60, inputs=[state, mode, oracle_lora], outputs=[state, img, thought, kpi]
+    )
 
     # (Optional) auto-start streaming after reset
-    def _start_and_maybe_autoplay(seed_val: int, autoplay_val: bool, mode_val: Mode, oracle_lora_repo: str):
+    def _start_and_maybe_autoplay(
+        seed_val: int, autoplay_val: bool, mode_val: Mode, oracle_lora_repo: str
+    ):
         sess = new_session(seed_val)
         if not autoplay_val:
             return sess, render_map(sess.env), "", "", ""
@@ -221,4 +269,3 @@ with gr.Blocks(title="EV Grid Oracle") as demo:
 
 if __name__ == "__main__":
     demo.launch()
-

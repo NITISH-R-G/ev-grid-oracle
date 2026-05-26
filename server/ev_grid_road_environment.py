@@ -19,17 +19,16 @@ class EVGridRoadEnvironment(Environment):
 
     def __init__(self):
         self._state = State(episode_id=str(uuid4()), step_count=0)
-        self._core = RoadCore(g=None, nodes=[])  # type: ignore[arg-type]
+        self._core = RoadCore(g=None, nodes=[])
 
-    def reset(self, seed=None, episode_id=None, **kwargs) -> RoadObservation:  # type: ignore[override]
+    def reset(self, seed=None, episode_id=None, **kwargs) -> RoadObservation:
         self._state = State(episode_id=episode_id or str(uuid4()), step_count=0)
         return self._core.reset(seed=seed)
 
-    def step(self, action: RoadAction) -> RoadObservation:  # type: ignore[override]
+    def step(self, action: RoadAction) -> RoadObservation:
         self._state.step_count += 1
         return self._core.step(action)
 
     @property
     def state(self) -> State:
         return self._state
-

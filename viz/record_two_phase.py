@@ -20,7 +20,9 @@ PolicyFn = Callable[[GridState, object], EVGridAction]
 def _step_action(env: EVGridCore, policy: PolicyFn) -> EVGridAction:
     st = env._grid_state
     if st is None or not st.pending_evs:
-        return EVGridAction(action_type=ActionType.load_shift, ev_id="EV-000", defer_minutes=0)
+        return EVGridAction(
+            action_type=ActionType.load_shift, ev_id="EV-000", defer_minutes=0
+        )
     return policy(st, env.city_graph)
 
 
@@ -54,7 +56,9 @@ def main():
     ap.add_argument("--baseline-steps", type=int, default=24)
     ap.add_argument("--oracle-steps", type=int, default=24)
     ap.add_argument("--out", type=str, default="artifacts/frames_2min")
-    ap.add_argument("--oracle-lora", type=str, default="", help="HF LoRA repo id (optional)")
+    ap.add_argument(
+        "--oracle-lora", type=str, default="", help="HF LoRA repo id (optional)"
+    )
     ap.add_argument("--fps", type=int, default=30)
     ap.add_argument("--tick-every-frames", type=int, default=15)
     args = ap.parse_args()
@@ -100,9 +104,10 @@ def main():
     pygame.quit()
     print(f"Wrote frames to {out_dir}")
     print("Make video:")
-    print("  ffmpeg -framerate 30 -i frame_%06d.png -c:v libx264 -pix_fmt yuv420p out.mp4")
+    print(
+        "  ffmpeg -framerate 30 -i frame_%06d.png -c:v libx264 -pix_fmt yuv420p out.mp4"
+    )
 
 
 if __name__ == "__main__":
     main()
-

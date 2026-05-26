@@ -23,7 +23,13 @@ from .reward import compute_reward
 from .reward_hack import RewardHackDetector
 from .bescom_feed import BESCOMFeedAPI
 from .personas import FleetMode, choose_persona
-from .scenarios import ScenarioEvent, ScenarioModifiers, ScenarioName, apply_scenario_events, scenario_schedule
+from .scenarios import (
+    ScenarioEvent,
+    ScenarioModifiers,
+    ScenarioName,
+    apply_scenario_events,
+    scenario_schedule,
+)
 
 
 @dataclass
@@ -89,16 +95,24 @@ class EVGridCore:
         ]
 
         # Capture baseline tariffs once (scenario multipliers apply relative to these).
-        self._scenario_mods.base_prices = {s.station_id: float(s.price_per_kwh) for s in stations}
+        self._scenario_mods.base_prices = {
+            s.station_id: float(s.price_per_kwh) for s in stations
+        }
 
         # Apply tick-0 scenario effects (e.g., tariff baseline multiplier).
         self._scenario_mods, fired0 = apply_scenario_events(
-            name=self.scenario, tick=0, schedule=self._scenario_schedule, modifiers=self._scenario_mods
+            name=self.scenario,
+            tick=0,
+            schedule=self._scenario_schedule,
+            modifiers=self._scenario_mods,
         )
         self.last_scenario_events = fired0
         self._apply_tariff_mult(stations)
 
-        pending = [_make_ev(self.rng, i, stations, fleet_mode=self.fleet_mode) for i in range(self.rng.randint(3, 8))]
+        pending = [
+            _make_ev(self.rng, i, stations, fleet_mode=self.fleet_mode)
+            for i in range(self.rng.randint(3, 8))
+        ]
 
         occupied_total = sum(s.occupied_slots for s in stations)
         grid_load, renewable = update_grid_load(
@@ -107,7 +121,9 @@ class EVGridCore:
             occupied_slots_total=occupied_total,
             load_shift_action_strength=0.0,
         )
-        grid_load = max(0.0, min(1.0, grid_load + float(self._scenario_mods.grid_load_delta)))
+        grid_load = max(
+            0.0, min(1.0, grid_load + float(self._scenario_mods.grid_load_delta))
+        )
         peak_risk = _peak_risk(grid_load)
 
         self._grid_state = GridState(
@@ -122,7 +138,10 @@ class EVGridCore:
         )
         # BESCOM feeder snapshot (deterministic mock)
         self._grid_state.bescom_feeders = self._bescom.snapshot(
-            state=self._grid_state, tick=self.step_count, scenario=str(self.scenario), seed=self._seed_for_bescom
+            state=self._grid_state,
+            tick=self.step_count,
+            scenario=str(self.scenario),
+            seed=self._seed_for_bescom,
         )
 
         _update_station_waits(self._grid_state, step_minutes=self.step_minutes)
@@ -168,16 +187,25 @@ class EVGridCore:
         action_effect = _apply_action(prev_state, action)
 
         # 2) advance sim time
-        prev_state.minute_of_day = int((int(prev_state.minute_of_day) + int(self.step_minutes)) % (24 * 60))
+        prev_state.minute_of_day = int(
+            (int(prev_state.minute_of_day) + int(self.step_minutes)) % (24 * 60)
+        )
         prev_state.hour = int(prev_state.minute_of_day // 60)
         _drain_queues_and_charging(prev_state)
 
         # 3) new arrivals
-        arrivals = sample_arrivals_per_step(self.rng, prev_state.hour, day_type=prev_state.day_type.value)
+        arrivals = sample_arrivals_per_step(
+            self.rng, prev_state.hour, day_type=prev_state.day_type.value
+        )
         arrivals = int(round(arrivals * float(self._scenario_mods.arrivals_mult)))
         for _ in range(arrivals):
             prev_state.pending_evs.append(
-                _make_ev(self.rng, self.rng.randint(1000, 9999), prev_state.stations, fleet_mode=self.fleet_mode)
+                _make_ev(
+                    self.rng,
+                    self.rng.randint(1000, 9999),
+                    prev_state.stations,
+                    fleet_mode=self.fleet_mode,
+                )
             )
 
         # cap pending list for prompt/training cost (env still realistic enough)
@@ -186,20 +214,27 @@ class EVGridCore:
 
         # 4) grid update + peak risk
         occupied_total = sum(s.occupied_slots for s in prev_state.stations)
-        load_shift_strength = 0.03 if action.action_type == ActionType.load_shift else 0.0
+        load_shift_strength = (
+            0.03 if action.action_type == ActionType.load_shift else 0.0
+        )
         grid_load, renewable = update_grid_load(
             hour=prev_state.hour,
             day_type=prev_state.day_type.value,
             occupied_slots_total=occupied_total,
             load_shift_action_strength=load_shift_strength,
         )
-        prev_state.grid_load_pct = max(0.0, min(1.0, grid_load + float(self._scenario_mods.grid_load_delta)))
+        prev_state.grid_load_pct = max(
+            0.0, min(1.0, grid_load + float(self._scenario_mods.grid_load_delta))
+        )
         prev_state.renewable_pct = renewable
         prev_state.peak_risk = _peak_risk(prev_state.grid_load_pct)
 
         # Update BESCOM feeder snapshot for this tick.
         prev_state.bescom_feeders = self._bescom.snapshot(
-            state=prev_state, tick=self.step_count, scenario=str(self.scenario), seed=self._seed_for_bescom
+            state=prev_state,
+            tick=self.step_count,
+            scenario=str(self.scenario),
+            seed=self._seed_for_bescom,
         )
 
         # 5) wait estimates + reward
@@ -213,7 +248,9 @@ class EVGridCore:
         )
 
         # Stateful reward-hack detection (multi-step exploits).
-        hack_rb, hack_flags, hack_details = self._hack_detector.step(prev=pre_action_state, action=action, next_state=prev_state)
+        hack_rb, hack_flags, hack_details = self._hack_detector.step(
+            prev=pre_action_state, action=action, next_state=prev_state
+        )
         reward_breakdown = {**reward_breakdown, **hack_rb}
         for f in hack_flags:
             if f not in anti_flags:
@@ -223,7 +260,11 @@ class EVGridCore:
         # merge effects into breakdown (debug)
         reward_breakdown = {**reward_breakdown, **action_effect}
         reward_breakdown["total"] = float(
-            sum(float(v) for k, v in reward_breakdown.items() if k != "total" and not str(k).startswith("_"))
+            sum(
+                float(v)
+                for k, v in reward_breakdown.items()
+                if k != "total" and not str(k).startswith("_")
+            )
         )
 
         done = self.step_count >= self.max_steps
@@ -239,10 +280,14 @@ class EVGridCore:
 
     def _apply_tariff_mult(self, stations: list[StationState]) -> None:
         if not self._scenario_mods.base_prices:
-            self._scenario_mods.base_prices = {s.station_id: float(s.price_per_kwh) for s in stations}
+            self._scenario_mods.base_prices = {
+                s.station_id: float(s.price_per_kwh) for s in stations
+            }
         mult = float(self._scenario_mods.price_mult)
         for s in stations:
-            base = float(self._scenario_mods.base_prices.get(s.station_id, s.price_per_kwh))
+            base = float(
+                self._scenario_mods.base_prices.get(s.station_id, s.price_per_kwh)
+            )
             s.price_per_kwh = float(round(base * mult, 2))
 
 
@@ -256,14 +301,16 @@ def _peak_risk(grid_load_pct: float) -> PeakRisk:
     return PeakRisk.low
 
 
-def _make_ev(rng: Random, i: int, stations: list[StationState], *, fleet_mode: FleetMode) -> EVRequest:
+def _make_ev(
+    rng: Random, i: int, stations: list[StationState], *, fleet_mode: FleetMode
+) -> EVRequest:
     s = rng.choice(stations)
     p = choose_persona(rng, fleet_mode)
     battery = rng.uniform(p.battery_min, p.battery_max)
     urgency = 1.0 if battery < 15.0 else rng.uniform(0.0, 1.0)
     urgency = max(0.0, min(1.0, urgency + p.urgency_bias))
     return EVRequest(
-        ev_id=f"EV-{i+1:03d}",
+        ev_id=f"EV-{i + 1:03d}",
         battery_pct_0_100=round(battery, 1),
         urgency=round(urgency, 2),
         persona=str(p.persona),
@@ -294,7 +341,9 @@ def _apply_action(state: GridState, action: EVGridAction) -> dict[str, float]:
         return out
 
     # route
-    station = next((s for s in state.stations if s.station_id == action.station_id), None)
+    station = next(
+        (s for s in state.stations if s.station_id == action.station_id), None
+    )
     if station is None:
         out["action/invalid_station"] = -1.0
         return out
@@ -352,17 +401,21 @@ def _build_prompt(state: GridState) -> str:
     lines.append("BANGALORE EV GRID — ROUTING DECISION REQUIRED")
     lines.append("=" * 46)
     lines.append(
-        f"Time: {state.hour:02d}:00 | Day: {state.day_type.value} | Grid Load: {state.grid_load_pct*100:.1f}% | Renewable: {state.renewable_pct*100:.1f}%"
+        f"Time: {state.hour:02d}:00 | Day: {state.day_type.value} | Grid Load: {state.grid_load_pct * 100:.1f}% | Renewable: {state.renewable_pct * 100:.1f}%"
     )
     lines.append(f"Peak Risk: {state.peak_risk.value}")
     if state.bescom_feeders:
         hot = max(state.bescom_feeders, key=lambda f: float(f.load_pct - f.limit_pct))
-        lines.append(f"BESCOM Feeder Hotspot: {hot.feeder_id} ({hot.zone}) {hot.load_pct*100:.1f}% / limit {hot.limit_pct*100:.1f}%")
+        lines.append(
+            f"BESCOM Feeder Hotspot: {hot.feeder_id} ({hot.zone}) {hot.load_pct * 100:.1f}% / limit {hot.limit_pct * 100:.1f}%"
+        )
     lines.append("")
     if state.bescom_feeders:
         lines.append("BESCOM FEEDERS (mock): [feeder_id | zone | load | limit]")
         for f in state.bescom_feeders[:6]:
-            lines.append(f"{f.feeder_id} | {f.zone} | {f.load_pct*100:.0f}% | {f.limit_pct*100:.0f}%")
+            lines.append(
+                f"{f.feeder_id} | {f.zone} | {f.load_pct * 100:.0f}% | {f.limit_pct * 100:.0f}%"
+            )
         lines.append("")
     lines.append("CHARGING STATIONS:")
     lines.append("[station_id | type | load | queue | price]")
@@ -378,11 +431,15 @@ def _build_prompt(state: GridState) -> str:
         crit = " 🔴 CRITICAL" if ev.battery_pct_0_100 < 15.0 else ""
         lines.append("PENDING EV REQUEST:")
         lines.append(f"  EV #{ev.ev_id}")
-        lines.append(f"  Persona: {ev.persona} | Price sensitivity: {ev.price_sensitivity:.2f}")
+        lines.append(
+            f"  Persona: {ev.persona} | Price sensitivity: {ev.price_sensitivity:.2f}"
+        )
         lines.append(f"  Battery: {ev.battery_pct_0_100:.1f}%{crit}")
         lines.append(f"  Location: {ev.neighborhood_name}")
         lines.append(f"  Needs: charge to {ev.target_charge_pct_0_100:.1f}%")
-        lines.append(f"  Max wait: {ev.max_wait_minutes} min | Urgency: {ev.urgency:.2f}")
+        lines.append(
+            f"  Max wait: {ev.max_wait_minutes} min | Urgency: {ev.urgency:.2f}"
+        )
     else:
         lines.append("PENDING EV REQUEST:")
         lines.append("  None")
@@ -402,4 +459,3 @@ def _build_prompt(state: GridState) -> str:
     lines.append("REASON: [max 20 words]")
     lines.append("CONFIDENCE: [0.0-1.0]")
     return "\n".join(lines)
-

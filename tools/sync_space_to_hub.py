@@ -12,6 +12,7 @@ Usage:
 
 Requires: `pip install huggingface_hub`, token with write access (`HF_TOKEN` or `huggingface-cli login`).
 """
+
 from __future__ import annotations
 
 import argparse
@@ -39,13 +40,17 @@ DEFAULT_IGNORE = [
 
 
 def main() -> int:
-    ap = argparse.ArgumentParser(description="Upload repo tree to HF Space (skips artifacts / node_modules).")
+    ap = argparse.ArgumentParser(
+        description="Upload repo tree to HF Space (skips artifacts / node_modules)."
+    )
     ap.add_argument(
         "--repo-id",
         default=os.environ.get("HF_SPACE_REPO_ID", "NITISHRG15102007/ev-grid-oracle"),
         help="Space repo id (namespace/name)",
     )
-    ap.add_argument("--skip-build", action="store_true", help="Do not run npm run build in web/")
+    ap.add_argument(
+        "--skip-build", action="store_true", help="Do not run npm run build in web/"
+    )
     args = ap.parse_args()
 
     if not args.skip_build:
@@ -56,7 +61,9 @@ def main() -> int:
     from huggingface_hub import HfApi
 
     api = HfApi()
-    print(f"Uploading {ROOT} -> {args.repo_id} (repo_type=space), ignoring heavy paths...")
+    print(
+        f"Uploading {ROOT} -> {args.repo_id} (repo_type=space), ignoring heavy paths..."
+    )
     info = api.upload_folder(
         repo_id=args.repo_id,
         folder_path=str(ROOT),
@@ -65,7 +72,9 @@ def main() -> int:
         commit_message="sync: push from tools/sync_space_to_hub.py (no artifacts/)",
     )
     print("Done:", info)
-    print("Next: Space Settings -> Restart or Factory rebuild if the container does not pick up static files.")
+    print(
+        "Next: Space Settings -> Restart or Factory rebuild if the container does not pick up static files."
+    )
     return 0
 
 

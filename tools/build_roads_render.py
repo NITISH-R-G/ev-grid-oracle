@@ -22,9 +22,18 @@ KEEP_HIGHWAYS_RENDER = {
 
 def main() -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("--in", dest="inp", default="web/public/maps/bangalore_roads_full.geojson")
-    ap.add_argument("--out", dest="out", default="web/public/maps/bangalore_roads_render.json")
-    ap.add_argument("--every", type=int, default=4, help="keep every Nth point in each linestring (>=1)")
+    ap.add_argument(
+        "--in", dest="inp", default="web/public/maps/bangalore_roads_full.geojson"
+    )
+    ap.add_argument(
+        "--out", dest="out", default="web/public/maps/bangalore_roads_render.json"
+    )
+    ap.add_argument(
+        "--every",
+        type=int,
+        default=4,
+        help="keep every Nth point in each linestring (>=1)",
+    )
     ap.add_argument("--max-features", type=int, default=120_000)
     args = ap.parse_args()
 
@@ -74,4 +83,3 @@ def main() -> int:
 
 if __name__ == "__main__":
     raise SystemExit(main())
-
