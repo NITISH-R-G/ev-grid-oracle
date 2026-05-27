@@ -44,7 +44,11 @@ class RewardHackDetector:
             k = str(action.ev_id)
             self.defer_streak[k] = int(self.defer_streak.get(k, 0)) + 1
             if self.defer_streak[k] >= 3:
-                add("defer_stalling", f"ev_id={k} defer_streak={self.defer_streak[k]}", penalty=-2.5)
+                add(
+                    "defer_stalling",
+                    f"ev_id={k} defer_streak={self.defer_streak[k]}",
+                    penalty=-2.5,
+                )
         else:
             # reset streak when EV is acted on non-defer
             if str(action.ev_id) in self.defer_streak:
@@ -61,10 +65,14 @@ class RewardHackDetector:
 
             # If queue is growing while we keep piling onto same station, flag it.
             st_prev = next((s for s in prev.stations if s.station_id == sid), None)
-            st_next = next((s for s in next_state.stations if s.station_id == sid), None)
+            st_next = next(
+                (s for s in next_state.stations if s.station_id == sid), None
+            )
             if st_prev and st_next:
                 grew = int(st_next.queue_length) > int(st_prev.queue_length)
-                if self.station_streak >= 3 and (int(st_next.queue_length) >= 6 or grew):
+                if self.station_streak >= 3 and (
+                    int(st_next.queue_length) >= 6 or grew
+                ):
                     add(
                         "queue_piling_streak",
                         f"station_id={sid} streak={self.station_streak} queue={st_next.queue_length} grew={grew}",
@@ -72,4 +80,3 @@ class RewardHackDetector:
                     )
 
         return rb, flags, details
-

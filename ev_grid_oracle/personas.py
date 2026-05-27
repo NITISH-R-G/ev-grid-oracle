@@ -5,7 +5,9 @@ from random import Random
 from typing import Literal
 
 
-FleetPersona = Literal["TaxiFleet", "CorporateShuttle", "DeliveryFleet", "PrivateOwner", "Emergency"]
+FleetPersona = Literal[
+    "TaxiFleet", "CorporateShuttle", "DeliveryFleet", "PrivateOwner", "Emergency"
+]
 FleetMode = Literal["mixed", "taxi", "corporate", "delivery", "private", "emergency"]
 
 
@@ -86,4 +88,3 @@ def choose_persona(rng: Random, mode: FleetMode) -> PersonaParams:
     if r < 0.92:
         return PERSONAS["PrivateOwner"]
     return PERSONAS["Emergency"]
-

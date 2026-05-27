@@ -70,20 +70,32 @@ def scenario_schedule(name: ScenarioName) -> list[ScenarioEvent]:
         # Demand surge + queues explode unless dispatch adapts.
         return [
             {"tick": 8, "type": "festival_surge", "meta": {"arrivals_mult": 1.6}},
-            {"tick": 26, "type": "festival_second_wave", "meta": {"arrivals_mult": 2.0}},
+            {
+                "tick": 26,
+                "type": "festival_second_wave",
+                "meta": {"arrivals_mult": 2.0},
+            },
         ]
 
     if name == "transformer_derate":
         # Grid is more fragile: effective headroom drops.
         return [
-            {"tick": 10, "type": "transformer_derate", "meta": {"grid_load_delta": 0.10}},
+            {
+                "tick": 10,
+                "type": "transformer_derate",
+                "meta": {"grid_load_delta": 0.10},
+            },
             {"tick": 28, "type": "derate_worsens", "meta": {"grid_load_delta": 0.16}},
         ]
 
     if name == "station_outage":
         # One major station loses capacity mid-episode.
         return [
-            {"tick": 14, "type": "station_outage", "meta": {"station_id": "BLR-07", "new_total_slots": 1}},
+            {
+                "tick": 14,
+                "type": "station_outage",
+                "meta": {"station_id": "BLR-07", "new_total_slots": 1},
+            },
             {"tick": 22, "type": "spillover", "meta": {"arrivals_mult": 1.3}},
         ]
 
@@ -97,18 +109,42 @@ def scenario_schedule(name: ScenarioName) -> list[ScenarioEvent]:
     if name == "MonsoonStorm":
         # Solar drops + random outages + demand surge (city floods).
         return [
-            {"tick": 6, "type": "monsoon_start", "meta": {"grid_load_delta": 0.06, "arrivals_mult": 1.35}},
-            {"tick": 14, "type": "station_outage", "meta": {"station_id": "BLR-14", "new_total_slots": 2}},
-            {"tick": 22, "type": "station_outage", "meta": {"station_id": "BLR-07", "new_total_slots": 1}},
-            {"tick": 28, "type": "monsoon_worst", "meta": {"grid_load_delta": 0.14, "arrivals_mult": 1.6}},
+            {
+                "tick": 6,
+                "type": "monsoon_start",
+                "meta": {"grid_load_delta": 0.06, "arrivals_mult": 1.35},
+            },
+            {
+                "tick": 14,
+                "type": "station_outage",
+                "meta": {"station_id": "BLR-14", "new_total_slots": 2},
+            },
+            {
+                "tick": 22,
+                "type": "station_outage",
+                "meta": {"station_id": "BLR-07", "new_total_slots": 1},
+            },
+            {
+                "tick": 28,
+                "type": "monsoon_worst",
+                "meta": {"grid_load_delta": 0.14, "arrivals_mult": 1.6},
+            },
         ]
 
     if name == "CricketFinal":
         # Evening mega-spike and queues explode unless fleet adapts.
         return [
             {"tick": 10, "type": "pre_game", "meta": {"arrivals_mult": 1.4}},
-            {"tick": 18, "type": "stadium_peak", "meta": {"arrivals_mult": 2.2, "grid_load_delta": 0.08}},
-            {"tick": 26, "type": "post_game_exit", "meta": {"arrivals_mult": 2.5, "grid_load_delta": 0.12}},
+            {
+                "tick": 18,
+                "type": "stadium_peak",
+                "meta": {"arrivals_mult": 2.2, "grid_load_delta": 0.08},
+            },
+            {
+                "tick": 26,
+                "type": "post_game_exit",
+                "meta": {"arrivals_mult": 2.5, "grid_load_delta": 0.12},
+            },
         ]
 
     if name == "AirportRush":
@@ -116,14 +152,22 @@ def scenario_schedule(name: ScenarioName) -> list[ScenarioEvent]:
         return [
             {"tick": 8, "type": "airport_rush", "meta": {"arrivals_mult": 1.7}},
             {"tick": 16, "type": "tariff_shock", "meta": {"price_mult": 1.45}},
-            {"tick": 24, "type": "transformer_derate", "meta": {"grid_load_delta": 0.12}},
+            {
+                "tick": 24,
+                "type": "transformer_derate",
+                "meta": {"grid_load_delta": 0.12},
+            },
         ]
 
     if name == "SilkBoardJam":
         # Congestion-like effect simulated via increased arrivals + localized outage.
         return [
             {"tick": 6, "type": "jam_start", "meta": {"arrivals_mult": 1.5}},
-            {"tick": 12, "type": "station_outage", "meta": {"station_id": "BLR-11", "new_total_slots": 2}},
+            {
+                "tick": 12,
+                "type": "station_outage",
+                "meta": {"station_id": "BLR-11", "new_total_slots": 2},
+            },
             {"tick": 20, "type": "spillover", "meta": {"arrivals_mult": 1.8}},
         ]
 
@@ -170,7 +214,7 @@ def apply_scenario_events(
 
     # Stable ids for bookmarks / UI (deterministic).
     for e in fired:
-        e.setdefault("id", f"{name}:{int(e['tick'])}:{str(e.get('type',''))}")
+        e.setdefault("id", f"{name}:{int(e['tick'])}:{str(e.get('type', ''))}")
 
     # Modifiers are "sticky": once an event changes a knob, it persists.
     for e in fired:
@@ -190,4 +234,3 @@ def apply_scenario_events(
                 modifiers.slot_derate[sid] = max(1, new_slots)
 
     return modifiers, fired
-

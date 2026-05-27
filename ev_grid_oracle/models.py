@@ -57,7 +57,7 @@ class StationState(BaseModel):
 
     @field_validator("occupied_slots")
     @classmethod
-    def _occupied_le_total(cls, v: int, info):  # type: ignore[override]
+    def _occupied_le_total(cls, v: int, info):
         total = info.data.get("total_slots")
         if total is not None and v > total:
             raise ValueError("occupied_slots cannot exceed total_slots")
@@ -127,7 +127,9 @@ class EVGridAction(Action):
         if self.action_type == ActionType.load_shift:
             # For v1: still tie action to an EV (ev_id) but station optional.
             if self.defer_minutes != 0:
-                raise ValueError("defer_minutes must be 0 when action_type='load_shift'")
+                raise ValueError(
+                    "defer_minutes must be 0 when action_type='load_shift'"
+                )
         return self
 
 
@@ -229,4 +231,3 @@ def to_jsonable(obj: Any) -> Any:
     if isinstance(obj, dict):
         return {k: to_jsonable(v) for k, v in obj.items()}
     return obj
-

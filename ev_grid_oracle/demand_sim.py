@@ -26,8 +26,14 @@ def _gaussian_bump(x: float, mu: float, sigma: float) -> float:
     return exp(-0.5 * z * z)
 
 
-def expected_arrivals_per_step(hour: int, *, day_type: str, params: DemandParams = DemandParams()) -> float:
-    mult = params.weekday_multiplier if day_type == "weekday" else params.weekend_multiplier
+def expected_arrivals_per_step(
+    hour: int, *, day_type: str, params: DemandParams = DemandParams()
+) -> float:
+    mult = (
+        params.weekday_multiplier
+        if day_type == "weekday"
+        else params.weekend_multiplier
+    )
     bump = params.peak_strength * (
         _gaussian_bump(hour, params.morning_peak_hour, params.peak_width_hours)
         + _gaussian_bump(hour, params.evening_peak_hour, params.peak_width_hours)
@@ -50,4 +56,3 @@ def sample_arrivals_per_step(
         k += 1
         p *= rng.random()
     return max(0, k - 1)
-

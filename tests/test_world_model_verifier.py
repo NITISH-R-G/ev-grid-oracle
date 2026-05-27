@@ -1,8 +1,16 @@
 from ev_grid_oracle.city_graph import build_city_graph
 from ev_grid_oracle.env import EVGridCore
-from ev_grid_oracle.models import ActionType, EVGridAction, SimTopStation, SimulationPrediction
+from ev_grid_oracle.models import (
+    ActionType,
+    EVGridAction,
+    SimTopStation,
+    SimulationPrediction,
+)
 from ev_grid_oracle.policies import baseline_policy
-from ev_grid_oracle.world_model_verifier import rollout_deterministic_5ticks, score_prediction
+from ev_grid_oracle.world_model_verifier import (
+    rollout_deterministic_5ticks,
+    score_prediction,
+)
 
 
 def test_rollout_deterministic_is_stable():
@@ -11,7 +19,9 @@ def test_rollout_deterministic_is_stable():
     obs = core.reset(seed=123)
     st = obs.state
     if not st.pending_evs:
-        action = EVGridAction(action_type=ActionType.load_shift, ev_id="EV-000", defer_minutes=0)
+        action = EVGridAction(
+            action_type=ActionType.load_shift, ev_id="EV-000", defer_minutes=0
+        )
     else:
         action = baseline_policy(st, g)
 
@@ -26,7 +36,9 @@ def test_prediction_score_higher_when_close():
     obs = core.reset(seed=123)
     st = obs.state
     if not st.pending_evs:
-        action = EVGridAction(action_type=ActionType.load_shift, ev_id="EV-000", defer_minutes=0)
+        action = EVGridAction(
+            action_type=ActionType.load_shift, ev_id="EV-000", defer_minutes=0
+        )
     else:
         action = baseline_policy(st, g)
 
@@ -43,7 +55,10 @@ def test_prediction_score_higher_when_close():
     pred_good = SimulationPrediction(
         t5_grid_load_pct=true5.grid_load_pct,
         t5_renewable_pct=true5.renewable_pct,
-        t5_top_stations=[SimTopStation(station_id=sid, load_pct=float(load), queue=int(q)) for sid, load, q in top],
+        t5_top_stations=[
+            SimTopStation(station_id=sid, load_pct=float(load), queue=int(q))
+            for sid, load, q in top
+        ],
     )
     pred_bad = SimulationPrediction(
         t5_grid_load_pct=0.0,
@@ -54,4 +69,3 @@ def test_prediction_score_higher_when_close():
     s_good = score_prediction(st, action, pred_good)
     s_bad = score_prediction(st, action, pred_bad)
     assert s_good.score_0_1 > s_bad.score_0_1
-

@@ -105,9 +105,16 @@ out body;
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--out", type=str, default="web/public/maps/bangalore_roads.geojson")
+    ap.add_argument(
+        "--out", type=str, default="web/public/maps/bangalore_roads.geojson"
+    )
     ap.add_argument("--max-points-per-way", type=int, default=120)
-    ap.add_argument("--sleep", type=float, default=0.0, help="sleep seconds before request (rate limiting)")
+    ap.add_argument(
+        "--sleep",
+        type=float,
+        default=0.0,
+        help="sleep seconds before request (rate limiting)",
+    )
 
     # Bangalore-ish bbox (tweakable)
     ap.add_argument("--lat-s", type=float, default=12.83)
@@ -134,4 +141,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-

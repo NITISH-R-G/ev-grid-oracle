@@ -20,7 +20,9 @@ def _run_policy(policy_fn, *, seed: int = 11, steps: int = 8) -> None:
     for _ in range(steps):
         state = obs.state
         if not state.pending_evs:
-            action = EVGridAction(action_type=ActionType.load_shift, ev_id="EV-000", defer_minutes=0)
+            action = EVGridAction(
+                action_type=ActionType.load_shift, ev_id="EV-000", defer_minutes=0
+            )
         else:
             action = policy_fn(state, graph)
         obs = env.step(action)
@@ -29,7 +31,12 @@ def _run_policy(policy_fn, *, seed: int = 11, steps: int = 8) -> None:
 
 
 def test_collapse_policies_do_not_crash() -> None:
-    for fn in (always_defer_policy, always_load_shift_policy, nearest_travel_only_policy, baseline_policy):
+    for fn in (
+        always_defer_policy,
+        always_load_shift_policy,
+        nearest_travel_only_policy,
+        baseline_policy,
+    ):
         _run_policy(fn, seed=21, steps=12)
 
 
@@ -40,7 +47,11 @@ def test_collapse_policies_return_valid_actions_when_pending() -> None:
         obs = env.reset(seed=304)
     assert obs.state.pending_evs
     graph = env.city_graph
-    for fn in (always_defer_policy, always_load_shift_policy, nearest_travel_only_policy):
+    for fn in (
+        always_defer_policy,
+        always_load_shift_policy,
+        nearest_travel_only_policy,
+    ):
         a = fn(obs.state, graph)
         assert a.ev_id
         env.step(a)

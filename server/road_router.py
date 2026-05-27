@@ -16,7 +16,10 @@ def haversine_m(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
     r = 6371000.0
     dlat = radians(lat2 - lat1)
     dlng = radians(lng2 - lng1)
-    a = sin(dlat / 2) ** 2 + cos(radians(lat1)) * cos(radians(lat2)) * sin(dlng / 2) ** 2
+    a = (
+        sin(dlat / 2) ** 2
+        + cos(radians(lat1)) * cos(radians(lat2)) * sin(dlng / 2) ** 2
+    )
     c = 2 * asin(sqrt(a))
     return r * c
 
@@ -131,12 +134,18 @@ class RoadRouter:
                     la2, lo2 = self.nodes[int(v)]
                     mid_lat = (la1 + la2) / 2.0
                     mid_lng = (lo1 + lo2) / 2.0
-                    m = traffic.multiplier_for_edge(u=int(u), v=int(v), mid_lat=mid_lat, mid_lng=mid_lng, tick=int(tick))
+                    m = traffic.multiplier_for_edge(
+                        u=int(u),
+                        v=int(v),
+                        mid_lat=mid_lat,
+                        mid_lng=mid_lng,
+                        tick=int(tick),
+                    )
                     return base * m
 
                 weight_fn = _w
 
-            path = nx.shortest_path(self.g, a, b, weight=weight_fn)  # type: ignore[arg-type]
+            path = nx.shortest_path(self.g, a, b, weight=weight_fn)
         except Exception:
             return None
         poly: list[list[float]] = []
@@ -149,7 +158,9 @@ class RoadRouter:
                 la2, lo2 = self.nodes[int(v)]
                 mid_lat = (la1 + la2) / 2.0
                 mid_lng = (lo1 + lo2) / 2.0
-                m = traffic.multiplier_for_edge(u=int(u), v=int(v), mid_lat=mid_lat, mid_lng=mid_lng, tick=int(tick))
+                m = traffic.multiplier_for_edge(
+                    u=int(u), v=int(v), mid_lat=mid_lat, mid_lng=mid_lng, tick=int(tick)
+                )
             else:
                 m = 1.0
             m_q = int(max(350, min(1150, round(m * 1000.0))))
@@ -179,7 +190,10 @@ def get_router() -> RoadRouter:
     root = Path(__file__).resolve().parents[1]
     # Prefer gz (smaller repo + faster downloads on HF).
     p_gz = root / "web" / "public" / "maps" / "bangalore_roads_graph.json.gz"
-    p = p_gz if p_gz.exists() else (root / "web" / "public" / "maps" / "bangalore_roads_graph.json")
+    p = (
+        p_gz
+        if p_gz.exists()
+        else (root / "web" / "public" / "maps" / "bangalore_roads_graph.json")
+    )
     _ROUTER = RoadRouter.load(p)
     return _ROUTER
-

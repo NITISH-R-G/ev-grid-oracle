@@ -42,7 +42,9 @@ def record(
     for step in range(steps):
         st = env._grid_state
         if st is None or not st.pending_evs:
-            action = EVGridAction(action_type=ActionType.load_shift, ev_id="EV-000", defer_minutes=0)
+            action = EVGridAction(
+                action_type=ActionType.load_shift, ev_id="EV-000", defer_minutes=0
+            )
         else:
             action = baseline_policy(st, env.city_graph)
         last_action = action
@@ -76,9 +78,10 @@ def main():
     )
     print(f"Wrote frames to {args.out}")
     print("To make a video (example):")
-    print("  ffmpeg -framerate 30 -i frame_%06d.png -c:v libx264 -pix_fmt yuv420p out.mp4")
+    print(
+        "  ffmpeg -framerate 30 -i frame_%06d.png -c:v libx264 -pix_fmt yuv420p out.mp4"
+    )
 
 
 if __name__ == "__main__":
     main()
-

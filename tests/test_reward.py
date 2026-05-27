@@ -38,7 +38,11 @@ def test_invalid_station_routes_penalized():
     if not obs.state.pending_evs:
         obs = env.reset(seed=322)
     ev = obs.state.pending_evs[0]
-    action = EVGridAction(action_type=ActionType.route, ev_id=ev.ev_id, station_id="BLR-99", defer_minutes=0)
+    action = EVGridAction(
+        action_type=ActionType.route,
+        ev_id=ev.ev_id,
+        station_id="BLR-99",
+        defer_minutes=0,
+    )
     obs2 = env.step(action)
     assert obs2.reward_breakdown.get("action/invalid_station", 0.0) < 0.0
-

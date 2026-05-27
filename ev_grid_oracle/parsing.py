@@ -3,7 +3,13 @@ from __future__ import annotations
 import re
 from typing import Optional, Tuple
 
-from .models import ActionType, ChargeRate, EVGridAction, SimulationPrediction, SimTopStation
+from .models import (
+    ActionType,
+    ChargeRate,
+    EVGridAction,
+    SimulationPrediction,
+    SimTopStation,
+)
 
 
 ACTION_RE = re.compile(
@@ -38,10 +44,16 @@ def parse_simulation(text: str) -> Optional[SimulationPrediction]:
         tops: list[SimTopStation] = []
         for p in parts[:3]:
             sid, load_s, q_s = [x.strip() for x in p.split(":")]
-            tops.append(SimTopStation(station_id=sid.upper(), load_pct=float(load_s), queue=int(q_s)))
+            tops.append(
+                SimTopStation(
+                    station_id=sid.upper(), load_pct=float(load_s), queue=int(q_s)
+                )
+            )
         if not tops:
             return None
-        return SimulationPrediction(t5_grid_load_pct=grid, t5_renewable_pct=ren, t5_top_stations=tops)
+        return SimulationPrediction(
+            t5_grid_load_pct=grid, t5_renewable_pct=ren, t5_top_stations=tops
+        )
     except Exception:
         return None
 
@@ -70,11 +82,12 @@ def parse_action(text: str, *, ev_id: str) -> Optional[EVGridAction]:
         return None
 
 
-def parse_simulation_and_action(text: str, *, ev_id: str) -> Tuple[Optional[SimulationPrediction], Optional[EVGridAction]]:
+def parse_simulation_and_action(
+    text: str, *, ev_id: str
+) -> Tuple[Optional[SimulationPrediction], Optional[EVGridAction]]:
     """
     Parse both dream prediction and action (either can be missing).
     """
     sim = parse_simulation(text)
     act = parse_action(text, ev_id=ev_id)
     return sim, act
-

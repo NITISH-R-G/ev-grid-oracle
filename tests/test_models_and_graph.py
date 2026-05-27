@@ -12,10 +12,25 @@ def test_city_graph_connected_and_25_stations():
 
 def test_action_route_requires_station_id_and_zero_defer():
     with pytest.raises(Exception):
-        EVGridAction(action_type=ActionType.route, ev_id="EV-001", station_id=None, defer_minutes=0)
+        EVGridAction(
+            action_type=ActionType.route,
+            ev_id="EV-001",
+            station_id=None,
+            defer_minutes=0,
+        )
     with pytest.raises(Exception):
-        EVGridAction(action_type=ActionType.route, ev_id="EV-001", station_id="BLR-01", defer_minutes=5)
-    ok = EVGridAction(action_type=ActionType.route, ev_id="EV-001", station_id="BLR-01", defer_minutes=0)
+        EVGridAction(
+            action_type=ActionType.route,
+            ev_id="EV-001",
+            station_id="BLR-01",
+            defer_minutes=5,
+        )
+    ok = EVGridAction(
+        action_type=ActionType.route,
+        ev_id="EV-001",
+        station_id="BLR-01",
+        defer_minutes=0,
+    )
     assert ok.station_id == "BLR-01"
 
 
@@ -38,11 +53,16 @@ def test_time_advances_with_5min_steps():
     for _ in range(12):
         st = core._grid_state
         ev_id = st.pending_evs[0].ev_id if st and st.pending_evs else "EV-000"
-        core.step(EVGridAction(action_type=ActionType.load_shift, ev_id=ev_id, defer_minutes=0))
+        core.step(
+            EVGridAction(
+                action_type=ActionType.load_shift, ev_id=ev_id, defer_minutes=0
+            )
+        )
 
-    obs1 = core.step(EVGridAction(action_type=ActionType.load_shift, ev_id="EV-000", defer_minutes=0))
+    obs1 = core.step(
+        EVGridAction(action_type=ActionType.load_shift, ev_id="EV-000", defer_minutes=0)
+    )
     h1 = int(obs1.state.hour)
     m1 = int(obs1.state.minute_of_day)
     assert m1 != m0
     assert h1 == ((h0 + 1) % 24)
-

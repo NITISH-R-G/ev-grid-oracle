@@ -23,7 +23,9 @@ class OracleRuntime:
     _loaded: dict[tuple[str, str, str], tuple[object, object]] = {}
 
     @classmethod
-    def load(cls, *, base_model_id: str, lora_repo_id: str, device: str) -> tuple[object, object] | None:
+    def load(
+        cls, *, base_model_id: str, lora_repo_id: str, device: str
+    ) -> tuple[object, object] | None:
         if not lora_repo_id:
             return None
         if cls._lock is None:
@@ -106,7 +108,11 @@ class OracleAgent:
 
         # Prefer CUDA when available (T4 Space).
         device = "cuda" if torch.cuda.is_available() else "cpu"
-        loaded = OracleRuntime.load(base_model_id=self.base_model_id, lora_repo_id=self.lora_repo_id, device=device)
+        loaded = OracleRuntime.load(
+            base_model_id=self.base_model_id,
+            lora_repo_id=self.lora_repo_id,
+            device=device,
+        )
         if loaded is None:
             self.lora_repo_id = None
             return
@@ -121,12 +127,18 @@ class OracleAgent:
         action, _txt = self.act_with_text(state, prompt, graph)
         return action
 
-    def act_with_text(self, state: GridState, prompt: str, graph) -> Tuple[EVGridAction, str]:
+    def act_with_text(
+        self, state: GridState, prompt: str, graph
+    ) -> Tuple[EVGridAction, str]:
         # choose target ev_id (matches env prompt builder v0)
         ev_id = state.pending_evs[0].ev_id if state.pending_evs else "EV-000"
 
         self._ensure_loaded()
-        if self.lora_repo_id and self._model is not None and self._tokenizer is not None:
+        if (
+            self.lora_repo_id
+            and self._model is not None
+            and self._tokenizer is not None
+        ):
             txt = self._generate(prompt)
             action = parse_action(txt, ev_id=ev_id)
             if action is not None:
@@ -136,7 +148,11 @@ class OracleAgent:
 
     @property
     def is_active(self) -> bool:
-        return bool(self.lora_repo_id) and self._model is not None and self._tokenizer is not None
+        return (
+            bool(self.lora_repo_id)
+            and self._model is not None
+            and self._tokenizer is not None
+        )
 
     def _generate(self, prompt: str) -> str:
         tok = self._tokenizer
@@ -155,4 +171,3 @@ class OracleAgent:
                 top_p=0.9,
             )
         return tok.decode(out[0], skip_special_tokens=True)
-

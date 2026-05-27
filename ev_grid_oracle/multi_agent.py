@@ -4,7 +4,13 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from .env import EVGridCore
-from .models import ActionType, EVGridAction, EVGridObservation, GridDirective, NegotiationMessage
+from .models import (
+    ActionType,
+    EVGridAction,
+    EVGridObservation,
+    GridDirective,
+    NegotiationMessage,
+)
 from .policies import baseline_policy
 
 
@@ -49,7 +55,9 @@ class MultiAgentSession:
         # - if action would exceed critical grid load budget, force load_shift (soft constraint)
         st = self.core._grid_state
         if st is not None:
-            if resolved.action_type.value == "route" and resolved.station_id in set(grid_directive.station_blacklist):
+            if resolved.action_type.value == "route" and resolved.station_id in set(
+                grid_directive.station_blacklist
+            ):
                 self.last_violations.append("station_blacklist")
                 # Deterministic reroute: baseline policy chooses the best allowed station.
                 resolved = baseline_policy(st, self.core.city_graph)
@@ -58,7 +66,11 @@ class MultiAgentSession:
             if float(st.grid_load_pct) >= float(grid_directive.max_grid_load_pct):
                 if resolved.action_type.value == "route":
                     self.last_violations.append("grid_budget_exceeded")
-                    resolved = EVGridAction(action_type=ActionType.load_shift, ev_id=resolved.ev_id, defer_minutes=0)
+                    resolved = EVGridAction(
+                        action_type=ActionType.load_shift,
+                        ev_id=resolved.ev_id,
+                        defer_minutes=0,
+                    )
 
         self.last_resolved_action = resolved
         obs = self.core.step(resolved)
@@ -71,4 +83,3 @@ class MultiAgentSession:
         """
         st = self.core._grid_state
         return {} if st is None else st.model_dump(mode="json")
-

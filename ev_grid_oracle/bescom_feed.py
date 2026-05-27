@@ -17,7 +17,12 @@ class BESCOMFeedAPI:
     - Output is stable under (seed, scenario, tick) so judge replays match.
     """
 
-    feeder_ids: tuple[str, ...] = ("FDR-NORTH-01", "FDR-SOUTH-01", "FDR-EAST-01", "FDR-WEST-01")
+    feeder_ids: tuple[str, ...] = (
+        "FDR-NORTH-01",
+        "FDR-SOUTH-01",
+        "FDR-EAST-01",
+        "FDR-WEST-01",
+    )
 
     def snapshot(
         self,
@@ -30,7 +35,12 @@ class BESCOMFeedAPI:
         rng = Random(self._stable_seed(seed=seed, scenario=scenario, tick=tick))
 
         # Zone weights based on station load concentration.
-        zone_load: dict[str, float] = {"North": 0.0, "South": 0.0, "East": 0.0, "West": 0.0}
+        zone_load: dict[str, float] = {
+            "North": 0.0,
+            "South": 0.0,
+            "East": 0.0,
+            "West": 0.0,
+        }
         for s in state.stations:
             z = self._zone_for_station(s.station_id)
             pct = float(s.occupied_slots) / max(1.0, float(s.total_slots))
@@ -42,7 +52,9 @@ class BESCOMFeedAPI:
         zone_load = {k: float(v / max_z) for k, v in zone_load.items()}
 
         base = float(state.grid_load_pct)
-        hour_term = 0.04 * (1.0 if 18 <= int(state.hour) <= 21 else 0.0)  # evening peak bump
+        hour_term = 0.04 * (
+            1.0 if 18 <= int(state.hour) <= 21 else 0.0
+        )  # evening peak bump
 
         out: list[BESCOMFeederState] = []
         for fid in self.feeder_ids:
@@ -87,4 +99,3 @@ class BESCOMFeedAPI:
         if n % 4 == 2:
             return "West"
         return "North"
-
