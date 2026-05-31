@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Optional, Tuple
+from typing import Any, Optional, Tuple, cast
 
 from ev_grid_oracle.models import EVGridAction, GridState
 from ev_grid_oracle.parsing import parse_action
@@ -52,7 +52,7 @@ class OracleRuntime:
             torch_dtype=dtype,
             low_cpu_mem_usage=True,
         )
-        model = PeftModel.from_pretrained(model, lora_repo_id)
+        model = cast(Any, PeftModel.from_pretrained(model, lora_repo_id))
         model.eval()
 
         with cls._lock:
