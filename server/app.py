@@ -982,9 +982,9 @@ def demo_step(
                         try:
                             ctx = it.get("ctx") or {}
                             if isinstance(ctx, dict):
-                                it["ctx"] = {str(k): str(v) for k, v in ctx.items()}
+                                cast(Any, it)["ctx"] = {str(k): str(v) for k, v in ctx.items()}
                             else:
-                                it["ctx"] = str(ctx)
+                                cast(Any, it)["ctx"] = str(ctx)
                         except Exception:
                             it.pop("ctx", None)
                 raise HTTPException(
