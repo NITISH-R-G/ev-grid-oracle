@@ -15,7 +15,7 @@ def _stable_u01(*parts: object) -> float:
     Deterministic across processes and Python versions.
     """
     s = "|".join(str(p) for p in parts).encode("utf-8")
-    h = hashlib.sha1(s).digest()
+    h = hashlib.sha1(s, usedforsecurity=False).digest()
     # 53-bit mantissa for stable float-like behavior
     n = int.from_bytes(h[:8], "big") >> 11
     return n / float(1 << 53)
