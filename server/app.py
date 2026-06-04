@@ -324,7 +324,7 @@ def _spawn_road_point_away_from_stations(
     if not stations:
         raise ValueError("no stations")
 
-    h = hashlib.sha1(seed_key.encode("utf-8")).digest()
+    h = hashlib.sha1(seed_key.encode("utf-8"), usedforsecurity=False).digest()
     base = int.from_bytes(h[:4], "big")
     n = len(router.nodes)
     for k in range(attempts):
@@ -982,7 +982,9 @@ def demo_step(
                         try:
                             ctx = it.get("ctx") or {}
                             if isinstance(ctx, dict):
-                                cast(Any, it)["ctx"] = {str(k): str(v) for k, v in ctx.items()}
+                                cast(Any, it)["ctx"] = {
+                                    str(k): str(v) for k, v in ctx.items()
+                                }
                             else:
                                 cast(Any, it)["ctx"] = str(ctx)
                         except Exception:
@@ -1184,7 +1186,8 @@ def demo_step(
             seed_i = int(core._seed_for_bescom)
             scen = str(core.scenario)
             h = hashlib.sha1(
-                f"{seed_i}|{scen}|{mode}|ambient|{tick_i}".encode("utf-8")
+                f"{seed_i}|{scen}|{mode}|ambient|{tick_i}".encode("utf-8"),
+                usedforsecurity=False,
             ).digest()
             a_i = int.from_bytes(h[:2], "big") % len(st.stations)
             b_i = int.from_bytes(h[2:4], "big") % len(st.stations)
