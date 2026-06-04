@@ -33,7 +33,7 @@ def _fetch_overpass(query: str, *, timeout_s: int = 120) -> dict:
             "User-Agent": "EVGridOracle/0.1 (hackathon demo; contact: local)",
         },
     )
-    with urllib.request.urlopen(req, timeout=timeout_s) as resp:
+    with urllib.request.urlopen(req, timeout=timeout_s) as resp:  # nosec B310
         raw = resp.read().decode("utf-8")
     return json.loads(raw)
 

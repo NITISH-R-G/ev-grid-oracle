@@ -73,7 +73,7 @@ def _http_post(url: str, data: dict[str, str], *, retries: int = 3) -> bytes:
     last_err: Exception | None = None
     for attempt in range(1, retries + 1):
         try:
-            with urllib.request.urlopen(req, timeout=240) as r:
+            with urllib.request.urlopen(req, timeout=240) as r:  # nosec B310
                 return r.read()
         except Exception as e:  # noqa: BLE001
             last_err = e

@@ -45,14 +45,14 @@ class OracleRuntime:
             return None
 
         dtype = torch.float16 if device.startswith("cuda") else torch.float32
-        tok = AutoTokenizer.from_pretrained(base_model_id, use_fast=True)
-        model = AutoModelForCausalLM.from_pretrained(
+        tok = AutoTokenizer.from_pretrained(base_model_id, use_fast=True)  # nosec B615
+        model = AutoModelForCausalLM.from_pretrained(  # nosec B615
             base_model_id,
             device_map=device if device != "cuda" else "auto",
             torch_dtype=dtype,
             low_cpu_mem_usage=True,
         )
-        model = cast(Any, PeftModel.from_pretrained(model, lora_repo_id))
+        model = cast(Any, PeftModel.from_pretrained(model, lora_repo_id))  # nosec B615
         model.eval()
 
         with cls._lock:

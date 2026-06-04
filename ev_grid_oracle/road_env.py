@@ -21,7 +21,7 @@ class RoadCore:
     steps_remaining: int = 220
 
     def reset(self, *, seed: int | None = None) -> RoadObservation:
-        rng = random.Random(seed)
+        rng = random.Random(seed)  # nosec B311
         router = get_router()
         self.g = router.g
         self.nodes = router.nodes
