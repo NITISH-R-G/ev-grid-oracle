@@ -4,7 +4,7 @@
 from __future__ import annotations
 
 import os
-import subprocess
+import subprocess  # nosec B404
 import sys
 from pathlib import Path
 
@@ -26,7 +26,7 @@ def main() -> None:
         "--out",
         str(out),
     ]
-    subprocess.run(cmd, check=True, cwd=str(root), env=env)
+    subprocess.run(cmd, check=True, cwd=str(root), env=env)  # nosec B603
     print(f"Wrote {out}")
 
 

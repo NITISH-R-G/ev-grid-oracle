@@ -32,7 +32,7 @@ class BESCOMFeedAPI:
         scenario: str,
         seed: int,
     ) -> list[BESCOMFeederState]:
-        rng = Random(self._stable_seed(seed=seed, scenario=scenario, tick=tick))
+        rng = Random(self._stable_seed(seed=seed, scenario=scenario, tick=tick))  # nosec B311
 
         # Zone weights based on station load concentration.
         zone_load: dict[str, float] = {

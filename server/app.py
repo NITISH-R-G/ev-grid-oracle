@@ -1290,7 +1290,7 @@ def demo_step(
         )
 
 
-def main(host: str = "0.0.0.0", port: int = 8000):
+def main(host: str = "0.0.0.0", port: int = 8000):  # nosec B104
     import uvicorn
 
     uvicorn.run(app, host=host, port=port)

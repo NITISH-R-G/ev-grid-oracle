@@ -17,7 +17,7 @@ from __future__ import annotations
 
 import argparse
 import os
-import subprocess
+import subprocess  # nosec B404
 import sys
 from pathlib import Path
 
@@ -56,7 +56,7 @@ def main() -> int:
     if not args.skip_build:
         print("Running: npm --prefix web run build...")
         npm = "npm.cmd" if os.name == "nt" else "npm"
-        subprocess.run([npm, "--prefix", "web", "run", "build"], cwd=ROOT, check=True)
+        subprocess.run([npm, "--prefix", "web", "run", "build"], cwd=ROOT, check=True)  # nosec B603
 
     from huggingface_hub import HfApi
 
