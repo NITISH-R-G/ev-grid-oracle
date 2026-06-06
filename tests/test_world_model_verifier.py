@@ -1,3 +1,4 @@
+# nosec B101
 from ev_grid_oracle.city_graph import build_city_graph
 from ev_grid_oracle.env import EVGridCore
 from ev_grid_oracle.models import (

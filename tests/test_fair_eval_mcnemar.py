@@ -1,3 +1,4 @@
+# nosec B101
 from __future__ import annotations
 
 from training.fair_eval import mcnemar_discordant, paired_mcnemar_analysis

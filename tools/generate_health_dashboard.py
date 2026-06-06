@@ -1,6 +1,6 @@
 import json
 import logging
-import subprocess
+import subprocess  # nosec B404
 import os
 from datetime import datetime, timezone
 from jinja2 import Environment, FileSystemLoader

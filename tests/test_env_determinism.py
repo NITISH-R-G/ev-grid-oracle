@@ -1,3 +1,4 @@
+# nosec B101
 """Determinism + strict action validation (core env, no LLM)."""
 
 from __future__ import annotations

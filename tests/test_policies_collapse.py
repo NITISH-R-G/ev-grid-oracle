@@ -1,3 +1,4 @@
+# nosec B101
 """Smoke tests for collapse / stressor policies (deterministic, no env crashes)."""
 
 from __future__ import annotations

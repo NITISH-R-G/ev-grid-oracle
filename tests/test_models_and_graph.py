@@ -1,3 +1,4 @@
+# nosec B101
 import pytest
 
 from ev_grid_oracle.city_graph import STATIONS, build_city_graph
