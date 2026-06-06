@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Repository Health Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        .score-card {
+            transition: transform 0.2s;
+        }
+        .score-card:hover {
+            transform: translateY(-5px);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 font-sans">
+    <div class="container mx-auto px-4 py-8">
+        <header class="mb-10 text-center">
+            <h1 class="text-4xl font-bold text-gray-800 mb-2">Repository Health Dashboard</h1>
+            <p class="text-gray-600">Last updated: {{ data.timestamp }}</p>
+        </header>
+
+        <!-- Executive Health Overview -->
+        <section class="mb-12">
+            <h2 class="text-2xl font-semibold text-gray-800 mb-6">Executive Health Overview</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
+                <div class="score-card bg-white rounded-lg shadow p-6 text-center border-t-4 border-blue-500">
+                    <h3 class="text-lg font-medium text-gray-500">Overall Health</h3>
+                    <p class="text-4xl font-bold text-gray-800 mt-2">{{ data.scores.overall }}</p>
+                </div>
+                <div class="score-card bg-white rounded-lg shadow p-6 text-center border-t-4 border-indigo-500">
+                    <h3 class="text-lg font-medium text-gray-500">Engineering Quality</h3>
+                    <p class="text-4xl font-bold text-gray-800 mt-2">{{ data.scores.engineering }}</p>
+                </div>
+                <div class="score-card bg-white rounded-lg shadow p-6 text-center border-t-4 border-green-500">
+                    <h3 class="text-lg font-medium text-gray-500">Security</h3>
+                    <p class="text-4xl font-bold text-gray-800 mt-2">{{ data.scores.security }}</p>
+                </div>
+                <div class="score-card bg-white rounded-lg shadow p-6 text-center border-t-4 border-purple-500">
+                    <h3 class="text-lg font-medium text-gray-500">Maintainability</h3>
+                    <p class="text-4xl font-bold text-gray-800 mt-2">{{ data.scores.maintainability }}</p>
+                </div>
+                <div class="score-card bg-white rounded-lg shadow p-6 text-center border-t-4 border-yellow-500">
+                    <h3 class="text-lg font-medium text-gray-500">Test Reliability</h3>
+                    <p class="text-4xl font-bold text-gray-800 mt-2">{{ data.scores.test }}</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Detailed Metrics Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+
+            <!-- Code Quality & Coverage -->
+            <section class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">Code Quality & Coverage</h2>
+                <ul class="space-y-3">
+                    <li class="flex justify-between items-center">
+                        <span class="text-gray-600">Test Coverage</span>
+                        <span class="font-semibold text-gray-800">{{ data.metrics.coverage }}%</span>
+                    </li>
+                    <li class="flex justify-between items-center">
+                        <span class="text-gray-600">Avg Cyclomatic Complexity</span>
+                        <span class="font-semibold text-gray-800">{{ data.metrics.complexity }}</span>
+                    </li>
+                    <li class="flex justify-between items-center">
+                        <span class="text-gray-600">Linting Violations</span>
+                        <span class="font-semibold text-gray-800">{{ data.metrics.lint_errors }}</span>
+                    </li>
+                </ul>
+            </section>
+
+            <!-- Security & Dependencies -->
+            <section class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">Security Dashboard</h2>
+                <ul class="space-y-3">
+                    <li class="flex justify-between items-center">
+                        <span class="text-gray-600">Total Vulnerabilities (Bandit)</span>
+                        <span class="font-semibold text-gray-800">{{ data.metrics.vulnerabilities }}</span>
+                    </li>
+                    <li class="flex justify-between items-center">
+                        <span class="text-gray-600">High Risk Vulnerabilities</span>
+                        <span class="font-semibold text-red-600">{{ data.metrics.high_vulnerabilities }}</span>
+                    </li>
+                </ul>
+            </section>
+
+            <!-- Repository Activity -->
+            <section class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">Repository Activity</h2>
+                <ul class="space-y-3">
+                    <li class="flex justify-between items-center">
+                        <span class="text-gray-600">Total Commits</span>
+                        <span class="font-semibold text-gray-800">{{ data.metrics.commits }}</span>
+                    </li>
+                    <li class="flex justify-between items-center">
+                        <span class="text-gray-600">Active Contributors</span>
+                        <span class="font-semibold text-gray-800">{{ data.metrics.contributors }}</span>
+                    </li>
+                </ul>
+            </section>
+
+            <!-- Dependency Health & Performance -->
+            <section class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">Dependencies & Performance</h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <h3 class="font-medium text-gray-600 mb-2">Dependencies</h3>
+                        <ul class="space-y-2 text-sm">
+                            <li class="flex justify-between items-center"><span class="text-gray-500">Total:</span><span class="font-semibold">{{ data.dependency_health.total }}</span></li>
+                            <li class="flex justify-between items-center"><span class="text-gray-500">Outdated:</span><span class="font-semibold text-yellow-600">{{ data.dependency_health.outdated }}</span></li>
+                            <li class="flex justify-between items-center"><span class="text-gray-500">Vulnerable:</span><span class="font-semibold text-red-600">{{ data.dependency_health.vulnerable }}</span></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="font-medium text-gray-600 mb-2">Performance</h3>
+                        <ul class="space-y-2 text-sm">
+                            <li class="flex justify-between items-center"><span class="text-gray-500">Build Time:</span><span class="font-semibold">{{ data.performance.build_time }}</span></li>
+                            <li class="flex justify-between items-center"><span class="text-gray-500">Test Time:</span><span class="font-semibold">{{ data.performance.test_time }}</span></li>
+                            <li class="flex justify-between items-center"><span class="text-gray-500">Bundle Size:</span><span class="font-semibold">{{ data.performance.bundle_size }}</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- PR & Issues -->
+            <section class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">PR Analytics & Issues</h2>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <h3 class="font-medium text-gray-600 mb-2">Pull Requests</h3>
+                        <ul class="space-y-2 text-sm">
+                            <li class="flex justify-between items-center"><span class="text-gray-500">Open:</span><span class="font-semibold">{{ data.pr_analytics.open }}</span></li>
+                            <li class="flex justify-between items-center"><span class="text-gray-500">Merged:</span><span class="font-semibold">{{ data.pr_analytics.merged }}</span></li>
+                            <li class="flex justify-between items-center"><span class="text-gray-500">Velocity:</span><span class="font-semibold">{{ data.pr_analytics.velocity }}</span></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h3 class="font-medium text-gray-600 mb-2">Issues</h3>
+                        <ul class="space-y-2 text-sm">
+                            <li class="flex justify-between items-center"><span class="text-gray-500">Open:</span><span class="font-semibold">{{ data.issue_management.open }}</span></li>
+                            <li class="flex justify-between items-center"><span class="text-gray-500">Closed:</span><span class="font-semibold">{{ data.issue_management.closed }}</span></li>
+                            <li class="flex justify-between items-center"><span class="text-gray-500">Critical:</span><span class="font-semibold text-red-600">{{ data.issue_management.critical_bugs }}</span></li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+            <section class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">Historical Health Score</h2>
+                <canvas id="healthScoreChart" width="400" height="200"></canvas>
+            </section>
+            <section class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">Historical Test Coverage</h2>
+                <canvas id="coverageChart" width="400" height="200"></canvas>
+            </section>
+        </div>
+
+        <!-- Contributor Leaderboard & Documentation -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-12">
+            <!-- Contributor Leaderboard -->
+            <section class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">Top Contributors</h2>
+                <ul class="space-y-3">
+                    {% for leader in data.leaderboard %}
+                    <li class="flex justify-between items-center">
+                        <span class="text-gray-700 font-medium">{{ leader.name }}</span>
+                        <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded">{{ leader.commits }} commits</span>
+                    </li>
+                    {% endfor %}
+                    {% if not data.leaderboard %}
+                    <li class="text-gray-500 italic">No contributors found or missing git data.</li>
+                    {% endif %}
+                </ul>
+            </section>
+
+            <!-- Documentation Health -->
+            <section class="bg-white rounded-lg shadow p-6">
+                <h2 class="text-xl font-semibold text-gray-800 mb-4 border-b pb-2">Documentation Health</h2>
+                <div class="flex items-center justify-between mb-4">
+                    <span class="text-gray-600">Documentation Score</span>
+                    <span class="text-3xl font-bold {% if data.doc_health.score >= 80 %}text-green-600{% elif data.doc_health.score >= 50 %}text-yellow-600{% else %}text-red-600{% endif %}">
+                        {{ data.doc_health.score }}
+                    </span>
+                </div>
+                <div class="mb-2">
+                    <span class="text-sm text-gray-500 uppercase font-semibold">Status: </span>
+                    <span class="text-sm font-medium {% if data.doc_health.score >= 80 %}text-green-600{% else %}text-red-600{% endif %}">{{ data.doc_health.status }}</span>
+                </div>
+                {% if data.doc_health.missing %}
+                <div class="mt-4">
+                    <p class="text-sm text-gray-600 font-medium mb-1">Missing Components:</p>
+                    <ul class="list-disc list-inside text-sm text-red-500">
+                        {% for item in data.doc_health.missing %}
+                        <li>{{ item }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% else %}
+                <p class="text-sm text-green-600 mt-4">All primary documentation components present.</p>
+                {% endif %}
+            </section>
+        </div>
+
+        <!-- AI Insights Layer -->
+        <section class="bg-indigo-50 rounded-lg shadow p-6 border border-indigo-100 mb-12">
+            <h2 class="text-xl font-semibold text-indigo-900 mb-4 border-b border-indigo-200 pb-2">AI Insights Layer</h2>
+            <ul class="list-disc list-inside space-y-2 text-indigo-800">
+                {% for insight in data.insights %}
+                    <li>{{ insight }}</li>
+                {% endfor %}
+            </ul>
+        </section>
+
+        <footer class="text-center text-gray-500 text-sm mt-12 border-t pt-6">
+            <p>Automatically generated by Repository Health Dashboard Actions.</p>
+        </footer>
+    </div>
+
+    <script>
+        const historyLabels = {{ data.history_labels | safe }};
+        const historicalScores = {{ data.historical_scores | safe }};
+        const historicalCoverage = {{ data.historical_coverage | safe }};
+
+        const ctx1 = document.getElementById('healthScoreChart').getContext('2d');
+        new Chart(ctx1, {
+            type: 'line',
+            data: {
+                labels: historyLabels,
+                datasets: [{
+                    label: 'Overall Health Score',
+                    data: historicalScores,
+                    borderColor: 'rgba(59, 130, 246, 1)',
+                    backgroundColor: 'rgba(59, 130, 246, 0.2)',
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        min: Math.max(0, Math.min(...historicalScores) - 10),
+                        max: 100
+                    }
+                }
+            }
+        });
+
+        const ctx2 = document.getElementById('coverageChart').getContext('2d');
+        new Chart(ctx2, {
+            type: 'bar',
+            data: {
+                labels: historyLabels,
+                datasets: [{
+                    label: 'Test Coverage %',
+                    data: historicalCoverage,
+                    backgroundColor: 'rgba(16, 185, 129, 0.6)',
+                    borderColor: 'rgba(16, 185, 129, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: 100
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
