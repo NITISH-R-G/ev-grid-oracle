@@ -46,3 +46,49 @@ def test_invalid_station_routes_penalized():
     )
     obs2 = env.step(action)
     assert obs2.reward_breakdown.get("action/invalid_station", 0.0) < 0.0
+
+
+from ev_grid_oracle.reward import split_role_rewards
+
+
+def test_split_role_rewards_exception_handling():
+    # Pass a dict where values cannot be cast to float to hit the Exception handler
+    from typing import Any
+
+    rb: dict[str, Any] = {
+        "wait": "not-a-number",
+        "urgency": None,
+        "valid_action_shaping": [],
+        "anti_hack": {},
+        "peak": "invalid",
+        "grid_stress": None,
+        "renewable": [],
+    }
+
+    res = split_role_rewards(rb, grid_directive_ok=True, has_meaningful_messages=True)
+
+    # Check that all keys fall back to 0.0 before any negotiation logic is applied
+    # By default, negotiation is 0.25 if both grid_directive_ok and has_meaningful_messages are True
+    # fleet["negotiation"] = 0.25 * 0.6 = 0.15
+    # grid["negotiation"] = 0.25 * 0.4 = 0.1
+    # total for fleet = 0.0 (from 0.0s) + 0.15 = 0.15
+    # total for grid = 0.0 (from 0.0s) + 0.1 = 0.1
+
+    fleet = res["fleet"]
+    assert fleet["wait"] == 0.0
+    assert fleet["urgency"] == 0.0
+    assert fleet["valid_action_shaping"] == 0.0
+    assert fleet["anti_hack"] == 0.0
+    assert fleet["negotiation"] == 0.15
+    assert fleet["total"] == 0.15
+
+    grid = res["grid"]
+    assert grid["peak"] == 0.0
+    assert grid["grid_stress"] == 0.0
+    assert grid["renewable"] == 0.0
+    assert grid["valid_action_shaping"] == 0.0
+    assert grid["anti_hack"] == 0.0
+    assert grid["negotiation"] == 0.1
+    assert grid["total"] == 0.1
+
+    assert res["joint"]["total"] == 0.25
