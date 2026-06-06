@@ -14,6 +14,14 @@ OUT="$ROOT/assets/validation_output.txt"
   echo "repo: $ROOT"
   echo "--- python ---"
   python --version
+  echo "--- ruff check ---"
+  ruff check .
+  echo "--- ruff format ---"
+  ruff format --check .
+  echo "--- mypy ---"
+  python -m mypy .
+  echo "--- bandit ---"
+  bandit -r . -c pyproject.toml
   echo "--- pytest (install dev deps first: pip install -e \".[dev]\") ---"
   python -m pytest tests/ -q --tb=line
   if command -v openenv >/dev/null 2>&1; then
