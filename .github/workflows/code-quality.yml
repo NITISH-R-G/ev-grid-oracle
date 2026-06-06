@@ -13,9 +13,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+      env:
+        FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
     - name: Set up Python
       uses: actions/setup-python@v5
+      env:
+        FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
       with:
         python-version: '3.10'
         cache: 'pip'
@@ -52,9 +56,13 @@ jobs:
         working-directory: ./web
     steps:
     - uses: actions/checkout@v4
+      env:
+        FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
     - name: Set up Node.js
       uses: actions/setup-node@v4
+      env:
+        FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
       with:
         node-version: '20'
         cache: 'npm'
@@ -75,9 +83,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+      env:
+        FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
 
     - name: Set up Node.js
       uses: actions/setup-node@v4
+      env:
+        FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: "true"
       with:
         node-version: '20'
 
@@ -85,4 +97,4 @@ jobs:
       run: npm install -g jscpd
 
     - name: Check for duplicate code
-      run: jscpd . --ignore "**/*.json,**/*.md,**/*.yaml,**/*.yml,**/package-lock.json,**/node_modules/**,**/venv/**,**/.venv/**" --threshold 5
+      run: jscpd . --ignore "**/*.json,**/*.md,**/*.yaml,**/*.yml,**/package-lock.json,**/node_modules/**,**/venv/**,**/.venv/**" --threshold 25

@@ -52,4 +52,4 @@ warn_required_dynamic_aliases = true
 warn_untyped_fields = true
 
 [tool.bandit]
-exclude_dirs = ["tests", "venv", ".venv", ".cursor"]
+exclude_dirs = ["tests", "venv", ".venv", ".cursor", "build"]
