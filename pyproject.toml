@@ -16,6 +16,9 @@ dev = [
   "pytest>=8.0",
   "matplotlib>=3.8",
   "tensorboard>=2.14",
+  "pytest-cov>=4.0",
+  "radon>=6.0",
+  "jinja2>=3.1",
 ]
 demo = [
   "gradio>=4.44",
