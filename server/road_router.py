@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import json
 import gzip
+import functools
 from dataclasses import dataclass
 from math import asin, cos, radians, sin, sqrt
 from pathlib import Path
-from typing import Callable, Optional
+from typing import Callable, Optional, Any
 
 import networkx as nx
 
@@ -102,7 +103,36 @@ class RoadRouter:
 
         return cls(g=g, nodes=nodes, edge_geom=edge_geom)
 
+    @functools.cached_property
+    def _kdtree(self) -> Any:
+        try:
+            from scipy.spatial import KDTree
+        except ImportError:
+            KDTree = None
+
+        if KDTree is None:
+            return None
+
+        pts = []
+        for la, lo in self.nodes:
+            lat_rad = radians(la)
+            lng_rad = radians(lo)
+            x = cos(lat_rad) * cos(lng_rad)
+            y = cos(lat_rad) * sin(lng_rad)
+            z = sin(lat_rad)
+            pts.append((x, y, z))
+        return KDTree(pts)
+
     def nearest_node(self, *, lat: float, lng: float) -> int:
+        if self._kdtree is not None:
+            lat_rad = radians(lat)
+            lng_rad = radians(lng)
+            x = cos(lat_rad) * cos(lng_rad)
+            y = cos(lat_rad) * sin(lng_rad)
+            z = sin(lat_rad)
+            _, idx = self._kdtree.query([x, y, z])
+            return int(idx)
+
         best = 0
         best_d = 1e18
         for i, (la, lo) in enumerate(self.nodes):
