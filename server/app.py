@@ -23,7 +23,7 @@ from fastapi import Body, HTTPException, Query, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 
-from ev_grid_oracle.city_graph import build_city_graph
+from ev_grid_oracle.city_graph import build_city_graph, get_station_by_id, get_station_by_slug
 import networkx as nx
 from ev_grid_oracle.env import EVGridCore, _build_prompt
 from ev_grid_oracle.models import (
@@ -1126,13 +1126,14 @@ def demo_step(
         # v0: polyline path is station-to-station graph path (lat/lng pairs).
         if not forced and st is not None and st.pending_evs:
             ev = st.pending_evs[0]
-            src = next(
-                (x for x in st.stations if x.neighborhood_slug == ev.neighborhood_slug),
-                None,
-            )
-            dst = next(
-                (x for x in st.stations if x.station_id == action.station_id), None
-            )
+            try:
+                src = get_station_by_slug(ev.neighborhood_slug)
+            except KeyError:
+                src = None
+            try:
+                dst = get_station_by_id(action.station_id)
+            except KeyError:
+                dst = None
             if (
                 action.action_type == ActionType.route
                 and src is not None
