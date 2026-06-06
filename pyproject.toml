@@ -43,6 +43,7 @@ packages = ["ev_grid_oracle", "server"]
 [tool.mypy]
 plugins = ["pydantic.mypy"]
 ignore_missing_imports = true
+exclude = ["^build/"]
 check_untyped_defs = true
 
 [tool.pydantic-mypy]
@@ -52,4 +53,4 @@ warn_required_dynamic_aliases = true
 warn_untyped_fields = true
 
 [tool.bandit]
-exclude_dirs = ["tests", "venv", ".venv", ".cursor"]
+exclude_dirs = ["tests", "venv", ".venv", ".cursor", "build", "report", "web/node_modules"]

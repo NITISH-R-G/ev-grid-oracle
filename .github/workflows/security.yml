@@ -28,7 +28,7 @@ jobs:
         if [ -f pyproject.toml ]; then pip install -e ".[dev]"; fi
 
     - name: Security Scanning with Bandit
-      run: bandit -r . -x tests,.venv,venv,.cursor,web/node_modules -c .bandit.yml || bandit -r . -x tests,.venv,venv,.cursor,web/node_modules
+      run: bandit -r . -x tests,.venv,venv,.cursor,web/node_modules,build -c .bandit.yml || bandit -r . -x tests,.venv,venv,.cursor,web/node_modules,build
 
     - name: License Compliance with pip-licenses
       run: pip-licenses --format=markdown --with-urls --output-file=licenses.md
