@@ -33,8 +33,8 @@ s = StationState(
     lat=1.0,
     lng=1.0,
     charger_type="fast",
-    total_slots="10",
-    occupied_slots="1",
+    total_slots=10,
+    occupied_slots=1,
 )
 print(type(s.occupied_slots))
 print(s.occupied_slots)
