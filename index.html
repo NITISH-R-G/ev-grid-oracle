@@ -19,7 +19,7 @@
     <div class="container mx-auto px-4 py-8">
         <header class="mb-10 text-center">
             <h1 class="text-4xl font-bold text-gray-800 mb-2">Repository Health Dashboard</h1>
-            <p class="text-gray-600">Last updated: 2026-06-06 18:38:53 UTC</p>
+            <p class="text-gray-600">Last updated: 2026-06-06 18:40:11 UTC</p>
         </header>
 
         <!-- Executive Health Overview -->
@@ -28,7 +28,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
                 <div class="score-card bg-white rounded-lg shadow p-6 text-center border-t-4 border-blue-500">
                     <h3 class="text-lg font-medium text-gray-500">Overall Health</h3>
-                    <p class="text-4xl font-bold text-gray-800 mt-2">81.1</p>
+                    <p class="text-4xl font-bold text-gray-800 mt-2">81.2</p>
                 </div>
                 <div class="score-card bg-white rounded-lg shadow p-6 text-center border-t-4 border-indigo-500">
                     <h3 class="text-lg font-medium text-gray-500">Engineering Quality</h3>
@@ -44,7 +44,7 @@
                 </div>
                 <div class="score-card bg-white rounded-lg shadow p-6 text-center border-t-4 border-yellow-500">
                     <h3 class="text-lg font-medium text-gray-500">Test Reliability</h3>
-                    <p class="text-4xl font-bold text-gray-800 mt-2">48.3</p>
+                    <p class="text-4xl font-bold text-gray-800 mt-2">48.9</p>
                 </div>
             </div>
         </section>
@@ -58,7 +58,7 @@
                 <ul class="space-y-3">
                     <li class="flex justify-between items-center">
                         <span class="text-gray-600">Test Coverage</span>
-                        <span class="font-semibold text-gray-800">48.26%</span>
+                        <span class="font-semibold text-gray-800">48.86%</span>
                     </li>
                     <li class="flex justify-between items-center">
                         <span class="text-gray-600">Avg Cyclomatic Complexity</span>
@@ -92,7 +92,7 @@
                 <ul class="space-y-3">
                     <li class="flex justify-between items-center">
                         <span class="text-gray-600">Total Commits</span>
-                        <span class="font-semibold text-gray-800">174</span>
+                        <span class="font-semibold text-gray-800">176</span>
                     </li>
                     <li class="flex justify-between items-center">
                         <span class="text-gray-600">Active Contributors</span>
@@ -131,8 +131,8 @@
                     <div>
                         <h3 class="font-medium text-gray-600 mb-2">Pull Requests</h3>
                         <ul class="space-y-2 text-sm">
-                            <li class="flex justify-between items-center"><span class="text-gray-500">Open:</span><span class="font-semibold">14</span></li>
-                            <li class="flex justify-between items-center"><span class="text-gray-500">Merged:</span><span class="font-semibold">19</span></li>
+                            <li class="flex justify-between items-center"><span class="text-gray-500">Open:</span><span class="font-semibold">12</span></li>
+                            <li class="flex justify-between items-center"><span class="text-gray-500">Merged:</span><span class="font-semibold">21</span></li>
                             <li class="flex justify-between items-center"><span class="text-gray-500">Velocity:</span><span class="font-semibold">N/A</span></li>
                         </ul>
                     </div>
@@ -215,8 +215,8 @@
 
     <script>
         const historyLabels = ["Day -7", "Day -6", "Day -5", "Day -4", "Day -3", "Day -2", "Day -1", "Today"];
-        const historicalScores = [74.1, 75.1, 76.1, 77.1, 78.1, 79.1, 80.1, 81.1];
-        const historicalCoverage = [43.25870646766169, 43.75870646766169, 44.25870646766169, 44.75870646766169, 45.25870646766169, 45.75870646766169, 46.25870646766169, 46.75870646766169];
+        const historicalScores = [74.2, 75.2, 76.2, 77.2, 78.2, 79.2, 80.2, 81.2];
+        const historicalCoverage = [43.862828713574984, 44.362828713574984, 44.862828713574984, 45.362828713574984, 45.862828713574984, 46.362828713574984, 46.862828713574984, 47.362828713574984];
 
         const ctx1 = document.getElementById('healthScoreChart').getContext('2d');
         new Chart(ctx1, {
