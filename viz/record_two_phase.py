@@ -88,7 +88,6 @@ def main():
         policy=baseline_policy,
     )
 
-    # TODO: swap to real oracle policy once LoRA is ready.
     frame = record_phase(
         env=env,
         renderer=renderer,
