@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from math import asin, cos, radians, sin, sqrt
-from typing import Iterable, Optional
+from typing import Optional
 
 import networkx as nx
 
