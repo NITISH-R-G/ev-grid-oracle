@@ -857,7 +857,7 @@ def demo_spawn_vehicle(
 
     # Assignment: re-use the baseline scoring (distance + wait + stress + price),
     # and require capacity (avoid full stations). If none, respond gracefully.
-    candidates = [s for s in st.stations if int(s.occupied_slots) < int(s.total_slots)]
+    candidates = [s for s in st.stations if s.occupied_slots < s.total_slots]
     if not candidates:
         return {
             "request_id": rid,
