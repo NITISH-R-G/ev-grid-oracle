@@ -59,7 +59,8 @@ def parse_simulation(text: str) -> Optional[SimulationPrediction]:
 
 
 def parse_action(text: str, *, ev_id: str) -> Optional[EVGridAction]:
-    m = ACTION_RE.search(text.strip())
+    # Ensure there's a trailing newline so the regex \s*\n can match if the user provided the action at the very end
+    m = ACTION_RE.search(text.strip() + "\n")
     if not m:
         return None
 
