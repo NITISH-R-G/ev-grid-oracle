@@ -1,4 +1,5 @@
 import json
+import logging
 import subprocess
 import os
 from datetime import datetime, timezone
@@ -257,9 +258,8 @@ def generate_ai_insights(scores, complexity, vulns, lint_errors):
             ]
             return insights
         except Exception as e:
-            print(f"Failed to generate AI insights via OpenAI: {e}")
+            logging.warning(f"Failed to generate AI insights via OpenAI: {e}")
             # Fallback to static insights on error
-            pass
 
     # Static Fallback
     insights = []
