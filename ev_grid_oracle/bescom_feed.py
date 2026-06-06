@@ -1,10 +1,23 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from hashlib import sha1
-from random import Random
+from hashlib import sha1, sha256
 
 from .models import BESCOMFeederState, GridState
+
+
+class SecureDetRNG:
+    def __init__(self, seed_val: int):
+        self.seed_bytes = str(seed_val).encode("utf-8")
+        self.counter = 0
+
+    def uniform(self, a: float, b: float) -> float:
+        s = f"{self.counter}".encode("utf-8")
+        self.counter += 1
+        h = sha256(self.seed_bytes + b":" + s).digest()
+        # Convert first 8 bytes to a float between 0 and 1
+        val = int.from_bytes(h[:8], "little") / 0xFFFFFFFFFFFFFFFF
+        return a + (b - a) * val
 
 
 @dataclass(frozen=True, slots=True)
@@ -32,7 +45,7 @@ class BESCOMFeedAPI:
         scenario: str,
         seed: int,
     ) -> list[BESCOMFeederState]:
-        rng = Random(self._stable_seed(seed=seed, scenario=scenario, tick=tick))  # nosec B311
+        rng = SecureDetRNG(self._stable_seed(seed=seed, scenario=scenario, tick=tick))
 
         # Zone weights based on station load concentration.
         zone_load: dict[str, float] = {
