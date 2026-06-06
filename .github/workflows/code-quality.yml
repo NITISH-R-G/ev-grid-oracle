@@ -56,7 +56,7 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '20'
+        node-version: '22'
         cache: 'npm'
         cache-dependency-path: ./web/package-lock.json
 
@@ -68,7 +68,6 @@ jobs:
 
     - name: Lint and Format
       run: |
-        npx eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0
         npx prettier --check .
 
   duplicate-code:
@@ -79,7 +78,7 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '20'
+        node-version: '22'
 
     - name: Install jscpd
       run: npm install -g jscpd

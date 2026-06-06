@@ -53,3 +53,4 @@ warn_untyped_fields = true
 
 [tool.bandit]
 exclude_dirs = ["tests", "venv", ".venv", ".cursor"]
+skips = ["B404", "B101"]

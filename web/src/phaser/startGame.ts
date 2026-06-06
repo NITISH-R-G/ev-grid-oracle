@@ -79,4 +79,3 @@ export function startGame(args: StartArgs) {
     }
   };
 }
-

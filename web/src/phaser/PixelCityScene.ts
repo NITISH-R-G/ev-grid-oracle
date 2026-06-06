@@ -13,7 +13,10 @@ async function withTimeout<T>(p: Promise<T>, ms: number): Promise<T> {
     return await Promise.race([
       p,
       new Promise<T>((_, reject) => {
-        timeoutId = window.setTimeout(() => reject(new Error(`timeout after ${ms}ms`)), ms);
+        timeoutId = window.setTimeout(
+          () => reject(new Error(`timeout after ${ms}ms`)),
+          ms,
+        );
       }),
     ]);
   } finally {
@@ -61,7 +64,9 @@ export class PixelCityScene extends Phaser.Scene {
   private ui!: UIRefs;
   private sessionId: string | null = null;
   private nodes: StationNode[] = [];
-  private projector: ((lat: number, lng: number) => { x: number; y: number }) | null = null;
+  private projector:
+    | ((lat: number, lng: number) => { x: number; y: number })
+    | null = null;
 
   private stationsLayer!: Phaser.GameObjects.Container;
   private fxLayer!: Phaser.GameObjects.Container;
@@ -72,10 +77,17 @@ export class PixelCityScene extends Phaser.Scene {
 
   private stationMarks = new Map<
     string,
-    { glow: Phaser.GameObjects.Arc; ring: Phaser.GameObjects.Arc; base: Phaser.GameObjects.Arc }
+    {
+      glow: Phaser.GameObjects.Arc;
+      ring: Phaser.GameObjects.Arc;
+      base: Phaser.GameObjects.Arc;
+    }
   >();
 
-  private stationUi = new Map<string, { root: Phaser.GameObjects.Container; label: Phaser.GameObjects.Text }>();
+  private stationUi = new Map<
+    string,
+    { root: Phaser.GameObjects.Container; label: Phaser.GameObjects.Text }
+  >();
   private hoverCard: Phaser.GameObjects.Container | null = null;
   private hoverBg: Phaser.GameObjects.Rectangle | null = null;
   private hoverText: Phaser.GameObjects.Text | null = null;
@@ -90,7 +102,10 @@ export class PixelCityScene extends Phaser.Scene {
   private flickerRect: Phaser.GameObjects.Rectangle | null = null;
   private energyDots: Phaser.GameObjects.Image[] = [];
   private reactor: Phaser.GameObjects.Container | null = null;
-  private roadsFallbackEdges: Array<{ a: { x: number; y: number }; b: { x: number; y: number } }> = [];
+  private roadsFallbackEdges: Array<{
+    a: { x: number; y: number };
+    b: { x: number; y: number };
+  }> = [];
   private terrainRt: Phaser.GameObjects.RenderTexture | null = null;
   private tilesLayer: Phaser.GameObjects.Container | null = null;
   private tileSprites: Phaser.GameObjects.Image[] = [];
@@ -180,11 +195,16 @@ export class PixelCityScene extends Phaser.Scene {
     this.load.setCORS("anonymous");
 
     // Attribution (required if we show real tiles)
-    this.osmAttribution = this.add.text(w - 12, h - 10, "© OpenStreetMap contributors", {
-      fontFamily: "monospace",
-      fontSize: "10px",
-      color: "#cbd5ff",
-    });
+    this.osmAttribution = this.add.text(
+      w - 12,
+      h - 10,
+      "© OpenStreetMap contributors",
+      {
+        fontFamily: "monospace",
+        fontSize: "10px",
+        color: "#cbd5ff",
+      },
+    );
     this.osmAttribution.setOrigin(1, 1);
     this.osmAttribution.setAlpha(0.0);
     this.osmAttribution.setDepth(9998);
@@ -230,7 +250,7 @@ export class PixelCityScene extends Phaser.Scene {
         if (this.side !== "baseline" || !this.flickerRect) return;
         const a = 0.02 + Math.random() * 0.08;
         this.flickerRect.setAlpha(a);
-        if (Math.random() < 0.20) {
+        if (Math.random() < 0.2) {
           this.camMain.shake(40, 0.002);
         }
       },
@@ -239,7 +259,9 @@ export class PixelCityScene extends Phaser.Scene {
     this.ui.statusEl.textContent = "Click New to start.";
 
     // Hover card (micro-interaction)
-    this.hoverBg = this.add.rectangle(0, 0, 10, 10, 0x070911, 0.82).setOrigin(0, 0);
+    this.hoverBg = this.add
+      .rectangle(0, 0, 10, 10, 0x070911, 0.82)
+      .setOrigin(0, 0);
     this.hoverBg.setStrokeStyle(1, 0x5a78ff, 0.35);
     this.hoverText = this.add.text(0, 0, "", {
       fontFamily: "monospace",
@@ -258,7 +280,9 @@ export class PixelCityScene extends Phaser.Scene {
       callback: () => {
         if (!this.reactor) return;
         // Soft heartbeat on the Bangalore hub
-        const core = this.reactor.getByName("reactorCore") as Phaser.GameObjects.Arc | null;
+        const core = this.reactor.getByName(
+          "reactorCore",
+        ) as Phaser.GameObjects.Arc | null;
         if (!core) return;
         this.tweens.add({
           targets: core,
@@ -279,7 +303,12 @@ export class PixelCityScene extends Phaser.Scene {
     this.sessionId = sessionId;
     this.nodes = station_nodes;
     const bbox = computeBBox(this.nodes);
-    this.projector = this.makeMercatorProjector(bbox, this.scale.width, this.scale.height, 70);
+    this.projector = this.makeMercatorProjector(
+      bbox,
+      this.scale.width,
+      this.scale.height,
+      70,
+    );
     this.drawStations();
     this.snapCameraToCity();
     this.drawTerrain();
@@ -342,7 +371,12 @@ export class PixelCityScene extends Phaser.Scene {
         const g = this.make.graphics({ x: 0, y: 0 });
         g.setScale(scale, scale);
 
-        const stroke = (coords: any, color: number, width: number, alpha: number) => {
+        const stroke = (
+          coords: any,
+          color: number,
+          width: number,
+          alpha: number,
+        ) => {
           if (!Array.isArray(coords) || coords.length < 2) return;
           const pts = coords
             .map((c: [number, number]) => this.projector!(c[1], c[0])) // geojson is [lon,lat]
@@ -366,10 +400,10 @@ export class PixelCityScene extends Phaser.Scene {
             stroke(coords, 0xe6ebfb, 4, 0.38);
           } else if (hw === "tertiary") {
             stroke(coords, 0x000000, 9, 0.12);
-            stroke(coords, 0x0b1022, 6, 0.30);
+            stroke(coords, 0x0b1022, 6, 0.3);
             stroke(coords, 0xd6def5, 3, 0.22);
           } else {
-            stroke(coords, 0x000000, 7, 0.10);
+            stroke(coords, 0x000000, 7, 0.1);
             stroke(coords, 0x0b1022, 5, 0.22);
             stroke(coords, 0xc7d0ea, 2, 0.14);
           }
@@ -381,11 +415,20 @@ export class PixelCityScene extends Phaser.Scene {
         for (const f of subset) {
           const hw = String(f?.properties?.highway || "");
           if (f?.geometry?.type !== "LineString") continue;
-          if (hw === "motorway" || hw === "trunk" || hw === "primary") major.push(f);
+          if (hw === "motorway" || hw === "trunk" || hw === "primary")
+            major.push(f);
           else minor.push(f);
         }
-        for (const f of minor) drawWayStyled(f.geometry.coordinates, String(f?.properties?.highway || ""));
-        for (const f of major) drawWayStyled(f.geometry.coordinates, String(f?.properties?.highway || ""));
+        for (const f of minor)
+          drawWayStyled(
+            f.geometry.coordinates,
+            String(f?.properties?.highway || ""),
+          );
+        for (const f of major)
+          drawWayStyled(
+            f.geometry.coordinates,
+            String(f?.properties?.highway || ""),
+          );
 
         rt.draw(g, 0, 0, 1);
         g.destroy();
@@ -402,7 +445,8 @@ export class PixelCityScene extends Phaser.Scene {
       for (const f of feats) {
         const hw = String(f?.properties?.highway || "");
         if (f?.geometry?.type !== "LineString") continue;
-        if (hw === "motorway" || hw === "trunk" || hw === "primary") majorFeats.push(f);
+        if (hw === "motorway" || hw === "trunk" || hw === "primary")
+          majorFeats.push(f);
         else minorFeats.push(f);
       }
 
@@ -423,7 +467,11 @@ export class PixelCityScene extends Phaser.Scene {
     const follow = this.ui.followEl.checked;
     const zoom = this.camMain.zoom;
     // City view: keep secondary roads subtle. Follow view: reveal more detail.
-    const minorAlpha = Phaser.Math.Clamp(0.22 + (follow ? 0.35 : 0) + (zoom > 1.2 ? 0.25 : 0), 0.12, 0.85);
+    const minorAlpha = Phaser.Math.Clamp(
+      0.22 + (follow ? 0.35 : 0) + (zoom > 1.2 ? 0.25 : 0),
+      0.12,
+      0.85,
+    );
     this.roadsRtMinor?.setAlpha(minorAlpha);
   }
 
@@ -445,10 +493,13 @@ export class PixelCityScene extends Phaser.Scene {
           const b = this.nodes[j];
           const pb = this.projector(b.lat, b.lng);
           road.lineBetween(pa.x, pa.y, pb.x, pb.y);
-          this.roadsFallbackEdges.push({ a: { x: pa.x, y: pa.y }, b: { x: pb.x, y: pb.y } });
+          this.roadsFallbackEdges.push({
+            a: { x: pa.x, y: pa.y },
+            b: { x: pb.x, y: pb.y },
+          });
         }
       }
-      road.lineStyle(3, 0xbcc6e5, 0.10);
+      road.lineStyle(3, 0xbcc6e5, 0.1);
       for (let i = 0; i < this.nodes.length; i++) {
         const a = this.nodes[i];
         const pa = this.projector(a.lat, a.lng);
@@ -493,7 +544,11 @@ export class PixelCityScene extends Phaser.Scene {
       spr.on("pointerover", () => {
         spr.setScale(1.9);
         const stype = String((n as any).station_type || "charger");
-        this.showHover(`Station: ${n.station_id}\nSlots: ${n.total_slots}\nType: ${stype}`, p.x, p.y);
+        this.showHover(
+          `Station: ${n.station_id}\nSlots: ${n.total_slots}\nType: ${stype}`,
+          p.x,
+          p.y,
+        );
       });
       spr.on("pointerout", () => {
         spr.setScale(1.6);
@@ -511,7 +566,12 @@ export class PixelCityScene extends Phaser.Scene {
     }
   }
 
-  private makeMercatorProjector(bbox: { latLo: number; latHi: number; lngLo: number; lngHi: number }, w: number, h: number, pad = 40) {
+  private makeMercatorProjector(
+    bbox: { latLo: number; latHi: number; lngLo: number; lngHi: number },
+    w: number,
+    h: number,
+    pad = 40,
+  ) {
     // Web mercator world px at zoom=0 with tileSize=256
     const mercY = (lat: number) => {
       const rad = (lat * Math.PI) / 180;
@@ -533,7 +593,12 @@ export class PixelCityScene extends Phaser.Scene {
     };
   }
 
-  private async loadAndDrawOsmTiles(bbox: { latLo: number; latHi: number; lngLo: number; lngHi: number }) {
+  private async loadAndDrawOsmTiles(bbox: {
+    latLo: number;
+    latHi: number;
+    lngLo: number;
+    lngHi: number;
+  }) {
     if (!this.tilesLayer) return;
 
     // Clean previous tiles
@@ -544,11 +609,14 @@ export class PixelCityScene extends Phaser.Scene {
     // Pick a zoom that looks “real” but doesn’t request too many tiles.
     const zoom = 12;
     const n = 2 ** zoom;
-    const clampLat = (lat: number) => Math.max(-85.05112878, Math.min(85.05112878, lat));
+    const clampLat = (lat: number) =>
+      Math.max(-85.05112878, Math.min(85.05112878, lat));
     const lon2tile = (lon: number) => Math.floor(((lon + 180) / 360) * n);
     const lat2tile = (lat: number) => {
       const r = (clampLat(lat) * Math.PI) / 180;
-      return Math.floor(((1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2) * n);
+      return Math.floor(
+        ((1 - Math.log(Math.tan(r) + 1 / Math.cos(r)) / Math.PI) / 2) * n,
+      );
     };
     const tile2lon = (x: number) => (x / n) * 360 - 180;
     const tile2lat = (y: number) => {
@@ -619,7 +687,7 @@ export class PixelCityScene extends Phaser.Scene {
     // If tiles are present, fade out terrain and show attribution
     this.terrainRt?.setAlpha(0.06);
     this.osmAttribution?.setText("© OpenStreetMap contributors © CARTO");
-    this.osmAttribution?.setAlpha(0.90);
+    this.osmAttribution?.setAlpha(0.9);
     this.tileStatus?.setText(`tiles: ${total} @ z${zoom}`);
     this.tileStatus?.setAlpha(0.85);
   }
@@ -633,7 +701,8 @@ export class PixelCityScene extends Phaser.Scene {
     // Deterministic-ish seed from sessionId (or fallback).
     const seedStr = this.sessionId || "seed";
     let seed = 0;
-    for (let i = 0; i < seedStr.length; i++) seed = (seed * 31 + seedStr.charCodeAt(i)) >>> 0;
+    for (let i = 0; i < seedStr.length; i++)
+      seed = (seed * 31 + seedStr.charCodeAt(i)) >>> 0;
     const rand = () => {
       // xorshift32
       seed ^= seed << 13;
@@ -651,7 +720,7 @@ export class PixelCityScene extends Phaser.Scene {
     g.fillStyle(0x0a2a33, 0.35);
     for (let i = 0; i < 3; i++) {
       const cx = w * (0.18 + rand() * 0.72);
-      const cy = h * (0.20 + rand() * 0.65);
+      const cy = h * (0.2 + rand() * 0.65);
       const rx = 90 + rand() * 140;
       const ry = 60 + rand() * 110;
       g.fillEllipse(cx, cy, rx, ry);
@@ -660,8 +729,8 @@ export class PixelCityScene extends Phaser.Scene {
     // Parks/green pockets
     g.fillStyle(0x0c2a1f, 0.28);
     for (let i = 0; i < 6; i++) {
-      const cx = w * (0.10 + rand() * 0.80);
-      const cy = h * (0.15 + rand() * 0.70);
+      const cx = w * (0.1 + rand() * 0.8);
+      const cy = h * (0.15 + rand() * 0.7);
       const rx = 70 + rand() * 160;
       const ry = 50 + rand() * 120;
       g.fillEllipse(cx, cy, rx, ry);
@@ -708,7 +777,7 @@ export class PixelCityScene extends Phaser.Scene {
 
     this.reactor?.destroy(true);
     const outer = this.add.circle(cx, cy, 34, 0x5a78ff, 0.06);
-    const mid = this.add.circle(cx, cy, 22, 0xb85cff, 0.10);
+    const mid = this.add.circle(cx, cy, 22, 0xb85cff, 0.1);
     const core = this.add.circle(cx, cy, 12, 0x35ffb8, 0.35);
     core.setName("reactorCore");
     const label = this.add.text(cx, cy + 42, "BANGALORE HUB", {
@@ -744,7 +813,10 @@ export class PixelCityScene extends Phaser.Scene {
     // Spawn a few “energy dots” that flow along edges (directional motion)
     const count = 10;
     for (let i = 0; i < count; i++) {
-      const e = this.roadsFallbackEdges[Math.floor(Math.random() * this.roadsFallbackEdges.length)];
+      const e =
+        this.roadsFallbackEdges[
+          Math.floor(Math.random() * this.roadsFallbackEdges.length)
+        ];
       const dot = this.add.image(e.a.x, e.a.y, "energyDot");
       dot.setScale(1.2);
       dot.setDepth(3);
@@ -755,7 +827,10 @@ export class PixelCityScene extends Phaser.Scene {
     }
   }
 
-  private loopDot(dot: Phaser.GameObjects.Image, edge: { a: { x: number; y: number }; b: { x: number; y: number } }) {
+  private loopDot(
+    dot: Phaser.GameObjects.Image,
+    edge: { a: { x: number; y: number }; b: { x: number; y: number } },
+  ) {
     const from = Math.random() < 0.5 ? edge.a : edge.b;
     const to = from === edge.a ? edge.b : edge.a;
     dot.setPosition(from.x, from.y);
@@ -767,7 +842,10 @@ export class PixelCityScene extends Phaser.Scene {
       ease: "Sine.easeInOut",
       onComplete: () => {
         // pick a new edge to keep it feeling alive
-        const e = this.roadsFallbackEdges[Math.floor(Math.random() * this.roadsFallbackEdges.length)];
+        const e =
+          this.roadsFallbackEdges[
+            Math.floor(Math.random() * this.roadsFallbackEdges.length)
+          ];
         this.loopDot(dot, e);
       },
     });
@@ -787,7 +865,12 @@ export class PixelCityScene extends Phaser.Scene {
     this.hoverCard.setPosition(px, py);
     this.hoverCard.setVisible(true);
     this.hoverCard.setAlpha(0);
-    this.tweens.add({ targets: this.hoverCard, alpha: 1, duration: 120, ease: "Sine.easeOut" });
+    this.tweens.add({
+      targets: this.hoverCard,
+      alpha: 1,
+      duration: 120,
+      ease: "Sine.easeOut",
+    });
   }
 
   private hideHover() {
@@ -845,7 +928,11 @@ export class PixelCityScene extends Phaser.Scene {
     const mode = this.ui.modeEl.value as DemoMode;
     const oracle_lora_repo = this.ui.loraEl.value || "";
 
-    const res: DemoStepResponse = await demoStep({ session_id: this.sessionId, mode, oracle_lora_repo });
+    const res: DemoStepResponse = await demoStep({
+      session_id: this.sessionId,
+      mode,
+      oracle_lora_repo,
+    });
     this.applyStationStress(res.obs?.state);
     await this.playEvent(res.event);
   }
@@ -906,13 +993,13 @@ export class PixelCityScene extends Phaser.Scene {
     // Google-ish route styling: dark casing + bright core
     const casing = this.side === "oracle" ? 0x000000 : 0x000000;
     const core = this.side === "oracle" ? 0x23e7ff : 0xbcc6e5;
-    g.lineStyle(10, casing, 0.20);
+    g.lineStyle(10, casing, 0.2);
     g.beginPath();
     g.moveTo(pts[0].x, pts[0].y);
     for (let i = 1; i < pts.length; i++) g.lineTo(pts[i].x, pts[i].y);
     g.strokePath();
 
-    g.lineStyle(6, core, this.side === "oracle" ? 0.40 : 0.22);
+    g.lineStyle(6, core, this.side === "oracle" ? 0.4 : 0.22);
     g.beginPath();
     g.moveTo(pts[0].x, pts[0].y);
     for (let i = 1; i < pts.length; i++) g.lineTo(pts[i].x, pts[i].y);
@@ -940,7 +1027,9 @@ export class PixelCityScene extends Phaser.Scene {
     for (let i = 1; i < pts.length; i++) {
       const a = pts[i - 1];
       const b = pts[i];
-      const ang = Phaser.Math.RadToDeg(Phaser.Math.Angle.Between(a.x, a.y, b.x, b.y));
+      const ang = Phaser.Math.RadToDeg(
+        Phaser.Math.Angle.Between(a.x, a.y, b.x, b.y),
+      );
       this.ev.setRotation(Phaser.Math.DegToRad(ang));
 
       await this.tweenTo(b.x, b.y, segDur);
@@ -963,7 +1052,12 @@ export class PixelCityScene extends Phaser.Scene {
     });
   }
 
-  private _strokeDashed(g: Phaser.GameObjects.Graphics, pts: Phaser.Math.Vector2[], dash: number, gap: number) {
+  private _strokeDashed(
+    g: Phaser.GameObjects.Graphics,
+    pts: Phaser.Math.Vector2[],
+    dash: number,
+    gap: number,
+  ) {
     for (let i = 1; i < pts.length; i++) {
       const a = pts[i - 1];
       const b = pts[i];
@@ -990,4 +1084,3 @@ export class PixelCityScene extends Phaser.Scene {
     await this.playEvent(event);
   }
 }
-
