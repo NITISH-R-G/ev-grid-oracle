@@ -933,6 +933,122 @@ def demo_spawn_vehicle(
     }
 
 
+def _parse_pydantic_error(ve: Exception) -> list[dict[str, Any]]:
+    issues = ve.errors() if hasattr(ve, "errors") else [{"msg": str(ve)}]
+    # Pydantic v2 can include non-JSON-serializable objects under `ctx` (e.g., ValueError instances).
+    for it in issues:
+        if isinstance(it, dict) and "ctx" in it:
+            try:
+                ctx = it.get("ctx") or {}
+                if isinstance(ctx, dict):
+                    cast(Any, it)["ctx"] = {str(k): str(v) for k, v in ctx.items()}
+                else:
+                    cast(Any, it)["ctx"] = str(ctx)
+            except Exception:
+                it.pop("ctx", None)
+    return issues
+
+
+def _build_ambient_event(
+    core: EVGridCore, mode: str, stations: list[Any]
+) -> dict[str, Any] | None:
+    if len(stations) < 2:
+        return None
+
+    tick_i = int(core.step_count)
+    seed_i = int(core._seed_for_bescom)
+    scen = str(core.scenario)
+    h = hashlib.sha1(
+        f"{seed_i}|{scen}|{mode}|ambient|{tick_i}".encode("utf-8"),
+        usedforsecurity=False,
+    ).digest()
+    a_i = int.from_bytes(h[:2], "big") % len(stations)
+    b_i = int.from_bytes(h[2:4], "big") % len(stations)
+    if b_i == a_i:
+        b_i = (b_i + 1) % len(stations)
+    src2 = stations[a_i]
+    dst2 = stations[b_i]
+    traffic2 = TrafficModel(seed=seed_i, scenario=scen)
+    routed2 = _osm_route_polyline(
+        src_lat=float(src2.lat),
+        src_lng=float(src2.lng),
+        dst_lat=float(dst2.lat),
+        dst_lng=float(dst2.lng),
+        traffic=traffic2,
+        tick=tick_i,
+    )
+    poly2, seg2 = routed2 if routed2 is not None else ([], None)
+    return {
+        "type": "route",
+        "ev_id": f"AMBIENT-{mode}-{a_i}-{b_i}",
+        "from": {
+            "station_id": src2.station_id,
+            "lat": src2.lat,
+            "lng": src2.lng,
+        },
+        "to": {"station_id": dst2.station_id, "lat": dst2.lat, "lng": dst2.lng},
+        "polyline": (
+            poly2
+            or _graph_route_polyline(
+                core,
+                src_station_id=src2.station_id,
+                dst_station_id=dst2.station_id,
+            )
+        ),
+        "traffic_seg_m_q": seg2,
+        "reroute_reason": "ambient",
+    }
+
+
+def _build_route_event(
+    core: EVGridCore, ev: Any, action: EVGridAction
+) -> dict[str, Any] | None:
+    if action.action_type != ActionType.route or ev is None:
+        return None
+
+    src = _BY_SLUG.get(ev.neighborhood_slug)
+    dst = _BY_ID.get(action.station_id) if action.station_id else None
+
+    if src is None or dst is None:
+        return None
+
+    traffic = TrafficModel(seed=int(core._seed_for_bescom), scenario=str(core.scenario))
+    routed = _osm_route_polyline(
+        src_lat=float(src.lat),
+        src_lng=float(src.lng),
+        dst_lat=float(dst.lat),
+        dst_lng=float(dst.lng),
+        traffic=traffic,
+        tick=int(core.step_count),
+    )
+    poly, seg_m_q = routed if routed is not None else ([], None)
+
+    return {
+        "type": "route",
+        "ev_id": ev.ev_id,
+        "from": {
+            "station_id": src.station_id,
+            "lat": src.lat,
+            "lng": src.lng,
+        },
+        "to": {
+            "station_id": dst.station_id,
+            "lat": dst.lat,
+            "lng": dst.lng,
+        },
+        "polyline": (
+            poly
+            or _graph_route_polyline(
+                core,
+                src_station_id=src.station_id,
+                dst_station_id=dst.station_id,
+            )
+        ),
+        "traffic_seg_m_q": seg_m_q,
+        "reroute_reason": "periodic" if (int(core.step_count) % 6 == 0) else None,
+    }
+
+
 @app.post("/demo/step")
 def demo_step(
     req: Request,
@@ -968,23 +1084,12 @@ def demo_step(
             try:
                 action = EVGridAction.model_validate(forced_action)
             except Exception as ve:
-                issues = ve.errors() if hasattr(ve, "errors") else [{"msg": str(ve)}]
-                # Pydantic v2 can include non-JSON-serializable objects under `ctx` (e.g., ValueError instances).
-                for it in issues:
-                    if isinstance(it, dict) and "ctx" in it:
-                        try:
-                            ctx = it.get("ctx") or {}
-                            if isinstance(ctx, dict):
-                                cast(Any, it)["ctx"] = {
-                                    str(k): str(v) for k, v in ctx.items()
-                                }
-                            else:
-                                cast(Any, it)["ctx"] = str(ctx)
-                        except Exception:
-                            it.pop("ctx", None)
                 raise HTTPException(
                     status_code=422,
-                    detail={"error": "invalid_forced_action", "issues": issues},
+                    detail={
+                        "error": "invalid_forced_action",
+                        "issues": _parse_pydantic_error(ve),
+                    },
                 )
             oracle_llm_active = False
             oracle_text = ""
@@ -998,52 +1103,9 @@ def demo_step(
                     (e for e in st.pending_evs if e.ev_id == action.ev_id),
                     st.pending_evs[0] if st.pending_evs else None,
                 )
-                src = _BY_SLUG.get(ev.neighborhood_slug) if ev is not None else None
-                dst = _BY_ID.get(action.station_id) if action.station_id else None
-                if (
-                    action.action_type == ActionType.route
-                    and ev is not None
-                    and src is not None
-                    and dst is not None
-                ):
-                    traffic = TrafficModel(
-                        seed=int(core._seed_for_bescom), scenario=str(core.scenario)
-                    )
-                    routed = _osm_route_polyline(
-                        src_lat=float(src.lat),
-                        src_lng=float(src.lng),
-                        dst_lat=float(dst.lat),
-                        dst_lng=float(dst.lng),
-                        traffic=traffic,
-                        tick=int(core.step_count),
-                    )
-                    poly, seg_m_q = routed if routed is not None else ([], None)
-                    event = {
-                        "type": "route",
-                        "ev_id": ev.ev_id,
-                        "from": {
-                            "station_id": src.station_id,
-                            "lat": src.lat,
-                            "lng": src.lng,
-                        },
-                        "to": {
-                            "station_id": dst.station_id,
-                            "lat": dst.lat,
-                            "lng": dst.lng,
-                        },
-                        "polyline": (
-                            poly
-                            or _graph_route_polyline(
-                                core,
-                                src_station_id=src.station_id,
-                                dst_station_id=dst.station_id,
-                            )
-                        ),
-                        "traffic_seg_m_q": seg_m_q,
-                        "reroute_reason": "periodic"
-                        if (int(core.step_count) % 6 == 0)
-                        else None,
-                    }
+                route_event = _build_route_event(core, ev, action)
+                if route_event:
+                    event = route_event
                 else:
                     event = {
                         "type": "forced_action",
@@ -1104,100 +1166,18 @@ def demo_step(
         # v0: polyline path is station-to-station graph path (lat/lng pairs).
         if not forced and st is not None and st.pending_evs:
             ev = st.pending_evs[0]
-            src = _BY_SLUG.get(ev.neighborhood_slug)
-            dst = _BY_ID.get(action.station_id)
-            if (
-                action.action_type == ActionType.route
-                and src is not None
-                and dst is not None
-            ):
-                traffic = TrafficModel(
-                    seed=int(core._seed_for_bescom), scenario=str(core.scenario)
-                )
-                routed = _osm_route_polyline(
-                    src_lat=float(src.lat),
-                    src_lng=float(src.lng),
-                    dst_lat=float(dst.lat),
-                    dst_lng=float(dst.lng),
-                    traffic=traffic,
-                    tick=int(core.step_count),
-                )
-                poly, seg_m_q = routed if routed is not None else ([], None)
-                event = {
-                    "type": "route",
-                    "ev_id": ev.ev_id,
-                    "from": {
-                        "station_id": src.station_id,
-                        "lat": src.lat,
-                        "lng": src.lng,
-                    },
-                    "to": {
-                        "station_id": dst.station_id,
-                        "lat": dst.lat,
-                        "lng": dst.lng,
-                    },
-                    "polyline": (
-                        poly
-                        or _graph_route_polyline(
-                            core,
-                            src_station_id=src.station_id,
-                            dst_station_id=dst.station_id,
-                        )
-                    ),
-                    "traffic_seg_m_q": seg_m_q,
-                    "reroute_reason": "periodic"
-                    if (int(core.step_count) % 6 == 0)
-                    else None,
-                }
+            route_event = _build_route_event(core, ev, action)
+            if route_event:
+                event = route_event
             else:
                 event = {"type": action.action_type.value}
 
         # Ensure the map always looks alive: if action isn't a route, emit a deterministic
         # ambient trip for UI motion (does not affect env dynamics or rewards).
-        if (event.get("type") != "route") and st is not None and len(st.stations) >= 2:
-            tick_i = int(core.step_count)
-            seed_i = int(core._seed_for_bescom)
-            scen = str(core.scenario)
-            h = hashlib.sha1(
-                f"{seed_i}|{scen}|{mode}|ambient|{tick_i}".encode("utf-8"),
-                usedforsecurity=False,
-            ).digest()
-            a_i = int.from_bytes(h[:2], "big") % len(st.stations)
-            b_i = int.from_bytes(h[2:4], "big") % len(st.stations)
-            if b_i == a_i:
-                b_i = (b_i + 1) % len(st.stations)
-            src2 = st.stations[a_i]
-            dst2 = st.stations[b_i]
-            traffic2 = TrafficModel(seed=seed_i, scenario=scen)
-            routed2 = _osm_route_polyline(
-                src_lat=float(src2.lat),
-                src_lng=float(src2.lng),
-                dst_lat=float(dst2.lat),
-                dst_lng=float(dst2.lng),
-                traffic=traffic2,
-                tick=tick_i,
-            )
-            poly2, seg2 = routed2 if routed2 is not None else ([], None)
-            event = {
-                "type": "route",
-                "ev_id": f"AMBIENT-{mode}-{a_i}-{b_i}",
-                "from": {
-                    "station_id": src2.station_id,
-                    "lat": src2.lat,
-                    "lng": src2.lng,
-                },
-                "to": {"station_id": dst2.station_id, "lat": dst2.lat, "lng": dst2.lng},
-                "polyline": (
-                    poly2
-                    or _graph_route_polyline(
-                        core,
-                        src_station_id=src2.station_id,
-                        dst_station_id=dst2.station_id,
-                    )
-                ),
-                "traffic_seg_m_q": seg2,
-                "reroute_reason": "ambient",
-            }
+        if (event.get("type") != "route") and st is not None:
+            ambient_event = _build_ambient_event(core, mode, st.stations)
+            if ambient_event:
+                event = ambient_event
 
         obs = core.step(action)
         anti_flags = obs.anti_cheat_flags
