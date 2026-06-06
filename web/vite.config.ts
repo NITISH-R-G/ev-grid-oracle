@@ -1,4 +1,4 @@
-import { defineConfig } from "vite";
+import { defineConfig } from "vitest/config";
 
 // Proxy /demo/* to the local FastAPI server.
 export default defineConfig({
@@ -13,5 +13,7 @@ export default defineConfig({
       },
     },
   },
+  test: {
+    environment: "jsdom",
+  },
 });
-
