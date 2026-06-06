@@ -187,22 +187,48 @@ def _edge_minutes(
     return base + km * minutes_per_km
 
 
-def _add_chain_edges(g: nx.Graph, slugs: Iterable[str]) -> None:
-    slugs = list(slugs)
-    for i in range(len(slugs) - 1):
-        a = get_station_by_slug(slugs[i])
-        b = get_station_by_slug(slugs[i + 1])
+def _add_chain_edges(g: nx.Graph, stations: list[StationSpec]) -> None:
+    for i in range(len(stations) - 1):
+        a = stations[i]
+        b = stations[i + 1]
         g.add_edge(a.station_id, b.station_id, weight_minutes=_edge_minutes(a, b))
 
 
-def _add_dense_within_cluster(g: nx.Graph, slugs: list[str]) -> None:
+def _add_dense_within_cluster(g: nx.Graph, stations: list[StationSpec]) -> None:
     # Make cluster connected + add a few extra edges for alternate routes.
-    _add_chain_edges(g, slugs)
-    if len(slugs) >= 3:
-        for i in range(0, len(slugs) - 2, 2):
-            a = get_station_by_slug(slugs[i])
-            b = get_station_by_slug(slugs[i + 2])
+    _add_chain_edges(g, stations)
+    if len(stations) >= 3:
+        for i in range(0, len(stations) - 2, 2):
+            a = stations[i]
+            b = stations[i + 2]
             g.add_edge(a.station_id, b.station_id, weight_minutes=_edge_minutes(a, b))
+
+
+CBD_STATIONS = [get_station_by_slug(s) for s in CBD]
+EAST_STATIONS = [get_station_by_slug(s) for s in EAST]
+SOUTH_STATIONS = [get_station_by_slug(s) for s in SOUTH]
+NORTH_WEST_STATIONS = [get_station_by_slug(s) for s in NORTH_WEST]
+
+BRIDGES = [
+    ("mg_road", "indiranagar"),
+    ("indiranagar", "cv_raman_nagar"),
+    ("cv_raman_nagar", "marathahalli"),
+    ("marathahalli", "whitefield"),
+    ("domlur", "bellandur"),
+    ("koramangala", "domlur"),
+    ("koramangala", "mg_road"),
+    ("silk_board", "bellandur"),
+    ("hsr_layout", "bellandur"),
+    ("hsr_layout", "sarjapur"),
+    ("electronic_city", "sarjapur"),
+    ("rajajinagar", "cunningham_road"),
+    ("yeshwanthpur", "hebbal"),
+    ("hebbal", "cunningham_road"),
+    ("kengeri", "rajajinagar"),
+    ("tumkur_road", "yeshwanthpur"),
+]
+
+BRIDGE_STATIONS = [(get_station_by_slug(a), get_station_by_slug(b)) for a, b in BRIDGES]
 
 
 def build_city_graph() -> nx.Graph:
@@ -219,33 +245,12 @@ def build_city_graph() -> nx.Graph:
             total_slots=s.total_slots,
         )
 
-    _add_dense_within_cluster(g, CBD)
-    _add_dense_within_cluster(g, EAST)
-    _add_dense_within_cluster(g, SOUTH)
-    _add_dense_within_cluster(g, NORTH_WEST)
+    _add_dense_within_cluster(g, CBD_STATIONS)
+    _add_dense_within_cluster(g, EAST_STATIONS)
+    _add_dense_within_cluster(g, SOUTH_STATIONS)
+    _add_dense_within_cluster(g, NORTH_WEST_STATIONS)
 
-    # Bridges (manual "major corridors")
-    bridges = [
-        ("mg_road", "indiranagar"),
-        ("indiranagar", "cv_raman_nagar"),
-        ("cv_raman_nagar", "marathahalli"),
-        ("marathahalli", "whitefield"),
-        ("domlur", "bellandur"),
-        ("koramangala", "domlur"),
-        ("koramangala", "mg_road"),
-        ("silk_board", "bellandur"),
-        ("hsr_layout", "bellandur"),
-        ("hsr_layout", "sarjapur"),
-        ("electronic_city", "sarjapur"),
-        ("rajajinagar", "cunningham_road"),
-        ("yeshwanthpur", "hebbal"),
-        ("hebbal", "cunningham_road"),
-        ("kengeri", "rajajinagar"),
-        ("tumkur_road", "yeshwanthpur"),
-    ]
-    for a_slug, b_slug in bridges:
-        a = get_station_by_slug(a_slug)
-        b = get_station_by_slug(b_slug)
+    for a, b in BRIDGE_STATIONS:
         g.add_edge(a.station_id, b.station_id, weight_minutes=_edge_minutes(a, b))
 
     if not nx.is_connected(g):
