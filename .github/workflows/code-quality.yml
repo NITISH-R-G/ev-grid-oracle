@@ -34,7 +34,7 @@ jobs:
 
     - name: Type checking with Mypy
       run: |
-        mypy .
+        mypy . --exclude build
 
     - name: Dead Code Detection with Vulture
       run: |
@@ -85,4 +85,4 @@ jobs:
       run: npm install -g jscpd
 
     - name: Check for duplicate code
-      run: jscpd . --ignore "**/*.json,**/*.md,**/*.yaml,**/*.yml,**/package-lock.json,**/node_modules/**,**/venv/**,**/.venv/**" --threshold 5
+      run: jscpd . --ignore "**/*.json,**/*.md,**/*.yaml,**/*.yml,**/package-lock.json,**/node_modules/**,**/venv/**,**/.venv/**,**/build/**" --threshold 5

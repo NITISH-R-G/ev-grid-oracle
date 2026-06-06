@@ -9,6 +9,7 @@ dependencies = [
   "openenv-core>=0.2.3",
   "fastapi>=0.110",
   "uvicorn>=0.27",
+  "bandit>=1.9.4",
 ]
 
 [project.optional-dependencies]
