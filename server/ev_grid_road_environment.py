@@ -22,6 +22,7 @@ class EVGridRoadEnvironment(Environment):
         self._core = RoadCore(g=None, nodes=[])
 
     def reset(self, seed=None, episode_id=None, **kwargs) -> RoadObservation:
+        _ = kwargs
         self._state = State(episode_id=episode_id or str(uuid4()), step_count=0)
         return self._core.reset(seed=seed)
 
