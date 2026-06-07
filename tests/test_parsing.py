@@ -1,6 +1,5 @@
-import pytest
 from ev_grid_oracle.parsing import parse_simulation
-from ev_grid_oracle.models import SimTopStation
+
 
 def test_parse_simulation_valid():
     text = (
@@ -19,8 +18,10 @@ def test_parse_simulation_valid():
     assert res.t5_top_stations[0].load_pct == 0.82
     assert res.t5_top_stations[0].queue == 3
 
+
 def test_parse_simulation_missing_match():
     assert parse_simulation("random text") is None
+
 
 def test_parse_simulation_exception_handling():
     # Provide a malformed tops string to trigger ValueError during parsing

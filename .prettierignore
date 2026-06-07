@@ -1,0 +1,6 @@
+web/public/maps/
+web/dist/
+web/node_modules/
+node_modules/
+dist/
+build/
