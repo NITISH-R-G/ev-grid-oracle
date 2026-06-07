@@ -4,6 +4,11 @@ import os
 from datetime import datetime, timezone
 from jinja2 import Environment, FileSystemLoader
 
+# Extract sensitive variables immediately to prevent child processes
+# (e.g. from subprocess.run) from inheriting them.
+OPENAI_API_KEY = os.environ.pop("OPENAI_API_KEY", None)
+GITHUB_TOKEN = os.environ.pop("GITHUB_TOKEN", None)
+
 
 ALLOWED_COMMANDS = {"git", "python", "radon", "bandit", "ruff"}
 
@@ -62,7 +67,7 @@ def fetch_github_stats():
     import urllib.request
 
     repo = os.environ.get("GITHUB_REPOSITORY")
-    token = os.environ.get("GITHUB_TOKEN")
+    token = GITHUB_TOKEN
 
     pr_analytics = {"open": 0, "merged": 0, "velocity": "N/A"}
     issue_management = {"open": 0, "closed": 0, "critical_bugs": 0}
@@ -216,7 +221,7 @@ def calculate_health_scores(cov, complexity, vulnerabilities, lint_errors):
 
 
 def generate_ai_insights(scores, complexity, vulns, lint_errors):
-    api_key = os.environ.get("OPENAI_API_KEY")
+    api_key = OPENAI_API_KEY
 
     if api_key:
         try:
