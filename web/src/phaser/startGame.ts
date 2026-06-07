@@ -68,10 +68,9 @@ export function startGame(args: StartArgs) {
   args.btnRun.onclick = async () => {
     try {
       for (let i = 0; i < 60; i++) {
-        // eslint-disable-next-line no-await-in-loop
         await scene().stepOnce();
         // brief pacing so camera movement is visible
-        // eslint-disable-next-line no-await-in-loop
+
         await new Promise((r) => setTimeout(r, 90));
       }
     } catch (e: any) {
@@ -79,4 +78,3 @@ export function startGame(args: StartArgs) {
     }
   };
 }
-

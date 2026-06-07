@@ -1,4 +1,9 @@
-export type BBox = { latLo: number; latHi: number; lngLo: number; lngHi: number };
+export type BBox = {
+  latLo: number;
+  latHi: number;
+  lngLo: number;
+  lngHi: number;
+};
 
 export function computeBBox(nodes: { lat: number; lng: number }[]): BBox {
   const lats = nodes.map((n) => n.lat);
@@ -23,4 +28,3 @@ export function makeProjector(bbox: BBox, w: number, h: number, pad = 40) {
     return { x, y };
   };
 }
-

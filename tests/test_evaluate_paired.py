@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import json
 import os
-import subprocess
+import subprocess  # nosec B404
 import sys
 from pathlib import Path
 
@@ -58,7 +58,7 @@ def test_evaluate_cli_paired_json(
         ],
         cwd=str(REPO_ROOT),
         env={**os.environ, "ORACLE_SKIP_LLM": "1"},
-    )
+    )  # nosec B603
     data = json.loads(out.read_text(encoding="utf-8"))
     assert data.get("paired_same_world") is True
     assert len(data["per_episode"]) == 2
@@ -83,7 +83,7 @@ def test_fair_eval_cli(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
         ],
         cwd=str(REPO_ROOT),
         env={**os.environ, "ORACLE_SKIP_LLM": "1"},
-    )
+    )  # nosec B603
     fair_json = tmp_path / "fair_eval_results.json"
     fair_png = tmp_path / "fair_eval_chart.png"
     subprocess.check_call(
@@ -98,7 +98,7 @@ def test_fair_eval_cli(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
             str(fair_png),
         ],
         cwd=str(REPO_ROOT),
-    )
+    )  # nosec B603
     fe = json.loads(fair_json.read_text(encoding="utf-8"))
     assert fe["n_episodes"] == 3
     assert "binary_rates_wilson" in fe

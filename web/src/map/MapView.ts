@@ -1,19 +1,32 @@
-import maplibregl, { type LngLatLike, type Map as MapLibreMap } from "maplibre-gl";
+import maplibregl, {
+  type LngLatLike,
+  type Map as MapLibreMap,
+} from "maplibre-gl";
 import { MapboxOverlay } from "@deck.gl/mapbox";
 import { PathLayer, IconLayer, ScatterplotLayer } from "@deck.gl/layers";
 import { staticAssetUrl } from "../paths";
 import { cartoDarkStyle } from "./basemap";
 
-type Station = { station_id: string; lat: number; lng: number; total_slots: number };
+type Station = {
+  station_id: string;
+  lat: number;
+  lng: number;
+  total_slots: number;
+};
 
 function ensureLngLat(poly: any[]): [number, number][] {
   // Server returns [lat,lng]. Deck expects [lng,lat].
   // Do NOT use heuristics here: Bangalore values (12.xx, 77.xx) can look valid in both orders.
-  return Array.isArray(poly) ? (poly as any).map(([lat, lng]: any) => [lng, lat]) : [];
+  return Array.isArray(poly)
+    ? (poly as any).map(([lat, lng]: any) => [lng, lat])
+    : [];
 }
 
 /** Uniform resample cap: huge OSM polylines slow Deck; keep shape + endpoints. */
-function simplifyPathLngLat(path: [number, number][], maxPts: number): [number, number][] {
+function simplifyPathLngLat(
+  path: [number, number][],
+  maxPts: number,
+): [number, number][] {
   if (path.length <= 2 || path.length <= maxPts) return path;
   const out: [number, number][] = [];
   const last = path.length - 1;
@@ -29,7 +42,10 @@ function simplifyPathLngLat(path: [number, number][], maxPts: number): [number, 
   return out;
 }
 
-function dropNearDuplicates(path: [number, number][], minMeters: number): [number, number][] {
+function dropNearDuplicates(
+  path: [number, number][],
+  minMeters: number,
+): [number, number][] {
   if (path.length <= 2) return path;
   const out: [number, number][] = [];
   out.push([path[0][0], path[0][1]]);
@@ -39,7 +55,9 @@ function dropNearDuplicates(path: [number, number][], minMeters: number): [numbe
     const lat2 = (b[1] * Math.PI) / 180;
     const dLat = ((b[1] - a[1]) * Math.PI) / 180;
     const dLng = ((b[0] - a[0]) * Math.PI) / 180;
-    const h = Math.sin(dLat / 2) ** 2 + Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
+    const h =
+      Math.sin(dLat / 2) ** 2 +
+      Math.cos(lat1) * Math.cos(lat2) * Math.sin(dLng / 2) ** 2;
     return 2 * R * Math.asin(Math.sqrt(h));
   };
   for (let i = 1; i < path.length; i++) {
@@ -54,7 +72,10 @@ function dropNearDuplicates(path: [number, number][], minMeters: number): [numbe
 }
 
 // Light polyline smoothing to reduce harsh angles (keeps endpoints).
-function chaikinSmooth(path: [number, number][], iterations: number): [number, number][] {
+function chaikinSmooth(
+  path: [number, number][],
+  iterations: number,
+): [number, number][] {
   if (path.length < 3 || iterations <= 0) return path;
   let cur = path;
   for (let it = 0; it < iterations; it++) {
@@ -63,8 +84,14 @@ function chaikinSmooth(path: [number, number][], iterations: number): [number, n
     for (let i = 0; i < cur.length - 1; i++) {
       const a = cur[i];
       const b = cur[i + 1];
-      const q: [number, number] = [a[0] * 0.75 + b[0] * 0.25, a[1] * 0.75 + b[1] * 0.25];
-      const r: [number, number] = [a[0] * 0.25 + b[0] * 0.75, a[1] * 0.25 + b[1] * 0.75];
+      const q: [number, number] = [
+        a[0] * 0.75 + b[0] * 0.25,
+        a[1] * 0.75 + b[1] * 0.25,
+      ];
+      const r: [number, number] = [
+        a[0] * 0.25 + b[0] * 0.75,
+        a[1] * 0.25 + b[1] * 0.75,
+      ];
       out.push(q, r);
     }
     out.push([cur[cur.length - 1][0], cur[cur.length - 1][1]]);
@@ -97,7 +124,8 @@ function buildIconAtlas(): HTMLCanvasElement {
     ctx.save();
     ctx.textAlign = "center";
     ctx.textBaseline = "middle";
-    ctx.font = "34px \"Segoe UI Emoji\", \"Apple Color Emoji\", \"Noto Color Emoji\", system-ui";
+    ctx.font =
+      '34px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", system-ui';
     ctx.globalAlpha = 1;
     ctx.fillText("🚗", ox + 32, 34);
     ctx.restore();
@@ -153,7 +181,14 @@ function buildIconAtlas(): HTMLCanvasElement {
     ctx.stroke();
   };
 
-  const roundRect = (cx: CanvasRenderingContext2D, x: number, y: number, w: number, h: number, r: number) => {
+  const roundRect = (
+    cx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    w: number,
+    h: number,
+    r: number,
+  ) => {
     const rr = Math.min(r, w / 2, h / 2);
     cx.beginPath();
     cx.moveTo(x + rr, y);
@@ -211,11 +246,17 @@ export class MapView {
   private heroRemainingPath(): [number, number][] {
     if (!this.heroVehicleId) return this.activeRoute;
     const v = this.vehicles.get(this.heroVehicleId);
-    if (!v || v.route.length < 2 || v.cumM.length !== v.route.length) return this.activeRoute;
-    return this.splitRouteAtProgress(v.route, v.cumM, v.totalM, v.progM).remaining;
+    if (!v || v.route.length < 2 || v.cumM.length !== v.route.length)
+      return this.activeRoute;
+    return this.splitRouteAtProgress(v.route, v.cumM, v.totalM, v.progM)
+      .remaining;
   }
 
-  private nearestProgMOnRoute(pos: [number, number], route: [number, number][], cumM: number[]) {
+  private nearestProgMOnRoute(
+    pos: [number, number],
+    route: [number, number][],
+    cumM: number[],
+  ) {
     if (!route.length || cumM.length !== route.length) return 0;
     let bestI = 0;
     let bestD = 1e18;
@@ -243,7 +284,7 @@ export class MapView {
     this.map = new maplibregl.Map({
       container: mapEl,
       style: cartoDarkStyle(),
-      center: [77.60, 12.97] as LngLatLike,
+      center: [77.6, 12.97] as LngLatLike,
       zoom: 11.5,
       pitch: 45,
       bearing: -18,
@@ -251,7 +292,10 @@ export class MapView {
       cooperativeGestures: true,
     });
 
-    this.map.addControl(new maplibregl.NavigationControl({ visualizePitch: true }), "top-right");
+    this.map.addControl(
+      new maplibregl.NavigationControl({ visualizePitch: true }),
+      "top-right",
+    );
 
     this.overlay = new MapboxOverlay({ interleaved: true, layers: [] });
     this.map.addControl(this.overlay as any);
@@ -288,7 +332,11 @@ export class MapView {
       [Math.min(...lngs), Math.min(...lats)],
       [Math.max(...lngs), Math.max(...lats)],
     ];
-    this.map.fitBounds(bounds as any, { padding: 60, duration: 600, maxZoom: 13.8 });
+    this.map.fitBounds(bounds as any, {
+      padding: 60,
+      duration: 600,
+      maxZoom: 13.8,
+    });
 
     // Load simplified render paths (much smaller than GeoJSON).
     // Fallback to GeoJSON only if render file is missing.
@@ -322,23 +370,31 @@ export class MapView {
   }
 
   async playExternalEvent(event: any) {
-    if (!event || event.type !== "route" || !Array.isArray(event.polyline)) return;
+    if (!event || event.type !== "route" || !Array.isArray(event.polyline))
+      return;
     const poly = ensureLngLat(event.polyline);
     if (poly.length < 2) return;
     this.activeRoute = poly;
-    const segMq = Array.isArray(event?.traffic_seg_m_q) ? (event.traffic_seg_m_q as number[]) : null;
+    const segMq = Array.isArray(event?.traffic_seg_m_q)
+      ? (event.traffic_seg_m_q as number[])
+      : null;
 
     // Decide vehicle type from persona if present (taxi/corp/private/emergency -> car; delivery -> bike).
     const persona = String(event?.persona || "");
     const kind: VehicleKind = /Delivery/i.test(persona) ? "bike" : "car";
 
-    const id = String(event?.ev_id || `ev-${Math.random().toString(16).slice(2)}`);
+    const id = String(
+      event?.ev_id || `ev-${Math.random().toString(16).slice(2)}`,
+    );
     const now = performance.now();
     this.heroVehicleId = id;
     const baseColor: [number, number, number, number] =
-      this.side === "oracle" ? ([35, 231, 255, 210] as any) : ([255, 90, 138, 190] as any);
-    const color: [number, number, number, number] =
-      /Emergency/i.test(persona) ? ([255, 72, 72, 220] as any) : baseColor;
+      this.side === "oracle"
+        ? ([35, 231, 255, 210] as any)
+        : ([255, 90, 138, 190] as any);
+    const color: [number, number, number, number] = /Emergency/i.test(persona)
+      ? ([255, 72, 72, 220] as any)
+      : baseColor;
 
     const cumM = [0];
     let acc = 0;
@@ -390,7 +446,9 @@ export class MapView {
     // Keep the map clean: cap number of vehicles (oldest removed).
     const maxVehicles = 90;
     if (this.vehicles.size > maxVehicles) {
-      const oldest = [...this.vehicles.values()].sort((a, b) => a.lastSeenTs - b.lastSeenTs)[0];
+      const oldest = [...this.vehicles.values()].sort(
+        (a, b) => a.lastSeenTs - b.lastSeenTs,
+      )[0];
       if (oldest) this.vehicles.delete(oldest.id);
     }
 
@@ -420,7 +478,9 @@ export class MapView {
     const isBaseline = this.side === "baseline";
     try {
       this.map.fitBounds([sw, ne] as any, {
-        padding: isBaseline ? { top: 36, bottom: 36, left: 36, right: 36 } : { top: 56, bottom: 56, left: 56, right: 56 },
+        padding: isBaseline
+          ? { top: 36, bottom: 36, left: 36, right: 36 }
+          : { top: 56, bottom: 56, left: 56, right: 56 },
         duration: isBaseline ? 520 : 700,
         maxZoom: isBaseline ? 16.6 : 15.2,
         minZoom: isBaseline ? 13.2 : 11.2,
@@ -458,8 +518,14 @@ export class MapView {
         const base = v.kind === "bike" ? baseSpeedMps * 0.92 : baseSpeedMps;
         const m = this.multAt(v);
         const targetSpeed = base / Math.max(0.35, Math.min(1.15, m));
-        v.speedMps = v.speedMps == null ? targetSpeed : v.speedMps * 0.84 + targetSpeed * 0.16;
-        const nextProg = Math.min(v.totalM, v.progM + (v.speedMps || targetSpeed) * dt);
+        v.speedMps =
+          v.speedMps == null
+            ? targetSpeed
+            : v.speedMps * 0.84 + targetSpeed * 0.16;
+        const nextProg = Math.min(
+          v.totalM,
+          v.progM + (v.speedMps || targetSpeed) * dt,
+        );
         v.progM = nextProg;
         // Keep active trips alive; don't delete mid-route just because they were spawned earlier.
         if (v.progM < v.totalM - 1e-3) {
@@ -476,7 +542,9 @@ export class MapView {
 
       // Follow the most recently updated vehicle (if enabled)
       if (this.follow) {
-        const latest = [...this.vehicles.values()].sort((a, b) => b.lastSeenTs - a.lastSeenTs)[0];
+        const latest = [...this.vehicles.values()].sort(
+          (a, b) => b.lastSeenTs - a.lastSeenTs,
+        )[0];
         if (latest?.pos) this.map.easeTo({ center: latest.pos, duration: 120 });
       }
 
@@ -495,7 +563,7 @@ export class MapView {
     route: [number, number][],
     cumM: number[],
     totalM: number,
-    m: number
+    m: number,
   ): { pos: [number, number]; headingDeg: number } | null {
     if (!route.length || cumM.length !== route.length) return null;
     if (m <= 0) {
@@ -544,7 +612,9 @@ export class MapView {
     const dLng = ((lng2 - lng1) * Math.PI) / 180;
     const sLat1 = (lat1 * Math.PI) / 180;
     const sLat2 = (lat2 * Math.PI) / 180;
-    const a = Math.sin(dLat / 2) ** 2 + Math.cos(sLat1) * Math.cos(sLat2) * Math.sin(dLng / 2) ** 2;
+    const a =
+      Math.sin(dLat / 2) ** 2 +
+      Math.cos(sLat1) * Math.cos(sLat2) * Math.sin(dLng / 2) ** 2;
     return 2 * R * Math.asin(Math.sqrt(a));
   }
 
@@ -557,12 +627,14 @@ export class MapView {
     route: [number, number][],
     cumM: number[],
     totalM: number,
-    progM: number
+    progM: number,
   ): { traveled: [number, number][]; remaining: [number, number][] } {
-    if (route.length < 2) return { traveled: [...route], remaining: [...route] };
+    if (route.length < 2)
+      return { traveled: [...route], remaining: [...route] };
     const m = Math.max(0, Math.min(progM, totalM));
     const cut = this.pointAtOn(route, cumM, totalM, m);
-    if (!cut) return { traveled: [[route[0][0], route[0][1]]], remaining: [...route] };
+    if (!cut)
+      return { traveled: [[route[0][0], route[0][1]]], remaining: [...route] };
     const pos = cut.pos;
     let i = 1;
     while (i < cumM.length && cumM[i] < m) i++;
@@ -583,19 +655,37 @@ export class MapView {
       remaining.push([end[0], end[1]]);
     }
     return {
-      traveled: chaikinSmooth(dropNearDuplicates(simplifyPathLngLat(traveled, 220), 2.0), 1),
-      remaining: chaikinSmooth(dropNearDuplicates(simplifyPathLngLat(remaining, 360), 2.0), 1),
+      traveled: chaikinSmooth(
+        dropNearDuplicates(simplifyPathLngLat(traveled, 220), 2.0),
+        1,
+      ),
+      remaining: chaikinSmooth(
+        dropNearDuplicates(simplifyPathLngLat(remaining, 360), 2.0),
+        1,
+      ),
     };
   }
 
   /** Route is updated every animation frame; roads stay in `staticLayers`. */
   private makeRouteProgressLayers(): PathLayer[] {
     if (!this.activeRoute.length) return [];
-    const hero = this.heroVehicleId ? this.vehicles.get(this.heroVehicleId) : undefined;
+    const hero = this.heroVehicleId
+      ? this.vehicles.get(this.heroVehicleId)
+      : undefined;
     let traveled: [number, number][] = [];
     let remaining: [number, number][] = [];
-    if (hero && hero.route.length >= 2 && hero.cumM.length === hero.route.length && hero.totalM > 1e-6) {
-      const sp = this.splitRouteAtProgress(hero.route, hero.cumM, hero.totalM, hero.progM);
+    if (
+      hero &&
+      hero.route.length >= 2 &&
+      hero.cumM.length === hero.route.length &&
+      hero.totalM > 1e-6
+    ) {
+      const sp = this.splitRouteAtProgress(
+        hero.route,
+        hero.cumM,
+        hero.totalM,
+        hero.progM,
+      );
       traveled = sp.traveled;
       remaining = sp.remaining;
     } else {
@@ -604,9 +694,11 @@ export class MapView {
 
     const traveledCore: [number, number, number, number] =
       this.side === "oracle" ? [60, 160, 175, 170] : [200, 200, 220, 150];
-    const routeCore = this.side === "oracle" ? [55, 240, 255, 255] : [240, 244, 255, 250];
+    const routeCore =
+      this.side === "oracle" ? [55, 240, 255, 255] : [240, 244, 255, 250];
     const routeCasing = [8, 10, 18, 235];
-    const routeHalo = this.side === "oracle" ? [35, 200, 230, 55] : [200, 210, 245, 45];
+    const routeHalo =
+      this.side === "oracle" ? [35, 200, 230, 55] : [200, 210, 245, 45];
 
     const layers: PathLayer[] = [];
     if (traveled.length >= 2) {
@@ -622,7 +714,7 @@ export class MapView {
           jointRounded: true,
           pickable: false,
           parameters: { depthTest: false },
-        })
+        }),
       );
     }
     if (remaining.length >= 2) {
@@ -662,7 +754,7 @@ export class MapView {
           jointRounded: true,
           pickable: false,
           parameters: { depthTest: false },
-        })
+        }),
       );
     }
     return layers;
@@ -673,18 +765,26 @@ export class MapView {
     const stationLayer = this.makeStationIconLayer();
     const routeLayers = this.makeRouteProgressLayers();
     this.overlay.setProps({
-      layers: [...this.staticLayers, ...routeLayers, stationLayer, vehicleDotLayer],
+      layers: [
+        ...this.staticLayers,
+        ...routeLayers,
+        stationLayer,
+        vehicleDotLayer,
+      ],
     });
   }
 
   private renderStatic() {
-    const roads: { path: [number, number][]; highway: string }[] = (this as any)._roads || [];
+    const roads: { path: [number, number][]; highway: string }[] =
+      (this as any)._roads || [];
     const roadColor = (hw: string) => {
-      if (hw === "motorway" || hw === "trunk" || hw === "primary") return [230, 235, 255, 55] as any;
+      if (hw === "motorway" || hw === "trunk" || hw === "primary")
+        return [230, 235, 255, 55] as any;
       if (hw === "secondary") return [200, 210, 245, 28] as any;
       return [160, 170, 210, 16] as any;
     };
-    const roadWidth = (hw: string) => (hw === "primary" ? 2.4 : hw === "secondary" ? 1.8 : 1.2);
+    const roadWidth = (hw: string) =>
+      hw === "primary" ? 2.4 : hw === "secondary" ? 1.8 : 1.2;
 
     const roadLayer = new PathLayer({
       id: `roads-${this.side}`,
@@ -731,11 +831,13 @@ export class MapView {
       sizeUnits: "pixels",
       getSize: 24,
       getPosition: (d: Station) => [d.lng, d.lat],
-      getColor: this.side === "oracle" ? ([35, 231, 255, 170] as any) : ([232, 236, 255, 120] as any),
+      getColor:
+        this.side === "oracle"
+          ? ([35, 231, 255, 170] as any)
+          : ([232, 236, 255, 120] as any),
       billboard: true,
       pickable: false,
       parameters: { depthTest: false },
     });
   }
 }
-
