@@ -76,7 +76,11 @@ async function sleep(ms: number) {
   await new Promise((r) => setTimeout(r, ms));
 }
 
-export async function demoNew(seed: number, scenario: string = "baseline", fleet_mode: string = "mixed"): Promise<DemoNewResponse> {
+export async function demoNew(
+  seed: number,
+  scenario: string = "baseline",
+  fleet_mode: string = "mixed",
+): Promise<DemoNewResponse> {
   const maxAttempts = 3;
   let lastErr: unknown = null;
   for (let attempt = 1; attempt <= maxAttempts; attempt++) {
@@ -94,7 +98,9 @@ export async function demoNew(seed: number, scenario: string = "baseline", fleet
         let detail = "";
         try {
           const j = await r.json();
-          detail = j?.detail ? ` — ${String(j.detail)}` : ` — ${JSON.stringify(j).slice(0, 500)}`;
+          detail = j?.detail
+            ? ` — ${String(j.detail)}`
+            : ` — ${JSON.stringify(j).slice(0, 500)}`;
         } catch {
           try {
             const txt = await r.text();
@@ -112,7 +118,7 @@ export async function demoNew(seed: number, scenario: string = "baseline", fleet
       if (attempt >= maxAttempts) {
         if (isAbort) {
           throw new Error(
-            "demoNew timed out (90s). The Space may be cold-starting. Wait ~30s and refresh, or try again."
+            "demoNew timed out (90s). The Space may be cold-starting. Wait ~30s and refresh, or try again.",
           );
         }
         throw e;
@@ -145,7 +151,9 @@ export async function demoStep(args: {
       let detail = "";
       try {
         const j = await r.json();
-        detail = j?.detail ? ` — ${String(j.detail)}` : ` — ${JSON.stringify(j).slice(0, 500)}`;
+        detail = j?.detail
+          ? ` — ${String(j.detail)}`
+          : ` — ${JSON.stringify(j).slice(0, 500)}`;
       } catch {
         try {
           const txt = await r.text();
@@ -159,7 +167,9 @@ export async function demoStep(args: {
     return (await r.json()) as DemoStepResponse;
   } catch (e: any) {
     if (e?.name === "AbortError") {
-      throw new Error("demoStep timed out after 4m — server may be loading Qwen+LoRA on CPU; try ORACLE_SKIP_LLM=1 on Space or fix LoRA repo id.");
+      throw new Error(
+        "demoStep timed out after 4m — server may be loading Qwen+LoRA on CPU; try ORACLE_SKIP_LLM=1 on Space or fix LoRA repo id.",
+      );
     }
     throw e;
   } finally {
@@ -181,7 +191,9 @@ export async function demoSpawnVehicle(args: {
     let detail = "";
     try {
       const j = await r.json();
-      detail = j?.detail ? ` — ${String(j.detail)}` : ` — ${JSON.stringify(j).slice(0, 500)}`;
+      detail = j?.detail
+        ? ` — ${String(j.detail)}`
+        : ` — ${JSON.stringify(j).slice(0, 500)}`;
     } catch {
       try {
         const txt = await r.text();
@@ -195,7 +207,11 @@ export async function demoSpawnVehicle(args: {
   return (await r.json()) as DemoSpawnVehicleResponse;
 }
 
-export async function maNew(seed: number, scenario: string = "baseline", fleet_mode: string = "mixed"): Promise<MANewResponse> {
+export async function maNew(
+  seed: number,
+  scenario: string = "baseline",
+  fleet_mode: string = "mixed",
+): Promise<MANewResponse> {
   const r = await fetch("/ma/new", {
     method: "POST",
     headers: { "content-type": "application/json" },
@@ -218,4 +234,3 @@ export async function maAutoStep(args: {
   if (!r.ok) throw new Error(`maAutoStep failed: ${r.status}`);
   return (await r.json()) as MAStepResponse;
 }
-

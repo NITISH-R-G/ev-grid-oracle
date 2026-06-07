@@ -98,7 +98,7 @@ def _coords_latlng_from_geojson_line(coords: Any) -> list[tuple[float, float]]:
     return out
 
 
-def main() -> int:
+def parse_args() -> argparse.Namespace:
     ap = argparse.ArgumentParser()
     ap.add_argument(
         "--in", dest="inp", default="web/public/maps/bangalore_roads_full.geojson"
@@ -127,23 +127,15 @@ def main() -> int:
     ap.add_argument(
         "--gzip", action="store_true", help="write graph output as .gz (recommended)"
     )
-    args = ap.parse_args()
+    return ap.parse_args()
 
-    inp = (ROOT / args.inp).resolve()
-    out = (ROOT / args.out).resolve()
-    meta_out = (ROOT / args.meta_out).resolve()
-    out.parent.mkdir(parents=True, exist_ok=True)
 
-    raw_text = inp.read_text(encoding="utf-8")
-    gj = json.loads(raw_text)
-    feats = gj.get("features", [])
-    if not isinstance(feats, list):
-        raise SystemExit("invalid geojson: features[] missing")
-
-    snap_decimals = int(args.snap_decimals)
-    geom_every = max(1, int(args.geom_every))
-
-    # Pass 1: build point adjacency over snapped coordinates.
+def build_adjacency(
+    feats: list[Any], snap_decimals: int
+) -> dict[tuple[float, float], bool]:
+    """Pass 1: build point adjacency over snapped coordinates.
+    Intersections/endpoints are nodes where degree != 2.
+    """
     adj: dict[tuple[float, float], set[tuple[float, float]]] = {}
 
     def add_neighbor(a: tuple[float, float], b: tuple[float, float]):
@@ -165,11 +157,16 @@ def main() -> int:
         for a, b in zip(snapped, snapped[1:]):
             add_neighbor(a, b)
 
-    # Intersections/endpoints are nodes where degree != 2.
-    is_node: dict[tuple[float, float], bool] = {
-        k: (len(v) != 2) for k, v in adj.items()
-    }
+    return {k: (len(v) != 2) for k, v in adj.items()}
 
+
+def contract_edges(
+    feats: list[Any],
+    is_node: dict[tuple[float, float], bool],
+    snap_decimals: int,
+    geom_every: int,
+) -> tuple[list[Node], list[dict[str, Any]]]:
+    """Pass 2: for each way, contract degree-2 chains into intersection-to-intersection edges."""
     node_id: dict[tuple[float, float], int] = {}
     nodes: list[Node] = []
 
@@ -183,7 +180,6 @@ def main() -> int:
 
     edges: list[dict[str, Any]] = []
 
-    # Pass 2: for each way, contract degree-2 chains into intersection-to-intersection edges
     for f in feats:
         if not isinstance(f, dict):
             continue
@@ -268,22 +264,13 @@ def main() -> int:
             if is_node.get(k, False):
                 flush(k)
 
-    payload = {
-        "meta": {
-            "source": str(inp.relative_to(ROOT)).replace("\\", "/"),
-            "snap_decimals": snap_decimals,
-            "geom_every": geom_every,
-            "speed_kmh": SPEED_KMH,
-            "keep_only_largest_component": True,
-        },
-        "nodes": [
-            {"lat": round(n.lat, snap_decimals), "lng": round(n.lng, snap_decimals)}
-            for n in nodes
-        ],
-        "edges": edges,
-    }
+    return nodes, edges
 
-    # Keep only the largest connected component (by node count) to satisfy routing coverage.
+
+def filter_largest_component(
+    nodes: list[Node], edges: list[dict[str, Any]], snap_decimals: int
+) -> tuple[list[dict[str, float]], list[dict[str, Any]]]:
+    """Pass 3: Keep only the largest connected component (by node count) to satisfy routing coverage."""
     g3 = nx.Graph()
     g3.add_nodes_from(range(len(nodes)))
     for e in edges:
@@ -324,6 +311,47 @@ def main() -> int:
             str(x.get("name") or ""),
         )
     )
+
+    return new_nodes, new_edges
+
+
+def main() -> int:
+    args = parse_args()
+
+    inp = (ROOT / args.inp).resolve()
+    out = (ROOT / args.out).resolve()
+    meta_out = (ROOT / args.meta_out).resolve()
+    out.parent.mkdir(parents=True, exist_ok=True)
+
+    raw_text = inp.read_text(encoding="utf-8")
+    gj = json.loads(raw_text)
+    feats = gj.get("features", [])
+    if not isinstance(feats, list):
+        raise SystemExit("invalid geojson: features[] missing")
+
+    snap_decimals = int(args.snap_decimals)
+    geom_every = max(1, int(args.geom_every))
+
+    is_node = build_adjacency(feats, snap_decimals)
+
+    nodes, edges = contract_edges(feats, is_node, snap_decimals, geom_every)
+
+    payload = {
+        "meta": {
+            "source": str(inp.relative_to(ROOT)).replace("\\", "/"),
+            "snap_decimals": snap_decimals,
+            "geom_every": geom_every,
+            "speed_kmh": SPEED_KMH,
+            "keep_only_largest_component": True,
+        },
+        "nodes": [
+            {"lat": round(n.lat, snap_decimals), "lng": round(n.lng, snap_decimals)}
+            for n in nodes
+        ],
+        "edges": edges,
+    }
+
+    new_nodes, new_edges = filter_largest_component(nodes, edges, snap_decimals)
 
     payload["nodes"] = new_nodes
     payload["edges"] = new_edges
