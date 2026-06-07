@@ -1,11 +1,16 @@
 import json
-import subprocess
+import subprocess  # nosec B404
 import os
 from datetime import datetime, timezone
 from jinja2 import Environment, FileSystemLoader
 
 
+ALLOWED_COMMANDS = {"git", "python", "radon", "bandit", "ruff"}
+
+
 def run_cmd(cmd: list[str]) -> str:
+    if not cmd or cmd[0] not in ALLOWED_COMMANDS:
+        return ""
     try:
         result = subprocess.run(cmd, capture_output=True, text=True, check=False)  # nosec B603
         return result.stdout
