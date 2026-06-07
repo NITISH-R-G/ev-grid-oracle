@@ -20,6 +20,9 @@ jobs:
         python-version: '3.12'
         cache: 'pip'
 
+    - name: Pull Git LFS objects
+      run: git lfs pull
+
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
