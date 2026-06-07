@@ -131,22 +131,24 @@ class CityMapRenderer:
             and state.pending_evs
         ):
             ev = state.pending_evs[0]
-            try:
-                from_station = next(
+            from_station = next(
+                (
                     s
                     for s in state.stations
                     if s.neighborhood_slug == ev.neighborhood_slug
-                )
-                to_station = next(
-                    s for s in state.stations if s.station_id == last_action.station_id
-                )
+                ),
+                None,
+            )
+            to_station = next(
+                (s for s in state.stations if s.station_id == last_action.station_id),
+                None,
+            )
+            if from_station and to_station:
                 self._draw_animated_route(
                     surf,
                     self.xy(from_station.lat, from_station.lng),
                     self.xy(to_station.lat, to_station.lng),
                 )
-            except StopIteration:
-                pass
 
         # HUD panel
         hud_x = cfg.width - cfg.hud_w + 16
