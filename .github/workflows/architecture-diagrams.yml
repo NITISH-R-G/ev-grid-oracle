@@ -1,0 +1,41 @@
+name: Architecture Intelligence
+on:
+  push:
+    branches: [main]
+    paths:
+      - '**.py'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  generate-diagrams:
+    runs-on: ubuntu-latest
+    if: github.event.sender.type != 'Bot'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Graphviz
+        run: sudo apt-get update && sudo apt-get install -y graphviz
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Pyreverse
+        run: |
+          pip install pylint uv
+          uv pip install --system -e ".[dev,demo]"
+
+      - name: Generate Architecture Diagrams
+        run: |
+          mkdir -p docs/architecture
+          pyreverse -o png -p ev_grid_oracle ev_grid_oracle/ -d docs/architecture || true
+          pyreverse -o png -p server server/ -d docs/architecture || true
+
+      - name: Commit Diagrams
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "docs: auto-update architecture diagrams"
