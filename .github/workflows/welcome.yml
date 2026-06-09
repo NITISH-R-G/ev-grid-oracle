@@ -1,0 +1,58 @@
+name: Welcome New Contributors
+on:
+  issues:
+    types: [opened]
+  pull_request_target:
+    types: [opened]
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  welcome:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            // Get creator of the issue/PR
+            const creator = context.payload.sender.login;
+
+            // Query to see if this is their first contribution
+            const opts = context.eventName === 'issues' ?
+              github.rest.issues.listForRepo.endpoint.merge({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                creator: creator,
+                state: 'all'
+              }) :
+              github.rest.pulls.list.endpoint.merge({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                creator: creator,
+                state: 'all'
+              });
+
+            const contributions = await github.paginate(opts);
+
+            // Only comment if this is the first issue/PR
+            if (contributions.length === 1) {
+              const body = `🎉 Welcome to EV Grid Oracle, @${creator}! 🎉\n\nThank you for your first contribution! We are thrilled to have you here.\n\nPlease make sure you have checked out our [Contributing Guidelines](CONTRIBUTING.md) and [Code of Conduct](CODE_OF_CONDUCT.md).\n\nA maintainer will review your submission shortly. Let us know if you need any help!`;
+
+              if (context.eventName === 'issues') {
+                await github.rest.issues.createComment({
+                  issue_number: context.issue.number,
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  body: body
+                });
+              } else {
+                await github.rest.issues.createComment({
+                  issue_number: context.issue.number, // In actions, context.issue.number works for PRs too when creating a comment
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  body: body
+                });
+              }
+            }

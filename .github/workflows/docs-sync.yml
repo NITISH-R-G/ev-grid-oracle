@@ -1,0 +1,35 @@
+name: Auto Generate Docs
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    if: github.event.sender.type != 'Bot'
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install pdoc
+        run: |
+          pip install pdoc uv
+          uv pip install --system -e ".[dev,demo]"
+
+      - name: Generate Python docs
+        run: |
+          mkdir -p docs/api
+          pdoc --docformat google --output-dir docs/api ev_grid_oracle server
+
+      - name: Commit docs
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "docs: auto-generate API documentation"

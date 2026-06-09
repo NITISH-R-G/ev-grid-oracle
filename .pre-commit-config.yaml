@@ -1,0 +1,21 @@
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+    -   id: trailing-whitespace
+    -   id: end-of-file-fixer
+    -   id: check-yaml
+        args: [--unsafe] # Optional, specific for custom tags
+    -   id: check-added-large-files
+        args: ['--maxkb=50000']
+-   repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.4.7
+    hooks:
+    -   id: ruff
+        args: [ --fix ]
+    -   id: ruff-format
+-   repo: https://github.com/prettier/prettier
+    rev: 3.3.1
+    hooks:
+    -   id: prettier
+        types_or: [javascript, typescript, json, css, markdown]
