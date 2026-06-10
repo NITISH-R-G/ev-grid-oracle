@@ -39,11 +39,8 @@ jobs:
       run: |
         pydeps ev_grid_oracle --cluster --rmprefix ev_grid_oracle. --max-bacon 2 -o docs/architecture/dependencies.svg || true
 
-    - name: Create Pull Request
-      uses: peter-evans/create-pull-request@v6
+    - name: Commit changes
+      uses: stefanzweifel/git-auto-commit-action@v5
       with:
-        commit-message: "docs: auto-generate architecture diagrams"
-        title: "[Auto] Sync Architecture Diagrams"
-        body: "Automated architecture diagram generation."
-        branch: "auto-architecture-update"
-        base: "main"
+        commit_message: "docs: auto-generate architecture diagrams"
+        commit_options: '--no-verify'

@@ -34,11 +34,8 @@ jobs:
         mkdir -p docs/api
         pdoc ./ev_grid_oracle -o docs/api
 
-    - name: Create Pull Request
-      uses: peter-evans/create-pull-request@v6
+    - name: Commit changes
+      uses: stefanzweifel/git-auto-commit-action@v5
       with:
-        commit-message: "docs: auto-generate API documentation"
-        title: "[Auto] Sync API Documentation"
-        body: "Automated API documentation sync."
-        branch: "auto-docs-update"
-        base: "main"
+        commit_message: "docs: auto-generate API documentation"
+        commit_options: '--no-verify'

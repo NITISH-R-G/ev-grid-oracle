@@ -7,10 +7,14 @@ on:
 jobs:
   autofix:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -38,4 +42,8 @@ jobs:
         run: |
           npx prettier --write "**/*.{js,ts,jsx,tsx,json,md,yml,yaml}" || true
 
-      - uses: autofix-ci/action@dd55f44df8f7cdb7a6bf74c78677eb8acd40cd0a
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "style: auto-fix formatting"
+          commit_options: '--no-verify'
