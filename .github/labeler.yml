@@ -1,0 +1,27 @@
+frontend:
+  - web/**/*
+
+backend:
+  - ev_grid_oracle/**/*
+  - server/**/*
+
+tests:
+  - tests/**/*
+  - web/src/**/*.test.ts
+  - web/src/**/*.test.tsx
+
+documentation:
+  - docs/**/*
+  - '**/*.md'
+
+infrastructure:
+  - .github/**/*
+  - Dockerfile
+  - openenv.yaml
+  - pyproject.toml
+  - web/package.json
+  - uv.lock
+
+tools:
+  - tools/**/*
+  - scripts/**/*

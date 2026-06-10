@@ -1,0 +1,51 @@
+name: Architecture Diagrams
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  generate-diagrams:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get install -y graphviz
+        pip install pylint pydeps uv
+        uv pip install --system -e ".[dev]"
+
+    - name: Generate UML with Pyreverse
+      run: |
+        mkdir -p docs/architecture
+        pyreverse -o png -p ev_grid_oracle ev_grid_oracle/ -d docs/architecture
+
+    - name: Generate Dependency Graph
+      run: |
+        pydeps ev_grid_oracle --cluster --rmprefix ev_grid_oracle. --max-bacon 2 -o docs/architecture/dependencies.svg || true
+
+    - name: Ensure git config
+      run: |
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+
+    - name: Commit changes
+      uses: stefanzweifel/git-auto-commit-action@v5
+      with:
+        commit_message: "docs: auto-generate architecture diagrams"
+        commit_options: '--no-verify'

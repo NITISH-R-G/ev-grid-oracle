@@ -1,0 +1,53 @@
+name: autofix.ci
+on:
+  pull_request:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  autofix:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install ruff pre-commit nodeenv
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install prettier
+        run: npm install -g prettier
+
+      - name: Run Ruff Check & Format
+        run: |
+          ruff check --fix . || true
+          ruff format . || true
+
+      - name: Run Prettier
+        run: |
+          npx prettier --write "**/*.{js,ts,jsx,tsx,json,md,yml,yaml}" || true
+
+      - name: Ensure git config
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+
+      - name: Commit and push changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "style: auto-fix formatting"
+          commit_options: '--no-verify'
