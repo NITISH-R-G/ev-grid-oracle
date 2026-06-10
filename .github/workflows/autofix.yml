@@ -51,4 +51,3 @@ jobs:
         with:
           commit_message: "style: auto-fix formatting"
           commit_options: '--no-verify'
-          skip_fetch: true

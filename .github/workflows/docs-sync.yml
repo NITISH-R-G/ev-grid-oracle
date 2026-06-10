@@ -44,4 +44,3 @@ jobs:
       with:
         commit_message: "docs: auto-generate API documentation"
         commit_options: '--no-verify'
-        skip_fetch: true

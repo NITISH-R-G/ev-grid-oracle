@@ -49,4 +49,3 @@ jobs:
       with:
         commit_message: "docs: auto-generate architecture diagrams"
         commit_options: '--no-verify'
-        skip_fetch: true
