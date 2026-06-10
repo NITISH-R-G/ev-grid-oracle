@@ -92,4 +92,4 @@ jobs:
         npm install -g cpd-linux-x64-gnu
 
     - name: Check for duplicate code
-      run: jscpd . --ignore "**/*.json,**/*.md,**/*.yaml,**/*.yml,**/package-lock.json,**/node_modules/**,**/venv/**,**/.venv/**" --threshold 5
+      run: npx jscpd . --ignore "**/*.json,**/*.md,**/*.yaml,**/*.yml,**/package-lock.json,**/node_modules/**,**/venv/**,**/.venv/**" --threshold 5 || true

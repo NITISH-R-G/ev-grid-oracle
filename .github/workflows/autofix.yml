@@ -14,7 +14,6 @@ jobs:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -42,8 +41,14 @@ jobs:
         run: |
           npx prettier --write "**/*.{js,ts,jsx,tsx,json,md,yml,yaml}" || true
 
-      - name: Commit changes
+      - name: Ensure git config
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+
+      - name: Commit and push changes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
           commit_message: "style: auto-fix formatting"
           commit_options: '--no-verify'
+          skip_fetch: true
