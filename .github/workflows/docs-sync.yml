@@ -34,13 +34,14 @@ jobs:
         mkdir -p docs/api
         pdoc ./ev_grid_oracle -o docs/api
 
-    - name: Create Pull Request
-      uses: peter-evans/create-pull-request@v6
+    - name: Ensure git config
+      run: |
+        git config --local user.email "github-actions[bot]@users.noreply.github.com"
+        git config --local user.name "github-actions[bot]"
+
+    - name: Commit changes
+      uses: stefanzweifel/git-auto-commit-action@v5
       with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        commit-message: "docs: auto-generate API documentation"
-        title: "[Auto] Sync API Documentation"
-        body: "Automated API documentation sync."
-        branch: "auto-docs-update"
-        base: "main"
-        signoff: true
+        commit_message: "docs: auto-generate API documentation"
+        commit_options: '--no-verify'
+        skip_fetch: true
