@@ -1,0 +1,44 @@
+name: Docs Sync
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  generate-docs:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install dependencies
+      run: |
+        pip install uv
+        uv pip install --system -e ".[dev]" pdoc
+
+    - name: Generate API Documentation
+      run: |
+        mkdir -p docs/api
+        pdoc ./ev_grid_oracle -o docs/api
+
+    - name: Create Pull Request
+      uses: peter-evans/create-pull-request@v6
+      with:
+        commit-message: "docs: auto-generate API documentation"
+        title: "[Auto] Sync API Documentation"
+        body: "Automated API documentation sync."
+        branch: "auto-docs-update"
+        base: "main"
