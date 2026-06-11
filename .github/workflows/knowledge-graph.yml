@@ -1,0 +1,42 @@
+name: Generate Knowledge Graph
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  schedule:
+    - cron: '0 0 * * 0' # Weekly
+
+permissions:
+  contents: write
+
+jobs:
+  build-graph:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install pydeps networkx pyvis
+          pip install -e ".[dev]" || true
+
+      - name: Generate Dependency Graph
+        run: |
+          mkdir -p docs/knowledge-graph
+          pydeps ev_grid_oracle --noshow --output docs/knowledge-graph/pydeps.svg || true
+          pydeps server --noshow --output docs/knowledge-graph/pydeps_server.svg || true
+
+      - name: Generate Interactive Graph (Optional)
+        run: |
+          # A placeholder for future pyvis interactive graph generation
+          echo "Future pyvis graph will go here" > docs/knowledge-graph/index.html
+
+      - name: Commit Knowledge Graph
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "docs: auto-update repository knowledge graph"

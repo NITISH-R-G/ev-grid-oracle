@@ -40,6 +40,7 @@ Refactor and clean up code after tests pass.
 This is TDD's third phase: Red → Green → **Refactor**.
 
 The goal is NOT to add features or change behavior. The goal is to make the code:
+
 - Easier to read
 - Easier to maintain
 - More consistent with project patterns

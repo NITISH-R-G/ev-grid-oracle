@@ -29,6 +29,7 @@ gh repo view --json nameWithOwner -q '.nameWithOwner'
 ```
 
 Store as `PR_NUMBER` and `REPO`. Initialize counters:
+
 - `CI_FIX_COUNT = 0` (max 5)
 - `REVIEW_FIX_COUNT = 0` (max 3)
 
@@ -53,6 +54,7 @@ bash .claude/hooks/ci-wait.sh <PR_NUMBER> 1800
 this, re-invoke it with the remaining timeout: `bash .claude/hooks/ci-wait.sh <PR_NUMBER> <REMAINING_SECONDS>`.
 
 Evaluate the exit code:
+
 - **Exit 0** (all checks passed): Go to **Step 3 (WAITING_REVIEW)**.
 - **Exit 1** (checks failed): Go to **Step 2 (CI_FAILED)**.
 - **Exit 2** (timeout): Report to user: "CI checks did not complete within 30 minutes. Check manually." Stop.
@@ -180,6 +182,7 @@ gh api repos/<REPO>/pulls/<PR_NUMBER>/comments \
 **4c. Address each comment:**
 
 For each line-level comment:
+
 1. Read the file at the specified path and line
 2. Understand the suggestion
 3. If it aligns with project principles: apply the fix
@@ -269,11 +272,11 @@ If final status is NEEDS ATTENTION (hit iteration limits), explain what remains.
 
 ## Safeguards
 
-| Limit | Value | Behavior when exceeded |
-|-------|-------|----------------------|
-| CI fix iterations | 5 | Stop, report failures, ask user |
-| Greptile wait timeout | 3 hours | Continue without review |
-| Review fix iterations | 3 | Stop, report outstanding comments |
+| Limit                 | Value   | Behavior when exceeded            |
+| --------------------- | ------- | --------------------------------- |
+| CI fix iterations     | 5       | Stop, report failures, ask user   |
+| Greptile wait timeout | 3 hours | Continue without review           |
+| Review fix iterations | 3       | Stop, report outstanding comments |
 
 ## When to Use
 

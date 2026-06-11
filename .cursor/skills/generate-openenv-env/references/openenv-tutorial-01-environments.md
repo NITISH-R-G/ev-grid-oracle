@@ -4,7 +4,7 @@
 
 <img src="https://upload.wikimedia.org/wikipedia/commons/1/10/PyTorch_logo_icon.svg" width="200" alt="PyTorch">
 
-### *From "Hello World" to RL Training in 5 Minutes* ✨
+### _From "Hello World" to RL Training in 5 Minutes_ ✨
 
 ---
 
@@ -27,9 +27,9 @@ Author: [Sanyam Bhutani](http://twitter.com/bhutanisanyam1/)
 
 Let's take a trip down memory lane:
 
-It's 2016, RL is popular. You read some papers, it looks promising. 
+It's 2016, RL is popular. You read some papers, it looks promising.
 
-But in real world: Cartpole is the best you can run on a gaming GPU. 
+But in real world: Cartpole is the best you can run on a gaming GPU.
 
 What do you do beyond Cartpole?
 
@@ -37,7 +37,7 @@ Fast-forward to 2025, GRPO is awesome and this time it's not JUST in theory, it 
 
 The problem still remains, how do you take these RL algorithms and take them beyond Cartpole?
 
-A huge part of RL is giving your algorithms environment access to learn. 
+A huge part of RL is giving your algorithms environment access to learn.
 
 We are excited to introduce an Environment Spec for adding Open Environments for RL Training. This will allow you to focus on your experiments and allow everyone to bring their environments.
 
@@ -91,8 +91,8 @@ Focus on experiments, use OpenEnvironments, and build agents that go beyond Cart
 </table>
 
 !!! tip "Pro Tip"
-    This notebook is designed to run top-to-bottom in Google Colab with zero setup!
-    
+This notebook is designed to run top-to-bottom in Google Colab with zero setup!
+
     ⏱️ **Time**: ~5 minutes | 📊 **Difficulty**: Beginner-friendly | 🎯 **Outcome**: Production-ready RL knowledge
 
 ---
@@ -165,9 +165,9 @@ while guesses_left > 0:
     # Policy: Random guessing (no learning yet!)
     guess = random.randint(1, 10)
     guesses_left -= 1
-    
+
     print(f"💭 Guess #{3-guesses_left}: {guess}", end=" → ")
-    
+
     # Reward signal (but we're not using it!)
     if guess == target:
         print("🎉 Correct! +10 points")
@@ -186,6 +186,7 @@ print("="*62 + "\n")
 ```
 
 **Output:**
+
 ```
 🎲 ========================================================== 🎲
    Number Guessing Game - The Simplest RL Example
@@ -211,14 +212,14 @@ print("="*62 + "\n")
 
 Good question! Gym is great for research, but production needs more...
 
-| Challenge | Traditional Approach | OpenEnv Solution |
-|-----------|---------------------|------------------|
-| **Type Safety** | ❌ `obs[0][3]` - what is this? | ✅ `obs.info_state` - IDE knows! |
-| **Isolation** | ❌ Same process (can crash your training) | ✅ Docker containers (fully isolated) |
-| **Deployment** | ❌ "Works on my machine" 🤷 | ✅ Same container everywhere 🐳 |
-| **Scaling** | ❌ Hard to distribute | ✅ Deploy to Kubernetes ☸️ |
-| **Language** | ❌ Python only | ✅ Any language (HTTP API) 🌐 |
-| **Debugging** | ❌ Cryptic numpy errors | ✅ Clear type errors 🐛 |
+| Challenge       | Traditional Approach                      | OpenEnv Solution                      |
+| --------------- | ----------------------------------------- | ------------------------------------- |
+| **Type Safety** | ❌ `obs[0][3]` - what is this?            | ✅ `obs.info_state` - IDE knows!      |
+| **Isolation**   | ❌ Same process (can crash your training) | ✅ Docker containers (fully isolated) |
+| **Deployment**  | ❌ "Works on my machine" 🤷               | ✅ Same container everywhere 🐳       |
+| **Scaling**     | ❌ Hard to distribute                     | ✅ Deploy to Kubernetes ☸️            |
+| **Language**    | ❌ Python only                            | ✅ Any language (HTTP API) 🌐         |
+| **Debugging**   | ❌ Cryptic numpy errors                   | ✅ Clear type errors 🐛               |
 
 ### 💡 The OpenEnv Philosophy
 
@@ -262,7 +263,7 @@ Think of it like this: You don't run your database in the same process as your w
 ```
 
 !!! info "Key Insight"
-    You never see WebSocket details - just clean Python methods!
+You never see WebSocket details - just clean Python methods!
 
     ```python
     env.reset()    # Under the hood: WebSocket message via /ws
@@ -294,10 +295,10 @@ if IN_COLAB:
     print("\n📦 Cloning OpenEnv repository...")
     !git clone https://github.com/meta-pytorch/OpenEnv.git > /dev/null 2>&1
     %cd OpenEnv
-    
+
     print("📚 Installing dependencies (this takes ~10 seconds)...")
     !pip install -q fastapi uvicorn requests
-    
+
     import sys
     sys.path.insert(0, './src')
     print("\n✅ Setup complete! Everything is ready to go! 🎉")
@@ -312,6 +313,7 @@ print("💡 Tip: Run cells top-to-bottom for the best experience.\n")
 ```
 
 **Output:**
+
 ```
 💻 Running locally - Nice!
 ✅ Using local OpenEnv installation
@@ -391,6 +393,7 @@ print("🎯 You focus on RL, OpenEnv handles the infrastructure.\n")
 ```
 
 **Output:**
+
 ```
 ======================================================================
    🧩 OPENENV CORE ABSTRACTIONS
@@ -400,15 +403,15 @@ print("🎯 You focus on RL, OpenEnv handles the infrastructure.\n")
 
     class Environment(ABC):
         '''Base class for all environment implementations'''
-        
+
         @abstractmethod
         def reset(self) -> Observation:
             '''Start new episode'''
-        
+
         @abstractmethod
         def step(self, action: Action) -> Observation:
             '''Execute action, return observation'''
-        
+
         @property
         def state(self) -> State:
             '''Get episode metadata'''
@@ -445,12 +448,12 @@ print("🎯 You focus on RL, OpenEnv handles the infrastructure.\n")
 
 We've wrapped **6 OpenSpiel games** following the OpenEnv pattern:
 
-| **🎯 Single-Player** | **👥 Multi-Player** |
-|---------------------|---------------------|
-| 1. **Catch** - Catch falling ball | 5. **Tic-Tac-Toe** - Classic 3×3 |
+| **🎯 Single-Player**                 | **👥 Multi-Player**                      |
+| ------------------------------------ | ---------------------------------------- |
+| 1. **Catch** - Catch falling ball    | 5. **Tic-Tac-Toe** - Classic 3×3         |
 | 2. **Cliff Walking** - Navigate grid | 6. **Kuhn Poker** - Imperfect info poker |
-| 3. **2048** - Tile puzzle | |
-| 4. **Blackjack** - Card game | |
+| 3. **2048** - Tile puzzle            |                                          |
+| 4. **Blackjack** - Card game         |                                          |
 
 This shows how OpenEnv can wrap **any** existing RL library!
 
@@ -487,13 +490,13 @@ print("─" * 70)
 print("\n✨ Usage (works for ALL OpenEnv environments):")
 print("""
   env = OpenSpielEnv(base_url="http://localhost:8000")
-  
+
   result = env.reset()
   # Returns StepResult[OpenSpielObservation] - Type safe!
-  
+
   result = env.step(OpenSpielAction(action_id=2, game_name="catch"))
   # Type checker knows this is valid!
-  
+
   state = env.state()
   # Returns OpenSpielState
 """)
@@ -503,6 +506,7 @@ print("\n🎯 This pattern works for ANY environment you want to wrap!\n")
 ```
 
 **Output:**
+
 ```
 ======================================================================
    🔌 HOW OPENENV WRAPS OPENSPIEL
@@ -533,13 +537,13 @@ class OpenSpielEnv(EnvClient[OpenSpielAction, OpenSpielObservation, OpenSpielSta
 ✨ Usage (works for ALL OpenEnv environments):
 
   env = OpenSpielEnv(base_url="http://localhost:8000")
-  
+
   result = env.reset()
   # Returns StepResult[OpenSpielObservation] - Type safe!
-  
+
   result = env.step(OpenSpielAction(action_id=2, game_name="catch"))
   # Type checker knows this is valid!
-  
+
   state = env.state()
   # Returns OpenSpielState
 
@@ -587,6 +591,7 @@ print("   ✅ Self-documenting code\n")
 ```
 
 **Output:**
+
 ```
 ======================================================================
    🎮 OPENSPIEL INTEGRATION - TYPE-SAFE MODELS
@@ -634,7 +639,7 @@ print("   ✅ Self-documenting code\n")
 The client **inherits from EnvClient** and implements 3 methods:
 
 1. `_step_payload()` - Convert action → JSON
-2. `_parse_result()` - Parse JSON → typed observation  
+2. `_parse_result()` - Parse JSON → typed observation
 3. `_parse_state()` - Parse JSON → state
 
 That's it! The base class handles all WebSocket communication.
@@ -693,11 +698,7 @@ This is a REAL environment running in production at companies!
 - `+1` if caught 🎉
 - `0` if missed 😢
 
-!!! note "Why Catch?"
-    - Simple rules (easy to understand)
-    - Fast episodes (~5 steps)
-    - Clear success/failure
-    - Part of OpenSpiel's 70+ games!
+!!! note "Why Catch?" - Simple rules (easy to understand) - Fast episodes (~5 steps) - Clear success/failure - Part of OpenSpiel's 70+ games!
 
     **💡 The Big Idea:**
     Instead of building this from scratch, we'll USE OpenEnv's existing OpenSpiel integration. Same interface, but production-ready!
@@ -734,6 +735,7 @@ print("   • Works via HTTP (we'll see that next!)\n")
 ```
 
 **Output:**
+
 ```
 🎮 ================================================================ 🎮
    ✅ Importing Real OpenSpiel Environment!
@@ -770,12 +772,12 @@ print("   • Works via HTTP (we'll see that next!)\n")
 
 Let's test 4 different AI strategies:
 
-| Policy | Strategy | Expected Performance |
-|--------|----------|----------------------|
-| **🎲 Random** | Pick random action every step | ~20% (pure luck) |
-| **🛑 Always Stay** | Never move, hope ball lands in center | ~20% (terrible!) |
-| **🧠 Smart** | Move paddle toward ball | 100% (optimal!) |
-| **📈 Learning** | Start random, learn smart strategy | ~85% (improves over time) |
+| Policy             | Strategy                              | Expected Performance      |
+| ------------------ | ------------------------------------- | ------------------------- |
+| **🎲 Random**      | Pick random action every step         | ~20% (pure luck)          |
+| **🛑 Always Stay** | Never move, hope ball lands in center | ~20% (terrible!)          |
+| **🧠 Smart**       | Move paddle toward ball               | 100% (optimal!)           |
+| **📈 Learning**    | Start random, learn smart strategy    | ~85% (improves over time) |
 
 **💡 These policies work with ANY OpenSpiel game!**
 
@@ -874,6 +876,7 @@ print("   • Work with ANY OpenSpiel game that exposes these!\n")
 ```
 
 **Output:**
+
 ```
 🤖 ================================================================ 🤖
    ✅ 4 Policies Created (Adapted for OpenSpiel)!
@@ -962,12 +965,12 @@ evaluate_policies(client, num_episodes=50)
 
 In Parts 6-8, we **USED** the existing OpenSpiel Catch environment:
 
-| What We Did | How It Works |
-|-------------|--------------|
-| **Imported** | OpenSpielEnv client (pre-built) |
-| **Started** | OpenSpiel server via uvicorn |
-| **Connected** | HTTP client to server |
-| **Played** | Real OpenSpiel Catch game |
+| What We Did   | How It Works                    |
+| ------------- | ------------------------------- |
+| **Imported**  | OpenSpielEnv client (pre-built) |
+| **Started**   | OpenSpiel server via uvicorn    |
+| **Connected** | HTTP client to server           |
+| **Played**    | Real OpenSpiel Catch game       |
 
 **🎯 This is production code!** Every action was an HTTP call to a real OpenSpiel environment.
 
@@ -1220,18 +1223,18 @@ OpenEnv includes 3 complete examples:
 
 ### OpenEnv vs Traditional RL
 
-| Feature | Traditional (Gym) | OpenEnv | Winner |
-|---------|------------------|---------|--------|
-| **Type Safety** | ❌ Arrays, dicts | ✅ Dataclasses | 🏆 OpenEnv |
-| **Isolation** | ❌ Same process | ✅ Docker | 🏆 OpenEnv |
-| **Deployment** | ❌ Manual setup | ✅ K8s-ready | 🏆 OpenEnv |
-| **Language** | ❌ Python only | ✅ Any (WebSocket/HTTP) | 🏆 OpenEnv |
-| **Reproducibility** | ❌ "Works on my machine" | ✅ Same everywhere | 🏆 OpenEnv |
-| **Community** | ✅ Large ecosystem | 🟡 Growing | 🤝 Both! |
+| Feature             | Traditional (Gym)        | OpenEnv                 | Winner     |
+| ------------------- | ------------------------ | ----------------------- | ---------- |
+| **Type Safety**     | ❌ Arrays, dicts         | ✅ Dataclasses          | 🏆 OpenEnv |
+| **Isolation**       | ❌ Same process          | ✅ Docker               | 🏆 OpenEnv |
+| **Deployment**      | ❌ Manual setup          | ✅ K8s-ready            | 🏆 OpenEnv |
+| **Language**        | ❌ Python only           | ✅ Any (WebSocket/HTTP) | 🏆 OpenEnv |
+| **Reproducibility** | ❌ "Works on my machine" | ✅ Same everywhere      | 🏆 OpenEnv |
+| **Community**       | ✅ Large ecosystem       | 🟡 Growing              | 🤝 Both!   |
 
 !!! success "The Bottom Line"
-    OpenEnv brings **production engineering** to RL:
-    
+OpenEnv brings **production engineering** to RL:
+
     - Same environments work locally and in production
     - Type safety catches bugs early
     - Docker isolation prevents conflicts
@@ -1281,4 +1284,3 @@ OpenEnv includes 3 complete examples:
 3. 🎮 **Explore** other OpenSpiel games
 4. 🛠️ **Build** your own environment integration
 5. 💬 **Share** what you build with the community!
-

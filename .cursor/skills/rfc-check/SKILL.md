@@ -79,14 +79,18 @@ If an RFC is needed, use the template in `rfcs/README.md`:
 **Authors**: @username
 
 ## Summary
+
 [1-2 paragraph overview]
 
 ## Motivation
+
 [Problem Statement + Goals]
 
 ## Design
+
 [Architecture Overview, Core Abstractions, Key Design Decisions]
 
 ## Examples
+
 [Code samples demonstrating usage]
 ```

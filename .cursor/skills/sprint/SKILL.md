@@ -22,6 +22,7 @@ echo "${CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS:-not_set}"
 ```
 
 If the value is `not_set` or empty, fall back to **setup-only mode**:
+
 - Parse the comma-separated issue numbers
 - Fetch requirements for all issues (parallel issue-worker agents)
 - Create worktrees and activate TDD for each
@@ -35,6 +36,7 @@ If the value is `not_set` or empty, fall back to **setup-only mode**:
 ### Step 1: Parse Issue Numbers
 
 Extract comma-separated issue numbers from `$ARGUMENTS`:
+
 - Remove `#` prefixes, spaces, and other punctuation
 - Example: `67,68,69,70` or `#67 #68 #69`
 - Store as a list: `ISSUES=(67 68 69 70)`
@@ -79,6 +81,7 @@ For each issue, create a worktree and activate TDD:
 ### Step 4: Check for Conflicts
 
 Before launching parallel work, check if any issues touch the same files:
+
 - Compare the "files likely to be touched" from each issue
 - If overlap detected, note it — the lead will need to mediate
 - If issues are tightly coupled, warn the user and suggest sequential work
@@ -88,6 +91,7 @@ Before launching parallel work, check if any issues touch the same files:
 Create an Agent Team with one teammate per issue.
 
 **Lead** (delegate mode — coordinates only, does not implement):
+
 - Monitors teammate progress
 - Mediates if teammates report conflicts on the same files
 - After all complete: collects reports and determines PR ordering
@@ -131,6 +135,7 @@ Task tool (ALL in one message):
 ### Step 6: Collect Results
 
 After all teammates finish, collect from each:
+
 - Files touched
 - APIs changed
 - Conflict reports

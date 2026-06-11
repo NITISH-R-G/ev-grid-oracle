@@ -1,0 +1,39 @@
+name: Generate SBOM
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  generate-sbom:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Generate SBOM for Python
+        run: |
+          pip install cyclonedx-bom
+          cyclonedx-py environment --outfile sbom.json
+
+      - name: Generate SBOM for Node.js
+        run: |
+          npm install -g @cyclonedx/cyclonedx-npm
+          cd web && cyclonedx-npm --output-file ../sbom-web.json || true
+
+      - name: Upload SBOMs
+        uses: actions/upload-artifact@v4
+        with:
+          name: sboms
+          path: |
+            sbom.json
+            sbom-web.json

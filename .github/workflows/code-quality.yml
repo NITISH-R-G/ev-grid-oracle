@@ -87,7 +87,7 @@ jobs:
         node-version: '24'
 
     - name: Install jscpd
-      run: npm install -g jscpd
+      run: npm install -g jscpd @jscpd/core @jscpd/html cpd-linux-x64-gnu || npm install -g jscpd cpd-linux-x64-gnu
 
     - name: Check for duplicate code
       run: jscpd . --ignore "**/*.json,**/*.md,**/*.yaml,**/*.yml,**/package-lock.json,**/node_modules/**,**/venv/**,**/.venv/**" --threshold 5
