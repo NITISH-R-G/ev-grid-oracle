@@ -18,6 +18,7 @@ Deploy an OpenEnv environment to Hugging Face Spaces using the OpenEnv CLI.
 ## Prerequisites
 
 Before deploying, ensure:
+
 1. The environment has an `openenv.yaml` file
 2. The environment has a `server/Dockerfile`
 3. You have Hugging Face credentials configured (automatic via huggingface-cli)
@@ -27,6 +28,7 @@ Before deploying, ensure:
 ### 1. Identify the Environment
 
 Determine which environment to deploy:
+
 - If user specifies: use that environment (e.g., "carla_env", "browser_env")
 - If in environment directory: use current directory
 - Otherwise: ask the user
@@ -62,10 +64,12 @@ PYTHONPATH=src uv run python -m openenv.cli push <environment-dir> --repo-id <us
 ```
 
 **Parameters**:
+
 - `<environment-dir>`: Path to environment (e.g., `envs/carla_env`)
 - `--repo-id`: Hugging Face Spaces repository ID (e.g., `sergiopaniego/carla-env-real-updated`)
 
 **Optional flags**:
+
 - `--private`: Deploy as a private space
 - `--no-interface`: Disable the web interface (deploy API-only)
 - `--base-image <image>`: Override the base Docker image
@@ -74,6 +78,7 @@ PYTHONPATH=src uv run python -m openenv.cli push <environment-dir> --repo-id <us
 ### 5. Verify Deployment
 
 After successful deployment:
+
 1. Note the Space URL returned by the command
 2. **Wait for build to complete:**
    - CPU environments: ~5 minutes
@@ -114,7 +119,7 @@ PYTHONPATH=src uv run python -m openenv.cli push envs/browser_env --repo-id user
 
 Report deployment status:
 
-```
+````
 ## Hugging Face Deployment
 
 ### Environment
@@ -144,8 +149,9 @@ curl -X POST https://<username>-<space-name>.hf.space/reset
 curl -X POST https://<username>-<space-name>.hf.space/step \
   -H "Content-Type: application/json" \
   -d '{"action_type": "observe"}'
-```
-```
+````
+
+````
 
 ## Troubleshooting
 
@@ -155,13 +161,14 @@ curl -X POST https://<username>-<space-name>.hf.space/step \
 ```bash
 cd /path/to/OpenEnv  # Navigate to project root
 uv pip install -e .
-```
+````
 
 ### Error: "does not appear to be a Python project"
 
 **Cause**: You're not in the project root directory.
 
 **Solution**: Navigate to the OpenEnv project root where `pyproject.toml` exists:
+
 ```bash
 cd /Users/sergiopaniegoblanco/Documents/Projects/OpenEnv  # Adjust path
 uv pip install -e .
@@ -170,6 +177,7 @@ uv pip install -e .
 ### Error: "Directory does not exist"
 
 **Solution**: Ensure you're passing the correct environment directory path:
+
 ```bash
 # Correct
 PYTHONPATH=src uv run python -m openenv.cli push envs/carla_env --repo-id ...
@@ -181,6 +189,7 @@ PYTHONPATH=src uv run python -m openenv.cli push carla_env --repo-id ...
 ### Error: "Authentication required"
 
 **Solution**: Login to Hugging Face CLI first:
+
 ```bash
 huggingface-cli login
 ```
@@ -188,6 +197,7 @@ huggingface-cli login
 ### Space build fails
 
 **Solutions**:
+
 1. Check Dockerfile syntax and dependencies
 2. Verify hardware requirements (GPU spaces need `--hardware` setting on HF)
 3. Check space logs on Hugging Face for detailed errors
@@ -195,13 +205,13 @@ huggingface-cli login
 
 ## Common Environments
 
-| Environment | Path | Typical Repo ID | Hardware |
-|-------------|------|-----------------|----------|
-| carla_env (standalone) | envs/carla_env | username/carla-env-real | GPU (T4/A10G) |
-| carla_env (mock) | envs/carla_env | username/carla-env-mock | CPU |
-| echo_env | envs/echo_env | username/echo-env | CPU |
-| browser_env | envs/browser_env | username/browser-env | CPU |
-| tbench2_env | envs/tbench2_env | username/tbench2-env | CPU |
+| Environment            | Path             | Typical Repo ID         | Hardware      |
+| ---------------------- | ---------------- | ----------------------- | ------------- |
+| carla_env (standalone) | envs/carla_env   | username/carla-env-real | GPU (T4/A10G) |
+| carla_env (mock)       | envs/carla_env   | username/carla-env-mock | CPU           |
+| echo_env               | envs/echo_env    | username/echo-env       | CPU           |
+| browser_env            | envs/browser_env | username/browser-env    | CPU           |
+| tbench2_env            | envs/tbench2_env | username/tbench2-env    | CPU           |
 
 ## Notes
 

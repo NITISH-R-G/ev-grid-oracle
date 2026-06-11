@@ -11,13 +11,13 @@ tags:
   - openenv
 ---
 
-# __ENV_TITLE_NAME__ Environment
+# **ENV_TITLE_NAME** Environment
 
 A simple test environment that echoes back messages. Perfect for testing the env APIs as well as demonstrating environment usage patterns.
 
 ## Quick Start
 
-The simplest way to use the __ENV_TITLE_NAME__ environment is through the `__ENV_CLASS_NAME__Env` class:
+The simplest way to use the **ENV_TITLE_NAME** environment is through the `__ENV_CLASS_NAME__Env` class:
 
 ```python
 from __ENV_NAME__ import __ENV_CLASS_NAME__Action, __ENV_CLASS_NAME__Env
@@ -46,6 +46,7 @@ finally:
 ```
 
 That's it! The `__ENV_CLASS_NAME__Env.from_docker_image()` method handles:
+
 - Starting the Docker container
 - Waiting for the server to be ready
 - Connecting to the environment
@@ -73,6 +74,7 @@ openenv push --namespace my-org --private
 ```
 
 The `openenv push` command will:
+
 1. Validate that the directory is an OpenEnv environment (checks for `openenv.yaml`)
 2. Prepare a custom build for Hugging Face Docker space (enables web interface)
 3. Upload to Hugging Face (ensuring you're logged in)
@@ -111,6 +113,7 @@ After deployment, your space will be available at:
 `https://huggingface.co/spaces/<repo-id>`
 
 The deployed space includes:
+
 - **Web Interface** at `/web` - Interactive UI for exploring the environment
 - **API Documentation** at `/docs` - Full OpenAPI/Swagger interface
 - **Health Check** at `/health` - Container health monitoring
@@ -119,11 +122,15 @@ The deployed space includes:
 ## Environment Details
 
 ### Action
-**__ENV_CLASS_NAME__Action**: Contains a single field
+
+****ENV_CLASS_NAME**Action**: Contains a single field
+
 - `message` (str) - The message to echo back
 
 ### Observation
-**__ENV_CLASS_NAME__Observation**: Contains the echo response and metadata
+
+****ENV_CLASS_NAME**Observation**: Contains the echo response and metadata
+
 - `echoed_message` (str) - The message echoed back
 - `message_length` (int) - Length of the message
 - `reward` (float) - Reward based on message length (length × 0.1)
@@ -131,7 +138,9 @@ The deployed space includes:
 - `metadata` (dict) - Additional info like step count
 
 ### Reward
+
 The reward is calculated as: `message_length × 0.1`
+
 - "Hi" → reward: 0.2
 - "Hello, World!" → reward: 1.3
 - Empty message → reward: 0.0
@@ -140,7 +149,7 @@ The reward is calculated as: `message_length × 0.1`
 
 ### Connecting to an Existing Server
 
-If you already have a __ENV_TITLE_NAME__ environment server running, you can connect directly:
+If you already have a **ENV_TITLE_NAME** environment server running, you can connect directly:
 
 ```python
 from __ENV_NAME__ import __ENV_CLASS_NAME__Env
@@ -173,6 +182,7 @@ with __ENV_CLASS_NAME__Env(base_url="http://localhost:8000") as env:
 ```
 
 The client uses WebSocket connections for:
+
 - **Lower latency**: No HTTP connection overhead per request
 - **Persistent session**: Server maintains your environment state
 - **Efficient for episodes**: Better for many sequential steps
@@ -222,6 +232,7 @@ python3 server/__ENV_NAME___environment.py
 ```
 
 This verifies that:
+
 - Environment resets correctly
 - Step executes actions properly
 - State tracking works

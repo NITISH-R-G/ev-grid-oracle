@@ -43,8 +43,9 @@ git diff HEAD~1 -- <file>
 ```
 
 Look for changes to:
+
 - Function/method signatures (def lines)
-- Class names and __init__ signatures
+- Class names and **init** signatures
 - Module-level constants and type aliases
 - Removed or renamed public symbols
 
@@ -82,6 +83,7 @@ Task tool:
 ### Step 4: Review Results
 
 After the agent returns:
+
 - Review the update report
 - Verify no test files were touched
 - Verify changes are minimal and correct

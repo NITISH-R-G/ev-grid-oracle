@@ -12,6 +12,7 @@ Use this skill to recover OpenEnv Hub deployments quickly with minimal blast rad
 ### 1) Confirm release tuple
 
 Use a single release tuple across all commands:
+
 - Namespace: `openenv`
 - Version: `vX.Y.Z`
 - Space suffix: `-vX-Y-Z`
@@ -57,6 +58,7 @@ scripts/prepare_hf_deployment.sh \
 ```
 
 Use `openenv` CLI as a supplement, not a replacement, for release triage:
+
 - Validate env layout quickly (`uv run openenv validate ...`) when applicable.
 - Keep release deploys on `scripts/prepare_hf_deployment.sh` to preserve suffix/pinning behavior.
 

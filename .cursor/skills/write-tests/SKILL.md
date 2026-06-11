@@ -44,19 +44,23 @@ The tester agent will produce:
 ## Tests Written
 
 ### Files Created/Modified
+
 - `tests/test_client.py`
 
 ### Tests Added
-| Test | Verifies |
-|------|----------|
+
+| Test                                    | Verifies                        |
+| --------------------------------------- | ------------------------------- |
 | `test_client_reset_returns_observation` | Reset returns valid observation |
-| `test_client_step_advances_state` | Step mutates state correctly |
-| `test_client_handles_invalid_action` | Error handling for bad input |
+| `test_client_step_advances_state`       | Step mutates state correctly    |
+| `test_client_handles_invalid_action`    | Error handling for bad input    |
 
 ### Verification
+
 All tests FAIL as expected (no implementation yet).
 
 ### Next Step
+
 Run `/implement` to make these tests pass.
 ```
 
@@ -79,6 +83,7 @@ Run `/implement` to make these tests pass.
 ## Completion Criteria
 
 Before returning, verify:
+
 1. Tests compile/run successfully (pytest can collect them)
 2. Tests FAIL (no implementation yet)
 3. Test names clearly describe what they verify
