@@ -1,0 +1,40 @@
+name: Architecture Diagrams Generator
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  generate-diagrams:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Graphviz
+        run: sudo apt-get install -y graphviz
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install pylint
+          pip install -e ".[dev]" || true
+
+      - name: Generate Architecture Diagrams
+        run: |
+          mkdir -p docs/architecture
+          pyreverse -o png -p EV-Grid-Oracle ./ev_grid_oracle ./server || true
+          mv classes_EV-Grid-Oracle.png docs/architecture/classes.png || true
+          mv packages_EV-Grid-Oracle.png docs/architecture/packages.png || true
+
+      - name: Commit Diagrams
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "docs: auto-generate architecture diagrams"

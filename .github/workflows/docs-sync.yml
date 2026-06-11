@@ -1,0 +1,35 @@
+name: Autonomous Documentation Sync
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  generate-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install pdoc
+          pip install -e ".[dev]" || true
+
+      - name: Generate API Documentation
+        run: |
+          mkdir -p docs/api
+          pdoc ./ev_grid_oracle ./server -o docs/api --docformat google || true
+
+      - name: Commit Documentation
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "docs: auto-update API documentation"
