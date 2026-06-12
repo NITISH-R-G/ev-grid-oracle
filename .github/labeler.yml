@@ -1,0 +1,25 @@
+bug:
+  - .github/ISSUE_TEMPLATE/bug_report.yml
+  - "bug**"
+  - "fix**"
+
+enhancement:
+  - .github/ISSUE_TEMPLATE/feature_request.yml
+  - "feat**"
+  - "feature**"
+
+documentation:
+  - "**/*.md"
+  - "docs/**"
+
+frontend:
+  - "web/**"
+
+backend:
+  - "ev_grid_oracle/**"
+  - "server/**"
+  - "tools/**"
+  - "pyproject.toml"
+
+testing:
+  - "tests/**"

@@ -86,8 +86,11 @@ jobs:
       with:
         node-version: '24'
 
-    - name: Install jscpd
-      run: npm install -g jscpd
+    - name: Install jscpd and standard reporters
+      run: npm install -g jscpd @jscpd/badge-reporter @jscpd/html-reporter
+
+    - name: Install cpd-linux-x64-gnu
+      run: npm install -g cpd-linux-x64-gnu
 
     - name: Check for duplicate code
       run: jscpd . --ignore "**/*.json,**/*.md,**/*.yaml,**/*.yml,**/package-lock.json,**/node_modules/**,**/venv/**,**/.venv/**" --threshold 5
