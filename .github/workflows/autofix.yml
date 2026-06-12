@@ -30,13 +30,13 @@ jobs:
         with:
           node-version: '24'
 
-      - name: Install uv
-        run: pip install uv
+      - name: Install dependencies
+        run: pip install uv ruff
 
       - name: Run Ruff Format and Fix
         run: |
-          uv run ruff check --fix .
-          uv run ruff format .
+          ruff check --fix .
+          ruff format .
 
       - name: Run Prettier
         working-directory: ./web
