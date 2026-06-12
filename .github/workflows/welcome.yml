@@ -1,0 +1,26 @@
+name: Welcome New Contributors
+
+on:
+  pull_request_target:
+    types: [opened]
+
+jobs:
+  welcome:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const isFirstContribution = ["FIRST_TIMER", "FIRST_TIME_CONTRIBUTOR"].includes(context.payload.pull_request.author_association);
+
+            if (isFirstContribution) {
+              const creator = context.payload.sender.login;
+              await github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: `Welcome, @${creator}! :wave:\n\nThank you for making your first contribution to EV Grid Oracle! We really appreciate your time and effort.\n\nA maintainer will review your pull request soon. In the meantime, please make sure your code passes all CI checks and follows our [Contributing Guidelines](https://github.com/${context.repo.owner}/${context.repo.repo}/blob/main/.github/CONTRIBUTING.md).`
+              });
+            }

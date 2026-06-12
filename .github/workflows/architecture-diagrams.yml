@@ -1,0 +1,43 @@
+name: Architecture Diagram Sync
+
+on:
+  push:
+    branches: [ "main", "master" ]
+    paths:
+      - 'ev_grid_oracle/**'
+      - 'server/**'
+
+jobs:
+  generate-diagrams:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update && sudo apt-get install -y graphviz
+          pip install pylint
+          pip install -e ".[dev,demo]"
+
+      - name: Generate Architecture Diagrams
+        run: |
+          mkdir -p docs/architecture
+          pyreverse -o png -p EV-Grid-Oracle ev_grid_oracle/ server/
+          mv classes_EV-Grid-Oracle.png docs/architecture/
+          mv packages_EV-Grid-Oracle.png docs/architecture/
+
+      - name: Commit diagram changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "docs: auto-generate architecture diagrams"
+          file_pattern: 'docs/architecture/**'
+          commit_user_name: "github-actions[bot]"
+          commit_user_email: "github-actions[bot]@users.noreply.github.com"
+          commit_author: "github-actions[bot] <github-actions[bot]@users.noreply.github.com>"
