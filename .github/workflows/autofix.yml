@@ -1,0 +1,57 @@
+name: Autofix Formatting and Linting
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  autofix:
+    # Only run on pushes to main, or PRs from the same repo (not forks) to avoid token permission issues
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ github.head_ref }}
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install ruff
+
+    - name: Run Ruff Format
+      run: ruff format .
+
+    - name: Run Ruff Check (Fix)
+      run: ruff check --fix . || true
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '24'
+
+    - name: Format Frontend (Prettier)
+      working-directory: ./web
+      run: |
+        if [ -f "package-lock.json" ]; then
+          npm ci
+        else
+          npm install
+        fi
+        npx prettier --write .
+
+    - name: Commit and Push Changes
+      uses: stefanzweifel/git-auto-commit-action@v5
+      with:
+        commit_message: "chore: Apply automatic formatting and linting fixes"
+        branch: ${{ github.head_ref }}
+        commit_options: '--no-verify'
+        file_pattern: '.'

@@ -1,0 +1,24 @@
+frontend:
+  - web/**/*
+
+backend:
+  - server/**/*
+  - ev_grid_oracle/**/*
+  - training/**/*
+
+documentation:
+  - docs/**/*
+  - README.md
+  - CONTRIBUTING.md
+  - "**/*.md"
+
+infrastructure:
+  - .github/**/*
+  - Dockerfile
+  - docker-compose.yml
+  - openenv.yaml
+
+tests:
+  - tests/**/*
+  - web/**/*.test.ts
+  - web/**/*.spec.ts

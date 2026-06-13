@@ -1,0 +1,54 @@
+name: Architecture Intelligence
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  schedule:
+    - cron: '0 0 * * 0' # Weekly
+
+permissions:
+  contents: write
+
+jobs:
+  generate-diagrams:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install system dependencies for Graphviz
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y graphviz
+
+      - name: Install Python dependencies
+        run: |
+          pip install pylint graphviz pyreverse
+          pip install uv
+          uv pip install --system -e ".[dev,demo]" || true
+
+      - name: Generate Class and Package Diagrams
+        run: |
+          mkdir -p docs/architecture
+
+          # Find all python packages
+          PACKAGES=$(find . -maxdepth 2 -name "__init__.py" -exec dirname {} \; | grep -v "\.venv" | grep -v "tests" | awk -F'/' '{print $2}' | sort | uniq)
+
+          for pkg in $PACKAGES; do
+            if [ -d "$pkg" ]; then
+              echo "Generating diagrams for $pkg"
+              pyreverse -o png -p $pkg $pkg/ -d docs/architecture/ || true
+            fi
+          done
+
+      - name: Commit Diagrams
+        if: github.ref == 'refs/heads/main'
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "docs: Auto-generate architecture diagrams"
+          branch: ${{ github.head_ref }}
+          file_pattern: 'docs/architecture/*.png'
