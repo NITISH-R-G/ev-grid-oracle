@@ -1,0 +1,36 @@
+name: SBOM Generation
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  generate-sbom:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Generate SBOM (Syft)
+        uses: anchore/sbom-action@v0
+        with:
+          path: ./
+          format: spdx-json
+          output-file: sbom.spdx.json
+
+      - name: Upload SBOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom
+          path: sbom.spdx.json
+
+      - name: Commit SBOM
+        if: github.event_name == 'push'
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: Auto-generate SBOM"
+          file_pattern: 'sbom.spdx.json'

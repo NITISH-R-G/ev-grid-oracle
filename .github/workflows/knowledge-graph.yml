@@ -1,0 +1,53 @@
+name: Knowledge Graph Maintenance
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  schedule:
+    - cron: '0 0 * * 0' # Weekly
+
+permissions:
+  contents: write
+
+jobs:
+  generate-dependency-graphs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install system dependencies for Graphviz
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y graphviz
+
+      - name: Install Python dependencies
+        run: |
+          pip install pydeps
+          pip install uv
+          uv pip install --system -e ".[dev,demo]" || true
+
+      - name: Generate Module Dependency Graph
+        run: |
+          mkdir -p docs/knowledge-graph
+
+          PACKAGES=$(find . -maxdepth 2 -name "__init__.py" -exec dirname {} \; | grep -v "\.venv" | grep -v "tests" | awk -F'/' '{print $2}' | sort | uniq)
+
+          for pkg in $PACKAGES; do
+            if [ -d "$pkg" ]; then
+              echo "Generating dependency graph for $pkg"
+              pydeps $pkg --noshow --output docs/knowledge-graph/${pkg}_deps.png || true
+            fi
+          done
+
+      - name: Commit Knowledge Graph
+        if: github.ref == 'refs/heads/main'
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "docs: Update knowledge graph"
+          branch: ${{ github.head_ref }}
+          file_pattern: 'docs/knowledge-graph/*.png'
