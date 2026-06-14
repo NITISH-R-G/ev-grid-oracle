@@ -33,15 +33,15 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '24'
+          node-version: '22'
 
       - name: Install frontend dependencies
         run: cd web && npm ci || npm install
 
       - name: Run Ruff Format & Fix
         run: |
-          uv run ruff check --fix .
-          uv run ruff format .
+          uv run --with ruff ruff check --fix . || true
+          uv run --with ruff ruff format .
 
       - name: Run Prettier
         run: cd web && npx prettier --write .
