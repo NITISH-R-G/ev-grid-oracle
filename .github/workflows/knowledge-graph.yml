@@ -1,0 +1,45 @@
+name: Knowledge Graph
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  generate-knowledge-graph:
+    runs-on: ubuntu-latest
+    if: >
+      github.event_name == 'push' ||
+      (github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository)
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Install Graphviz
+        run: sudo apt-get update && sudo apt-get install -y graphviz
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install uv
+          uv pip install --system pydeps
+          uv pip install --system -e ".[dev]"
+
+      - name: Generate Knowledge Graph
+        run: |
+          mkdir -p docs/knowledge_graph
+          pydeps ev_grid_oracle --noshow --output docs/knowledge_graph/ev_grid_oracle_deps.svg || true
+          pydeps server --noshow --output docs/knowledge_graph/server_deps.svg || true
+
+      - name: Commit and push changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "docs: Auto-update knowledge graph [skip ci]"
