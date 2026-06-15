@@ -1,0 +1,42 @@
+name: Generate Architecture Diagrams
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'ev_grid_oracle/**/*.py'
+      - 'server/**/*.py'
+
+permissions:
+  contents: write
+
+jobs:
+  diagrams:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update && sudo apt-get install -y graphviz
+        python -m pip install --upgrade pip
+        pip install pylint # contains pyreverse
+        pip install -e ".[dev,demo]"
+
+    - name: Generate architecture diagrams
+      run: |
+        mkdir -p docs/architecture
+        pyreverse -o png -p EV_Grid_Oracle ev_grid_oracle/ server/
+        mv classes_EV_Grid_Oracle.png docs/architecture/
+        mv packages_EV_Grid_Oracle.png docs/architecture/
+
+    - name: Commit changes
+      uses: stefanzweifel/git-auto-commit-action@v5
+      with:
+        commit_message: "docs: auto-update architecture diagrams"
+        branch: ${{ github.head_ref || github.ref_name }}
