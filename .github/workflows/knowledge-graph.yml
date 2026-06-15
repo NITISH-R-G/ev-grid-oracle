@@ -1,0 +1,40 @@
+name: Generate Knowledge Graph
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'ev_grid_oracle/**/*.py'
+      - 'server/**/*.py'
+
+permissions:
+  contents: write
+
+jobs:
+  knowledge-graph:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get update && sudo apt-get install -y graphviz
+        python -m pip install --upgrade pip
+        pip install pydeps
+        pip install -e ".[dev,demo]"
+
+    - name: Generate knowledge graph
+      run: |
+        mkdir -p docs/architecture
+        pydeps ev_grid_oracle --cluster --max-bacon=2 --exclude-exact=pydantic,fastapi --noshow -o docs/architecture/knowledge_graph.png
+
+    - name: Commit changes
+      uses: stefanzweifel/git-auto-commit-action@v5
+      with:
+        commit_message: "docs: auto-update knowledge graph"
+        branch: ${{ github.head_ref || github.ref_name }}

@@ -1,0 +1,24 @@
+# .github/labeler.yml
+
+frontend:
+  - changed-files:
+    - any-glob-to-any-file: 'web/**/*'
+
+backend:
+  - changed-files:
+    - any-glob-to-any-file: 'server/**/*'
+    - any-glob-to-any-file: 'ev_grid_oracle/**/*'
+
+documentation:
+  - changed-files:
+    - any-glob-to-any-file: 'docs/**/*'
+    - any-glob-to-any-file: '*.md'
+
+tests:
+  - changed-files:
+    - any-glob-to-any-file: 'tests/**/*'
+
+ci-cd:
+  - changed-files:
+    - any-glob-to-any-file: '.github/**/*'
+    - any-glob-to-any-file: 'validate-submission.sh'

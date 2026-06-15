@@ -1,0 +1,56 @@
+name: Auto-fix formatting and linting
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  autofix:
+    runs-on: ubuntu-latest
+    # Prevent running on PRs from forks to avoid permission errors
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    permissions:
+      contents: write
+      pull-requests: write
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ github.head_ref || github.ref }}
+        fetch-depth: 0
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '24'
+
+    - name: Install Python dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install ruff
+
+    - name: Run Ruff Format
+      run: ruff format . || true
+
+    - name: Run Ruff Check (Fix)
+      run: ruff check --fix . || true
+
+    - name: Install npm dependencies (for prettier)
+      working-directory: ./web
+      run: npm ci || true
+
+    - name: Run Prettier
+      working-directory: ./web
+      run: npx prettier --write . || true
+
+    - name: Commit changes
+      uses: stefanzweifel/git-auto-commit-action@v5
+      with:
+        commit_message: "chore: auto-fix formatting and linting [skip ci]"
+        branch: ${{ github.head_ref || github.ref_name }}

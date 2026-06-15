@@ -1,0 +1,39 @@
+name: Auto-generate Documentation
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - 'ev_grid_oracle/**'
+      - 'server/**'
+      - 'tools/**'
+
+permissions:
+  contents: write
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install pdoc
+        pip install -e ".[dev,demo]"
+
+    - name: Generate docs
+      run: |
+        pdoc -o docs/api ev_grid_oracle server tools
+
+    - name: Commit changes
+      uses: stefanzweifel/git-auto-commit-action@v5
+      with:
+        commit_message: "docs: auto-update API documentation"
+        branch: ${{ github.head_ref || github.ref_name }}
