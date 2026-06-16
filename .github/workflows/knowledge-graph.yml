@@ -1,0 +1,31 @@
+name: Knowledge Graph
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'ev_grid_oracle/**/*.py'
+      - 'server/**/*.py'
+
+jobs:
+  graph:
+    runs-on: ubuntu-latest
+    permissions:
+      workflows: write
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Graphviz
+        run: sudo apt-get install -y graphviz
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+      - name: Generate Dependency Graph
+        run: |
+          mkdir -p docs/graphs
+          uv run --with pydeps pydeps ev_grid_oracle --output docs/graphs/ev_grid_oracle.svg
+          uv run --with pydeps pydeps server --output docs/graphs/server.svg
+      - name: Commit graph
+        uses: stefanzweifel/git-auto-commit-action@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          commit_message: "docs: auto-generate knowledge graph"

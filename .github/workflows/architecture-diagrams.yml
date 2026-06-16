@@ -1,0 +1,30 @@
+name: Architecture Diagrams
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'ev_grid_oracle/**/*.py'
+      - 'server/**/*.py'
+
+jobs:
+  diagrams:
+    runs-on: ubuntu-latest
+    permissions:
+      workflows: write
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Graphviz
+        run: sudo apt-get install -y graphviz
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+      - name: Generate Diagrams
+        run: |
+          mkdir -p docs/architecture
+          uv run --with pylint pyreverse -o png -d docs/architecture ev_grid_oracle server
+      - name: Commit diagrams
+        uses: stefanzweifel/git-auto-commit-action@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          commit_message: "docs: auto-generate architecture diagrams"
