@@ -1,0 +1,32 @@
+name: Generate SBOM
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  sbom:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
+      - name: Install dependencies
+        run: uv sync
+      - name: Generate Python SBOM
+        run: |
+          mkdir -p artifacts/sbom
+          uv run --with cyclonedx-bom cyclonedx-py environment --outfile artifacts/sbom/python-sbom.json
+      - name: Generate Node SBOM
+        run: |
+          mkdir -p artifacts/sbom
+          cd web && npx @cyclonedx/cyclonedx-npm --output-format JSON --output-file ../artifacts/sbom/node-sbom.json
+      - name: Commit SBOM
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore: update SBOM"
