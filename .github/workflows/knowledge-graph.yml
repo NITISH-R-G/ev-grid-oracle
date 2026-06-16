@@ -10,6 +10,7 @@ jobs:
   graph:
     runs-on: ubuntu-latest
     permissions:
+      workflows: write
       contents: write
     steps:
       - uses: actions/checkout@v4
@@ -24,5 +25,7 @@ jobs:
           uv run --with pydeps pydeps server --output docs/graphs/server.svg
       - name: Commit graph
         uses: stefanzweifel/git-auto-commit-action@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           commit_message: "docs: auto-generate knowledge graph"

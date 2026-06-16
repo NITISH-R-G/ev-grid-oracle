@@ -7,6 +7,7 @@ jobs:
   sbom:
     runs-on: ubuntu-latest
     permissions:
+      workflows: write
       contents: write
     steps:
       - uses: actions/checkout@v4
@@ -28,5 +29,7 @@ jobs:
           cd web && npx @cyclonedx/cyclonedx-npm --output-format JSON --output-file ../artifacts/sbom/node-sbom.json
       - name: Commit SBOM
         uses: stefanzweifel/git-auto-commit-action@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           commit_message: "chore: update SBOM"

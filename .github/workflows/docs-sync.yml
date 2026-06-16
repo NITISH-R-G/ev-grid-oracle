@@ -10,6 +10,7 @@ jobs:
   docs:
     runs-on: ubuntu-latest
     permissions:
+      workflows: write
       contents: write
     steps:
       - uses: actions/checkout@v4
@@ -21,5 +22,7 @@ jobs:
           uv run --with pdoc pdoc --html --output-dir docs/api ev_grid_oracle server
       - name: Commit docs
         uses: stefanzweifel/git-auto-commit-action@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           commit_message: "docs: auto-generate pdoc documentation"

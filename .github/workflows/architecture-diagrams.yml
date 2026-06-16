@@ -10,6 +10,7 @@ jobs:
   diagrams:
     runs-on: ubuntu-latest
     permissions:
+      workflows: write
       contents: write
     steps:
       - uses: actions/checkout@v4
@@ -23,5 +24,7 @@ jobs:
           uv run --with pylint pyreverse -o png -d docs/architecture ev_grid_oracle server
       - name: Commit diagrams
         uses: stefanzweifel/git-auto-commit-action@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           commit_message: "docs: auto-generate architecture diagrams"
