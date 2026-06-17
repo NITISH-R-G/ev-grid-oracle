@@ -1,0 +1,37 @@
+name: Knowledge Graph
+
+on:
+  push:
+    branches: [ "main" ]
+
+permissions:
+  contents: write
+
+jobs:
+  generate-graph:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Graphviz
+        run: sudo apt-get install -y graphviz
+
+      - name: Install uv
+        run: pip install uv
+
+      - name: Install dependencies
+        run: |
+          uv pip install --system pydeps
+          uv pip install --system -e ".[dev]"
+
+      - name: Generate knowledge graph
+        run: |
+          mkdir -p docs/knowledge-graph
+          pydeps ev_grid_oracle --cluster --rmprefix ev_grid_oracle. -o docs/knowledge-graph/ev_grid_oracle.svg
+          pydeps server --cluster --rmprefix server. -o docs/knowledge-graph/server.svg
+
+      - name: Commit graph
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "docs(knowledge-graph): auto-generate dependency graphs"
+          file_pattern: docs/knowledge-graph/*.svg

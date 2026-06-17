@@ -1,0 +1,34 @@
+name: Docs Sync
+
+on:
+  push:
+    branches: [ "main" ]
+
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        run: pip install uv
+
+      - name: Install dependencies
+        run: |
+          uv pip install --system pdoc
+          uv pip install --system -e ".[dev]"
+
+      - name: Build API Docs
+        run: |
+          pdoc ./ev_grid_oracle ./server -o ./docs_output --docformat google
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs_output
+          destination_dir: api-docs

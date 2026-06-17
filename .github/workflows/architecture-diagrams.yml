@@ -1,0 +1,37 @@
+name: Architecture Diagrams
+
+on:
+  push:
+    branches: [ "main" ]
+
+permissions:
+  contents: write
+
+jobs:
+  generate-diagrams:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Graphviz
+        run: sudo apt-get install -y graphviz
+
+      - name: Install uv
+        run: pip install uv
+
+      - name: Install dependencies
+        run: |
+          uv pip install --system pylint
+          uv pip install --system -e ".[dev]"
+
+      - name: Generate architecture diagrams
+        run: |
+          mkdir -p docs/architecture
+          pyreverse -o png -p ev_grid_oracle ev_grid_oracle/ -d docs/architecture/
+          pyreverse -o png -p server server/ -d docs/architecture/
+
+      - name: Commit diagrams
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "docs(architecture): auto-generate diagrams"
+          file_pattern: docs/architecture/*.png
