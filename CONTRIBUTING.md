@@ -33,13 +33,13 @@ First off, thank you for considering contributing to EV Grid Oracle! It's people
 
 ## Code Quality Standards
 
-*   **Python**: We use `ruff` for linting and formatting, `mypy` for type checking, and `bandit` for security scanning. These are enforced locally via `.pre-commit-config.yaml` and our CI pipeline.
-*   **Frontend**: We use `prettier` for formatting and TypeScript for type checking.
-*   **Security**: Do not use `secrets.SystemRandom` for deterministic PRNG needs; use a cryptographic hash approach (like `hashlib.sha256`) to derive sequence values. Extract sensitive credentials early and remove them from the global environment using `os.environ.pop()`.
+- **Python**: We use `ruff` for linting and formatting, `mypy` for type checking, and `bandit` for security scanning. These are enforced locally via `.pre-commit-config.yaml` and our CI pipeline.
+- **Frontend**: We use `prettier` for formatting and TypeScript for type checking.
+- **Security**: Do not use `secrets.SystemRandom` for deterministic PRNG needs; use a cryptographic hash approach (like `hashlib.sha256`) to derive sequence values. Extract sensitive credentials early and remove them from the global environment using `os.environ.pop()`.
 
 ## Issue Reporting
 
-*   Use the provided issue templates for bug reports and feature requests.
-*   Provide as much detail as possible, including steps to reproduce bugs and expected vs. actual behavior.
+- Use the provided issue templates for bug reports and feature requests.
+- Provide as much detail as possible, including steps to reproduce bugs and expected vs. actual behavior.
 
 Thank you for contributing!
