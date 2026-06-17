@@ -1,0 +1,54 @@
+name: Generate SBOM
+
+on:
+  push:
+    branches: ["main"]
+  schedule:
+    - cron: "0 0 * * 0" # Weekly
+
+permissions:
+  contents: write
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  generate-sbom:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        run: pip install uv
+
+      - name: Sync dependencies
+        run: uv sync --all-extras
+
+      - name: Generate Python SBOM
+        uses: CycloneDX/gh-python-utility@v2
+        with:
+          environment-name: "ev-grid-oracle"
+          requirements-file: "pyproject.toml"
+          output-file: "sbom-python.json"
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+
+      - name: Generate Node SBOM
+        run: |
+          cd web
+          npm ci
+          npx @cyclonedx/cyclonedx-npm --output-file ../sbom-node.json
+
+      - name: Commit SBOMs
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore(security): auto-generate SBOMs"
+          file_pattern: sbom-*.json

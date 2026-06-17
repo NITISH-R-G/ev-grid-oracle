@@ -1,0 +1,20 @@
+# These owners will be the default owners for everything in the repo.
+*       @jules
+
+# Order is important; the last matching pattern takes the most precedence.
+# When someone opens a pull request that only modifies JS files, only @js-owner
+# will be requested for a review.
+
+# Frontend
+/web/   @jules
+
+# Backend
+/server/ @jules
+/ev_grid_oracle/ @jules
+
+# Documentation
+/docs/ @jules
+*.md @jules
+
+# CI/CD
+/.github/workflows/ @jules
