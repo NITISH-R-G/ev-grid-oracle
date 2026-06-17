@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Coderabbit AI Code Review
-        uses: coderabbitai/ai-pr-reviewer@latest
+        uses: coderabbitai/openai-pr-reviewer@latest
         with:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
