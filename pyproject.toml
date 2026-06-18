@@ -18,6 +18,9 @@ dev = [
   "tensorboard>=2.14",
   "pytest-cov>=4.0",
   "radon>=6.0",
+  "bandit>=1.7",
+  "pydeps>=3.0",
+  "cyclonedx-bom>=5.0",
   "jinja2>=3.1",
 ]
 demo = [
