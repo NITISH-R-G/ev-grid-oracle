@@ -1,0 +1,50 @@
+name: Generate SBOM
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  schedule:
+    - cron: '0 0 * * 0' # Weekly
+
+jobs:
+  sbom:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install uv
+        run: pip install uv
+      - name: uv sync
+        run: uv sync
+      - name: Install CycloneDX Python
+        run: pip install cyclonedx-bom
+      - name: Generate Python SBOM
+        run: cyclonedx-py environment --outfile sbom-python.json || true
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install CycloneDX Node
+        run: npm install -g @cyclonedx/cyclonedx-npm
+      - name: Generate Node SBOM
+        run: |
+          if [ -d "web" ]; then
+            cd web
+            npm ci || true
+            cyclonedx-npm --output-file ../sbom-node.json || true
+          fi
+      - name: Upload Python SBOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-python
+          path: sbom-python.json
+      - name: Upload Node SBOM
+        uses: actions/upload-artifact@v4
+        with:
+          name: sbom-node
+          path: sbom-node.json
