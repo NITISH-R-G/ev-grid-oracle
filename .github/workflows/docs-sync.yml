@@ -1,0 +1,35 @@
+name: Docs Sync
+
+on:
+  push:
+    branches: [ "main", "master" ]
+    paths:
+      - '**.py'
+      - 'docs/**'
+
+permissions:
+  contents: write
+
+jobs:
+  docs:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: |
+          pip install uv
+          uv pip install --system pdoc
+          uv pip install --system -e ".[dev]" || true
+      - name: Generate API Docs
+        run: |
+          mkdir -p docs/api
+          pdoc ./ev_grid_oracle ./server -o docs/api --docformat google || true
+      - name: Commit docs
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "docs: update API documentation"

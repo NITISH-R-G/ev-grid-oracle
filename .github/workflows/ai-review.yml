@@ -1,0 +1,16 @@
+name: CodeRabbit AI PR Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  pull-requests: write
+
+jobs:
+  coderabbit:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Coderabbit Review
+        uses: coderabbitai/coderabbit-action@v1

@@ -1,0 +1,32 @@
+name: Knowledge Graph
+
+on:
+  push:
+    branches: [ "main", "master" ]
+    paths:
+      - '**.py'
+
+permissions:
+  contents: write
+
+jobs:
+  knowledge-graph:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install dependencies
+        run: pip install pydeps
+      - name: Generate Knowledge Graph
+        run: |
+          mkdir -p docs/architecture
+          pydeps ev_grid_oracle --cluster --rmprefix ev_grid_oracle. -o docs/architecture/knowledge_graph_ev_grid_oracle.svg || true
+          pydeps server --cluster --rmprefix server. -o docs/architecture/knowledge_graph_server.svg || true
+      - name: Commit graph
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "docs: update knowledge graph"
