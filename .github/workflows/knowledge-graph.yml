@@ -1,0 +1,42 @@
+name: Knowledge Graph
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+permissions:
+  contents: write
+
+jobs:
+  knowledge-graph:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ github.head_ref || github.ref }}
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get install graphviz
+        python -m pip install --upgrade pip
+        pip install pydeps uv
+        uv pip install --system -e ".[dev,demo]"
+
+    - name: Generate Dependency Graphs
+      run: |
+        mkdir -p docs/architecture
+        pydeps ev_grid_oracle --noshow -o docs/architecture/ev_grid_oracle_deps.svg || true
+        pydeps server --noshow -o docs/architecture/server_deps.svg || true
+
+    - name: Commit changes
+      uses: stefanzweifel/git-auto-commit-action@v5
+      with:
+        commit_message: "docs: auto-generate knowledge graph [skip ci]"

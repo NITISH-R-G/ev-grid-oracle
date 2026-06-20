@@ -1,0 +1,42 @@
+name: Architecture Diagrams
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+permissions:
+  contents: write
+
+jobs:
+  diagrams:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ github.head_ref || github.ref }}
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install dependencies
+      run: |
+        sudo apt-get install graphviz
+        python -m pip install --upgrade pip
+        pip install pylint uv
+        uv pip install --system -e ".[dev,demo]"
+
+    - name: Generate Diagrams
+      run: |
+        mkdir -p docs/architecture
+        pyreverse -o png -p ev_grid_oracle ev_grid_oracle/ -d docs/architecture/ || true
+        pyreverse -o png -p server server/ -d docs/architecture/ || true
+
+    - name: Commit changes
+      uses: stefanzweifel/git-auto-commit-action@v5
+      with:
+        commit_message: "docs: auto-generate architecture diagrams [skip ci]"

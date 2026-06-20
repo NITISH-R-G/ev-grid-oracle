@@ -1,0 +1,23 @@
+frontend:
+  - changed-files:
+    - any-glob-to-any-file:
+      - web/**/*
+
+backend:
+  - changed-files:
+    - any-glob-to-any-file:
+      - server/**/*
+      - ev_grid_oracle/**/*
+
+documentation:
+  - changed-files:
+    - any-glob-to-any-file:
+      - docs/**/*
+      - README.md
+      - CONTRIBUTING.md
+      - CODE_OF_CONDUCT.md
+
+ci:
+  - changed-files:
+    - any-glob-to-any-file:
+      - .github/**/*
