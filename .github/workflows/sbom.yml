@@ -1,0 +1,53 @@
+name: SBOM Generation
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  sbom:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install cyclonedx-bom uv
+        uv sync
+
+    - name: Generate Python SBOM
+      run: |
+        mkdir -p sbom
+        cyclonedx-py environment --outfile sbom/python-bom.json
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '24'
+
+    - name: Generate Node.js SBOM
+      run: |
+        npm install -g @cyclonedx/cyclonedx-npm
+        cd web && npm ci && cyclonedx-npm --output-file ../sbom/node-bom.json
+
+    - name: Upload SBOM artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: sbom
+        path: sbom/
+
+    - name: Commit SBOM changes
+      uses: stefanzweifel/git-auto-commit-action@v5
+      with:
+        commit_message: "docs: update Software Bill of Materials (SBOM) [skip ci]"
