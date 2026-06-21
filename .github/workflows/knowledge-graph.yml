@@ -41,6 +41,8 @@ jobs:
 
       - name: Commit Graph
         uses: stefanzweifel/git-auto-commit-action@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           commit_message: "docs(architecture): auto-generate knowledge graph"
           branch: main

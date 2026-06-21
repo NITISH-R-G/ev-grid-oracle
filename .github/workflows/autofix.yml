@@ -50,6 +50,8 @@ jobs:
 
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v5
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           commit_message: "chore(formatting): auto-format python and frontend files"
           branch: ${{ github.head_ref }}
