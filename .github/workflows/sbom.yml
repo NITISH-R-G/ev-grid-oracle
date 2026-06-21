@@ -1,0 +1,55 @@
+name: Generate SBOMs
+
+on:
+  push:
+    branches:
+      - main
+  release:
+    types: [published]
+  schedule:
+    - cron: '0 0 * * 0' # Weekly
+
+permissions:
+  contents: write
+
+jobs:
+  generate-sbom:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install cyclonedx-bom uv
+          uv pip install --system -e ".[dev,demo]"
+
+      - name: Generate Python SBOM
+        run: |
+          mkdir -p sbom
+          cyclonedx-py environment --outfile sbom/python-bom.json
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Generate Node SBOM
+        run: |
+          npm install -g @cyclonedx/cyclonedx-npm
+          cd web && npm ci && cd ..
+          cyclonedx-npm --output-file sbom/node-bom.json --output-format JSON web/
+
+      - name: Commit SBOMs
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "chore(security): auto-generate SBOMs"
+          branch: main
+          file_pattern: 'sbom/*.json'
