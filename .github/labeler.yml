@@ -1,0 +1,23 @@
+frontend:
+  - changed-files:
+      - any-glob-to-any-file: 'web/**/*'
+
+backend:
+  - changed-files:
+      - any-glob-to-any-file: 'server/**/*'
+      - any-glob-to-any-file: 'ev_grid_oracle/**/*'
+
+documentation:
+  - changed-files:
+      - any-glob-to-any-file: 'docs/**/*'
+      - any-glob-to-any-file: '**/*.md'
+
+infrastructure:
+  - changed-files:
+      - any-glob-to-any-file: '.github/**/*'
+      - any-glob-to-any-file: 'Dockerfile'
+      - any-glob-to-any-file: 'docker-compose.yml'
+
+testing:
+  - changed-files:
+      - any-glob-to-any-file: 'tests/**/*'

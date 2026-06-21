@@ -1,0 +1,14 @@
+# These owners will be the default reviewers for pull requests in these directories.
+# Order is important; the last matching pattern takes the most precedence.
+#
+# GitHub Codeowners documentation:
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+# Global default owner
+*       @maintainer
+
+# Specific teams or individuals for areas of the codebase
+/web/     @frontend-team
+/server/  @backend-team
+/docs/    @docs-team
+/.github/ @infra-team

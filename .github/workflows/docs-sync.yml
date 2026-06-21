@@ -1,0 +1,55 @@
+name: Documentation Sync
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'ev_grid_oracle/**'
+      - 'server/**'
+      - 'tools/**'
+      - 'docs/**'
+      - 'README.md'
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install pdoc uv
+          uv pip install --system -e ".[dev,demo]"
+
+      - name: Generate API Documentation
+        run: |
+          mkdir -p docs_output
+          pdoc ./ev_grid_oracle ./server ./tools -o ./docs_output
+
+      - name: Upload Docs Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs_output/
+
+  deploy-docs:
+    needs: build-docs
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
