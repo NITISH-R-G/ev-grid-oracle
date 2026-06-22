@@ -5,26 +5,14 @@ import json
 import hashlib
 import gzip
 from dataclasses import dataclass
-from math import asin, cos, radians, sin, sqrt
 from pathlib import Path
 from typing import Any
 
 import networkx as nx
 
+from server.road_router import haversine_m
 
 ROOT = Path(__file__).resolve().parents[1]
-
-
-def haversine_m(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
-    r = 6371000.0
-    dlat = radians(lat2 - lat1)
-    dlng = radians(lng2 - lng1)
-    a = (
-        sin(dlat / 2) ** 2
-        + cos(radians(lat1)) * cos(radians(lat2)) * sin(dlng / 2) ** 2
-    )
-    c = 2 * asin(sqrt(a))
-    return r * c
 
 
 def _encode_signed(num: int) -> str:
