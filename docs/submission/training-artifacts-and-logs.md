@@ -6,12 +6,12 @@ This page is the **single checklist** for “we shared the env, training scripts
 
 ## 1) Environment (shared, runnable)
 
-| Artifact | URL / path |
-|----------|------------|
-| **HF Space (OpenEnv server)** | See root [`README.md`](../../README.md) → *Quick links* → OpenEnv Space + live host |
-| **OpenEnv descriptor** | [`openenv.yaml`](../../openenv.yaml) |
-| **Server entry** | `server/app.py` (FastAPI) |
-| **Core env + rewards** | `ev_grid_oracle/` (`reward.py`, `road_env.py`, scenarios, etc.) |
+| Artifact                      | URL / path                                                                          |
+| ----------------------------- | ----------------------------------------------------------------------------------- |
+| **HF Space (OpenEnv server)** | See root [`README.md`](../../README.md) → _Quick links_ → OpenEnv Space + live host |
+| **OpenEnv descriptor**        | [`openenv.yaml`](../../openenv.yaml)                                                |
+| **Server entry**              | `server/app.py` (FastAPI)                                                           |
+| **Core env + rewards**        | `ev_grid_oracle/` (`reward.py`, `road_env.py`, scenarios, etc.)                     |
 
 Judges should be able to open the Space, hit `/health`, and use `/reset` + `/step` (and `/road/*` if you demo graph routing).
 
@@ -19,14 +19,14 @@ Judges should be able to open the Space, hit `/health`, and use `/reset` + `/ste
 
 ## 2) Training scripts (required)
 
-| Script | Role |
-|--------|------|
+| Script                                                             | Role                                                                               |
+| ------------------------------------------------------------------ | ---------------------------------------------------------------------------------- |
 | **[`training/train_grpo.ipynb`](../../training/train_grpo.ipynb)** | **Primary:** Colab-ready GRPO + Unsloth + verifier `reward_fn` stepping `RoadCore` |
-| [`training/evaluate.py`](../../training/evaluate.py) | Paired baseline vs oracle → `training/eval_results.json` |
-| [`training/fair_eval.py`](../../training/fair_eval.py) | Wilson + McNemar on paired episodes → `artifacts/fair_eval_results.json` + chart |
-| [`training/make_plots.py`](../../training/make_plots.py) | Figure pack under `artifacts/` |
+| [`training/evaluate.py`](../../training/evaluate.py)               | Paired baseline vs oracle → `training/eval_results.json`                           |
+| [`training/fair_eval.py`](../../training/fair_eval.py)             | Wilson + McNemar on paired episodes → `artifacts/fair_eval_results.json` + chart   |
+| [`training/make_plots.py`](../../training/make_plots.py)           | Figure pack under `artifacts/`                                                     |
 
-**Colab (opens same notebook as GitHub):** linked from [`README.md`](../../README.md) → *Quick links*.
+**Colab (opens same notebook as GitHub):** linked from [`README.md`](../../README.md) → _Quick links_.
 
 ---
 
@@ -44,11 +44,11 @@ In [`training/train_grpo.ipynb`](../../training/train_grpo.ipynb), `GRPOConfig` 
 
 **What to commit for judges (pick one or more):**
 
-1. **TensorBoard PNGs** — open TensorBoard on the run folder and screenshot *reward* and *loss*, **or** run
+1. **TensorBoard PNGs** — open TensorBoard on the run folder and screenshot _reward_ and _loss_, **or** run
    `python tools/export_grpo_tensorboard_plots.py --logdir ev_oracle_grpo_road --out-dir artifacts`  
    (requires `pip install tensorboard matplotlib`, or `pip install -e ".[dev]"` from repo root) to emit `artifacts/grpo_loss.png` and `artifacts/grpo_reward.png`, then commit.
 2. **Short text log** — paste the last ~50 lines of Colab output (step, reported reward) into `artifacts/training_logs/colab_console_tail.txt` (create the folder).
-3. **Hub / W&B / Trackio** — if you log to a hosted run, add the **run URL** to [`README.md`](../../README.md) *Quick links*.
+3. **Hub / W&B / Trackio** — if you log to a hosted run, add the **run URL** to [`README.md`](../../README.md) _Quick links_.
 
 ### B) Eval / verification “logs” (already repo-friendly)
 
@@ -66,7 +66,7 @@ These are JSON + PNG and are strong evidence even without GRPO TensorBoard:
 2. **One real Colab GRPO run** — enable TensorBoard (`report_to`), save adapters, **test inference** immediately after save.
 3. **Export curves or console tail** → commit under `artifacts/` or `artifacts/training_logs/` (small text only if no PNG yet).
 4. **Refresh eval JSON + plots** — same seeds, baseline vs oracle, commit deltas judges can read.
-5. **Links** — README *Quick links*: Space, Colab, LoRA repo, blog, **video URL** (when ready).
+5. **Links** — README _Quick links_: Space, Colab, LoRA repo, blog, **video URL** (when ready).
 6. **Video or blog** — use [`youtube-under-2min-outline.md`](youtube-under-2min-outline.md); HF mini-blog source is [`docs/hf-mini-blog-ev-grid-oracle.md`](../hf-mini-blog-ev-grid-oracle.md).
 
 ---
