@@ -1,0 +1,25 @@
+name: AI Code Review
+
+on:
+  pull_request:
+    types:
+      - opened
+      - synchronize
+  pull_request_review_comment:
+    types:
+      - created
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.sender.type != 'Bot' }}
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+      - name: CodeRabbit
+        # Replace with any valid action if coderabbit isn't a valid repo, or just skip it for now and let the user add the app
+        run: echo "CodeRabbit integration is usually done via GitHub App rather than an Action workflow. You can install it from https://coderabbit.ai"

@@ -1,0 +1,30 @@
+name: Docs Sync
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  generate-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install uv
+        run: pip install uv
+      - name: Generate docs
+        run: |
+          uv pip install --system -e ".[dev]"
+          uv pip install --system pdoc
+          pdoc ./ev_grid_oracle -o docs/api
+      - name: Commit docs
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "docs: Auto-generate API documentation"

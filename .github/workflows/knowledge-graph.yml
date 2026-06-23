@@ -1,0 +1,31 @@
+name: Knowledge Graph
+
+on:
+  push:
+    branches: [ main ]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  generate-graph:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Install Graphviz
+        run: sudo apt-get update && sudo apt-get install -y graphviz
+      - name: Install pydeps
+        run: pip install pydeps
+      - name: Generate Graph
+        run: |
+          mkdir -p docs/architecture
+          pydeps ev_grid_oracle --noshow -o docs/architecture/knowledge_graph.svg || true
+      - name: Commit knowledge graph
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "docs: Auto-generate knowledge graph"
