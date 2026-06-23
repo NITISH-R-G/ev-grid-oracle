@@ -37,4 +37,3 @@ action_space:
         current_node: { type: integer }
         next_node: { type: integer }
       required: [current_node, next_node]
-
