@@ -18,11 +18,8 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event.sender.type != 'Bot' }}
     steps:
-      - uses: coderabbitai/openai-pr-reviewer@latest
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        with:
-          debug: false
-          review_simple_changes: false
-          review_comment_lgtm: false
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+      - name: CodeRabbit
+        # Replace with any valid action if coderabbit isn't a valid repo, or just skip it for now and let the user add the app
+        run: echo "CodeRabbit integration is usually done via GitHub App rather than an Action workflow. You can install it from https://coderabbit.ai"
