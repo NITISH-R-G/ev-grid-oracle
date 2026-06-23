@@ -6,7 +6,7 @@ status: draft
 
 ## Goal
 
-Make the map *feel like a real mobility product*:
+Make the map _feel like a real mobility product_:
 
 - Vehicles (cars + bikes) **move place-to-place** along real Bangalore road geometry (already done).
 - Motion is **traffic-aware** (slows in congestion, smooth near intersections, no teleporting).
@@ -124,7 +124,7 @@ Module: `ev_grid_oracle/traffic.py` (new)
 Module: `server/road_router.py` (existing)
 
 - Extend shortest-path weight to:
-  - \(w(u,v) = travel\_s(u,v) \cdot traffic(u,v,tick) + intersection\_penalty\)
+  - \(w(u,v) = travel_s(u,v) \cdot traffic(u,v,tick) + intersection_penalty\)
 - `travel_s(u,v)` is the precomputed base travel time already stored in the baked road graph (stable + deterministic).
 - Optional follow-up (non-blocking): incorporate highway class and/or turn penalties into the graph build step to improve realism.
 
@@ -149,7 +149,7 @@ Module: `web/src/map/MapView.ts` (existing)
   - additional `PathLayer` for roads with color based on traffic multiplier
   - subtle alpha so basemap stays readable
 - **Vehicle speed**:
-  - per-vehicle instantaneous speed = baseSpeedMps * trafficFactorAlongRoute
+  - per-vehicle instantaneous speed = baseSpeedMps \* trafficFactorAlongRoute
   - apply smoothing (exponential moving average) so speed changes aren’t jarring
 - **Intersection easing**:
   - reduce speed slightly when heading change exceeds a threshold (simulated turns)
