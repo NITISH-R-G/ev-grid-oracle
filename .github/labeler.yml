@@ -1,0 +1,14 @@
+frontend:
+  - changed-files:
+    - any-glob-to-any-file: 'web/**/*'
+backend:
+  - changed-files:
+    - any-glob-to-any-file: 'server/**/*'
+    - any-glob-to-any-file: 'ev_grid_oracle/**/*'
+docs:
+  - changed-files:
+    - any-glob-to-any-file: 'docs/**/*'
+    - any-glob-to-any-file: '**/*.md'
+ci:
+  - changed-files:
+    - any-glob-to-any-file: '.github/**/*'
