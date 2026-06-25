@@ -1,0 +1,14 @@
+name: Stale
+on:
+  schedule:
+    - cron: '0 0 * * *'
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/stale@v9
+        with:
+          stale-issue-message: 'Stale issue'
+          stale-pr-message: 'Stale PR'
+          days-before-stale: 60
+          days-before-close: 7
