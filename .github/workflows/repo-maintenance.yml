@@ -1,0 +1,46 @@
+name: Repo Maintenance
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+permissions:
+  contents: write
+jobs:
+  maintenance:
+    if: github.repository == github.event.pull_request.head.repo.full_name || github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          lfs: true
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install uv
+        run: pip install uv
+      - name: Install dependencies
+        run: uv pip install --system -e ".[dev,demo]" cyclonedx-py pydeps xdg-utils ruff
+      - name: Autofix
+        run: |
+          uv run ruff check --fix . || true
+          uv run ruff format . || true
+      - name: Docs Sync
+        run: echo "Docs sync pending"
+      - name: Architecture Diagrams
+        run: |
+          sudo apt-get install -y xdg-utils
+          uv run pydeps ev_grid_oracle -o architecture.svg || true
+      - name: Knowledge Graph
+        run: echo "Knowledge graph update pending"
+      - name: SBOM
+        run: |
+          uv run cyclonedx-py environment -o bom.json
+      - name: Commit changes
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add .
+          git commit -m "Auto-maintenance: format, diagrams, sbom" || true
+          git push
