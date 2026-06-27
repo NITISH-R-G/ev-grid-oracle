@@ -1,0 +1,34 @@
+# Add 'python' label to any changes within 'ev_grid_oracle', 'server', 'training', 'tools', 'viz' or 'tests' folders
+python:
+  - any:
+    - changed-files:
+      - any-glob-to-any-file:
+        - ev_grid_oracle/**/*
+        - server/**/*
+        - training/**/*
+        - tools/**/*
+        - viz/**/*
+        - tests/**/*
+        - '*.py'
+
+# Add 'frontend' label to any changes within 'web' folder
+frontend:
+  - any:
+    - changed-files:
+      - any-glob-to-any-file:
+        - web/**/*
+
+# Add 'documentation' label to any changes to .md files
+documentation:
+  - any:
+    - changed-files:
+      - any-glob-to-any-file:
+        - '**/*.md'
+        - docs/**/*
+
+# Add 'github-actions' label to any changes within .github folder
+github-actions:
+  - any:
+    - changed-files:
+      - any-glob-to-any-file:
+        - .github/**/*
