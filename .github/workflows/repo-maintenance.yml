@@ -1,0 +1,65 @@
+name: Repository Maintenance Automation
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  schedule:
+    - cron: '0 2 * * *' # Run daily at 2 AM
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  maintenance:
+    runs-on: ubuntu-latest
+    if: github.repository == github.event.pull_request.head.repo.full_name || github.event_name != 'pull_request'
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true
+          ref: ${{ github.head_ref || github.ref }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip uv
+          uv pip install --system -e ".[dev]"
+          uv pip install --system pydeps cyclonedx-bom
+
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y xdg-utils graphviz
+
+      - name: Generate Architecture Diagrams
+        run: |
+          mkdir -p docs/architecture
+          pydeps ev_grid_oracle --output docs/architecture/ev_grid_oracle.svg --no-show || true
+          pydeps server --output docs/architecture/server.svg --no-show || true
+
+      - name: Generate SBOM
+        run: |
+          cyclonedx-py environment -o sbom.json
+
+      - name: Auto-fix linting and formatting
+        run: |
+          uv run --with ruff ruff check --fix . || true
+          uv run --with ruff ruff format . || true
+
+      - name: Commit and Push Changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Auto-generated repo maintenance artifacts [skip ci]"
+          branch: ${{ github.head_ref || github.ref }}
