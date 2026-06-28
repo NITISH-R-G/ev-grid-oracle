@@ -1,0 +1,68 @@
+name: Repository Maintenance
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: write
+
+jobs:
+  maintain:
+    if: ${{ github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+          fetch-depth: 0
+          lfs: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install uv
+          uv pip install --system -e ".[dev,demo]"
+          uv pip install --system cyclonedx-bom cyclonedx-py pydeps
+          sudo apt-get update && sudo apt-get install -y xdg-utils graphviz
+
+      - name: Autofix Code Quality
+        run: |
+          uv run --with ruff ruff check --fix . || true
+          uv run --with ruff ruff format . || true
+
+      - name: Generate Architecture Diagrams
+        run: |
+          mkdir -p docs/architecture
+          pydeps ev_grid_oracle --output docs/architecture/ev_grid_oracle.svg --no-show || true
+
+      - name: Generate Knowledge Graph
+        run: |
+          mkdir -p docs/knowledge
+          python tools/generate_knowledge_graph.py
+
+
+      - name: Docs Sync
+        run: |
+          python tools/docs_sync.py
+          mkdir -p docs
+
+
+      - name: Generate SBOM
+        run: |
+          cyclonedx-py environment -o bom.json || true
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "chore: autonomous repository maintenance [skip ci]" || echo "No changes to commit"
+          # Avoid using the actual push command in testing script to not block session
+          # We'll write the script that GH Actions runs
+          git push origin ${{ github.head_ref || github.ref }} || true
