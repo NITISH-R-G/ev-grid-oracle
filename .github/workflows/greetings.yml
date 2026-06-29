@@ -1,0 +1,31 @@
+name: Greetings
+
+on:
+  issues:
+    types: [opened]
+  pull_request:
+    types: [opened]
+
+jobs:
+  welcome:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/github-script@v6
+      with:
+        script: |
+          const isPR = !!context.payload.pull_request;
+          const user = context.payload.sender.login;
+          const authorAssociation = context.payload.issue?.author_association || context.payload.pull_request?.author_association;
+
+          if (authorAssociation === 'FIRST_TIMER' || authorAssociation === 'FIRST_TIME_CONTRIBUTOR') {
+            const body = isPR
+              ? `Welcome @${user}! Thank you for your first pull request. A maintainer will review it shortly. Please ensure all tests pass and your code follows our contribution guidelines.`
+              : `Welcome @${user}! Thank you for opening your first issue. We will look into it as soon as possible.`;
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number || context.payload.pull_request.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            });
+          }

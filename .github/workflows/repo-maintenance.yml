@@ -1,0 +1,56 @@
+name: Repository Maintenance
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+permissions:
+  contents: write
+
+jobs:
+  maintenance:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ github.head_ref || github.ref }}
+        lfs: true
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install dependencies
+      run: |
+        curl -LsSf https://astral.sh/uv/install.sh | sh
+        $HOME/.local/bin/uv venv
+        $HOME/.local/bin/uv pip install --system pydeps xdg-utils cyclonedx-bom ruff
+
+    - name: Run Ruff autofix
+      run: $HOME/.local/bin/uv run ruff check --fix . || true
+
+    - name: Generate Knowledge Graph
+      run: python tools/generate_knowledge_graph.py
+
+    - name: Sync Docs
+      run: python tools/docs_sync.py
+
+    - name: Generate Architecture Diagram
+      run: pydeps . -o docs/arch.svg || true
+
+    - name: Generate SBOM
+      run: |
+        $HOME/.local/bin/uv venv
+        $HOME/.local/bin/uv pip install -e ".[dev]"
+        $HOME/.local/bin/uv run cyclonedx-py environment -o bom.json || true
+
+    - name: Commit changes
+      run: |
+        git config --local user.email "action@github.com"
+        git config --local user.name "GitHub Action"
+        git add docs/ bom.json || true
+        git commit -m "Auto-generated repository artifacts" || true
+        git push || true
