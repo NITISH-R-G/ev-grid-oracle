@@ -26,11 +26,11 @@ jobs:
     - name: Install dependencies
       run: |
         curl -LsSf https://astral.sh/uv/install.sh | sh
-        $HOME/.cargo/bin/uv venv
-        $HOME/.cargo/bin/uv pip install --system pydeps xdg-utils cyclonedx-bom ruff
+        $HOME/.local/bin/uv venv
+        $HOME/.local/bin/uv pip install --system pydeps xdg-utils cyclonedx-bom ruff
 
     - name: Run Ruff autofix
-      run: ruff check --fix . || true
+      run: $HOME/.local/bin/uv run ruff check --fix . || true
 
     - name: Generate Knowledge Graph
       run: python tools/generate_knowledge_graph.py
@@ -43,9 +43,9 @@ jobs:
 
     - name: Generate SBOM
       run: |
-        $HOME/.cargo/bin/uv venv
-        $HOME/.cargo/bin/uv pip install -e ".[dev]"
-        $HOME/.cargo/bin/uv run cyclonedx-py environment -o bom.json || true
+        $HOME/.local/bin/uv venv
+        $HOME/.local/bin/uv pip install -e ".[dev]"
+        $HOME/.local/bin/uv run cyclonedx-py environment -o bom.json || true
 
     - name: Commit changes
       run: |

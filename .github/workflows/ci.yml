@@ -25,11 +25,11 @@ jobs:
 
     - name: Install dependencies
       run: |
-        $HOME/.cargo/bin/uv venv
-        $HOME/.cargo/bin/uv pip install -e ".[dev]"
+        $HOME/.local/bin/uv venv
+        $HOME/.local/bin/uv pip install -e ".[dev]"
 
     - name: Run Python tests
-      run: $HOME/.cargo/bin/uv run pytest tests/
+      run: $HOME/.local/bin/uv run pytest tests/
 
     - name: Set up Node.js
       uses: actions/setup-node@v4
