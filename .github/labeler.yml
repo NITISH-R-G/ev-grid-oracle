@@ -1,0 +1,20 @@
+python:
+  - any:
+    - '*.py'
+    - 'requirements.txt'
+    - 'pyproject.toml'
+    - 'uv.lock'
+
+frontend:
+  - any:
+    - 'web/**/*'
+
+documentation:
+  - any:
+    - '*.md'
+    - 'docs/**/*'
+
+github-actions:
+  - any:
+    - '.github/workflows/*'
+    - '.github/*'
