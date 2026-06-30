@@ -1,0 +1,60 @@
+name: Repository Maintenance & Autonomous Governance
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  schedule:
+    - cron: '0 0 * * *' # Daily
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  maintenance:
+    # Only run if PR is not from a fork, to prevent 403 Forbidden errors
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ github.head_ref || github.ref }}
+
+    - name: Install system dependencies (for pydeps)
+      run: sudo apt-get update && sudo apt-get install -y xdg-utils graphviz
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+        cache: 'pip'
+
+    - name: Install uv
+      run: curl -LsSf https://astral.sh/uv/install.sh | sh
+
+    - name: Install dependencies
+      run: |
+        uv pip install --system cyclonedx-bom pydeps
+        uv pip install --system -e ".[dev,demo]"
+
+    - name: Run autonomous tasks (knowledge-graph, docs-sync, architecture-diagrams, sbom)
+      run: |
+        python tools/generate_knowledge_graph.py
+        python tools/docs_sync.py
+
+        # Generate architecture diagrams
+        mkdir -p artifacts
+        pydeps ev_grid_oracle --noshow -o artifacts/architecture.svg || true
+
+        # Generate SBOM
+        cyclonedx-py environment -o artifacts/bom.json
+
+    - name: Commit and Push Changes
+      run: |
+        git config --global user.name 'github-actions[bot]'
+        git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+        git add artifacts/ docs/ || true
+        git diff --staged --quiet || git commit -m "chore(auto): Update repository artifacts and documentation"
+        git push origin HEAD:${{ github.head_ref || github.ref }}
