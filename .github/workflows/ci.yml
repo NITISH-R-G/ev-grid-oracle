@@ -1,0 +1,42 @@
+name: CI
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        lfs: true
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '22'
+
+    - name: Install uv
+      run: pip install uv
+
+    - name: Install Python dependencies
+      run: |
+        uv pip install --system -e ".[dev,demo]"
+
+    - name: Run Pytest
+      run: |
+        uv run pytest tests/
+
+    - name: Build Frontend
+      working-directory: ./web
+      run: |
+        npm ci
+        npm run build
