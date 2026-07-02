@@ -2,6 +2,7 @@ import os
 import json
 from typing import Dict, List
 
+
 def generate_knowledge_graph() -> None:
     print("Generating knowledge graph...")
     graph: Dict[str, List[Dict[str, str]]] = {"nodes": [], "edges": []}
@@ -16,6 +17,7 @@ def generate_knowledge_graph() -> None:
     os.makedirs("artifacts", exist_ok=True)
     with open("artifacts/knowledge_graph.json", "w") as f:
         json.dump(graph, f, indent=2)
+
 
 if __name__ == "__main__":
     generate_knowledge_graph()
