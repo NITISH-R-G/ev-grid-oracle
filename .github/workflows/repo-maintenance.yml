@@ -1,0 +1,68 @@
+name: Repository Maintenance Automation
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  schedule:
+    - cron: '0 0 * * *' # Daily at midnight UTC
+
+permissions:
+  contents: write
+
+jobs:
+  maintenance:
+    if: github.repository == github.event.repository.full_name
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.head_ref || github.ref }}
+          lfs: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install uv
+        run: pip install uv
+
+      - name: Install dependencies
+        run: |
+          uv pip install --system -e ".[dev,demo]"
+          uv pip install --system cyclonedx-bom
+
+      - name: Auto-fix formatting and linting
+        run: |
+          uv run --with ruff ruff check --fix .
+          uv run --with ruff ruff format .
+
+      - name: Generate Knowledge Graph
+        run: |
+          python tools/generate_knowledge_graph.py
+
+      - name: Generate Architecture Diagrams
+        run: |
+          # Use pyreverse/pydeps if available in the future, placeholder for now
+          echo "Architecture generation..."
+          mkdir -p artifacts/architecture
+          touch artifacts/architecture/README.md
+
+      - name: Generate SBOM
+        run: |
+          cyclonedx-py environment -o bom.json
+
+      - name: Sync Documentation
+        run: |
+          python tools/docs_sync.py
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --quiet && git diff --staged --quiet || (git commit -m "chore(auto): autonomous repository maintenance updates" && git push)
