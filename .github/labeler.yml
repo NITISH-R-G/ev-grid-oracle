@@ -1,0 +1,22 @@
+backend:
+  - any:
+      - 'server/**/*'
+      - 'ev_grid_oracle/**/*'
+      - 'training/**/*'
+      - 'tools/**/*'
+      - '*.py'
+frontend:
+  - any:
+      - 'web/**/*'
+      - 'viz/**/*'
+docs:
+  - any:
+      - 'docs/**/*'
+      - '*.md'
+tests:
+  - any:
+      - 'tests/**/*'
+ci:
+  - any:
+      - '.github/**/*'
+      - 'validate-submission.sh'
