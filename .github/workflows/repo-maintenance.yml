@@ -1,0 +1,69 @@
+name: Autonomous Repository Maintenance
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  schedule:
+    - cron: '0 0 * * *' # Daily at midnight UTC
+
+permissions:
+  contents: write
+
+jobs:
+  maintenance:
+    runs-on: ubuntu-latest
+    if: github.repository == github.event.repository.full_name # Prevent running on forks
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install uv
+        run: pip install uv
+
+      - name: Install dependencies
+        run: |
+          uv pip install --system -e ".[dev,demo]"
+          uv pip install --system pydeps networkx cyclonedx-bom
+
+      - name: Autofix Python Code
+        run: |
+          uv run ruff check --fix . || true
+          uv run ruff format . || true
+
+      - name: Generate API Documentation
+        run: |
+          python tools/docs_sync.py
+
+      - name: Generate Knowledge Graph
+        run: |
+          python tools/generate_knowledge_graph.py
+
+      - name: Generate Architecture Diagrams
+        run: |
+          sudo apt-get update && sudo apt-get install -y xdg-utils graphviz
+          mkdir -p docs/architecture
+          pydeps server/ --noshow -o docs/architecture/server_deps.svg || true
+          pydeps ev_grid_oracle/ --noshow -o docs/architecture/oracle_deps.svg || true
+          pydeps tools/ --noshow -o docs/architecture/tools_deps.svg || true
+
+      - name: Generate SBOM
+        run: |
+          cyclonedx-py environment -o bom.json || true
+
+      - name: Commit and Push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "chore: autonomous repository maintenance and generation" || echo "No changes to commit"
+          git push

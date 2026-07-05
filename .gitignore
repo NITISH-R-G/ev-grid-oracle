@@ -31,3 +31,4 @@ ev_grid_oracle.egg-info/
 .coverage
 dashboard_output/
 build/
+web/public/maps/bangalore.graphml.gz
