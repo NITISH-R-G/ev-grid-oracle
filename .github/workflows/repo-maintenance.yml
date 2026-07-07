@@ -1,0 +1,59 @@
+name: Repository Maintenance
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  maintenance:
+    if: ${{ github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install uv and tools
+        run: |
+          pip install uv
+          uv pip install --system -e ".[dev,demo]"
+          uv pip install --system pydeps cyclonedx-bom
+
+      - name: Install xdg-utils for pydeps
+        run: sudo apt-get update && sudo apt-get install -y xdg-utils
+
+      - name: Run Ruff Autofix
+        run: |
+          uv run --with ruff ruff check --fix . || true
+          uv run --with ruff ruff format . || true
+
+      - name: Generate Knowledge Graph
+        run: python tools/generate_knowledge_graph.py
+
+      - name: Sync Documentation
+        run: python tools/docs_sync.py
+
+      - name: Generate Architecture Diagrams
+        run: pydeps server --output arch.svg --no-show || true
+
+      - name: Generate SBOM
+        run: cyclonedx-py environment -o bom.json
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A
+          git diff --quiet && git diff --staged --quiet || (git commit -m "chore: autonomous repository maintenance" && git push)
