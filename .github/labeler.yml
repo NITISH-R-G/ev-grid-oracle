@@ -1,0 +1,13 @@
+frontend:
+  - web/**/*
+
+backend:
+  - server/**/*
+  - ev_grid_oracle/**/*
+
+documentation:
+  - docs/**/*
+  - README.md
+
+ci-cd:
+  - .github/workflows/**/*
