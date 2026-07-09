@@ -1,0 +1,78 @@
+name: Repository Maintenance & Autonomous Generation
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  schedule:
+    - cron: '0 2 * * *' # Daily at 2 AM UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  repo-maintenance:
+    runs-on: ubuntu-latest
+    if: github.repository == github.event.pull_request.head.repo.full_name || github.event_name != 'pull_request'
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ github.head_ref || github.ref }}
+        fetch-depth: 0
+        lfs: true
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install uv
+      run: pip install uv
+
+    - name: Install dependencies
+      run: |
+        uv pip install --system -e ".[dev,demo]"
+
+    - name: Run Ruff Auto-Fixes
+      run: |
+        uv run --with ruff ruff check --fix . || true
+        uv run --with ruff ruff format . || true
+
+    - name: Generate SBOM
+      run: |
+        uv pip install --system cyclonedx-bom
+        cyclonedx-py environment -o bom.json || true
+
+    - name: Generate Architecture Diagrams
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y xdg-utils graphviz
+        uv pip install --system pydeps
+        pydeps ev_grid_oracle --noshow || true
+
+    - name: Generate Knowledge Graph
+      run: |
+        if [ -f tools/generate_knowledge_graph.py ]; then
+          python tools/generate_knowledge_graph.py
+        fi
+
+    - name: Docs Sync
+      run: |
+        if [ -f tools/docs_sync.py ]; then
+          python tools/docs_sync.py
+        fi
+
+    - name: Check for changes and commit
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "github-actions[bot]@users.noreply.github.com"
+        git add .
+        if git diff-index --quiet HEAD; then
+          echo "No changes to commit"
+        else
+          git commit -m "chore: autonomous repository maintenance [skip ci]"
+          git push origin HEAD:${{ github.head_ref || github.ref_name }}
+        fi
