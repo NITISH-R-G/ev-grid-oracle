@@ -1,0 +1,71 @@
+name: Autonomous Repo Maintenance
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  schedule:
+    - cron: '0 2 * * *' # Daily at 2 AM UTC
+
+permissions:
+  contents: write
+
+jobs:
+  maintenance:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install uv
+          uv pip install --system -e ".[dev,demo]"
+          uv pip install --system pydeps cyclonedx-bom cyclonedx-py
+
+      - name: Install system dependencies for pydeps
+        run: sudo apt-get update && sudo apt-get install -y graphviz xdg-utils
+
+      - name: Run Autofix (Ruff)
+        run: |
+          uv run --with ruff ruff check --fix .
+          uv run --with ruff ruff format .
+
+      - name: Sync Documentation
+        run: |
+          python tools/docs_sync.py
+
+      - name: Generate Knowledge Graph
+        run: |
+          python tools/generate_knowledge_graph.py
+
+      - name: Generate Architecture Diagrams
+        run: |
+          mkdir -p docs/architecture
+          pydeps ev_grid_oracle --output docs/architecture/ev_grid_oracle.svg --noshow || true
+          pydeps server --output docs/architecture/server.svg --noshow || true
+
+      - name: Generate SBOM
+        run: |
+          mkdir -p artifacts
+          cyclonedx-py environment -o artifacts/bom.json || true
+
+      - name: Commit changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add .
+          git commit -m "chore(maintenance): auto-format, sync docs, graph, SBOM [skip ci]" || echo "No changes to commit"
+          git push
