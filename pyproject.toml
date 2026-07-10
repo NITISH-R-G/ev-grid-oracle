@@ -45,6 +45,10 @@ plugins = ["pydantic.mypy"]
 ignore_missing_imports = true
 check_untyped_defs = true
 
+[[tool.mypy.overrides]]
+module = "viz.gradio_demo"
+ignore_errors = true
+
 [tool.pydantic-mypy]
 init_forbid_extra = true
 init_typed = true

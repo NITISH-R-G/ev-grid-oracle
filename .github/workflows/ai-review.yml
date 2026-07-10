@@ -1,0 +1,26 @@
+name: AI PR Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  ai-review:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.sender.type != 'Bot' }}
+    steps:
+      - name: CodeRabbit AI PR Review
+        # The correct GitHub Action for CodeRabbit AI is coderabbitai/openai-pr-reviewer (not ai-pr-reviewer).
+        # However, the official repo was deleted/made private. Using an active fork instead to pass CI.
+        uses: dorucioclea/openai-pr-reviewer@main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+        with:
+          debug: false
+          review_simple_changes: false
+          review_comment_lgtm: false
