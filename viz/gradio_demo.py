@@ -218,7 +218,9 @@ with gr.Blocks(title="EV Grid Oracle") as demo:
         sess = new_session(seed_val)
         return sess, render_map(sess.env), "", "", ""
 
-    start.click(_start, inputs=[seed], outputs=[state, img, thought, kpi, kpi_summary])
+    start.click(  # type: ignore[attr-defined]
+        _start, inputs=[seed], outputs=[state, img, thought, kpi, kpi_summary]
+    )
 
     oracle_lora = gr.Textbox(
         label="Oracle LoRA repo id (optional)",
@@ -232,7 +234,7 @@ with gr.Blocks(title="EV Grid Oracle") as demo:
         im, t, k = step_once(sess, mode_val, oracle_lora_repo)
         return sess, im, t, k
 
-    step.click(
+    step.click(  # type: ignore[attr-defined]
         _step, inputs=[state, mode, oracle_lora], outputs=[state, img, thought, kpi]
     )
 
@@ -243,7 +245,7 @@ with gr.Blocks(title="EV Grid Oracle") as demo:
             im, t, k = step_once(sess, mode_val, oracle_lora_repo)
             yield sess, im, t, k
 
-    run60.click(
+    run60.click(  # type: ignore[attr-defined]
         _run60, inputs=[state, mode, oracle_lora], outputs=[state, img, thought, kpi]
     )
 
@@ -264,7 +266,9 @@ with gr.Blocks(title="EV Grid Oracle") as demo:
     def _kpis(seed_val: int, oracle_lora_repo: str):
         return compute_kpis(seed_val, episodes=10, oracle_lora_repo=oracle_lora_repo)
 
-    kpis_btn.click(_kpis, inputs=[seed, oracle_lora], outputs=[kpi_summary])
+    kpis_btn.click(  # type: ignore[attr-defined]
+        _kpis, inputs=[seed, oracle_lora], outputs=[kpi_summary]
+    )
 
 
 if __name__ == "__main__":
