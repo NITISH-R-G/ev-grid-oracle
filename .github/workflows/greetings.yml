@@ -1,0 +1,20 @@
+name: Greetings
+
+on:
+  pull_request_target:
+    types: [opened]
+  issues:
+    types: [opened]
+
+jobs:
+  greeting:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+    steps:
+    - uses: actions/first-interaction@v1
+      with:
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        issue-message: "Welcome to EV Grid Oracle! Thank you for raising your first issue. We will review it shortly. In the meantime, please ensure you've provided all necessary context, and consider running `./validate-submission.sh` if you plan to submit a fix."
+        pr-message: "Welcome to EV Grid Oracle! Thank you for your first pull request. Before we merge, our CI will run checks and our AI Code Reviewer will take a look. Please make sure you've run `./validate-submission.sh` locally!"
