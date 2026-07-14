@@ -26,7 +26,7 @@ jobs:
       run: |
         pip install uv
         uv pip install --system -e ".[dev,demo]"
-        uv pip install --system ruff mypy pydantic vulture radon
+        uv pip install --system ruff mypy pydantic vulture radon gradio
 
     - name: Lint and Format with Ruff
       run: |
