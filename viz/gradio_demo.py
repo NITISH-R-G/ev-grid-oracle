@@ -202,10 +202,10 @@ with gr.Blocks(title="EV Grid Oracle") as demo:
         seed = gr.Slider(0, 10_000, value=123, step=1, label="Scenario seed")
         autoplay = gr.Checkbox(value=False, label="Autoplay (stream 60 ticks)")
 
-    start = gr.Button("Start / Reset")
-    step = gr.Button("Step 1 tick (5 min)")
-    run60 = gr.Button("Run 60 ticks (stream)")
-    kpis_btn = gr.Button("Compute KPI summary (10 episodes)")
+    start = gr.Button("Start / Reset")  # type: ignore
+    step = gr.Button("Step 1 tick (5 min)")  # type: ignore
+    run60 = gr.Button("Run 60 ticks (stream)")  # type: ignore
+    kpis_btn = gr.Button("Compute KPI summary (10 episodes)")  # type: ignore
 
     img = gr.Image(type="pil", label="Bangalore map (sim)")
     thought = gr.Textbox(label="Agent decision", lines=2)
@@ -218,7 +218,7 @@ with gr.Blocks(title="EV Grid Oracle") as demo:
         sess = new_session(seed_val)
         return sess, render_map(sess.env), "", "", ""
 
-    start.click(_start, inputs=[seed], outputs=[state, img, thought, kpi, kpi_summary])
+    start.click(_start, inputs=[seed], outputs=[state, img, thought, kpi, kpi_summary])  # type: ignore
 
     oracle_lora = gr.Textbox(
         label="Oracle LoRA repo id (optional)",
@@ -232,7 +232,7 @@ with gr.Blocks(title="EV Grid Oracle") as demo:
         im, t, k = step_once(sess, mode_val, oracle_lora_repo)
         return sess, im, t, k
 
-    step.click(
+    step.click(  # type: ignore
         _step, inputs=[state, mode, oracle_lora], outputs=[state, img, thought, kpi]
     )
 
@@ -243,7 +243,7 @@ with gr.Blocks(title="EV Grid Oracle") as demo:
             im, t, k = step_once(sess, mode_val, oracle_lora_repo)
             yield sess, im, t, k
 
-    run60.click(
+    run60.click(  # type: ignore
         _run60, inputs=[state, mode, oracle_lora], outputs=[state, img, thought, kpi]
     )
 
@@ -264,7 +264,7 @@ with gr.Blocks(title="EV Grid Oracle") as demo:
     def _kpis(seed_val: int, oracle_lora_repo: str):
         return compute_kpis(seed_val, episodes=10, oracle_lora_repo=oracle_lora_repo)
 
-    kpis_btn.click(_kpis, inputs=[seed, oracle_lora], outputs=[kpi_summary])
+    kpis_btn.click(_kpis, inputs=[seed, oracle_lora], outputs=[kpi_summary])  # type: ignore
 
 
 if __name__ == "__main__":
