@@ -13,6 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+      with:
+        lfs: true
 
     - name: Set up Python
       uses: actions/setup-python@v5
@@ -20,14 +22,11 @@ jobs:
         python-version: '3.12'
         cache: 'pip'
 
-    - name: Pull Git LFS objects
-      run: git lfs pull
-
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
-        pip install ruff mypy pydantic vulture radon
-        pip install -e ".[dev,demo]"
+        pip install uv
+        uv pip install --system -e ".[dev,demo]"
+        uv pip install --system ruff mypy pydantic vulture radon
 
     - name: Lint and Format with Ruff
       run: |
@@ -58,11 +57,13 @@ jobs:
         working-directory: ./web
     steps:
     - uses: actions/checkout@v4
+      with:
+        lfs: true
 
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '24'
+        node-version: '22'
         cache: 'npm'
         cache-dependency-path: ./web/package-lock.json
 
@@ -76,15 +77,20 @@ jobs:
       run: |
         npx prettier --check .
 
+    - name: Frontend Build Verification
+      run: npm run build
+
   duplicate-code:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v4
+      with:
+        lfs: true
 
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '24'
+        node-version: '22'
 
     - name: Install jscpd
       run: npm install -g jscpd
