@@ -1,0 +1,22 @@
+name: AI Code Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+  pull_request_review_comment:
+    types: [created]
+
+permissions:
+  pull-requests: write
+  contents: read
+
+jobs:
+  coderabbit:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.sender.type != 'Bot' }}
+    steps:
+      - name: CodeRabbit AI PR Review
+        uses: coderabbitai/openai-pr-reviewer@v1.5.0
+        with:
+          # Optional configurations can be added here
+          review_status: true
