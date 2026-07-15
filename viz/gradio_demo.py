@@ -202,10 +202,10 @@ with gr.Blocks(title="EV Grid Oracle") as demo:
         seed = gr.Slider(0, 10_000, value=123, step=1, label="Scenario seed")
         autoplay = gr.Checkbox(value=False, label="Autoplay (stream 60 ticks)")
 
-    start = gr.components.Button("Start / Reset")
-    step = gr.components.Button("Step 1 tick (5 min)")
-    run60 = gr.components.Button("Run 60 ticks (stream)")
-    kpis_btn = gr.components.Button("Compute KPI summary (10 episodes)")
+    start = gr.Button("Start / Reset")
+    step = gr.Button("Step 1 tick (5 min)")
+    run60 = gr.Button("Run 60 ticks (stream)")
+    kpis_btn = gr.Button("Compute KPI summary (10 episodes)")
 
     img = gr.Image(type="pil", label="Bangalore map (sim)")
     thought = gr.Textbox(label="Agent decision", lines=2)
