@@ -1,0 +1,16 @@
+frontend:
+  - web/**/*
+
+backend:
+  - server/**/*
+  - ev_grid_oracle/**/*
+
+tools:
+  - tools/**/*
+
+documentation:
+  - docs/**/*
+  - '**/*.md'
+
+github-actions:
+  - .github/workflows/*
