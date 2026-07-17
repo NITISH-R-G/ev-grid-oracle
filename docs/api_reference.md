@@ -1200,4 +1200,3 @@ Record frames as PNGs.
 #### `main()`
 
 ---
-

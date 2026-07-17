@@ -412,16 +412,6 @@ This document provides a high-level overview of the classes and functions within
 ### Functions
 - **`main`**
 
-## `tools/docs_sync.py`
-
-### Functions
-- **`extract_docstrings_from_file`**
-  - Parses a Python file and extracts docstrings for functions and classes.
-- **`collect_all_docstrings`**
-  - Walks the repository and collects all docstrings.
-- **`write_api_reference`**
-  - Writes the collected docstrings to a Markdown file.
-
 ## `tools/export_grpo_tensorboard_plots.py`
 
 ### Functions
@@ -604,4 +594,3 @@ This document provides a high-level overview of the classes and functions within
 - **`_step_action`**
 - **`record_phase`**
 - **`main`**
-
