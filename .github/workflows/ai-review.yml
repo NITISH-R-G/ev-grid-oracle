@@ -16,7 +16,7 @@ jobs:
     if: ${{ github.event.sender.type != 'Bot' && (github.event_name == 'pull_request' || github.event.issue.pull_request) }}
     steps:
       - name: Run CodeRabbit PR Review
-        uses: coderabbitai/coderabbit-pr-review@v1.22.0
+        uses: coderabbitai/coderabbit-pr-review@v1
         with:
           # Optional configurations can be added here
           # https://github.com/coderabbitai/coderabbit-pr-review
