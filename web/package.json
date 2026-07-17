@@ -17,7 +17,7 @@
     "vite": "^8.0.10"
   },
   "dependencies": {
-    "@deck.gl/core": "^9.3.1",
+    "@deck.gl/core": "^9.3.7",
     "@deck.gl/layers": "^9.3.1",
     "@deck.gl/mapbox": "^9.3.1",
     "deck.gl": "^9.3.1",
