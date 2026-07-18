@@ -16,6 +16,6 @@ jobs:
     if: ${{ github.event.sender.type != 'Bot' }}
     steps:
       - name: CodeRabbit AI PR Review
-        uses: coderabbitai/coderabbit-pr-review@v1
+        uses: coderabbitai/coderabbit-pr-review@master
         with:
           openai_api_key: ${{ secrets.OPENAI_API_KEY }}

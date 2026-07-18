@@ -27,11 +27,14 @@ jobs:
         with:
           python-version: '3.10'
 
+      - name: Install system dependencies
+        run: sudo apt-get update && sudo apt-get install -y xdg-utils
+
       - name: Install dependencies
         run: |
           pip install uv
           uv pip install --system -e ".[dev,demo]"
-          uv pip install --system ruff cyclonedx-bom pydeps xdg-utils
+          uv pip install --system ruff cyclonedx-bom pydeps
 
       - name: Run Ruff Format/Fix
         run: |
