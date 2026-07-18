@@ -1,0 +1,65 @@
+name: Repo Maintenance
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  schedule:
+    - cron: '0 3 * * *'
+
+permissions:
+  contents: write
+
+jobs:
+  maintenance:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+          fetch-depth: 0
+          lfs: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install system dependencies
+        run: sudo apt-get update && sudo apt-get install -y xdg-utils
+
+      - name: Install dependencies
+        run: |
+          pip install uv
+          uv pip install --system -e ".[dev,demo]"
+          uv pip install --system ruff cyclonedx-bom pydeps
+
+      - name: Run Ruff Format/Fix
+        run: |
+          uv run --with ruff ruff check --fix .
+          uv run --with ruff ruff format .
+
+      - name: Generate Knowledge Graph
+        run: python tools/generate_knowledge_graph.py || true
+
+      - name: Sync Documentation
+        run: python tools/docs_sync.py || true
+
+      - name: Generate Architecture Diagram
+        run: |
+          mkdir -p artifacts
+          pydeps ev_grid_oracle --noshow -o artifacts/architecture_diagram.svg || true
+
+      - name: Generate SBOM
+        run: |
+          cyclonedx-py environment -o bom.json || true
+
+      - name: Commit changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add -A
+          git commit -m "chore: automated repository maintenance [skip ci]" || echo "No changes to commit"
+          git push
