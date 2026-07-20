@@ -1,0 +1,31 @@
+backend:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'ev_grid_oracle/**'
+      - 'server/**'
+
+frontend:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'web/**'
+
+tools:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'tools/**'
+
+docs:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'docs/**'
+      - '*.md'
+
+github_actions:
+  - changed-files:
+    - any-glob-to-any-file:
+      - '.github/workflows/**'
+
+tests:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'tests/**'
