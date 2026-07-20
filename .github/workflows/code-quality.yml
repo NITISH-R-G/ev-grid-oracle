@@ -26,8 +26,9 @@ jobs:
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
-        pip install ruff mypy pydantic vulture radon
-        pip install -e ".[dev,demo]"
+        pip install uv
+        uv pip install --system -e ".[dev,demo]"
+        pip install ruff mypy vulture radon
 
     - name: Lint and Format with Ruff
       run: |
