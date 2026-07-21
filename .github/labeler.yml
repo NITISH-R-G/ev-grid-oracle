@@ -1,0 +1,25 @@
+# Add 'documentation' label to any changes within 'docs' folder
+documentation:
+  - any:
+      - 'docs/**/*'
+      - '*.md'
+
+# Add 'frontend' label to any changes in web/ directory
+frontend:
+  - any:
+      - 'web/**/*'
+
+# Add 'backend' label to any changes in server/ directory
+backend:
+  - any:
+      - 'server/**/*'
+
+# Add 'tools' label to any changes in tools/ directory
+tools:
+  - any:
+      - 'tools/**/*'
+
+# Add 'github-actions' label to changes in workflows
+github-actions:
+  - any:
+      - '.github/workflows/*'
