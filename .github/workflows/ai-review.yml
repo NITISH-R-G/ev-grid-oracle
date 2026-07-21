@@ -11,4 +11,4 @@ jobs:
       pull-requests: write
     steps:
       - name: CodeRabbit
-        uses: coderabbitai/coderabbit-pr-review@master
+        uses: coderabbitai/coderabbit-pr-review@main
