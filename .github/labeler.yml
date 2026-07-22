@@ -1,0 +1,23 @@
+frontend:
+  - changed-files:
+    - any-glob-to-any-file: "web/**/*"
+
+python:
+  - changed-files:
+    - any-glob-to-any-file:
+      - "**/*.py"
+      - "pyproject.toml"
+
+documentation:
+  - changed-files:
+    - any-glob-to-any-file:
+      - "**/*.md"
+      - "docs/**/*"
+
+github-actions:
+  - changed-files:
+    - any-glob-to-any-file: ".github/workflows/**/*"
+
+tests:
+  - changed-files:
+    - any-glob-to-any-file: "tests/**/*"
