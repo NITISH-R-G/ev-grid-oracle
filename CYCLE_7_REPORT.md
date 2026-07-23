@@ -18,11 +18,14 @@
 ## Sprint Plan
 - **Sprint Goal:** Establish an automated, server-side Continuous Integration pipeline to enforce repository engineering standards on every commit.
 - **Tasks:**
-  1. Write `CYCLE_7_REPORT.md` documenting the CI modernization.
-  2. Update GitHub Actions workflow (`.github/workflows/code-quality.yml`) to install dependencies properly and execute pytest.
+  1. Write `CYCLE_7_REPORT.md` documenting the CI modernization. Included justification for tools added to the CI.
+     - `bandit`: Added for continuous automated Static Application Security Testing (SAST).
+     - `openenv-core`: Added so the `openenv validate` CLI command is available for environment checks.
+     - `jscpd`: Pinned to version 4.0.0 due to platform dependency and flag incompatibility errors in v5+. Updated to ignore build artifacts (e.g. `**/dist/**`, `**/build/**`) to reduce false positives.
+  2. Update GitHub Actions workflow (`.github/workflows/code-quality.yml`) to install dependencies properly, run bandit, openenv validate, and execute pytest properly. Update jscpd step.
   3. Verify the files locally.
 - **Implementation Roadmap:** Write report -> Update `.github/workflows/code-quality.yml` -> Verify locally -> Commit.
-- **Expected Outcomes:** An automated CI pipeline that checks formatting, types and runs tests, providing a robust server-side quality gate.
+- **Expected Outcomes:** An automated CI pipeline that checks formatting, types, code duplication, security vulnerabilities, environment validity, and runs tests, providing a robust server-side quality gate.
 
 ## Technical Improvements
 - **DevOps/CI:** Shifted right by enforcing the local validation script in a server-side GitHub Actions CI pipeline, guaranteeing that no code can be merged without passing SAST, type-checking, linting, and unit tests.
