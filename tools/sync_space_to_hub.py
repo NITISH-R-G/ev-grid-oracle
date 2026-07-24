@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Push this repo to a Hugging Face *Space* without using `git push` (avoids Hub binary rejections).
 

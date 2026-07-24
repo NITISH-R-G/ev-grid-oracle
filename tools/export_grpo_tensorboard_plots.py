@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """
 Export loss + reward (or closest TRL scalar tags) from a TensorBoard run dir into PNGs.
 
