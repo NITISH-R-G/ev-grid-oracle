@@ -362,7 +362,7 @@ def _demo_session_get(session_id: str) -> EVGridCore | None:
     row = _demo_sessions.get(session_id)
     if row is None:
         return None
-    ts, core = row
+    _ts, core = row
     # touch (LRU-ish)
     _demo_sessions.move_to_end(session_id, last=True)
     _demo_sessions[session_id] = (time.time(), core)
@@ -502,7 +502,7 @@ class MAAutoStepRequest(BaseModel):
 
 @app.post("/ma/auto_step")
 def ma_auto_step(
-    req: Request, payload: MAAutoStepRequest = Body(...)
+    req: Request, payload: MAAutoStepRequest
 ) -> dict[str, Any]:
     _rate_limit(req, key="ma_auto_step", limit=120, window_sec=60)
     """
@@ -525,7 +525,7 @@ def ma_auto_step(
             text="Routing using heuristic baseline under grid constraints.",
         )
     else:
-        action, _txt, active, timed_out, skipped = _demo_oracle_act_with_guard(
+        action, _txt, active, _timed_out, _skipped = _demo_oracle_act_with_guard(
             st=st, core=sess.core, oracle_lora_repo=payload.oracle_lora_repo
         )
         fleet_action = action
@@ -604,7 +604,7 @@ def ma_state(req: Request, session_id: str = Query(...)) -> dict[str, Any]:
 
 
 @app.post("/ma/step")
-def ma_step(req: Request, payload: MultiAgentStepRequest = Body(...)) -> dict[str, Any]:
+def ma_step(req: Request, payload: MultiAgentStepRequest) -> dict[str, Any]:
     _rate_limit(req, key="ma_step", limit=120, window_sec=60)
     t0 = time.time()
     rid = _request_id(req)
@@ -696,7 +696,7 @@ def _station_nodes(core: EVGridCore) -> list[dict[str, Any]]:
 
 
 @app.post("/demo/new")
-def demo_new(req: Request, payload: DemoNewRequest = Body(...)) -> dict[str, Any]:
+def demo_new(req: Request, payload: DemoNewRequest) -> dict[str, Any]:
     _rate_limit(req, key="demo_new", limit=30, window_sec=60)
     t0 = time.time()
     rid = _request_id(req)
@@ -797,7 +797,7 @@ class DemoSpawnVehicleRequest(BaseModel):
 
 @app.post("/demo/spawn_vehicle")
 def demo_spawn_vehicle(
-    req: Request, payload: DemoSpawnVehicleRequest = Body(...)
+    req: Request, payload: DemoSpawnVehicleRequest
 ) -> dict[str, Any]:
     """
     Spawn a new EV at a valid road location (away from stations) and immediately compute
@@ -937,10 +937,10 @@ def demo_spawn_vehicle(
 @app.post("/demo/step")
 def demo_step(
     req: Request,
-    session_id: str = Body(...),
-    mode: Literal["baseline", "oracle"] = Body("baseline"),
+    session_id: str = Body(..., embed=True),
+    mode: Literal["baseline", "oracle"] = Body("baseline", embed=True),
     oracle_lora_repo: str = Body("", embed=True),
-    forced_action: dict[str, Any] | None = Body(None),
+    forced_action: dict[str, Any] | None = Body(None, embed=True),
 ) -> dict[str, Any]:
     _rate_limit(req, key="demo_step", limit=120, window_sec=60)
     t0 = time.time()
