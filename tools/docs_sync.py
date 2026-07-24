@@ -1,36 +1,37 @@
 import ast
 import logging
 import os
-from typing import Any, Dict, List
+from typing import Any
 
+logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 
-def extract_info_from_ast(filepath: str) -> Dict[str, List[Dict[str, Any]]]:
-    info: Dict[str, List[Dict[str, Any]]] = {"classes": [], "functions": []}
+def extract_info_from_ast(filepath: str) -> dict[str, list[dict[str, Any]]]:
+    info: dict[str, list[dict[str, Any]]] = {"classes": [], "functions": []}
 
     try:
         with open(filepath, "r", encoding="utf-8") as f:
             source = f.read()
-    except Exception as e:
-        logging.warning(f"Could not read file {filepath}: {e}")
+    except OSError as e:
+        logger.warning(f"Could not read file {filepath}: {e}")
         return info
 
     try:
         tree = ast.parse(source)
     except SyntaxError as e:
-        logging.warning(f"Syntax error in {filepath}: {e}")
+        logger.warning(f"Syntax error in {filepath}: {e}")
         return info
 
     for node in ast.walk(tree):
         if isinstance(node, ast.ClassDef):
-            class_info: Dict[str, Any] = {
+            class_info: dict[str, Any] = {
                 "name": node.name,
                 "docstring": ast.get_docstring(node),
             }
             info["classes"].append(class_info)
         elif isinstance(node, ast.FunctionDef):
-            func_info: Dict[str, Any] = {
+            func_info: dict[str, Any] = {
                 "name": node.name,
                 "docstring": ast.get_docstring(node),
             }
@@ -39,7 +40,7 @@ def extract_info_from_ast(filepath: str) -> Dict[str, List[Dict[str, Any]]]:
     return info
 
 
-def generate_markdown(filepath: str, info: Dict[str, List[Dict[str, Any]]]) -> str:
+def generate_markdown(filepath: str, info: dict[str, list[dict[str, Any]]]) -> str:
     md_content = f"# Documentation for `{filepath}`\n\n"
 
     if info["classes"]:
@@ -98,20 +99,19 @@ def sync_docs(root_dir: str = ".") -> None:
                     doc_filename = filepath.replace(os.path.sep, "_").replace(
                         ".py", ".md"
                     )
-                    if doc_filename.startswith("._"):
-                        doc_filename = doc_filename[2:]
+                    doc_filename = doc_filename.removeprefix("._")
 
                     doc_path = os.path.join(docs_dir, doc_filename)
                     with open(doc_path, "w", encoding="utf-8") as f:
                         f.write(md_content)
 
-                    logging.info(f"Generated docs for {filepath} at {doc_path}")
+                    logger.info(f"Generated docs for {filepath} at {doc_path}")
 
 
 def main() -> None:
-    logging.info("Starting documentation sync...")
+    logger.info("Starting documentation sync...")
     sync_docs()
-    logging.info("Documentation sync complete.")
+    logger.info("Documentation sync complete.")
 
 
 if __name__ == "__main__":

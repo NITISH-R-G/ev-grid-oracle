@@ -2,37 +2,38 @@ import ast
 import json
 import logging
 import os
-from typing import Any, Dict, List
+from typing import Any
 
+logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
 
 
-def extract_info_from_ast(filepath: str) -> Dict[str, List[Dict[str, Any]]]:
-    info: Dict[str, List[Dict[str, Any]]] = {"classes": [], "functions": []}
+def extract_info_from_ast(filepath: str) -> dict[str, list[dict[str, Any]]]:
+    info: dict[str, list[dict[str, Any]]] = {"classes": [], "functions": []}
 
     try:
         with open(filepath, "r", encoding="utf-8") as f:
             source = f.read()
-    except Exception as e:
-        logging.warning(f"Could not read file {filepath}: {e}")
+    except OSError as e:
+        logger.warning(f"Could not read file {filepath}: {e}")
         return info
 
     try:
         tree = ast.parse(source)
     except SyntaxError as e:
-        logging.warning(f"Syntax error in {filepath}: {e}")
+        logger.warning(f"Syntax error in {filepath}: {e}")
         return info
 
     for node in ast.walk(tree):
         if isinstance(node, ast.ClassDef):
-            class_info: Dict[str, Any] = {
+            class_info: dict[str, Any] = {
                 "name": node.name,
                 "docstring": ast.get_docstring(node),
                 "line_number": node.lineno,
             }
             info["classes"].append(class_info)
         elif isinstance(node, ast.FunctionDef):
-            func_info: Dict[str, Any] = {
+            func_info: dict[str, Any] = {
                 "name": node.name,
                 "docstring": ast.get_docstring(node),
                 "line_number": node.lineno,
@@ -42,8 +43,8 @@ def extract_info_from_ast(filepath: str) -> Dict[str, List[Dict[str, Any]]]:
     return info
 
 
-def generate_knowledge_graph(root_dir: str = ".") -> Dict[str, Any]:
-    graph: Dict[str, Any] = {}
+def generate_knowledge_graph(root_dir: str = ".") -> dict[str, Any]:
+    graph: dict[str, Any] = {}
 
     skip_dirs = {
         ".git",
@@ -75,7 +76,7 @@ def generate_knowledge_graph(root_dir: str = ".") -> Dict[str, Any]:
 
 
 def main() -> None:
-    logging.info("Generating knowledge graph...")
+    logger.info("Generating knowledge graph...")
     graph = generate_knowledge_graph()
 
     output_dir = "artifacts"
@@ -85,7 +86,7 @@ def main() -> None:
     with open(output_file, "w", encoding="utf-8") as f:
         json.dump(graph, f, indent=2)
 
-    logging.info(f"Knowledge graph written to {output_file}")
+    logger.info(f"Knowledge graph written to {output_file}")
 
 
 if __name__ == "__main__":
