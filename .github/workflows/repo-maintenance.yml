@@ -1,0 +1,68 @@
+name: Repository Maintenance
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  schedule:
+    - cron: '0 0 * * *' # Daily at midnight UTC
+
+permissions:
+  contents: write
+
+jobs:
+  maintenance:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+          lfs: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install uv
+          uv pip install --system -e ".[dev,demo]"
+          uv pip install --system pydeps cyclonedx-bom
+
+      - name: Autofix Code Quality
+        run: |
+          ruff check . --fix
+          ruff format .
+
+      - name: Generate Knowledge Graph
+        run: |
+          python tools/generate_knowledge_graph.py
+
+      - name: Sync API Documentation
+        run: |
+          python tools/docs_sync.py
+
+      - name: Generate Architecture Diagrams
+        run: |
+          sudo apt-get update && sudo apt-get install -y xdg-utils graphviz
+          mkdir -p artifacts
+          pydeps ev_grid_oracle --output artifacts/architecture_dependency_graph.svg || echo "Pydeps failed"
+
+      - name: Generate SBOM
+        run: |
+          mkdir -p artifacts
+          cyclonedx-py environment -o artifacts/bom.json
+
+      - name: Commit and Push changes
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add .
+          git commit -m "chore(auto): Update documentation, diagrams, SBOM, and auto-format [skip ci]" || echo "No changes to commit"
+          git push
