@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, cast
+from typing import Any, ClassVar, cast
 
 from ev_grid_oracle.models import EVGridAction, GridState
 from ev_grid_oracle.parsing import parse_action
@@ -19,7 +19,7 @@ class OracleRuntime:
     """
 
     _lock = None
-    _loaded: dict[tuple[str, str, str], tuple[object, object]] = {}
+    _loaded: ClassVar[dict[tuple[str, str, str], tuple[object, object]]] = {}
 
     @classmethod
     def load(
@@ -40,7 +40,7 @@ class OracleRuntime:
             import torch
             from peft import PeftModel
             from transformers import AutoModelForCausalLM, AutoTokenizer
-        except Exception:
+        except ImportError:
             return None
 
         dtype = torch.float16 if device.startswith("cuda") else torch.float32
@@ -93,7 +93,7 @@ class OracleAgent:
         # Lazy import to keep Space CPU demo alive even without ML deps.
         try:
             import torch
-        except Exception:
+        except ImportError:
             # No deps -> baseline fallback
             self.lora_repo_id = None
             return
