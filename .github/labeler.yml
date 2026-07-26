@@ -1,0 +1,29 @@
+backend:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'ev_grid_oracle/**/*'
+      - 'server/**/*'
+      - 'tools/**/*'
+
+frontend:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'web/**/*'
+
+documentation:
+  - changed-files:
+    - any-glob-to-any-file:
+      - '**/*.md'
+      - 'docs/**/*'
+
+testing:
+  - changed-files:
+    - any-glob-to-any-file:
+      - 'tests/**/*'
+
+ci:
+  - changed-files:
+    - any-glob-to-any-file:
+      - '.github/**/*'
+      - 'Dockerfile'
+      - 'openenv.yaml'
