@@ -1,16 +1,16 @@
 import ast
 import os
-from typing import Any, Dict, List
+from typing import Any
 
 
-def extract_docstrings(filepath: str) -> List[Dict[str, Any]]:
+def extract_docstrings(filepath: str) -> list[dict[str, Any]]:
     with open(filepath, "r", encoding="utf-8") as f:
         try:
             tree = ast.parse(f.read(), filename=filepath)
         except Exception:
             return []
 
-    docs: List[Dict[str, Any]] = []
+    docs: list[dict[str, Any]] = []
 
     # Get module level docstring
     module_doc = ast.get_docstring(tree)

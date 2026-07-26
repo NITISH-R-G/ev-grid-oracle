@@ -1,10 +1,10 @@
 import ast
 import json
 import os
-from typing import Any, Dict, List
+from typing import Any
 
 
-def extract_info(filepath: str) -> List[Dict[str, Any]]:
+def extract_info(filepath: str) -> list[dict[str, Any]]:
     with open(filepath, "r", encoding="utf-8") as f:
         try:
             tree = ast.parse(f.read(), filename=filepath)
@@ -29,8 +29,8 @@ def extract_info(filepath: str) -> List[Dict[str, Any]]:
     return info
 
 
-def generate_knowledge_graph(src_dirs: List[str], out_file: str) -> None:
-    graph: Dict[str, List[Dict[str, Any]]] = {}
+def generate_knowledge_graph(src_dirs: list[str], out_file: str) -> None:
+    graph: dict[str, list[dict[str, Any]]] = {}
     for src_dir in src_dirs:
         for root, _, files in os.walk(src_dir):
             for file in files:
