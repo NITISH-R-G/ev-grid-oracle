@@ -31,3 +31,7 @@ ev_grid_oracle.egg-info/
 .coverage
 dashboard_output/
 build/
+
+# Static analysis caches
+.mypy_cache/
+.ruff_cache/
