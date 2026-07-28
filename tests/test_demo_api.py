@@ -10,16 +10,18 @@ def test_demo_new_and_step_roundtrip():
     r = c.post("/demo/new", json={"seed": 123})
     assert r.status_code == 200
     data = r.json()
-    assert isinstance(data.get("request_id"), str) and data["request_id"]
-    assert (
-        "session_id" in data
-        and isinstance(data["session_id"], str)
-        and data["session_id"]
-    )
-    assert "obs" in data and isinstance(data["obs"], dict)
-    assert "station_nodes" in data and isinstance(data["station_nodes"], list)
+    assert isinstance(data.get("request_id"), str)
+    assert data["request_id"]
+    assert "session_id" in data
+    assert isinstance(data["session_id"], str)
+    assert data["session_id"]
+    assert "obs" in data
+    assert isinstance(data["obs"], dict)
+    assert "station_nodes" in data
+    assert isinstance(data["station_nodes"], list)
     assert data.get("scenario") == "baseline"
-    assert isinstance(data.get("sim_version"), str) and data["sim_version"]
+    assert isinstance(data.get("sim_version"), str)
+    assert data["sim_version"]
     assert isinstance(data.get("scenario_schedule"), list)
 
     sid = data["session_id"]
@@ -29,11 +31,15 @@ def test_demo_new_and_step_roundtrip():
     )
     assert r2.status_code == 200
     data2 = r2.json()
-    assert isinstance(data2.get("request_id"), str) and data2["request_id"]
-    assert "obs" in data2 and isinstance(data2["obs"], dict)
-    assert "event" in data2 and isinstance(data2["event"], dict)
+    assert isinstance(data2.get("request_id"), str)
+    assert data2["request_id"]
+    assert "obs" in data2
+    assert isinstance(data2["obs"], dict)
+    assert "event" in data2
+    assert isinstance(data2["event"], dict)
     assert data2.get("mode") == "baseline"
-    assert "action" in data2 and isinstance(data2["action"], dict)
+    assert "action" in data2
+    assert isinstance(data2["action"], dict)
     assert "oracle_llm_active" in data2
     assert data2.get("oracle_timed_out") is False
     assert data2.get("oracle_skipped_env") is False
@@ -41,7 +47,8 @@ def test_demo_new_and_step_roundtrip():
     assert isinstance(data2.get("scenario_events_at_tick"), list)
     assert isinstance(data2.get("anti_cheat_flags"), list)
     assert isinstance(data2.get("anti_cheat_details"), dict)
-    assert isinstance(data2.get("sim_version"), str) and data2["sim_version"]
+    assert isinstance(data2.get("sim_version"), str)
+    assert data2["sim_version"]
     assert isinstance(data2.get("role_kpis"), dict)
     assert isinstance(data2.get("role_reward_breakdown"), dict)
 
@@ -63,7 +70,8 @@ def test_demo_spawn_vehicle_route_event():
     )
     assert r2.status_code == 200
     data = r2.json()
-    assert isinstance(data.get("request_id"), str) and data["request_id"]
+    assert isinstance(data.get("request_id"), str)
+    assert data["request_id"]
     assert data.get("session_id") == sid
     assert isinstance(data.get("spawned_ev"), dict)
     assert float(data["spawned_ev"]["battery_pct_0_100"]) < 30.0
@@ -103,9 +111,12 @@ def test_health_shape():
     assert r.status_code == 200
     data = r.json()
     assert data.get("ok") is True
-    assert isinstance(data.get("request_id"), str) and data["request_id"]
-    assert isinstance(data.get("sim_version"), str) and data["sim_version"]
-    assert isinstance(data.get("schema_version"), str) and data["schema_version"]
+    assert isinstance(data.get("request_id"), str)
+    assert data["request_id"]
+    assert isinstance(data.get("sim_version"), str)
+    assert data["sim_version"]
+    assert isinstance(data.get("schema_version"), str)
+    assert data["schema_version"]
     assert isinstance(data.get("router_ok"), bool)
 
 
@@ -134,7 +145,8 @@ def test_ma_new_and_step_roundtrip():
     r = c.post("/ma/new", json={"seed": 123, "scenario": "baseline"})
     assert r.status_code == 200
     data = r.json()
-    assert isinstance(data.get("request_id"), str) and data["request_id"]
+    assert isinstance(data.get("request_id"), str)
+    assert data["request_id"]
     sid = data["session_id"]
     assert isinstance(data.get("grid_directive"), dict)
 
@@ -159,7 +171,8 @@ def test_ma_new_and_step_roundtrip():
     r2 = c.post("/ma/step", json=step)
     assert r2.status_code == 200
     data2 = r2.json()
-    assert isinstance(data2.get("request_id"), str) and data2["request_id"]
+    assert isinstance(data2.get("request_id"), str)
+    assert data2["request_id"]
     assert data2["session_id"] == sid
     assert isinstance(data2.get("messages"), list)
     assert isinstance(data2.get("resolved_action"), dict)

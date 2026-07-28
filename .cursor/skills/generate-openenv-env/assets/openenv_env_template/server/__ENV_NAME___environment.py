@@ -72,7 +72,7 @@ class __ENV_CLASS_NAME__Environment(Environment):
             reward=0.0,
         )
 
-    def step(self, action: __ENV_CLASS_NAME__Action) -> __ENV_CLASS_NAME__Observation:  # type: ignore[override]
+    def step(self, action: __ENV_CLASS_NAME__Action) -> __ENV_CLASS_NAME__Observation:  # type: ignore[override]  # noqa: E501
         """
         Execute a step in the environment by echoing the message.
 

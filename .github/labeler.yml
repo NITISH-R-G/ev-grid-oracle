@@ -1,0 +1,17 @@
+frontend:
+  - web/**/*
+
+python:
+  - "**/*.py"
+  - pyproject.toml
+  - requirements.txt
+
+docs:
+  - "**/*.md"
+  - docs/**/*
+
+github_actions:
+  - .github/workflows/**/*
+
+tools:
+  - tools/**/*

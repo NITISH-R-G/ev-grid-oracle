@@ -2,13 +2,13 @@
 """
 Export loss + reward (or closest TRL scalar tags) from a TensorBoard run dir into PNGs.
 
-Hackathon requirement: committed plots from a *real* GRPO run. After `trainer.train()` in
-`training/train_grpo.ipynb`, copy `ev_oracle_grpo_road/` from Colab (or run locally), then:
+Hackathon requirement: committed plots from a *real* GRPO run. After `trainer.train()` in  # noqa: E501
+`training/train_grpo.ipynb`, copy `ev_oracle_grpo_road/` from Colab (or run locally), then:  # noqa: E501
 
   pip install tensorboard matplotlib
-  python tools/export_grpo_tensorboard_plots.py --logdir ev_oracle_grpo_road --out-dir artifacts
+  python tools/export_grpo_tensorboard_plots.py --logdir ev_oracle_grpo_road --out-dir artifacts  # noqa: E501
 
-Writes e.g. artifacts/grpo_loss.png and artifacts/grpo_reward.png (filenames depend on tags found).
+Writes e.g. artifacts/grpo_loss.png and artifacts/grpo_reward.png (filenames depend on tags found).  # noqa: E501
 """
 
 from __future__ import annotations
@@ -97,19 +97,17 @@ def main() -> None:
         path = out_dir / out_name
         fig.savefig(path, dpi=150)
         plt.close(fig)
-        print(f"Wrote {path}")
 
-    print("Scalar tags found:", ", ".join(tags))
     if loss_tag:
         safe = "grpo_loss.png"
         plot_tag(loss_tag, safe)
     else:
-        print("WARN: no loss-like tag; skip loss PNG")
+        pass
 
     if reward_tag:
         plot_tag(reward_tag, "grpo_reward.png")
     else:
-        print("WARN: no reward-like tag; skip reward PNG")
+        pass
 
     if not loss_tag and not reward_tag:
         raise SystemExit("Could not infer loss/reward tags; inspect list above.")

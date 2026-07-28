@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 """
-Push this repo to a Hugging Face *Space* without using `git push` (avoids Hub binary rejections).
+Push this repo to a Hugging Face *Space* without using `git push` (avoids Hub binary rejections).  # noqa: E501
 
-Docker Spaces often have **no** “link GitHub repo” in Settings — the Space is its own Hub git repo.
-Use this script after `git push origin main`; it uploads sources + a fresh `web/dist` via the Hub API.
+Docker Spaces often have **no** “link GitHub repo” in Settings — the Space is its own Hub git repo.  # noqa: E501
+Use this script after `git push origin main`; it uploads sources + a fresh `web/dist` via the Hub API.  # noqa: E501
 
 Usage:
   cd repo root
   npm --prefix web run build    # or let this script run it (default)
   python tools/sync_space_to_hub.py
 
-Requires: `pip install huggingface_hub`, token with write access (`HF_TOKEN` or `huggingface-cli login`).
+Requires: `pip install huggingface_hub`, token with write access (`HF_TOKEN` or `huggingface-cli login`).  # noqa: E501
 """
 
 from __future__ import annotations
@@ -54,26 +54,18 @@ def main() -> int:
     args = ap.parse_args()
 
     if not args.skip_build:
-        print("Running: npm --prefix web run build...")
         npm = "npm.cmd" if os.name == "nt" else "npm"
         subprocess.run([npm, "--prefix", "web", "run", "build"], cwd=ROOT, check=True)  # nosec B603
 
     from huggingface_hub import HfApi
 
     api = HfApi()
-    print(
-        f"Uploading {ROOT} -> {args.repo_id} (repo_type=space), ignoring heavy paths..."
-    )
-    info = api.upload_folder(
+    api.upload_folder(
         repo_id=args.repo_id,
         folder_path=str(ROOT),
         repo_type="space",
         ignore_patterns=DEFAULT_IGNORE,
         commit_message="sync: push from tools/sync_space_to_hub.py (no artifacts/)",
-    )
-    print("Done:", info)
-    print(
-        "Next: Space Settings -> Restart or Factory rebuild if the container does not pick up static files."
     )
     return 0
 

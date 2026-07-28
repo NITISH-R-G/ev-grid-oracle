@@ -6,7 +6,7 @@ from ev_grid_oracle.models import ActionType, ChargeRate, EVGridAction, GridStat
 
 def baseline_policy(state: GridState, graph) -> EVGridAction:
     """
-    Greedy baseline: pick station minimizing (travel_time + wait + stress + price), avoid full.
+    Greedy baseline: pick station minimizing (travel_time + wait + stress + price), avoid full.  # noqa: E501
 
     Deterministic given state.
     """

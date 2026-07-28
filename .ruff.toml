@@ -1,2 +1,39 @@
+# Default Ruff configuration
+
 [lint]
-ignore = ["E402"]
+select = ["E", "F", "UP", "B", "SIM", "I", "BLE", "RUF", "C4", "PT", "RET", "ARG", "PTH", "ERA", "PL", "N", "T20", "RET504", "LOG"]
+ignore = [
+    "BLE001",
+    "B008",
+    "LOG015",
+    "B017",
+    "B023",
+    "C401",
+    "TRY004",
+    "PLC0206",
+    "RUF007",
+    "RUF015",
+    "E501",
+    "PLR2004",
+    "ARG002",
+    "ERA001",
+    "ARG001",
+    "PTH103",
+    "PTH118",
+    "PTH123",
+    "E402",
+    "PLC0415",
+    "PLR0912",
+    "RUF001",
+    "PLW2901",
+    "PLW0603",
+    "PLR0913",
+    "B904",
+    "PLR0915",
+    "PT011",
+    "PTH110",
+    "PTH107",
+    "SIM102",
+    "RUF012",
+    "PLR0911"
+]

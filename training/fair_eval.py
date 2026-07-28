@@ -222,8 +222,8 @@ def plot_fair_eval(binary_rates: dict[str, Any], out_path: Path) -> None:
         mids: list[float], lows: list[float], highs: list[float]
     ) -> list[list[float]]:
         return [
-            [m - lo for m, lo in zip(mids, lows)],
-            [hi - m for m, hi in zip(mids, highs)],
+            [m - lo for m, lo in zip(mids, lows, strict=False)],
+            [hi - m for m, hi in zip(mids, highs, strict=False)],
         ]
 
     eb_b = ax.errorbar(
@@ -291,8 +291,6 @@ def main() -> None:
     out_chart = Path(args.out_chart)
     out_chart.parent.mkdir(parents=True, exist_ok=True)
     plot_fair_eval(rates_block["binary_rates"], out_chart)
-    print(f"Wrote {out_json}")
-    print(f"Wrote {out_chart}")
 
 
 if __name__ == "__main__":

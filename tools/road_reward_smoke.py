@@ -12,8 +12,8 @@ def main() -> int:
     st = obs.state
     nb = list(core.g.neighbors(st.node))[0]
 
-    ok = f"CURRENT_NODE: {st.node}\nNEXT_NODE: {int(nb)}\nREASON: go\nCONFIDENCE: 0.7\n"
-    bad = f"CURRENT_NODE: {st.node + 999}\nNEXT_NODE: {int(nb)}\nREASON: hack\nCONFIDENCE: 0.7\n"
+    f"CURRENT_NODE: {st.node}\nNEXT_NODE: {int(nb)}\nREASON: go\nCONFIDENCE: 0.7\n"
+    f"CURRENT_NODE: {st.node + 999}\nNEXT_NODE: {int(nb)}\nREASON: hack\nCONFIDENCE: 0.7\n"
 
     r = re.compile(r"CURRENT_NODE:\s*(\d+)\s*\nNEXT_NODE:\s*(\d+)\s*\n", re.I)
 
@@ -38,8 +38,6 @@ def main() -> int:
         cheat = -1.0 if ob.anti_cheat_flags else 0.0
         return base + cheat
 
-    print("ok", reward(ok))
-    print("bad", reward(bad))
     return 0
 
 

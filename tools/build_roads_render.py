@@ -5,7 +5,6 @@ import json
 from pathlib import Path
 from typing import Any
 
-
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -77,7 +76,6 @@ def main() -> int:
         rows.append({"highway": hw, "path": out_coords})
 
     out.write_text(json.dumps(rows, separators=(",", ":")), encoding="utf-8")
-    print(f"Wrote {out} paths={len(rows)} every={every}")
     return 0
 
 

@@ -32,7 +32,7 @@ try:
     from openenv.core.env_server.http_server import create_app
 except ImportError as e:  # pragma: no cover
     raise ImportError(
-        "openenv is required for the web interface. Install dependencies with '\n    uv sync\n'"
+        "openenv is required for the web interface. Install dependencies with '\n    uv sync\n'"  # noqa: E501
     ) from e
 
 try:
@@ -49,7 +49,7 @@ app = create_app(
     __ENV_CLASS_NAME__Action,
     __ENV_CLASS_NAME__Observation,
     env_name="__ENV_NAME__",
-    max_concurrent_envs=1,  # increase this number to allow more concurrent WebSocket sessions
+    max_concurrent_envs=1,  # increase this number to allow more concurrent WebSocket sessions  # noqa: E501
 )
 
 
