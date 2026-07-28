@@ -111,9 +111,6 @@ def main() -> None:
         json.dumps({"type": "FeatureCollection", "features": out_feats}, indent=2),
         encoding="utf-8",
     )
-    print(
-        f"Wrote {out} with {len(out_feats)} features (bbox around {len(STATIONS)} stations)"
-    )
 
 
 if __name__ == "__main__":

@@ -1,13 +1,13 @@
-import os
 import ast
 import logging
+import os
 
 logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
 
 
 def parse_file_for_docs(filepath: str) -> str:
     try:
-        with open(filepath, "r", encoding="utf-8") as f:
+        with open(filepath, encoding="utf-8") as f:
             source = f.read()
     except Exception as e:
         logging.warning(f"Could not read {filepath}: {e}")
@@ -31,9 +31,7 @@ def parse_file_for_docs(filepath: str) -> str:
             doc = ast.get_docstring(node)
             if doc:
                 content += f"{doc}\n\n"
-        elif isinstance(node, ast.FunctionDef) or isinstance(
-            node, ast.AsyncFunctionDef
-        ):
+        elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
             # Only document top-level functions or public methods (simplified)
             if not node.name.startswith("_"):
                 content += f"### Function: `{node.name}`\n\n"

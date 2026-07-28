@@ -1,11 +1,11 @@
-import os
 import ast
 import json
-from typing import Dict, List, Any
+import os
+from typing import Any
 
 
-def parse_file(filepath: str) -> Dict[str, Any]:
-    with open(filepath, "r", encoding="utf-8") as f:
+def parse_file(filepath: str) -> dict[str, Any]:
+    with open(filepath, encoding="utf-8") as f:
         source = f.read()
 
     try:
@@ -19,16 +19,14 @@ def parse_file(filepath: str) -> Dict[str, Any]:
     for node in ast.walk(tree):
         if isinstance(node, ast.ClassDef):
             classes.append({"name": node.name, "docstring": ast.get_docstring(node)})
-        elif isinstance(node, ast.FunctionDef) or isinstance(
-            node, ast.AsyncFunctionDef
-        ):
+        elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
             functions.append({"name": node.name, "docstring": ast.get_docstring(node)})
 
     return {"filepath": filepath, "classes": classes, "functions": functions}
 
 
 def main() -> None:
-    knowledge_graph: Dict[str, List[Dict[str, Any]]] = {"files": []}
+    knowledge_graph: dict[str, list[dict[str, Any]]] = {"files": []}
 
     for root, _, files in os.walk("."):
         if (

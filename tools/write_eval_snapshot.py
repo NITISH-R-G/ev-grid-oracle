@@ -27,7 +27,6 @@ def main() -> None:
         str(out),
     ]
     subprocess.run(cmd, check=True, cwd=str(root), env=env)  # nosec B603
-    print(f"Wrote {out}")
 
 
 if __name__ == "__main__":

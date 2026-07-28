@@ -33,7 +33,7 @@ def rollout_deterministic_5ticks(
     prev_state: GridState, action: EVGridAction
 ) -> GridState:
     """
-    Deterministic verifier rollout: apply action once, then advance 5 ticks with *no new arrivals*.
+    Deterministic verifier rollout: apply action once, then advance 5 ticks with *no new arrivals*.  # noqa: E501
     This is intentionally verifier-friendly (stable + reproducible) for RLVR.
     """
     st = copy.deepcopy(prev_state)

@@ -19,13 +19,11 @@ class EVGridEnvironment(Environment):
 
     def reset(self, seed=None, episode_id=None, **_kwargs) -> EVGridObservation:
         self._state = State(episode_id=episode_id or str(uuid4()), step_count=0)
-        obs = self._core.reset(seed=seed)
-        return obs
+        return self._core.reset(seed=seed)
 
     def step(self, action: EVGridAction) -> EVGridObservation:
         self._state.step_count += 1
-        obs = self._core.step(action)
-        return obs
+        return self._core.step(action)
 
     @property
     def state(self) -> State:

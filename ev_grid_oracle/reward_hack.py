@@ -49,10 +49,9 @@ class RewardHackDetector:
                     f"ev_id={k} defer_streak={self.defer_streak[k]}",
                     penalty=-2.5,
                 )
-        else:
-            # reset streak when EV is acted on non-defer
-            if str(action.ev_id) in self.defer_streak:
-                self.defer_streak[str(action.ev_id)] = 0
+        # reset streak when EV is acted on non-defer
+        elif str(action.ev_id) in self.defer_streak:
+            self.defer_streak[str(action.ev_id)] = 0
 
         # 2) Station concentration: repeatedly routing into the same station
         if action.action_type == ActionType.route and action.station_id:

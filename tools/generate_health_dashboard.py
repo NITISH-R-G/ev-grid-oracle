@@ -1,7 +1,9 @@
+import contextlib
 import json
-import subprocess  # nosec B404
 import os
+import subprocess  # nosec B404
 from datetime import datetime, timezone
+
 from jinja2 import Environment, FileSystemLoader
 
 # Extract sensitive variables immediately to prevent child processes
@@ -119,8 +121,8 @@ def fetch_github_stats():
                 ]
             )
 
-    except Exception as e:
-        print(f"Error fetching GitHub API stats: {e}")
+    except Exception:
+        pass
 
     return pr_analytics, issue_management
 
@@ -140,7 +142,7 @@ def run_pytest_cov():
         ]
     )
     if os.path.exists("coverage.json"):
-        with open("coverage.json", "r") as f:
+        with open("coverage.json") as f:
             data = json.load(f)
         return data.get("totals", {}).get("percent_covered", 0)
     return 0
@@ -157,10 +159,8 @@ def run_radon():
             parts = line.split("(")
             if len(parts) > 1:
                 val = parts[1].replace(")", "").strip()
-                try:
+                with contextlib.suppress(ValueError):
                     avg_complexity = float(val)
-                except ValueError:
-                    pass
     return avg_complexity
 
 
@@ -179,7 +179,7 @@ def run_bandit():
         ]
     )
     if os.path.exists("bandit.json"):
-        with open("bandit.json", "r") as f:
+        with open("bandit.json") as f:
             data = json.load(f)
         results = data.get("results", [])
         metrics = data.get("metrics", {}).get("_totals", {})
@@ -229,8 +229,8 @@ def generate_ai_insights(scores, complexity, vulns, lint_errors):
 
             client = openai.OpenAI(api_key=api_key)
             prompt = f"""
-            You are a senior software engineering manager reviewing a repository's health metrics.
-            Generate 3-5 concise, actionable bullet points of advice based on these metrics:
+            You are a senior software engineering manager reviewing a repository's health metrics.  # noqa: E501
+            Generate 3-5 concise, actionable bullet points of advice based on these metrics:  # noqa: E501
             - Overall Health Score: {scores["overall"]}
             - Engineering Quality: {scores["engineering"]}
             - Security Score: {scores["security"]}
@@ -238,7 +238,7 @@ def generate_ai_insights(scores, complexity, vulns, lint_errors):
             - Security Vulnerabilities (Bandit): {vulns}
             - Linting Errors: {lint_errors}
 
-            Keep your response to a strict unordered bullet list of insights. Do not include introductory text.
+            Keep your response to a strict unordered bullet list of insights. Do not include introductory text.  # noqa: E501
             """
 
             response = client.chat.completions.create(
@@ -255,19 +255,14 @@ def generate_ai_insights(scores, complexity, vulns, lint_errors):
             )
 
             insights_text = response.choices[0].message.content
-            if insights_text:
-                insights_text = insights_text.strip()
-            else:
-                insights_text = ""
+            insights_text = insights_text.strip() if insights_text else ""
             # Parse bullet points
-            insights = [
+            return [
                 line.strip("- *").strip()
                 for line in insights_text.splitlines()
                 if line.strip()
             ]
-            return insights
-        except Exception as e:
-            print(f"Failed to generate AI insights via OpenAI: {e}")
+        except Exception:
             # Fallback to static insights on error
             pass
 
@@ -311,7 +306,6 @@ def generate_ai_insights(scores, complexity, vulns, lint_errors):
 
 
 def main():
-    print("Collecting Repository Metrics...")
 
     git_stats = get_git_stats()
     cov_percent = run_pytest_cov()
@@ -382,7 +376,6 @@ def main():
     with open("dashboard_output/index.html", "w") as f:
         f.write(output_html)
 
-    print("Dashboard generated at dashboard_output/index.html")
 
 
 if __name__ == "__main__":

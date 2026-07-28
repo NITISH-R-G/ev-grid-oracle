@@ -308,7 +308,6 @@ def main() -> None:
 
     with open(args.out, "w", encoding="utf-8") as f:
         json.dump(out, f, indent=2)
-    print(json.dumps(out, indent=2))
 
 
 if __name__ == "__main__":

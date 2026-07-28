@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import argparse
 from pathlib import Path
-from typing import Optional
 
 import pygame
 
@@ -25,7 +24,7 @@ def record(
     """
     Record frames as PNGs.
 
-    - `tick_every_frames`: how many frames to show per env.step() (slows animation, looks smoother).
+    - `tick_every_frames`: how many frames to show per env.step() (slows animation, looks smoother).  # noqa: E501
     """
     out_dir.mkdir(parents=True, exist_ok=True)
     pygame.init()
@@ -37,9 +36,9 @@ def record(
     env.reset(seed=seed)
     renderer = CityMapRenderer(env, cfg)
 
-    last_action: Optional[EVGridAction] = None
+    last_action: EVGridAction | None = None
     frame = 0
-    for step in range(steps):
+    for _step in range(steps):
         st = env._grid_state
         if st is None or not st.pending_evs:
             action = EVGridAction(
@@ -75,11 +74,6 @@ def main():
         label=args.label,
         fps=args.fps,
         tick_every_frames=args.tick_every_frames,
-    )
-    print(f"Wrote frames to {args.out}")
-    print("To make a video (example):")
-    print(
-        "  ffmpeg -framerate 30 -i frame_%06d.png -c:v libx264 -pix_fmt yuv420p out.mp4"
     )
 
 

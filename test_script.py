@@ -36,5 +36,3 @@ s = StationState(
     total_slots=10,
     occupied_slots=1,
 )
-print(type(s.occupied_slots))
-print(s.occupied_slots)

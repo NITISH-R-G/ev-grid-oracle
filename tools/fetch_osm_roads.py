@@ -8,7 +8,6 @@ import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
 
-
 OVERPASS_URL = "https://overpass-api.de/api/interpreter"
 
 
@@ -136,7 +135,6 @@ def main():
     fc = _to_feature_collection(osm, max_points_per_way=args.max_points_per_way)
 
     out.write_text(json.dumps(fc), encoding="utf-8")
-    print(f"Wrote {out} with {len(fc['features'])} road features")
 
 
 if __name__ == "__main__":

@@ -8,7 +8,6 @@ import urllib.request
 from pathlib import Path
 from typing import Any
 
-
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -75,7 +74,7 @@ def _http_post(url: str, data: dict[str, str], *, retries: int = 3) -> bytes:
         try:
             with urllib.request.urlopen(req, timeout=240) as r:  # nosec B310
                 return r.read()
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:
             last_err = e
             if attempt >= retries:
                 raise
@@ -162,7 +161,7 @@ def main() -> int:
     features_by_id: dict[str, dict[str, Any]] = {}
     total_tiles = int(args.tiles)
     tiles = _tile_bbox(bbox, total_tiles)
-    for idx, tb in enumerate(tiles):
+    for _idx, tb in enumerate(tiles):
         q = _overpass_query(tb, highways)
         raw = _http_post(args.endpoint, {"data": q})
         obj = json.loads(raw.decode("utf-8"))
@@ -173,18 +172,12 @@ def main() -> int:
             # Merge by OSM way id (tile overlap duplicates).
             if oid and oid not in features_by_id:
                 features_by_id[oid] = f
-        print(
-            f"tile {idx + 1}/{len(tiles)} features={len(gj_part.get('features', []))} unique_total={len(features_by_id)}"
-        )
 
     gj = {"type": "FeatureCollection", "features": list(features_by_id.values())}
 
     out = (ROOT / args.out).resolve()
     out.parent.mkdir(parents=True, exist_ok=True)
     out.write_text(json.dumps(gj), encoding="utf-8")
-    print(
-        f"Wrote {out} features={len(gj.get('features', []))} tiles={total_tiles}x{total_tiles} simplify_every={simplify_every}"
-    )
     return 0
 
 
