@@ -12,9 +12,15 @@ def test_demo_new_and_step_roundtrip():
     data = r.json()
     assert isinstance(data.get("request_id"), str)
     assert data["request_id"]
-    assert "session_id" in data
-    assert isinstance(data["session_id"], str)
-    assert data["session_id"]
+    assert (
+        "session_id" in data
+    )
+    assert (
+        isinstance(data["session_id"], str)
+    )
+    assert (
+        data["session_id"]
+    )
     assert "obs" in data
     assert isinstance(data["obs"], dict)
     assert "station_nodes" in data
