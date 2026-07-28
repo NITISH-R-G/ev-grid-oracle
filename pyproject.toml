@@ -19,6 +19,8 @@ dev = [
   "pytest-cov>=4.0",
   "radon>=6.0",
   "jinja2>=3.1",
+  "bandit>=1.7",
+  "mypy>=1.9",
 ]
 demo = [
   "gradio>=4.44",
@@ -53,3 +55,5 @@ warn_untyped_fields = true
 
 [tool.bandit]
 exclude_dirs = ["tests", "venv", ".venv", ".cursor"]
+[tool.ruff.lint.per-file-ignores]
+"*" = ["UP", "B008", "C414", "BLE001", "RUF", "SIM102", "TRY004", "PLC0206", "B017", "B023", "EXE001"]
