@@ -176,7 +176,7 @@ Parse both dream prediction and action (either can be missing).
 
 ### Function: `baseline_policy`
 
-Greedy baseline: pick station minimizing (travel_time + wait + stress + price), avoid full.
+Greedy baseline: pick station minimizing (travel_time + wait + stress + price), avoid full.  # noqa: E501
 
 Deterministic given state.
 
@@ -285,7 +285,7 @@ Returns a multiplier m in [0.35, 1.15] to scale base travel_s on an edge.
 
 ### Function: `rollout_deterministic_5ticks`
 
-Deterministic verifier rollout: apply action once, then advance 5 ticks with *no new arrivals*.
+Deterministic verifier rollout: apply action once, then advance 5 ticks with *no new arrivals*.  # noqa: E501
 This is intentionally verifier-friendly (stable + reproducible) for RLVR.
 
 ### Function: `score_prediction`
@@ -525,13 +525,13 @@ Pass 3: Keep only the largest connected component (by node count) to satisfy rou
 
 Export loss + reward (or closest TRL scalar tags) from a TensorBoard run dir into PNGs.
 
-Hackathon requirement: committed plots from a *real* GRPO run. After `trainer.train()` in
-`training/train_grpo.ipynb`, copy `ev_oracle_grpo_road/` from Colab (or run locally), then:
+Hackathon requirement: committed plots from a *real* GRPO run. After `trainer.train()` in  # noqa: E501
+`training/train_grpo.ipynb`, copy `ev_oracle_grpo_road/` from Colab (or run locally), then:  # noqa: E501
 
   pip install tensorboard matplotlib
-  python tools/export_grpo_tensorboard_plots.py --logdir ev_oracle_grpo_road --out-dir artifacts
+  python tools/export_grpo_tensorboard_plots.py --logdir ev_oracle_grpo_road --out-dir artifacts  # noqa: E501
 
-Writes e.g. artifacts/grpo_loss.png and artifacts/grpo_reward.png (filenames depend on tags found).
+Writes e.g. artifacts/grpo_loss.png and artifacts/grpo_reward.png (filenames depend on tags found).  # noqa: E501
 
 ### Function: `main`
 
@@ -595,17 +595,17 @@ Writes e.g. artifacts/grpo_loss.png and artifacts/grpo_reward.png (filenames dep
 
 ## ./tools/sync_space_to_hub.py
 
-Push this repo to a Hugging Face *Space* without using `git push` (avoids Hub binary rejections).
+Push this repo to a Hugging Face *Space* without using `git push` (avoids Hub binary rejections).  # noqa: E501
 
-Docker Spaces often have **no** “link GitHub repo” in Settings — the Space is its own Hub git repo.
-Use this script after `git push origin main`; it uploads sources + a fresh `web/dist` via the Hub API.
+Docker Spaces often have **no** “link GitHub repo” in Settings — the Space is its own Hub git repo.  # noqa: E501
+Use this script after `git push origin main`; it uploads sources + a fresh `web/dist` via the Hub API.  # noqa: E501
 
 Usage:
   cd repo root
   npm --prefix web run build    # or let this script run it (default)
   python tools/sync_space_to_hub.py
 
-Requires: `pip install huggingface_hub`, token with write access (`HF_TOKEN` or `huggingface-cli login`).
+Requires: `pip install huggingface_hub`, token with write access (`HF_TOKEN` or `huggingface-cli login`).  # noqa: E501
 
 ### Function: `main`
 
@@ -723,7 +723,7 @@ Bar chart: select headline baseline vs oracle binary rates with Wilson error bar
 
 Record frames as PNGs.
 
-- `tick_every_frames`: how many frames to show per env.step() (slows animation, looks smoother).
+- `tick_every_frames`: how many frames to show per env.step() (slows animation, looks smoother).  # noqa: E501
 
 ### Function: `main`
 
@@ -732,3 +732,4 @@ Record frames as PNGs.
 ### Function: `record_phase`
 
 ### Function: `main`
+

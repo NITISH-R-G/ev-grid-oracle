@@ -136,7 +136,8 @@ def plot_delta_histograms(rows: list[dict[str, Any]], out_dir: Path) -> Path | N
     for ax, vals, title in zip(
         axes,
         [d_wait, d_peak, d_stress],
-        ["Δ Avg wait (oracle − baseline)", "Δ Peak ticks", "Δ Stress ticks"], strict=False,
+        ["Δ Avg wait (oracle − baseline)", "Δ Peak ticks", "Δ Stress ticks"],
+        strict=False,
     ):
         ax.hist(
             vals,
