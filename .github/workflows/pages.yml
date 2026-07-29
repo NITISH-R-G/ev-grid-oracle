@@ -1,0 +1,34 @@
+name: Deploy to GitHub Pages
+
+on:
+  workflow_run:
+    workflows: ["Repository Health Dashboard"]
+    types:
+      - completed
+    branches:
+      - main
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    steps:
+      - name: Download Artifact
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          workflow: health-dashboard.yml
+          run_id: ${{ github.event.workflow_run.id }}
+          name: health-dashboard
+          path: dashboard_output/
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./dashboard_output
