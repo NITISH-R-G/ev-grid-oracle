@@ -3,8 +3,6 @@ name: AI PR Agent
 on:
   pull_request:
     types: [opened, synchronize, reopened]
-  pull_request_review_comment:
-    types: [created]
   issue_comment:
     types: [created]
 
@@ -14,16 +12,16 @@ jobs:
     permissions:
       issues: write
       pull-requests: write
-      contents: read
+      contents: write
     name: Run PR Agent
     if: ${{ github.event.sender.type != 'Bot' }}
     steps:
-      - name: Run CodeRabbit AI PR Reviewer
-        uses: coderabbitai/openai-pr-reviewer@latest
+      - name: PR Agent action step
+        id: pragent
+        uses: Codium-ai/pr-agent@main
         env:
+          OPENAI_KEY: ${{ secrets.OPENAI_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        with:
-          debug: false
-          review_simple_changes: false
-          review_comment_lgtm: false
+          github_action_config.auto_review: "true"
+          github_action_config.auto_describe: "true"
+          github_action_config.auto_improve: "true"
