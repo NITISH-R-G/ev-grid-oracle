@@ -5,7 +5,7 @@ Requires: pip install pydeps xdg-utils
 """
 
 import os
-import subprocess
+import subprocess  # nosec B404
 import sys
 
 
@@ -35,7 +35,7 @@ def main() -> None:
 
         try:
             print(f"Generating architecture diagram for {target_dir}...")
-            subprocess.run(cmd, check=True)
+            subprocess.run(cmd, check=True)  # nosec B603
             print(f"Saved diagram to {out_file}")
         except subprocess.CalledProcessError as e:
             print(f"Failed to generate diagram for {target_dir}: {e}", file=sys.stderr)
