@@ -37,7 +37,7 @@ def record(
     env.reset(seed=seed)
     renderer = CityMapRenderer(env, cfg)
 
-    last_action: Optional[EVGridAction] = None
+    last_action: EVGridAction | None = None
     frame = 0
     for step in range(steps):
         st = env._grid_state
