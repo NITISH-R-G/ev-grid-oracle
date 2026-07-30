@@ -253,7 +253,7 @@ with gr.Blocks(title="EV Grid Oracle") as demo:
         if not autoplay_val:
             return sess, render_map(sess.env), "", "", ""
         # stream 60 steps
-        for i in range(60):
+        for _i in range(60):
             im, t, k = step_once(sess, mode_val, oracle_lora_repo)
             yield sess, im, t, k, ""
 

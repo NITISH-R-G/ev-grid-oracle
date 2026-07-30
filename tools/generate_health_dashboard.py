@@ -1,3 +1,4 @@
+import contextlib
 import json
 import os
 import subprocess  # nosec B404
@@ -158,10 +159,8 @@ def run_radon():
             parts = line.split("(")
             if len(parts) > 1:
                 val = parts[1].replace(")", "").strip()
-                try:
+                with contextlib.suppress(ValueError):
                     avg_complexity = float(val)
-                except ValueError:
-                    pass
     return avg_complexity
 
 
@@ -256,10 +255,7 @@ def generate_ai_insights(scores, complexity, vulns, lint_errors):
             )
 
             insights_text = response.choices[0].message.content
-            if insights_text:
-                insights_text = insights_text.strip()
-            else:
-                insights_text = ""
+            insights_text = insights_text.strip() if insights_text else ""
             # Parse bullet points
             insights = [
                 line.strip("- *").strip()

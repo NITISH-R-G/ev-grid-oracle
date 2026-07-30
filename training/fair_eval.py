@@ -222,8 +222,8 @@ def plot_fair_eval(binary_rates: dict[str, Any], out_path: Path) -> None:
         mids: list[float], lows: list[float], highs: list[float]
     ) -> list[list[float]]:
         return [
-            [m - lo for m, lo in zip(mids, lows)],
-            [hi - m for m, hi in zip(mids, highs)],
+            [m - lo for m, lo in zip(mids, lows, strict=False)],
+            [hi - m for m, hi in zip(mids, highs, strict=False)],
         ]
 
     eb_b = ax.errorbar(

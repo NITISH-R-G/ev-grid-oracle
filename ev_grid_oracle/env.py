@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from random import Random
-from typing import Optional
 
 import networkx as nx
 
@@ -196,7 +195,7 @@ class EVGridCore:
         arrivals = sample_arrivals_per_step(
             self.rng, prev_state.hour, day_type=prev_state.day_type.value
         )
-        arrivals = int(round(arrivals * float(self._scenario_mods.arrivals_mult)))
+        arrivals = round(arrivals * float(self._scenario_mods.arrivals_mult))
         for _ in range(arrivals):
             prev_state.pending_evs.append(
                 _make_ev(

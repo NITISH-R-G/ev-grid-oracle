@@ -1,12 +1,12 @@
 from __future__ import annotations
 
 import gzip
+import itertools
 import json
 from collections.abc import Callable
 from dataclasses import dataclass
 from math import asin, cos, radians, sin, sqrt
 from pathlib import Path
-from typing import Optional
 
 import networkx as nx
 
@@ -151,7 +151,7 @@ class RoadRouter:
             return None
         poly: list[list[float]] = []
         seg_m_q: list[int] = []
-        for u, v in zip(path, path[1:]):
+        for u, v in itertools.pairwise(path):
             seg = self.edge_geom.get((int(u), int(v)))
             # Edge traffic multiplier used for this segment (quantized).
             if traffic is not None and tick is not None:
