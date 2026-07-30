@@ -99,7 +99,7 @@ def plot_episode_trajectories(
         ("Peak-violation ticks (grid >80%)", b_peak, o_peak),
         ("High-stress station-ticks (>85% full)", b_stress, o_stress),
     ]
-    for ax, (title, bv, ov) in zip(axes, titles):
+    for ax, (title, bv, ov) in zip(axes, titles, strict=False):
         ax.plot(idx, bv, label="Baseline", color="#2563eb", alpha=0.85, linewidth=1.4)
         ax.plot(idx, ov, label="Oracle", color="#16a34a", alpha=0.85, linewidth=1.4)
         ax.set_ylabel(title.split("(")[0].strip())
@@ -136,7 +136,7 @@ def plot_delta_histograms(rows: list[dict[str, Any]], out_dir: Path) -> Path | N
     for ax, vals, title in zip(
         axes,
         [d_wait, d_peak, d_stress],
-        ["Δ Avg wait (oracle − baseline)", "Δ Peak ticks", "Δ Stress ticks"],
+        ["Δ Avg wait (oracle − baseline)", "Δ Peak ticks", "Δ Stress ticks"], strict=False,
     ):
         ax.hist(
             vals,
@@ -164,7 +164,7 @@ def plot_reward_breakdown(data: dict[str, Any], out_dir: Path) -> Path | None:
     if not bb or not ob:
         return None
     keys = sorted(set(bb.keys()) & set(ob.keys()))
-    keys = [k for k in keys if k not in ("no_pending",) and not str(k).startswith("_")]
+    keys = [k for k in keys if k != "no_pending" and not str(k).startswith("_")]
     if not keys:
         return None
     y = list(range(len(keys)))
@@ -202,7 +202,7 @@ def plot_boxplots(rows: list[dict[str, Any]], out_dir: Path) -> Path | None:
         ("Anti-cheat steps", "anti_cheat_steps", False),
     ]
     fig, axes = plt.subplots(1, len(series), figsize=(14, 3.8))
-    for ax, (label, key, higher_better) in zip(axes, series):
+    for ax, (label, key, higher_better) in zip(axes, series, strict=False):
         b = [float(r["baseline"][key]) for r in rows]
         o = [float(r["oracle"][key]) for r in rows]
         _boxplot_compat(ax, [b, o], ["Baseline", "Oracle"])
@@ -248,7 +248,7 @@ def plot_oracle_win_rates(rows: list[dict[str, Any]], out_dir: Path) -> Path | N
             rate(True, "anti_cheat_steps", "anti_cheat_steps"),
         ),
     ]
-    labels, vals = zip(*items)
+    labels, vals = zip(*items, strict=False)
     fig, ax = plt.subplots(figsize=(9, 4.2))
     colors = ["#16a34a" if v > 50 else "#ca8a04" if v > 0 else "#64748b" for v in vals]
     ax.barh(labels, vals, color=colors, edgecolor="white")
