@@ -13,17 +13,17 @@ OUT="$ROOT/assets/validation_output.txt"
   date -u +"%Y-%m-%dT%H:%MZ (UTC)"
   echo "repo: $ROOT"
   echo "--- python ---"
-  python --version
+  uv run python --version
   echo "--- ruff check ---"
-  ruff check .
+  uv run --with ruff ruff check .
   echo "--- ruff format ---"
-  ruff format --check .
+  uv run --with ruff ruff format --check .
   echo "--- mypy ---"
-  python -m mypy .
+  uv run --with mypy --with pydantic mypy .
   echo "--- bandit ---"
-  python -m bandit -r . -c pyproject.toml
+  uv run --with bandit bandit -r . -c pyproject.toml
   echo "--- pytest (install dev deps first: pip install -e \".[dev]\") ---"
-  python -m pytest tests/ -q --tb=line
+  uv run pytest tests/ -q --tb=line
   if command -v openenv >/dev/null 2>&1; then
     echo "--- openenv validate ---"
     openenv validate "$ROOT"
