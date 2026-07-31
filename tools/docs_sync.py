@@ -19,8 +19,10 @@ def update_docs():
                                 if isinstance(node, ast.FunctionDef):
                                     doc = ast.get_docstring(node) or "No documentation."
                                     f.write(f"### `{node.name}`\n{doc}\n\n")
-                        except Exception:
-                            pass
+                        except Exception as e:
+                            import logging
+
+                            logging.warning(f"Failed to parse {filepath}: {e}")
 
 
 if __name__ == "__main__":

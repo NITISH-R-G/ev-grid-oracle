@@ -19,7 +19,8 @@ def run_cmd(cmd: list[str]) -> str:
     try:
         result = subprocess.run(cmd, capture_output=True, text=True, check=False)  # nosec B603
         return result.stdout
-    except Exception:
+    except Exception as e:
+        print(f"Error executing command {cmd}: {e}")
         return ""
 
 
@@ -194,7 +195,8 @@ def run_ruff():
     try:
         data = json.loads(output)
         return len(data)
-    except Exception:
+    except Exception as e:
+        print(f"Error executing command {cmd}: {e}")
         return 0
 
 
