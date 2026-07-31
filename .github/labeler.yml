@@ -1,0 +1,9 @@
+backend:
+  - changed-files:
+    - any-glob-to-any-file: ['ev_grid_oracle/**/*', 'server/**/*']
+frontend:
+  - changed-files:
+    - any-glob-to-any-file: ['web/**/*']
+docs:
+  - changed-files:
+    - any-glob-to-any-file: ['docs/**/*', 'README.md']
