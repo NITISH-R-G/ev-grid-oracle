@@ -16,7 +16,7 @@ def parse_file(filepath: str) -> dict[str, list[dict[str, Any]]]:
     """Parse a python file and extract classes and functions."""
     result: dict[str, list[dict[str, Any]]] = {"classes": [], "functions": []}
     try:
-        with open(filepath, "r", encoding="utf-8") as f:
+        with open(filepath, encoding="utf-8") as f:
             content = f.read()
     except Exception as e:
         print(f"Failed to read {filepath}: {e}", file=sys.stderr)

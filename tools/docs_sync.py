@@ -15,7 +15,7 @@ def extract_docs(filepath: str) -> str:
     docs = []
 
     try:
-        with open(filepath, "r", encoding="utf-8") as f:
+        with open(filepath, encoding="utf-8") as f:
             content = f.read()
     except Exception as e:
         print(f"Failed to read {filepath}: {e}", file=sys.stderr)

@@ -6,7 +6,7 @@ from dataclasses import dataclass
 
 
 def _clamp(x: float, lo: float, hi: float) -> float:
-    return lo if x < lo else hi if x > hi else x
+    return lo if x < lo else min(x, hi)
 
 
 def _stable_u01(*parts: object) -> float:
