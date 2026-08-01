@@ -1,0 +1,67 @@
+name: Repository Maintenance
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  schedule:
+    - cron: '0 2 * * *' # Daily at 2 AM UTC
+
+permissions:
+  contents: write
+
+jobs:
+  maintenance:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+          ref: ${{ github.head_ref || github.ref }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install xdg-utils (for pydeps)
+        run: sudo apt-get update && sudo apt-get install -y xdg-utils
+
+      - name: Install dependencies
+        run: |
+          pip install uv
+          uv pip install --system -e ".[dev,demo]"
+          uv pip install --system pydeps cyclonedx-bom
+
+      - name: Auto-fix formatting and linting
+        run: |
+          uv run ruff check --fix . || true
+          uv run ruff format . || true
+
+      - name: Generate Architecture Diagrams
+        run: |
+          mkdir -p docs/architecture
+          uv run pydeps ev_grid_oracle --output docs/architecture/ev_grid_oracle.svg || true
+
+      - name: Generate SBOM
+        run: |
+          uv run cyclonedx-py environment -o bom.json || true
+
+      - name: Generate Knowledge Graph
+        run: |
+          uv run python tools/generate_knowledge_graph.py || true
+
+      - name: Sync Documentation
+        run: |
+          uv run python tools/docs_sync.py || true
+
+      - name: Commit changes
+        if: github.event_name == 'push' || github.event_name == 'schedule' || github.event.pull_request.head.repo.full_name == github.repository
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add .
+          git commit -m "chore: auto-maintenance tasks [skip ci]" || echo "No changes to commit"
+          git push || echo "No changes to push"
