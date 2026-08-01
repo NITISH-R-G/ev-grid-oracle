@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
-from typing import Optional
 
 import pygame
 
@@ -46,7 +45,9 @@ class RenderConfig:
 
 
 class CityMapRenderer:
-    def __init__(self, env: EVGridCore, cfg: RenderConfig = RenderConfig()):
+    def __init__(self, env: EVGridCore, cfg: RenderConfig | None = None):
+        if cfg is None:
+            cfg = RenderConfig()
         self.env = env
         self.cfg = cfg
         self._font = pygame.font.SysFont("Consolas", 18)
@@ -91,7 +92,7 @@ class CityMapRenderer:
         self,
         surf: pygame.Surface,
         *,
-        last_action: Optional[EVGridAction] = None,
+        last_action: EVGridAction | None = None,
         mode_label: str = "",
     ):
         cfg = self.cfg
@@ -255,7 +256,7 @@ def run_live(seed: int = 123, *, mode: str = "baseline"):
     env.reset(seed=seed)
     renderer = CityMapRenderer(env, cfg)
 
-    last_action: Optional[EVGridAction] = None
+    last_action: EVGridAction | None = None
     running = True
     while running:
         for event in pygame.event.get():
