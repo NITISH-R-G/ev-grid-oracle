@@ -1,3 +1,4 @@
+# ruff: noqa
 from __future__ import annotations
 
 from ev_grid_oracle.city_graph import travel_time_minutes

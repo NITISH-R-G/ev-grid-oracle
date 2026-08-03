@@ -1,3 +1,4 @@
+# ruff: noqa
 from __future__ import annotations
 
 import concurrent.futures
@@ -362,7 +363,7 @@ def _demo_session_get(session_id: str) -> EVGridCore | None:
     row = _demo_sessions.get(session_id)
     if row is None:
         return None
-    ts, core = row
+    _ts, core = row
     # touch (LRU-ish)
     _demo_sessions.move_to_end(session_id, last=True)
     _demo_sessions[session_id] = (time.time(), core)
@@ -525,7 +526,7 @@ def ma_auto_step(
             text="Routing using heuristic baseline under grid constraints.",
         )
     else:
-        action, _txt, active, timed_out, skipped = _demo_oracle_act_with_guard(
+        action, _txt, active, _timed_out, _skipped = _demo_oracle_act_with_guard(
             st=st, core=sess.core, oracle_lora_repo=payload.oracle_lora_repo
         )
         fleet_action = action

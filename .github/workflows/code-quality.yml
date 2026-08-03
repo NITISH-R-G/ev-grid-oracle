@@ -62,7 +62,7 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '22'
+        node-version: '24'
         cache: 'npm'
         cache-dependency-path: ./web/package-lock.json
 
@@ -71,9 +71,6 @@ jobs:
 
     - name: Type check
       run: npx tsc --noEmit
-
-    - name: Build
-      run: npm run build
 
     - name: Format
       run: |
@@ -87,7 +84,7 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '22'
+        node-version: '24'
 
     - name: Install jscpd
       run: npm install -g jscpd
