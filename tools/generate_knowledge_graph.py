@@ -1,6 +1,6 @@
-import os
 import ast
 import json
+import os
 
 
 def parse_file(filepath):

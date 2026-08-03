@@ -1,5 +1,5 @@
-import os
 import ast
+import os
 
 
 def extract_docstrings(filepath):
