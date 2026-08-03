@@ -1,0 +1,68 @@
+name: Autonomous Repository Maintenance
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  schedule:
+    - cron: '0 2 * * *' # Daily at 2 AM UTC
+
+permissions:
+  contents: write
+
+jobs:
+  maintenance:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'schedule' || github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install uv
+          uv pip install --system -e ".[dev]"
+          uv pip install --system cyclonedx-bom pydeps
+          sudo apt-get update && sudo apt-get install -y xdg-utils graphviz
+
+      - name: Fix Formatting and Linting
+        run: |
+          uv run --with ruff ruff check --fix . || true
+          uv run --with ruff ruff format . || true
+
+      - name: Sync Documentation
+        run: |
+          python tools/docs_sync.py
+
+      - name: Generate Knowledge Graph
+        run: |
+          python tools/generate_knowledge_graph.py
+
+      - name: Generate Architecture Diagram
+        run: |
+          mkdir -p docs/architecture
+          # Exclude non-relevant or problematic packages/directories
+          pydeps ev_grid_oracle server tools --noshow --max-bacon=2 --cluster --rmprefix ev_grid_oracle. server. tools. -o docs/architecture/dependency_graph.svg || echo "Pydeps failed, skipping."
+
+      - name: Generate SBOM
+        run: |
+          cyclonedx-py environment -o bom.json || echo "SBOM generation failed, skipping."
+
+      - name: Commit changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add .
+          git commit -m "Auto-maintenance: Format, Sync Docs, Graphs, SBOM" || echo "No changes to commit"
+          git push
