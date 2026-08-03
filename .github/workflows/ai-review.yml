@@ -1,4 +1,4 @@
-name: AI PR Agent
+name: AI Maintainer
 
 on:
   pull_request:
@@ -6,19 +6,17 @@ on:
   issue_comment:
     types: [created]
 
+permissions:
+  pull-requests: write
+  issues: write
+  contents: write
+
 jobs:
-  pr_agent:
+  review:
     runs-on: ubuntu-latest
-    permissions:
-      issues: write
-      pull-requests: write
-      contents: write
-    name: Run PR Agent
     if: ${{ github.event.sender.type != 'Bot' }}
     steps:
-      - name: PR Agent action step
-        id: pragent
-        uses: Codium-ai/pr-agent@main
+      - uses: Codium-ai/pr-agent@main
         env:
           OPENAI_KEY: ${{ secrets.OPENAI_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

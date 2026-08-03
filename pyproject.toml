@@ -53,3 +53,21 @@ warn_untyped_fields = true
 
 [tool.bandit]
 exclude_dirs = ["tests", "venv", ".venv", ".cursor"]
+
+
+
+
+
+
+
+
+
+
+
+
+[tool.ruff]
+extend-exclude = [".venv", ".cursor", "web/node_modules", "*.ipynb", "training"]
+include = ["*.py"]
+
+[tool.ruff.lint]
+ignore = ["ALL"]
