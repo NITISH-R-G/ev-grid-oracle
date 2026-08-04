@@ -1,0 +1,24 @@
+documentation:
+  - changed-files:
+    - any-glob-to-any-file: 'docs/**/*'
+    - any-glob-to-any-file: 'README.md'
+    - any-glob-to-any-file: 'CONTRIBUTING.md'
+    - any-glob-to-any-file: 'CODE_OF_CONDUCT.md'
+
+tools:
+  - changed-files:
+    - any-glob-to-any-file: 'tools/**/*'
+
+frontend:
+  - changed-files:
+    - any-glob-to-any-file: 'web/**/*'
+
+backend:
+  - changed-files:
+    - any-glob-to-any-file: '*.py'
+    - any-glob-to-any-file: 'server/**/*'
+    - any-glob-to-any-file: 'ev_grid_oracle/**/*'
+
+workflows:
+  - changed-files:
+    - any-glob-to-any-file: '.github/workflows/**/*'
