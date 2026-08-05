@@ -1,7 +1,9 @@
+import contextlib
 import json
-import subprocess  # nosec B404
 import os
+import subprocess  # nosec B404
 from datetime import datetime, timezone
+
 from jinja2 import Environment, FileSystemLoader
 
 # Extract sensitive variables immediately to prevent child processes
@@ -19,7 +21,7 @@ def run_cmd(cmd: list[str]) -> str:
     try:
         result = subprocess.run(cmd, capture_output=True, text=True, check=False)  # nosec B603
         return result.stdout
-    except Exception:
+    except Exception:  # noqa: BLE001
         return ""
 
 
@@ -119,7 +121,7 @@ def fetch_github_stats():
                 ]
             )
 
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         print(f"Error fetching GitHub API stats: {e}")
 
     return pr_analytics, issue_management
@@ -140,7 +142,7 @@ def run_pytest_cov():
         ]
     )
     if os.path.exists("coverage.json"):
-        with open("coverage.json", "r") as f:
+        with open("coverage.json") as f:
             data = json.load(f)
         return data.get("totals", {}).get("percent_covered", 0)
     return 0
@@ -157,10 +159,8 @@ def run_radon():
             parts = line.split("(")
             if len(parts) > 1:
                 val = parts[1].replace(")", "").strip()
-                try:
+                with contextlib.suppress(ValueError):
                     avg_complexity = float(val)
-                except ValueError:
-                    pass
     return avg_complexity
 
 
@@ -179,7 +179,7 @@ def run_bandit():
         ]
     )
     if os.path.exists("bandit.json"):
-        with open("bandit.json", "r") as f:
+        with open("bandit.json") as f:
             data = json.load(f)
         results = data.get("results", [])
         metrics = data.get("metrics", {}).get("_totals", {})
@@ -194,7 +194,7 @@ def run_ruff():
     try:
         data = json.loads(output)
         return len(data)
-    except Exception:
+    except Exception:  # noqa: BLE001
         return 0
 
 
@@ -255,10 +255,7 @@ def generate_ai_insights(scores, complexity, vulns, lint_errors):
             )
 
             insights_text = response.choices[0].message.content
-            if insights_text:
-                insights_text = insights_text.strip()
-            else:
-                insights_text = ""
+            insights_text = insights_text.strip() if insights_text else ""
             # Parse bullet points
             insights = [
                 line.strip("- *").strip()
@@ -266,10 +263,9 @@ def generate_ai_insights(scores, complexity, vulns, lint_errors):
                 if line.strip()
             ]
             return insights
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             print(f"Failed to generate AI insights via OpenAI: {e}")
             # Fallback to static insights on error
-            pass
 
     # Static Fallback
     insights = []

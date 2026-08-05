@@ -24,7 +24,7 @@ def generate_knowledge_graph() -> None:
             if file.endswith(".py"):
                 filepath = os.path.join(root, file)
                 try:
-                    with open(filepath, "r", encoding="utf-8") as f:
+                    with open(filepath, encoding="utf-8") as f:
                         source = f.read()
 
                     tree = ast.parse(source)
@@ -58,7 +58,7 @@ def generate_knowledge_graph() -> None:
                                 }
                             )
 
-                except Exception as e:
+                except Exception as e:  # noqa: BLE001
                     print(f"Failed to parse {filepath}: {e}")
 
     with open("knowledge_graph.json", "w", encoding="utf-8") as out:

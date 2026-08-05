@@ -24,7 +24,7 @@ def sync_docs() -> None:
             if file.endswith(".py"):
                 filepath = os.path.join(root, file)
                 try:
-                    with open(filepath, "r", encoding="utf-8") as f:
+                    with open(filepath, encoding="utf-8") as f:
                         source = f.read()
 
                     tree = ast.parse(source)
@@ -48,7 +48,7 @@ def sync_docs() -> None:
                     if file_docs:
                         docs[filepath] = file_docs
 
-                except Exception as e:
+                except Exception as e:  # noqa: BLE001
                     print(f"Failed to parse {filepath}: {e}")
 
     os.makedirs("docs", exist_ok=True)

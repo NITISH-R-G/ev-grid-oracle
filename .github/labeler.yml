@@ -1,21 +1,33 @@
 frontend:
-  - web/**/*
+  - any:
+    - changed-files:
+      - any-glob-to-any-file: 'web/**/*'
 
 backend:
-  - ev_grid_oracle/**/*
-  - server/**/*
+  - any:
+    - changed-files:
+      - any-glob-to-any-file: 'ev_grid_oracle/**/*'
+      - any-glob-to-any-file: 'server/**/*'
 
 documentation:
-  - docs/**/*
-  - "**/*.md"
+  - any:
+    - changed-files:
+      - any-glob-to-any-file: 'docs/**/*'
+      - any-glob-to-any-file: '**/*.md'
 
 ci:
-  - .github/workflows/**/*
-  - validate-submission.sh
+  - any:
+    - changed-files:
+      - any-glob-to-any-file: '.github/workflows/**/*'
+      - any-glob-to-any-file: 'validate-submission.sh'
 
 tests:
-  - tests/**/*
-  - test_script.py
+  - any:
+    - changed-files:
+      - any-glob-to-any-file: 'tests/**/*'
+      - any-glob-to-any-file: 'test_script.py'
 
 tools:
-  - tools/**/*
+  - any:
+    - changed-files:
+      - any-glob-to-any-file: 'tools/**/*'

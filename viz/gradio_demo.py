@@ -13,7 +13,6 @@ from ev_grid_oracle.oracle_agent import OracleAgent
 from ev_grid_oracle.policies import baseline_policy
 from training.evaluate import run_episode, summarize
 
-
 Mode = Literal["Untrained Baseline", "Oracle Agent"]
 
 
@@ -21,7 +20,7 @@ def _norm(v: float, lo: float, hi: float) -> float:
     if hi <= lo:
         return 0.0
     x = (v - lo) / (hi - lo)
-    return 0.0 if x < 0.0 else 1.0 if x > 1.0 else x
+    return 0.0 if x < 0.0 else min(x, 1.0)
 
 
 def _station_color(load_pct: float) -> tuple[int, int, int]:
@@ -255,7 +254,7 @@ with gr.Blocks(title="EV Grid Oracle") as demo:
         if not autoplay_val:
             return sess, render_map(sess.env), "", "", ""
         # stream 60 steps
-        for i in range(60):
+        for _i in range(60):
             im, t, k = step_once(sess, mode_val, oracle_lora_repo)
             yield sess, im, t, k, ""
 
