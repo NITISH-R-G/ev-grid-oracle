@@ -1,0 +1,77 @@
+name: Repository Maintenance Automation
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  schedule:
+    - cron: '0 2 * * *' # Daily at 2 AM
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  maintain:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install xdg-utils and graphviz
+        run: sudo apt-get update && sudo apt-get install -y xdg-utils graphviz
+
+      - name: Install Prettier globally
+        run: npm install -g prettier
+
+      - name: Install uv and project dependencies
+        run: |
+          pip install uv
+          uv pip install --system -e ".[dev,demo]"
+          uv pip install --system pydeps cyclonedx-bom
+
+      - name: Auto-fix Formatting and Linting (Python)
+        run: |
+          uv run --with ruff ruff check --fix .
+          uv run --with ruff ruff format .
+
+      - name: Auto-fix Formatting (Frontend & Others)
+        run: |
+          prettier --write "**/*.{json,md,yaml,yml,ts,tsx,js,jsx,css,scss}"
+
+      - name: Generate SBOM
+        run: |
+          cyclonedx-py environment -o bom.json
+
+      - name: Generate Architecture Diagrams
+        run: |
+          mkdir -p docs/architecture
+          pydeps --noshow --output docs/architecture/dependency_graph.svg ev_grid_oracle/ || true
+
+      - name: Sync Documentation
+        run: |
+          python tools/docs_sync.py || true
+
+      - name: Generate Knowledge Graph
+        run: |
+          python tools/generate_knowledge_graph.py || true
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add .
+          git diff --quiet && git diff --staged --quiet || (git commit -m "Auto-maintenance: Format, Docs, Diagrams, SBOM [skip ci]" && git push)
