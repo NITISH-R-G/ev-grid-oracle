@@ -21,7 +21,6 @@ from uuid import uuid4
 
 import networkx as nx
 from fastapi import HTTPException, Query, Request
-from fastapi.params import Body
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
@@ -421,7 +420,7 @@ class MANewRequest(BaseModel):
 
 
 @app.post("/ma/new")
-def ma_new(req: Request, payload: MANewRequest = Body(...)) -> dict[str, Any]:
+def ma_new(req: Request, payload: MANewRequest) -> dict[str, Any]:
     _rate_limit(req, key="ma_new", limit=30, window_sec=60)
     t0 = time.time()
     rid = _request_id(req)
@@ -502,9 +501,7 @@ class MAAutoStepRequest(BaseModel):
 
 
 @app.post("/ma/auto_step")
-def ma_auto_step(
-    req: Request, payload: MAAutoStepRequest = Body(...)
-) -> dict[str, Any]:
+def ma_auto_step(req: Request, payload: MAAutoStepRequest) -> dict[str, Any]:
     _rate_limit(req, key="ma_auto_step", limit=120, window_sec=60)
     """
     Convenience endpoint for the demo UI: server computes both roles' actions/messages
@@ -605,7 +602,7 @@ def ma_state(req: Request, session_id: str = Query(...)) -> dict[str, Any]:
 
 
 @app.post("/ma/step")
-def ma_step(req: Request, payload: MultiAgentStepRequest = Body(...)) -> dict[str, Any]:
+def ma_step(req: Request, payload: MultiAgentStepRequest) -> dict[str, Any]:
     _rate_limit(req, key="ma_step", limit=120, window_sec=60)
     t0 = time.time()
     rid = _request_id(req)
@@ -697,7 +694,7 @@ def _station_nodes(core: EVGridCore) -> list[dict[str, Any]]:
 
 
 @app.post("/demo/new")
-def demo_new(req: Request, payload: DemoNewRequest = Body(...)) -> dict[str, Any]:
+def demo_new(req: Request, payload: DemoNewRequest) -> dict[str, Any]:
     _rate_limit(req, key="demo_new", limit=30, window_sec=60)
     t0 = time.time()
     rid = _request_id(req)
@@ -798,7 +795,7 @@ class DemoSpawnVehicleRequest(BaseModel):
 
 @app.post("/demo/spawn_vehicle")
 def demo_spawn_vehicle(
-    req: Request, payload: DemoSpawnVehicleRequest = Body(...)
+    req: Request, payload: DemoSpawnVehicleRequest
 ) -> dict[str, Any]:
     """
     Spawn a new EV at a valid road location (away from stations) and immediately compute
@@ -935,14 +932,22 @@ def demo_spawn_vehicle(
     }
 
 
+class DemoStepRequest(BaseModel):
+    session_id: str
+    mode: Literal["baseline", "oracle"] = "baseline"
+    oracle_lora_repo: str = ""
+    forced_action: dict[str, Any] | None = None
+
+
 @app.post("/demo/step")
 def demo_step(
     req: Request,
-    session_id: str = Body(...),
-    mode: Literal["baseline", "oracle"] = Body("baseline"),
-    oracle_lora_repo: str = Body("", embed=True),
-    forced_action: dict[str, Any] | None = Body(None),
+    payload: DemoStepRequest,
 ) -> dict[str, Any]:
+    session_id = payload.session_id
+    mode = payload.mode
+    oracle_lora_repo = payload.oracle_lora_repo
+    forced_action = payload.forced_action
     _rate_limit(req, key="demo_step", limit=120, window_sec=60)
     t0 = time.time()
     rid = _request_id(req)
