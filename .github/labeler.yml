@@ -1,0 +1,21 @@
+frontend:
+  - web/**/*
+
+backend:
+  - ev_grid_oracle/**/*
+  - server/**/*
+
+documentation:
+  - docs/**/*
+  - "**/*.md"
+
+ci:
+  - .github/workflows/**/*
+  - validate-submission.sh
+
+tests:
+  - tests/**/*
+  - test_script.py
+
+tools:
+  - tools/**/*

@@ -1,0 +1,333 @@
+{
+  "./viz/record.py": [
+    {
+      "type": "function",
+      "name": "record",
+      "docstring": "Record frames as PNGs.\n\n- `tick_every_frames`: how many frames to show per env.step() (slows animation, looks smoother)."
+    }
+  ],
+  "./server/app.py": [
+    {
+      "type": "function",
+      "name": "_demo_oracle_act_with_guard",
+      "docstring": "Run oracle policy with CPU-Space-safe guards.\n\nReturns: action, oracle_text, oracle_llm_active, oracle_timed_out, oracle_skipped_env"
+    },
+    {
+      "type": "function",
+      "name": "healthz",
+      "docstring": "HF Spaces / cold-start friendly health endpoint.\nKeep it fast and dependency-safe (no heavy routing work)."
+    },
+    {
+      "type": "function",
+      "name": "_graph_route_polyline",
+      "docstring": "Return a render-friendly polyline (lat/lng pairs) along the station graph.\nv0 fallback was a straight line; this produces a multi-point path so the UI reads like navigation."
+    },
+    {
+      "type": "function",
+      "name": "_spawn_road_point_away_from_stations",
+      "docstring": "Pick a deterministic road-graph node location (lat,lng) that is not within\n`min_station_dist_m` of any station. Deterministic for a given seed_key."
+    },
+    {
+      "type": "function",
+      "name": "demo_spawn_vehicle",
+      "docstring": "Spawn a new EV at a valid road location (away from stations) and immediately compute\nan assignment + route event for the frontend."
+    }
+  ],
+  "./server/ev_grid_road_environment.py": [
+    {
+      "type": "class",
+      "name": "EVGridRoadEnvironment",
+      "docstring": "Separate OpenEnv environment that forces real-road-graph actions.\nMounted as a sub-app under /road/ so it doesn't break the existing env."
+    }
+  ],
+  "./server/role_metrics.py": [
+    {
+      "type": "function",
+      "name": "compute_role_reward_breakdown",
+      "docstring": "Lightweight, explainable credit assignment for demo storytelling.\n\nThis is NOT a full MARL credit assignment \u2014 it allocates the *same* component\nvalues across roles with fixed weights so totals remain easy to interpret."
+    }
+  ],
+  "./ev_grid_oracle/bescom_feed.py": [
+    {
+      "type": "class",
+      "name": "BESCOMFeedAPI",
+      "docstring": "Deterministic BESCOM feeder \"API mock\".\n\n- No network calls (HF Spaces safe).\n- Feeder loads are derived from: time-of-day + grid_load_pct + station loads.\n- Output is stable under (seed, scenario, tick) so judge replays match."
+    }
+  ],
+  "./ev_grid_oracle/road_models.py": [
+    {
+      "type": "class",
+      "name": "RoadAction",
+      "docstring": "Minimal action space for RL on a real road graph:\nchoose the next connected node (no teleportation)."
+    }
+  ],
+  "./ev_grid_oracle/multi_agent.py": [
+    {
+      "type": "class",
+      "name": "MultiAgentSession",
+      "docstring": "Minimal explicit multi-agent wrapper around EVGridCore.\n\n- GridOperator emits a directive (constraint signal) + optional message.\n- FleetDispatcher emits an action + optional message.\n- Resolver applies directive deterministically and steps EVGridCore."
+    },
+    {
+      "type": "function",
+      "name": "snapshot",
+      "docstring": "Read-only view of the underlying core state."
+    }
+  ],
+  "./ev_grid_oracle/reward.py": [
+    {
+      "type": "function",
+      "name": "_graph_route_km",
+      "docstring": "Approximate driving distance along the city graph using haversine edge weights.\nReturns None if no path exists."
+    },
+    {
+      "type": "function",
+      "name": "compute_reward",
+      "docstring": "Deterministic, verifier-style reward with breakdown.\n\nMatches hackathon spec: wait, grid_stress, peak, renewable, urgency, anti-hack."
+    },
+    {
+      "type": "function",
+      "name": "split_role_rewards",
+      "docstring": "Deterministic role-level reward views derived from the same underlying breakdown.\n\nThis is intentionally simple and bounded (judge-friendly): it does not claim\nfull MARL credit assignment, but it does make incentives explicit."
+    }
+  ],
+  "./ev_grid_oracle/reward_hack.py": [
+    {
+      "type": "class",
+      "name": "RewardHackDetector",
+      "docstring": "Stateful, deterministic detector for common reward-hacking patterns.\n\nGoal: give the existing anti-hack flags \"teeth\" by detecting multi-step\nexploit patterns, not just single-step invalidity."
+    }
+  ],
+  "./ev_grid_oracle/world_model_verifier.py": [
+    {
+      "type": "function",
+      "name": "rollout_deterministic_5ticks",
+      "docstring": "Deterministic verifier rollout: apply action once, then advance 5 ticks with *no new arrivals*.\nThis is intentionally verifier-friendly (stable + reproducible) for RLVR."
+    },
+    {
+      "type": "function",
+      "name": "score_prediction",
+      "docstring": "Score dream-state prediction accuracy against a deterministic T+5 verifier rollout.\nReturns score in [0,1]."
+    }
+  ],
+  "./ev_grid_oracle/models.py": [
+    {
+      "type": "class",
+      "name": "BESCOMFeederState",
+      "docstring": "Lightweight, judge-friendly feeder snapshot (mocked but deterministic)."
+    },
+    {
+      "type": "class",
+      "name": "NegotiationMessage",
+      "docstring": "A short, bounded message used in the explicit multi-agent protocol.\n\nThis is *not* a free-form chat reward. It exists so judges can see\nnegotiation/constraints explicitly and we can penalize empty spam."
+    },
+    {
+      "type": "class",
+      "name": "GridDirective",
+      "docstring": "GridOperator -> FleetDispatcher constraint signal (verifiable)."
+    },
+    {
+      "type": "class",
+      "name": "SimulationPrediction",
+      "docstring": "Aggregated 'dream state' prediction for T+5 ticks.\nKept intentionally small and verifiable for hackathon judging."
+    }
+  ],
+  "./ev_grid_oracle/scenarios.py": [
+    {
+      "type": "class",
+      "name": "ScenarioModifiers",
+      "docstring": "Lightweight knobs applied on top of the core simulator.\nThese are intentionally simple and deterministic for replayable judging."
+    },
+    {
+      "type": "function",
+      "name": "scenario_schedule",
+      "docstring": "Deterministic, fixed-tick stress tests (OpenOfficeRL-style).\n\nNote: ticks are env steps (5-minute increments by default)."
+    },
+    {
+      "type": "function",
+      "name": "apply_scenario_events",
+      "docstring": "Returns updated modifiers and the list of events that fired this tick."
+    }
+  ],
+  "./ev_grid_oracle/env.py": [
+    {
+      "type": "class",
+      "name": "EVGridCore",
+      "docstring": "Core env logic (no HTTP). Server wraps this.\n\nv0 slice: deterministic schema, minimal dynamics.\nNext slices add demand_sim/grid_sim/reward engine."
+    }
+  ],
+  "./ev_grid_oracle/parsing.py": [
+    {
+      "type": "function",
+      "name": "parse_simulation_and_action",
+      "docstring": "Parse both dream prediction and action (either can be missing)."
+    }
+  ],
+  "./ev_grid_oracle/oracle_agent.py": [
+    {
+      "type": "class",
+      "name": "OracleRuntime",
+      "docstring": "Singleton-style loader that prefers CUDA when available.\n\nThis keeps T4 Spaces fast and makes oracle behavior undeniable."
+    },
+    {
+      "type": "class",
+      "name": "OracleAgent",
+      "docstring": "Oracle agent wrapper.\n\nDefault: baseline fallback (always available).\nOptional: load a trained LoRA adapter when `lora_repo_id` provided."
+    }
+  ],
+  "./ev_grid_oracle/policies.py": [
+    {
+      "type": "function",
+      "name": "baseline_policy",
+      "docstring": "Greedy baseline: pick station minimizing (travel_time + wait + stress + price), avoid full.\n\nDeterministic given state."
+    },
+    {
+      "type": "function",
+      "name": "always_defer_policy",
+      "docstring": "Collapse baseline: always defer (reward-hack / fairness stressor)."
+    },
+    {
+      "type": "function",
+      "name": "always_load_shift_policy",
+      "docstring": "Collapse baseline: always load_shift on head EV (ignores queues / grid)."
+    },
+    {
+      "type": "function",
+      "name": "nearest_travel_only_policy",
+      "docstring": "Collapse baseline: minimize travel time only (ignores price, wait, stress).\nUsed to show greedy multi-objective baseline is not trivially dominated."
+    }
+  ],
+  "./ev_grid_oracle/traffic.py": [
+    {
+      "type": "function",
+      "name": "_stable_u01",
+      "docstring": "Stable pseudo-random in [0,1) from input parts.\nDeterministic across processes and Python versions."
+    },
+    {
+      "type": "class",
+      "name": "TrafficModel",
+      "docstring": "Deterministic synthetic traffic for hackathon demos.\n\nReturns a multiplier m in [0.35, 1.15] to scale base travel_s on an edge."
+    }
+  ],
+  "./.cursor/skills/generate-openenv-env/assets/openenv_env_template/client.py": [
+    {
+      "type": "class",
+      "name": "__ENV_CLASS_NAME__Env",
+      "docstring": "Client for the __ENV_TITLE_NAME__ Environment.\n\nThis client maintains a persistent WebSocket connection to the environment server,\nenabling efficient multi-step interactions with lower latency.\nEach client instance has its own dedicated environment session on the server.\n\nExample:\n    >>> # Connect to a running server\n    >>> with __ENV_CLASS_NAME__Env(base_url=\"http://localhost:8000\") as client:\n    ...     result = client.reset()\n    ...     print(result.observation.echoed_message)\n    ...\n    ...     result = client.step(__ENV_CLASS_NAME__Action(message=\"Hello!\"))\n    ...     print(result.observation.echoed_message)\n\nExample with Docker:\n    >>> # Automatically start container and connect\n    >>> client = __ENV_CLASS_NAME__Env.from_docker_image(\"__ENV_NAME__-env:latest\")\n    >>> try:\n    ...     result = client.reset()\n    ...     result = client.step(__ENV_CLASS_NAME__Action(message=\"Test\"))\n    ... finally:\n    ...     client.close()"
+    },
+    {
+      "type": "function",
+      "name": "_step_payload",
+      "docstring": "Convert __ENV_CLASS_NAME__Action to JSON payload for step message.\n\nArgs:\n    action: __ENV_CLASS_NAME__Action instance\n\nReturns:\n    Dictionary representation suitable for JSON encoding"
+    },
+    {
+      "type": "function",
+      "name": "_parse_result",
+      "docstring": "Parse server response into StepResult[__ENV_CLASS_NAME__Observation].\n\nArgs:\n    payload: JSON response data from server\n\nReturns:\n    StepResult with __ENV_CLASS_NAME__Observation"
+    },
+    {
+      "type": "function",
+      "name": "_parse_state",
+      "docstring": "Parse server response into State object.\n\nArgs:\n    payload: JSON response from state request\n\nReturns:\n    State object with episode_id and step_count"
+    }
+  ],
+  "./.cursor/skills/generate-openenv-env/assets/openenv_env_template/models.py": [
+    {
+      "type": "class",
+      "name": "__ENV_CLASS_NAME__Action",
+      "docstring": "Action for the __ENV_TITLE_NAME__ environment - just a message to echo."
+    },
+    {
+      "type": "class",
+      "name": "__ENV_CLASS_NAME__Observation",
+      "docstring": "Observation from the __ENV_TITLE_NAME__ environment - the echoed message."
+    }
+  ],
+  "./.cursor/skills/generate-openenv-env/assets/openenv_env_template/server/app.py": [
+    {
+      "type": "function",
+      "name": "main",
+      "docstring": "Entry point for direct execution via uv run or python -m.\n\nThis function enables running the server without Docker:\n    uv run --project . server\n    uv run --project . server --port 8001\n    python -m __ENV_NAME__.server.app\n\nArgs:\n    host: Host address to bind to (default: \"0.0.0.0\")\n    port: Port number to listen on (default: 8000)\n\nFor production deployments, consider using uvicorn directly with\nmultiple workers:\n    uvicorn __ENV_NAME__.server.app:app --workers 4"
+    }
+  ],
+  "./.cursor/skills/generate-openenv-env/assets/openenv_env_template/server/__ENV_NAME___environment.py": [
+    {
+      "type": "class",
+      "name": "__ENV_CLASS_NAME__Environment",
+      "docstring": "A simple echo environment that echoes back messages.\n\nThis environment is designed for testing the HTTP server infrastructure.\nIt maintains minimal state and simply echoes back whatever message it receives.\n\nExample:\n    >>> env = __ENV_CLASS_NAME__Environment()\n    >>> obs = env.reset()\n    >>> print(obs.echoed_message)  # \"__ENV_TITLE_NAME__ environment ready!\"\n    >>>\n    >>> obs = env.step(__ENV_CLASS_NAME__Action(message=\"Hello\"))\n    >>> print(obs.echoed_message)  # \"Hello\"\n    >>> print(obs.message_length)  # 5"
+    },
+    {
+      "type": "function",
+      "name": "__init__",
+      "docstring": "Initialize the __ENV_NAME__ environment."
+    },
+    {
+      "type": "function",
+      "name": "reset",
+      "docstring": "Reset the environment.\n\nArgs:\n    seed: Optional seed for deterministic resets\n    episode_id: Optional externally-provided episode id\n    **kwargs: Additional reset arguments\n\nReturns:\n    __ENV_CLASS_NAME__Observation with a ready message"
+    },
+    {
+      "type": "function",
+      "name": "step",
+      "docstring": "Execute a step in the environment by echoing the message.\n\nArgs:\n    action: __ENV_CLASS_NAME__Action containing the message to echo\n\nReturns:\n    __ENV_CLASS_NAME__Observation with the echoed message and its length"
+    },
+    {
+      "type": "function",
+      "name": "state",
+      "docstring": "Get the current environment state.\n\nReturns:\n    Current State with episode_id and step_count"
+    }
+  ],
+  "./tools/build_road_graph.py": [
+    {
+      "type": "function",
+      "name": "encode_polyline_latlng",
+      "docstring": "Google polyline encoding for [lat,lng] points.\nStored as a compact ASCII string to shrink graph artifacts."
+    },
+    {
+      "type": "function",
+      "name": "build_adjacency",
+      "docstring": "Pass 1: build point adjacency over snapped coordinates.\nIntersections/endpoints are nodes where degree != 2."
+    },
+    {
+      "type": "function",
+      "name": "contract_edges",
+      "docstring": "Pass 2: for each way, contract degree-2 chains into intersection-to-intersection edges."
+    },
+    {
+      "type": "function",
+      "name": "filter_largest_component",
+      "docstring": "Pass 3: Keep only the largest connected component (by node count) to satisfy routing coverage."
+    }
+  ],
+  "./training/fair_eval.py": [
+    {
+      "type": "function",
+      "name": "_binom_two_sided_exact_p",
+      "docstring": "Two-sided exact test for Binomial(n, p); used for McNemar discordant pairs (p=0.5)."
+    },
+    {
+      "type": "function",
+      "name": "mcnemar_discordant",
+      "docstring": "McNemar on paired binary outcomes.\nb01 = count(baseline True, oracle False); b10 = count(baseline False, oracle True)."
+    },
+    {
+      "type": "function",
+      "name": "paired_mcnemar_analysis",
+      "docstring": "Paired McNemar for headline binaries (same rows as Wilson chart)."
+    },
+    {
+      "type": "function",
+      "name": "wilson_interval",
+      "docstring": "Wilson score interval for a binomial proportion.\nReturns (low, high, p_hat). For n==0 returns (nan, nan, nan)."
+    },
+    {
+      "type": "function",
+      "name": "_paired_improvement_counts",
+      "docstring": "Operational 'wins' where oracle strictly improves a binary bad outcome vs baseline."
+    },
+    {
+      "type": "function",
+      "name": "plot_fair_eval",
+      "docstring": "Bar chart: select headline baseline vs oracle binary rates with Wilson error bars."
+    }
+  ]
+}
