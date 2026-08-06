@@ -63,14 +63,16 @@ class MultiAgentSession:
                 resolved = baseline_policy(st, self.core.city_graph)
 
             # If grid is already above budget, steer away from routing into more load:
-            if float(st.grid_load_pct) >= float(grid_directive.max_grid_load_pct):
-                if resolved.action_type.value == "route":
-                    self.last_violations.append("grid_budget_exceeded")
-                    resolved = EVGridAction(
-                        action_type=ActionType.load_shift,
-                        ev_id=resolved.ev_id,
-                        defer_minutes=0,
-                    )
+            if (
+                float(st.grid_load_pct) >= float(grid_directive.max_grid_load_pct)
+                and resolved.action_type.value == "route"
+            ):
+                self.last_violations.append("grid_budget_exceeded")
+                resolved = EVGridAction(
+                    action_type=ActionType.load_shift,
+                    ev_id=resolved.ev_id,
+                    defer_minutes=0,
+                )
 
         self.last_resolved_action = resolved
         obs = self.core.step(resolved)
