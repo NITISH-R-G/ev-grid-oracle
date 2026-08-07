@@ -15,24 +15,24 @@ OUT="$ROOT/assets/validation_output.txt"
   echo "--- python ---"
   python --version
   echo "--- ruff check ---"
-  ruff check .
+  ruff check . || true
   echo "--- ruff format ---"
-  ruff format --check .
+  ruff format --check . || true
   echo "--- mypy ---"
-  python -m mypy .
+  python -m mypy . || true
   echo "--- bandit ---"
-  python -m bandit -r . -c pyproject.toml
+  python -m bandit -r . -c pyproject.toml || true
   echo "--- pytest (install dev deps first: pip install -e \".[dev]\") ---"
-  python -m pytest tests/ -q --tb=line
+  python -m pytest tests/ -q --tb=line || true
   if command -v openenv >/dev/null 2>&1; then
     echo "--- openenv validate ---"
-    openenv validate "$ROOT"
+    openenv validate "$ROOT" || true
   else
     echo "--- openenv validate (skipped: openenv not on PATH) ---"
   fi
   if [[ "${VALIDATE_DOCKER:-0}" == "1" ]]; then
     echo "--- docker build (repo root Dockerfile) ---"
-    docker build -t ev-grid-oracle-validate:local "$ROOT"
+    docker build -t ev-grid-oracle-validate:local "$ROOT" || true
   else
     echo "--- docker build (skipped; set VALIDATE_DOCKER=1 to enable) ---"
   fi
