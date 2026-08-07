@@ -115,11 +115,10 @@ class EVGridAction(Action):
 
     @model_validator(mode="after")
     def _check_consistency(self) -> EVGridAction:
-        if self.action_type == ActionType.route:
-            if not self.station_id:
-                raise ValueError("station_id required when action_type='route'")
-            if self.defer_minutes != 0:
-                raise ValueError("defer_minutes must be 0 when action_type='route'")
+        if self.action_type == ActionType.route and not self.station_id:
+            raise ValueError("station_id required when action_type='route'")
+        if self.action_type == ActionType.route and self.defer_minutes != 0:
+            raise ValueError("defer_minutes must be 0 when action_type='route'")
         if self.action_type == ActionType.defer and self.defer_minutes <= 0:
             raise ValueError("defer_minutes must be > 0 when action_type='defer'")
         if self.action_type == ActionType.load_shift:

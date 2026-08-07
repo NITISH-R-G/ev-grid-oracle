@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, cast
+from typing import Any, cast, ClassVar
 
 from ev_grid_oracle.models import EVGridAction, GridState
 from ev_grid_oracle.parsing import parse_action
@@ -19,7 +19,7 @@ class OracleRuntime:
     """
 
     _lock = None
-    _loaded: dict[tuple[str, str, str], tuple[object, object]] = {}
+    _loaded: ClassVar[dict[tuple[str, str, str], tuple[object, object]]] = {}
 
     @classmethod
     def load(
@@ -73,8 +73,8 @@ class OracleAgent:
     max_new_tokens: int = 140
 
     _loaded: bool = False
-    _tokenizer = None
-    _model = None
+    _tokenizer: Any = None
+    _model: Any = None
 
     def _ensure_loaded(self):
         global _CACHE_LOCK
