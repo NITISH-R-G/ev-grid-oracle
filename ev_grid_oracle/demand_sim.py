@@ -27,9 +27,8 @@ def _gaussian_bump(x: float, mu: float, sigma: float) -> float:
 
 
 def expected_arrivals_per_step(
-    hour: int, *, day_type: str, params: DemandParams | None = None
+    hour: int, *, day_type: str, params: DemandParams = DemandParams()
 ) -> float:
-    params = params or DemandParams()
     mult = (
         params.weekday_multiplier
         if day_type == "weekday"
@@ -44,9 +43,8 @@ def expected_arrivals_per_step(
 
 
 def sample_arrivals_per_step(
-    rng: Random, hour: int, *, day_type: str, params: DemandParams | None = None
+    rng: Random, hour: int, *, day_type: str, params: DemandParams = DemandParams()
 ) -> int:
-    params = params or DemandParams()
     # Poisson sampler (Knuth) for small lambdas.
     lam = expected_arrivals_per_step(hour, day_type=day_type, params=params)
     if lam <= 0:

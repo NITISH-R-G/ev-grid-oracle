@@ -13,7 +13,6 @@ from ev_grid_oracle.oracle_agent import OracleAgent
 from ev_grid_oracle.policies import baseline_policy
 from training.evaluate import run_episode, summarize
 
-
 Mode = Literal["Untrained Baseline", "Oracle Agent"]
 
 
@@ -21,7 +20,7 @@ def _norm(v: float, lo: float, hi: float) -> float:
     if hi <= lo:
         return 0.0
     x = (v - lo) / (hi - lo)
-    return 0.0 if x < 0.0 else 1.0 if x > 1.0 else x
+    return 0.0 if x < 0.0 else min(x, 1.0)
 
 
 def _station_color(load_pct: float) -> tuple[int, int, int]:
@@ -218,7 +217,7 @@ with gr.Blocks(title="EV Grid Oracle") as demo:
         sess = new_session(seed_val)
         return sess, render_map(sess.env), "", "", ""
 
-    getattr(start, "click")(
+    start.click(  # type: ignore
         _start, inputs=[seed], outputs=[state, img, thought, kpi, kpi_summary]
     )
 
@@ -234,7 +233,7 @@ with gr.Blocks(title="EV Grid Oracle") as demo:
         im, t, k = step_once(sess, mode_val, oracle_lora_repo)
         return sess, im, t, k
 
-    getattr(step, "click")(
+    step.click(  # type: ignore
         _step, inputs=[state, mode, oracle_lora], outputs=[state, img, thought, kpi]
     )
 
@@ -245,7 +244,7 @@ with gr.Blocks(title="EV Grid Oracle") as demo:
             im, t, k = step_once(sess, mode_val, oracle_lora_repo)
             yield sess, im, t, k
 
-    getattr(run60, "click")(
+    run60.click(  # type: ignore
         _run60, inputs=[state, mode, oracle_lora], outputs=[state, img, thought, kpi]
     )
 
@@ -266,7 +265,9 @@ with gr.Blocks(title="EV Grid Oracle") as demo:
     def _kpis(seed_val: int, oracle_lora_repo: str):
         return compute_kpis(seed_val, episodes=10, oracle_lora_repo=oracle_lora_repo)
 
-    getattr(kpis_btn, "click")(_kpis, inputs=[seed, oracle_lora], outputs=[kpi_summary])
+    kpis_btn.click(  # type: ignore
+        _kpis, inputs=[seed, oracle_lora], outputs=[kpi_summary]
+    )
 
 
 if __name__ == "__main__":

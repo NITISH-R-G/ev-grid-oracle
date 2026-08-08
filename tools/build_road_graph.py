@@ -1,16 +1,16 @@
 from __future__ import annotations
 
 import argparse
-import gzip
-import hashlib
-import itertools
 import json
+import hashlib
+import gzip
 from dataclasses import dataclass
 from math import asin, cos, radians, sin, sqrt
 from pathlib import Path
 from typing import Any
 
 import networkx as nx
+
 
 ROOT = Path(__file__).resolve().parents[1]
 
@@ -51,8 +51,8 @@ def encode_polyline_latlng(points: list[list[float]], *, precision: int = 5) -> 
     prev_lng = 0
     out = ""
     for lat, lng in points:
-        ilat = round(float(lat) * factor)
-        ilng = round(float(lng) * factor)
+        ilat = int(round(float(lat) * factor))
+        ilng = int(round(float(lng) * factor))
         out += _encode_signed(ilat - prev_lat)
         out += _encode_signed(ilng - prev_lng)
         prev_lat = ilat
@@ -154,7 +154,7 @@ def build_adjacency(
         if len(pts) < 2:
             continue
         snapped = [snap(lat, lng, decimals=snap_decimals) for (lat, lng) in pts]
-        for a, b in itertools.pairwise(snapped):
+        for a, b in zip(snapped, snapped[1:]):
             add_neighbor(a, b)
 
     return {k: (len(v) != 2) for k, v in adj.items()}
@@ -203,7 +203,7 @@ def contract_edges(
         last_node_k: tuple[float, float] | None = None
         seg_geom: list[list[float]] = []  # [[lat,lng],...]
 
-        def flush(to_k: tuple[float, float], hw=highway, nm=name):
+        def flush(to_k: tuple[float, float]):
             nonlocal last_node_k, seg_geom
             if last_node_k is None:
                 last_node_k = to_k
@@ -221,17 +221,17 @@ def contract_edges(
 
             # Distance along the segment geometry
             dist_m = 0.0
-            for (la1, lo1), (la2, lo2) in itertools.pairwise(seg_geom):
+            for (la1, lo1), (la2, lo2) in zip(seg_geom, seg_geom[1:]):
                 dist_m += haversine_m(float(la1), float(lo1), float(la2), float(lo2))
-            v_kmh = speed_kmh(str(highway))  # noqa: B023
+            v_kmh = speed_kmh(highway)
             travel_s = dist_m / max(1e-3, (v_kmh * 1000.0 / 3600.0))
 
             edges.append(
                 {
                     "a": int(a_id),
                     "b": int(b_id),
-                    "highway": str(highway),  # noqa: B023
-                    "name": str(name),  # noqa: B023
+                    "highway": highway,
+                    "name": name,
                     "dist_m": round(dist_m, 3),
                     "travel_s": round(travel_s, 4),
                     "geom_poly": encode_polyline_latlng(
@@ -277,7 +277,7 @@ def filter_largest_component(
         g3.add_edge(int(e["a"]), int(e["b"]))
     comps3 = list(nx.connected_components(g3))
     keep_nodes = max(comps3, key=lambda c: len(c)) if comps3 else set()
-    keep_nodes_set = {int(x) for x in keep_nodes}
+    keep_nodes_set = set(int(x) for x in keep_nodes)
 
     # Remap nodes to a compact id space.
     id_map: dict[int, int] = {}

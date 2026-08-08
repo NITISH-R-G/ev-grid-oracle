@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
+from typing import Optional
 
 import pygame
 
@@ -27,7 +28,7 @@ def _norm(v: float, lo: float, hi: float) -> float:
     if hi <= lo:
         return 0.0
     x = (v - lo) / (hi - lo)
-    return 0.0 if x < 0.0 else min(x, 1.0)
+    return 0.0 if x < 0.0 else 1.0 if x > 1.0 else x
 
 
 @dataclass
@@ -45,9 +46,9 @@ class RenderConfig:
 
 
 class CityMapRenderer:
-    def __init__(self, env: EVGridCore, cfg: RenderConfig | None = None):
+    def __init__(self, env: EVGridCore, cfg: RenderConfig = RenderConfig()):
         self.env = env
-        self.cfg = cfg or RenderConfig()
+        self.cfg = cfg
         self._font = pygame.font.SysFont("Consolas", 18)
         self._font_sm = pygame.font.SysFont("Consolas", 14)
 
@@ -90,7 +91,7 @@ class CityMapRenderer:
         self,
         surf: pygame.Surface,
         *,
-        last_action: EVGridAction | None = None,
+        last_action: Optional[EVGridAction] = None,
         mode_label: str = "",
     ):
         cfg = self.cfg
@@ -254,25 +255,26 @@ def run_live(seed: int = 123, *, mode: str = "baseline"):
     env.reset(seed=seed)
     renderer = CityMapRenderer(env, cfg)
 
-    last_action: EVGridAction | None = None
+    last_action: Optional[EVGridAction] = None
     running = True
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-                # one sim tick
-                st = env._grid_state
-                if st is None or not st.pending_evs:
-                    action = EVGridAction(
-                        action_type=ActionType.load_shift,
-                        ev_id="EV-000",
-                        defer_minutes=0,
-                    )
-                else:
-                    action = baseline_policy(st, env.city_graph)
-                last_action = action
-                env.step(action)
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_SPACE:
+                    # one sim tick
+                    st = env._grid_state
+                    if st is None or not st.pending_evs:
+                        action = EVGridAction(
+                            action_type=ActionType.load_shift,
+                            ev_id="EV-000",
+                            defer_minutes=0,
+                        )
+                    else:
+                        action = baseline_policy(st, env.city_graph)
+                    last_action = action
+                    env.step(action)
 
         renderer.render(screen, last_action=last_action, mode_label=mode)
         pygame.display.flip()

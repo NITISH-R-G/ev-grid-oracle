@@ -1,12 +1,11 @@
 from __future__ import annotations
 
-import gzip
-import itertools
 import json
-from collections.abc import Callable
+import gzip
 from dataclasses import dataclass
 from math import asin, cos, radians, sin, sqrt
 from pathlib import Path
+from typing import Callable, Optional
 
 import networkx as nx
 
@@ -62,7 +61,7 @@ class RoadRouter:
     edge_geom: dict[tuple[int, int], list[list[float]]]
 
     @classmethod
-    def load(cls, path: Path) -> RoadRouter:
+    def load(cls, path: Path) -> "RoadRouter":
         if str(path).endswith(".gz"):
             with gzip.open(path, "rb") as f:
                 obj = json.loads(f.read().decode("utf-8"))
@@ -71,7 +70,7 @@ class RoadRouter:
         nodes_in = obj.get("nodes", [])
         edges_in = obj.get("edges", [])
         if not isinstance(nodes_in, list) or not isinstance(edges_in, list):
-            raise TypeError("invalid road graph json")
+            raise ValueError("invalid road graph json")
 
         nodes: list[tuple[float, float]] = []
         for n in nodes_in:
@@ -122,7 +121,7 @@ class RoadRouter:
         dst_lng: float,
         traffic: TrafficModel | None = None,
         tick: int | None = None,
-    ) -> tuple[list[list[float]], list[int]] | None:
+    ) -> Optional[tuple[list[list[float]], list[int]]]:
         a = self.nearest_node(lat=src_lat, lng=src_lng)
         b = self.nearest_node(lat=dst_lat, lng=dst_lng)
         try:
@@ -147,11 +146,11 @@ class RoadRouter:
                 weight_fn = _w
 
             path = nx.shortest_path(self.g, a, b, weight=weight_fn)
-        except Exception:  # noqa: BLE001
+        except Exception:
             return None
         poly: list[list[float]] = []
         seg_m_q: list[int] = []
-        for u, v in itertools.pairwise(path):
+        for u, v in zip(path, path[1:]):
             seg = self.edge_geom.get((int(u), int(v)))
             # Edge traffic multiplier used for this segment (quantized).
             if traffic is not None and tick is not None:
