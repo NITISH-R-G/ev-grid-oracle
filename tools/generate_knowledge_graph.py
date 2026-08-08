@@ -78,7 +78,6 @@ def generate_knowledge_graph(root_dir: str) -> dict[str, list[dict[str, Any]]]:
                 logger.warning(f"Failed to parse {filepath}: {e}")
                 continue  # nosec B112
 
-
     return knowledge_graph
 
 

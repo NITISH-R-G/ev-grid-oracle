@@ -85,7 +85,6 @@ def generate_docs(root_dir: str) -> str:
                 logger.warning(f"Failed to parse {filepath}: {e}")
                 continue  # nosec B112
 
-
     return docs
 
 
