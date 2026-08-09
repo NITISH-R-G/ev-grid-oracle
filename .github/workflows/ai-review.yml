@@ -15,7 +15,7 @@ jobs:
     if: ${{ github.event.sender.type != 'Bot' }}
     steps:
       - name: CodeRabbit AI PR Review
-        uses: coderabbitai/openai-pr-reviewer@latest
+        uses: Codium-ai/pr-agent@main
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
