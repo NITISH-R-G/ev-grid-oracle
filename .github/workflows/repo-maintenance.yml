@@ -1,0 +1,64 @@
+name: Repository Maintenance
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  schedule:
+    - cron: '0 2 * * *'
+
+permissions:
+  contents: write
+
+jobs:
+  maintenance:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'schedule' || github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+          ref: ${{ github.head_ref || github.ref }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Node.js and Prettier
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: npm install -g prettier
+
+      - name: Install uv and deps
+        run: |
+          pip install uv
+          uv pip install --system -e ".[dev,demo]" cyclonedx-bom
+
+      - name: Auto-fix formatting and linting (Python)
+        run: |
+          uv run --with ruff ruff check --fix .
+          uv run --with ruff ruff format .
+
+      - name: Auto-fix formatting (Frontend, JSON, MD)
+        run: |
+          prettier --write "**/*.{json,md,yml,yaml}"
+          cd web && npm ci && npx prettier --write .
+
+      - name: Generate Knowledge Graph
+        run: uv run python tools/generate_knowledge_graph.py
+
+      - name: Sync Docs
+        run: uv run python tools/docs_sync.py
+
+      - name: Generate SBOM
+        run: cyclonedx-py environment -o bom.json
+
+      - name: Commit changes
+        run: |
+          git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add -A
+          git commit -m "chore: auto-maintenance (lint, format, docs, kg, sbom)" || echo "No changes to commit"
+          git push
