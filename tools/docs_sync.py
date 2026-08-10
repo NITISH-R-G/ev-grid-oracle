@@ -76,7 +76,7 @@ def generate_docs() -> None:
                         with open(doc_path, "w", encoding="utf-8") as out_f:
                             out_f.write(doc_content)
 
-                except Exception as e:  # noqa: BLE001
+                except Exception as e:
                     print(f"Error documenting {file_path}: {e}")
 
     print("Generated API documentation successfully.")

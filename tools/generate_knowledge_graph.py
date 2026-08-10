@@ -57,7 +57,7 @@ def generate_knowledge_graph() -> None:
 
                     if classes or functions:
                         graph[file_path] = {"classes": classes, "functions": functions}
-                except Exception as e:  # noqa: BLE001
+                except Exception as e:
                     print(f"Error parsing {file_path}: {e}")
 
     with open("knowledge_graph.json", "w", encoding="utf-8") as f:
