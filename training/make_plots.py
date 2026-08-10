@@ -164,7 +164,7 @@ def plot_reward_breakdown(data: dict[str, Any], out_dir: Path) -> Path | None:
     if not bb or not ob:
         return None
     keys = sorted(set(bb.keys()) & set(ob.keys()))
-    keys = [k for k in keys if k not in ("no_pending",) and not str(k).startswith("_")]
+    keys = [k for k in keys if k != "no_pending" and not str(k).startswith("_")]
     if not keys:
         return None
     y = list(range(len(keys)))

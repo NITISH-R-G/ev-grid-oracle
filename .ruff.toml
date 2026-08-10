@@ -1,2 +1,8 @@
 [lint]
-ignore = ["E402"]
+select = ["E", "F", "UP", "B", "C4", "SIM", "PLC", "I", "BLE", "TRY", "RUF", "FURB", "PIE", "EXE", "PLR"]
+ignore = [
+    "E402", "B008", "BLE001", "PLR2004", "E501", "PLC0415", "TRY003",
+    "B905", "B904", "PLR0912", "PLR0913", "TRY300", "PLR0915",
+    "SIM102", "RUF012", "PLR0911", "SIM115", "TRY004", "PLC0206",
+    "B017", "B023", "EXE001", "RUF001"
+]
