@@ -1,0 +1,14 @@
+backend:
+  - any: ['server/**/*', 'ev_grid_oracle/**/*']
+
+frontend:
+  - any: ['web/**/*']
+
+docs:
+  - any: ['docs/**/*', '*.md']
+
+workflows:
+  - any: ['.github/workflows/**/*']
+
+tests:
+  - any: ['tests/**/*']
