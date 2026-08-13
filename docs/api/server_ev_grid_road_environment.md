@@ -1,0 +1,3 @@
+### Class: EVGridRoadEnvironment
+Separate OpenEnv environment that forces real-road-graph actions.
+Mounted as a sub-app under /road/ so it doesn't break the existing env.
