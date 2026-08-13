@@ -18,14 +18,14 @@
 ## Sprint Plan
 - **Sprint Goal:** Establish an automated, server-side Continuous Integration pipeline to enforce repository engineering standards on every commit.
 - **Tasks:**
-  1. Write `CYCLE_7_REPORT.md` documenting the CI modernization.
-  2. Update GitHub Actions workflow (`.github/workflows/code-quality.yml`) to install dependencies properly and execute pytest.
+  1. Write `CYCLE_7_REPORT.md` documenting the CI modernization, including `bandit` and `openenv-core` in CI pipeline and pinning `jscpd` to 4.0.0.
+  2. Update GitHub Actions workflow (`.github/workflows/code-quality.yml`) to install dependencies properly, execute pytest, run SAST scanning, run OpenEnv validations, and enforce jscpd versions.
   3. Verify the files locally.
 - **Implementation Roadmap:** Write report -> Update `.github/workflows/code-quality.yml` -> Verify locally -> Commit.
 - **Expected Outcomes:** An automated CI pipeline that checks formatting, types and runs tests, providing a robust server-side quality gate.
 
 ## Technical Improvements
-- **DevOps/CI:** Shifted right by enforcing the local validation script in a server-side GitHub Actions CI pipeline, guaranteeing that no code can be merged without passing SAST, type-checking, linting, and unit tests.
+- **DevOps/CI:** Shifted right by enforcing the local validation script in a server-side GitHub Actions CI pipeline, guaranteeing that no code can be merged without passing SAST, type-checking, linting, and unit tests. Added `bandit` and `openenv-core` to the CI pipeline dependencies. Pinned `jscpd` to version 4.0.0 to prevent platform dependency errors and incompatible flag errors. Extended `jscpd` ignore paths. Changed pytest run command to include `PYTHONPATH=.`.
 
 ## Metrics Improved
 - **Deployment Readiness:** Increased deployment readiness by ensuring that the `main` branch is always in a deployable state, as all commits must pass the automated CI pipeline.
