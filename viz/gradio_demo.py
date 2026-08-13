@@ -141,12 +141,10 @@ def step_once(
             if sess.oracle
             else baseline_policy(state, sess.env.city_graph)
         )
-        tag = (
-            "Oracle"
-            if sess.oracle and sess.oracle.is_active
-            else "Oracle (fallback)"
+        tag = "Oracle" if sess.oracle and sess.oracle.is_active else "Oracle (fallback)"
+        sess.last_action_text = (
+            f"{tag} picked {action.action_type.value} -> {action.station_id or 'NONE'}"
         )
-        sess.last_action_text = f"{tag} picked {action.action_type.value} -> {action.station_id or 'NONE'}"
 
     obs = sess.env.step(action)
     img = render_map(sess.env)
