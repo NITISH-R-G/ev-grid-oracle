@@ -1,0 +1,26 @@
+backend:
+  - any:
+    - 'ev_grid_oracle/**/*'
+    - 'server/**/*'
+    - 'models.py'
+
+frontend:
+  - any:
+    - 'web/**/*'
+
+tests:
+  - any:
+    - 'tests/**/*'
+
+documentation:
+  - any:
+    - '**/*.md'
+    - 'docs/**/*'
+
+tools:
+  - any:
+    - 'tools/**/*'
+
+ci:
+  - any:
+    - '.github/**/*'
