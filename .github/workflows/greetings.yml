@@ -1,0 +1,33 @@
+name: Greetings
+
+on:
+  pull_request:
+    types: [opened]
+  issues:
+    types: [opened]
+
+permissions:
+  pull-requests: write
+  issues: write
+
+jobs:
+  greeting:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/first-interaction@v1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          issue-message: |
+            Welcome to the EV Grid Oracle repository! 👋
+
+            Thank you for opening your first issue. Our team (and our automated bots) will take a look shortly. In the meantime, please ensure your issue provides as much context as possible.
+
+            If you need immediate assistance, please refer to our documentation or our community guidelines. We appreciate your contribution!
+          pr-message: |
+            Welcome to the EV Grid Oracle repository! 🎉
+
+            Thank you for your first pull request! We are thrilled to have you contribute.
+
+            Our automated CI systems and AI reviewers will begin analyzing your code shortly. Please make sure that all local tests and linting (`./validate-submission.sh`) pass before requesting a final review.
+
+            If you have any questions, feel free to ask in this thread. Thank you for improving our open-source ecosystem!
