@@ -1,0 +1,17 @@
+backend:
+  - any: ['server/**/*', 'ev_grid_oracle/**/*', 'tests/**/*']
+
+frontend:
+  - any: ['web/**/*']
+
+documentation:
+  - any: ['docs/**/*', '*.md']
+
+infrastructure:
+  - any: ['.github/**/*', 'Dockerfile', 'openenv.yaml', '*.sh']
+
+training:
+  - any: ['training/**/*']
+
+visualization:
+  - any: ['viz/**/*']
