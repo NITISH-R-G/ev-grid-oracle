@@ -6,6 +6,7 @@ from typing import Optional
 
 import networkx as nx
 
+from .bescom_feed import BESCOMFeedAPI
 from .city_graph import STATIONS
 from .demand_sim import sample_arrivals_per_step
 from .grid_sim import update_grid_load
@@ -19,10 +20,9 @@ from .models import (
     PeakRisk,
     StationState,
 )
+from .personas import FleetMode, choose_persona
 from .reward import compute_reward
 from .reward_hack import RewardHackDetector
-from .bescom_feed import BESCOMFeedAPI
-from .personas import FleetMode, choose_persona
 from .scenarios import (
     ScenarioEvent,
     ScenarioModifiers,
@@ -46,7 +46,7 @@ class EVGridCore:
     max_steps: int = 48
     step_minutes: int = 5
     rng: Random = field(default_factory=Random)
-    _grid_state: Optional[GridState] = None
+    _grid_state: GridState | None = None
     scenario: ScenarioName = "baseline"
     _scenario_schedule: list[ScenarioEvent] = field(default_factory=list)
     _scenario_mods: ScenarioModifiers = field(default_factory=ScenarioModifiers)
@@ -59,7 +59,7 @@ class EVGridCore:
     def reset(
         self,
         *,
-        seed: Optional[int] = None,
+        seed: int | None = None,
         scenario: ScenarioName = "baseline",
         fleet_mode: FleetMode = "mixed",
     ) -> EVGridObservation:
@@ -180,8 +180,7 @@ class EVGridCore:
                 new_total = self._scenario_mods.slot_derate.get(s.station_id)
                 if new_total is not None and new_total < s.total_slots:
                     s.total_slots = int(new_total)
-                    if s.occupied_slots > s.total_slots:
-                        s.occupied_slots = s.total_slots
+                    s.occupied_slots = min(s.occupied_slots, s.total_slots)
 
         # 1) apply action (deterministic validation + state mutation)
         action_effect = _apply_action(prev_state, action)
@@ -197,7 +196,7 @@ class EVGridCore:
         arrivals = sample_arrivals_per_step(
             self.rng, prev_state.hour, day_type=prev_state.day_type.value
         )
-        arrivals = int(round(arrivals * float(self._scenario_mods.arrivals_mult)))
+        arrivals = round(arrivals * float(self._scenario_mods.arrivals_mult))
         for _ in range(arrivals):
             prev_state.pending_evs.append(
                 _make_ev(
