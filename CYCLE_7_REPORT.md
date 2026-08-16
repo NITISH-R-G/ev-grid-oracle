@@ -18,14 +18,14 @@
 ## Sprint Plan
 - **Sprint Goal:** Establish an automated, server-side Continuous Integration pipeline to enforce repository engineering standards on every commit.
 - **Tasks:**
-  1. Write `CYCLE_7_REPORT.md` documenting the CI modernization.
-  2. Update GitHub Actions workflow (`.github/workflows/code-quality.yml`) to install dependencies properly and execute pytest.
+  1. Write `CYCLE_7_REPORT.md` documenting the CI modernization. Included justification for adding `bandit` (for Static Application Security Testing) and `openenv-core` (for OpenEnv environment validation) as required tools in the automated pipeline.
+  2. Update GitHub Actions workflow (`.github/workflows/code-quality.yml`) to install dependencies properly (`bandit` and `openenv-core`) and execute pytest.
   3. Verify the files locally.
 - **Implementation Roadmap:** Write report -> Update `.github/workflows/code-quality.yml` -> Verify locally -> Commit.
 - **Expected Outcomes:** An automated CI pipeline that checks formatting, types and runs tests, providing a robust server-side quality gate.
 
 ## Technical Improvements
-- **DevOps/CI:** Shifted right by enforcing the local validation script in a server-side GitHub Actions CI pipeline, guaranteeing that no code can be merged without passing SAST, type-checking, linting, and unit tests.
+- **DevOps/CI:** Shifted right by enforcing the local validation script in a server-side GitHub Actions CI pipeline, guaranteeing that no code can be merged without passing SAST, type-checking, linting, and unit tests. Added `bandit` to CI to enforce security standards and `openenv-core` to ensure OpenEnv environment validity.
 
 ## Metrics Improved
 - **Deployment Readiness:** Increased deployment readiness by ensuring that the `main` branch is always in a deployable state, as all commits must pass the automated CI pipeline.
