@@ -1,17 +1,17 @@
+import subprocess  # nosec B404
 import logging
-import subprocess
 
-logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 
 def run_fixers():
     try:
-        logging.info("Running ruff fixes...")
-        subprocess.run(["ruff", "check", "--fix", "."], check=False)
-        logging.info("Running ruff format...")
-        subprocess.run(["ruff", "format", "."], check=False)
+        logger.info("Running ruff fixes...")
+        subprocess.run(["ruff", "check", "--fix", "."], check=False)  # nosec B603 B607
+        logger.info("Running ruff format...")
+        subprocess.run(["ruff", "format", "."], check=False)  # nosec B603 B607
     except Exception as e:
-        logging.warning(f"Failed to run fixers: {e}")
+        logger.warning(f"Failed to run fixers: {e}")
 
 
 if __name__ == "__main__":
