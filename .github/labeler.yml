@@ -1,0 +1,15 @@
+frontend:
+  - web/**/*
+
+python:
+  - "**/*.py"
+
+docs:
+  - "**/*.md"
+  - docs/**/*
+
+ci:
+  - .github/**/*
+
+tests:
+  - tests/**/*
