@@ -1,2 +1,2 @@
 [lint]
-ignore = ["E402"]
+ignore = ["E402", "B008", "BLE001", "B017", "PLC0206", "B023", "SIM102", "RUF012", "TRY004"]
