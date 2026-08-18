@@ -23,9 +23,8 @@ def extract_dependencies(filepath: Path) -> list[str]:
         if isinstance(node, ast.Import):
             for alias in node.names:
                 dependencies.append(alias.name)
-        elif isinstance(node, ast.ImportFrom):
-            if node.module:
-                dependencies.append(node.module)
+        elif isinstance(node, ast.ImportFrom) and node.module:
+            dependencies.append(node.module)
 
     return dependencies
 
