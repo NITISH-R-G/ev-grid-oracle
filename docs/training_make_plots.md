@@ -1,0 +1,19 @@
+# Documentation for training/make_plots.py
+
+## Functions
+
+### _boxplot_compat
+### _per_episode_rows
+### plot_kpi_bars
+### plot_episode_trajectories
+### plot_delta_histograms
+### plot_reward_breakdown
+### plot_boxplots
+### plot_oracle_win_rates
+### plot_paired_scatter
+### plot_binary_timeline
+### plot_fair_eval_rates
+### plot_mcnemar_summary
+### plot_dashboard_grid
+### main
+### rate

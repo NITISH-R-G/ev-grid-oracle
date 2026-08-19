@@ -1,0 +1,7 @@
+# Documentation for tests/test_fair_eval_mcnemar.py
+
+## Functions
+
+### test_mcnemar_no_discordant_is_neutral
+### test_mcnemar_strong_asymmetry_low_p
+### test_paired_mcnemar_analysis_shape
