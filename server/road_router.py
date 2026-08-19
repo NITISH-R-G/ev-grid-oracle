@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-import json
 import gzip
+import json
 from dataclasses import dataclass
 from math import asin, cos, radians, sin, sqrt
 from pathlib import Path
-from typing import Callable, Optional
+from typing import Callable
 
 import networkx as nx
 
@@ -61,7 +61,7 @@ class RoadRouter:
     edge_geom: dict[tuple[int, int], list[list[float]]]
 
     @classmethod
-    def load(cls, path: Path) -> "RoadRouter":
+    def load(cls, path: Path) -> RoadRouter:
         if str(path).endswith(".gz"):
             with gzip.open(path, "rb") as f:
                 obj = json.loads(f.read().decode("utf-8"))
@@ -121,7 +121,7 @@ class RoadRouter:
         dst_lng: float,
         traffic: TrafficModel | None = None,
         tick: int | None = None,
-    ) -> Optional[tuple[list[list[float]], list[int]]]:
+    ) -> tuple[list[list[float]], list[int]] | None:
         a = self.nearest_node(lat=src_lat, lng=src_lng)
         b = self.nearest_node(lat=dst_lat, lng=dst_lng)
         try:
