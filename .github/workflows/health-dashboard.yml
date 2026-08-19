@@ -13,16 +13,17 @@ on:
     - cron: '0 0 * * *' # Daily at midnight UTC
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  build-and-deploy:
+  build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0 # Needed for git stats
+          lfs: true
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -45,10 +46,3 @@ jobs:
         with:
           name: health-dashboard
           path: dashboard_output/
-
-      - name: Deploy to GitHub Pages
-        if: github.ref == 'refs/heads/main'
-        uses: peaceiris/actions-gh-pages@v4
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./dashboard_output

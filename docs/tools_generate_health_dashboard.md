@@ -1,0 +1,16 @@
+# Documentation for tools/generate_health_dashboard.py
+
+## Functions
+
+### run_cmd
+### get_git_stats
+### get_leaderboard
+### get_documentation_health
+### fetch_github_stats
+### run_pytest_cov
+### run_radon
+### run_bandit
+### run_ruff
+### calculate_health_scores
+### generate_ai_insights
+### main
