@@ -13,7 +13,6 @@ from ev_grid_oracle.oracle_agent import OracleAgent
 from ev_grid_oracle.policies import baseline_policy
 from training.evaluate import run_episode, summarize
 
-
 Mode = Literal["Untrained Baseline", "Oracle Agent"]
 
 
@@ -128,27 +127,24 @@ def step_once(
             action_type=ActionType.load_shift, ev_id="EV-000", defer_minutes=0
         )
         sess.last_action_text = "ACTION: load_shift (no pending EVs)"
+    elif mode == "Untrained Baseline":
+        action = baseline_policy(state, sess.env.city_graph)
+        sess.last_action_text = f"Baseline picked {action.action_type.value} -> {action.station_id or 'NONE'}"
     else:
-        if mode == "Untrained Baseline":
-            action = baseline_policy(state, sess.env.city_graph)
-            sess.last_action_text = f"Baseline picked {action.action_type.value} -> {action.station_id or 'NONE'}"
-        else:
-            oracle_lora_repo = (oracle_lora_repo or "").strip()
-            if sess.oracle is None or sess.oracle_lora_repo != oracle_lora_repo:
-                sess.oracle_lora_repo = oracle_lora_repo
-                sess.oracle = OracleAgent(lora_repo_id=oracle_lora_repo or None)
-            prompt = _build_prompt(state)
-            action = (
-                sess.oracle.act(state, prompt, sess.env.city_graph)
-                if sess.oracle
-                else baseline_policy(state, sess.env.city_graph)
-            )
-            tag = (
-                "Oracle"
-                if sess.oracle and sess.oracle.is_active
-                else "Oracle (fallback)"
-            )
-            sess.last_action_text = f"{tag} picked {action.action_type.value} -> {action.station_id or 'NONE'}"
+        oracle_lora_repo = (oracle_lora_repo or "").strip()
+        if sess.oracle is None or sess.oracle_lora_repo != oracle_lora_repo:
+            sess.oracle_lora_repo = oracle_lora_repo
+            sess.oracle = OracleAgent(lora_repo_id=oracle_lora_repo or None)
+        prompt = _build_prompt(state)
+        action = (
+            sess.oracle.act(state, prompt, sess.env.city_graph)
+            if sess.oracle
+            else baseline_policy(state, sess.env.city_graph)
+        )
+        tag = "Oracle" if sess.oracle and sess.oracle.is_active else "Oracle (fallback)"
+        sess.last_action_text = (
+            f"{tag} picked {action.action_type.value} -> {action.station_id or 'NONE'}"
+        )
 
     obs = sess.env.step(action)
     img = render_map(sess.env)

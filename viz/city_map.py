@@ -91,7 +91,7 @@ class CityMapRenderer:
         self,
         surf: pygame.Surface,
         *,
-        last_action: Optional[EVGridAction] = None,
+        last_action: EVGridAction | None = None,
         mode_label: str = "",
     ):
         cfg = self.cfg
@@ -255,7 +255,7 @@ def run_live(seed: int = 123, *, mode: str = "baseline"):
     env.reset(seed=seed)
     renderer = CityMapRenderer(env, cfg)
 
-    last_action: Optional[EVGridAction] = None
+    last_action: EVGridAction | None = None
     running = True
     while running:
         for event in pygame.event.get():

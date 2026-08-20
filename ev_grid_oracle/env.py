@@ -6,6 +6,7 @@ from typing import Optional
 
 import networkx as nx
 
+from .bescom_feed import BESCOMFeedAPI
 from .city_graph import STATIONS
 from .demand_sim import sample_arrivals_per_step
 from .grid_sim import update_grid_load
@@ -19,10 +20,9 @@ from .models import (
     PeakRisk,
     StationState,
 )
+from .personas import FleetMode, choose_persona
 from .reward import compute_reward
 from .reward_hack import RewardHackDetector
-from .bescom_feed import BESCOMFeedAPI
-from .personas import FleetMode, choose_persona
 from .scenarios import (
     ScenarioEvent,
     ScenarioModifiers,
@@ -46,7 +46,7 @@ class EVGridCore:
     max_steps: int = 48
     step_minutes: int = 5
     rng: Random = field(default_factory=Random)
-    _grid_state: Optional[GridState] = None
+    _grid_state: GridState | None = None
     scenario: ScenarioName = "baseline"
     _scenario_schedule: list[ScenarioEvent] = field(default_factory=list)
     _scenario_mods: ScenarioModifiers = field(default_factory=ScenarioModifiers)
@@ -59,7 +59,7 @@ class EVGridCore:
     def reset(
         self,
         *,
-        seed: Optional[int] = None,
+        seed: int | None = None,
         scenario: ScenarioName = "baseline",
         fleet_mode: FleetMode = "mixed",
     ) -> EVGridObservation:
