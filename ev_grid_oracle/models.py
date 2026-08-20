@@ -4,7 +4,6 @@ from enum import Enum
 from typing import Any, Literal, Optional
 
 from openenv.core.env_server.types import Action, Observation
-
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
@@ -110,7 +109,7 @@ class EVGridAction(Action):
 
     action_type: ActionType
     ev_id: str
-    station_id: Optional[str] = None
+    station_id: str | None = None
     charge_rate: ChargeRate = ChargeRate.fast
     defer_minutes: int = Field(0, ge=0)
 

@@ -13,7 +13,6 @@ from ev_grid_oracle.oracle_agent import OracleAgent
 from ev_grid_oracle.policies import baseline_policy
 from viz.city_map import CityMapRenderer, RenderConfig
 
-
 PolicyFn = Callable[[GridState, object], EVGridAction]
 
 
@@ -38,7 +37,7 @@ def record_phase(
     frame_start: int,
     policy: PolicyFn,
 ) -> int:
-    last_action: Optional[EVGridAction] = None
+    last_action: EVGridAction | None = None
     frame = frame_start
     for _ in range(steps):
         last_action = _step_action(env, policy)
