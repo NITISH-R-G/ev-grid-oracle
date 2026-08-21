@@ -40,11 +40,10 @@ def generate_architecture_graph() -> None:
                             graph["edges"].append(
                                 {"source": filepath, "target": alias.name}
                             )
-                    elif isinstance(node, ast.ImportFrom):
-                        if node.module:
-                            graph["edges"].append(
-                                {"source": filepath, "target": node.module}
-                            )
+                    elif isinstance(node, ast.ImportFrom) and node.module:
+                        graph["edges"].append(
+                            {"source": filepath, "target": node.module}
+                        )
 
     os.makedirs("artifacts", exist_ok=True)
     with open("artifacts/architecture_graph.json", "w", encoding="utf-8") as f:
