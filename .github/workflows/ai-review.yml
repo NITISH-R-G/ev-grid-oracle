@@ -16,12 +16,11 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event.sender.type != 'Bot' }}
     steps:
-      - name: Run CodeRabbit AI PR Review
-        uses: coderabbitai/openai-pr-reviewer@latest
+      - name: Run PR Agent
+        uses: Codium-ai/pr-agent@main
         env:
+          OPENAI_KEY: ${{ secrets.OPENAI_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
-        with:
-          debug: false
-          review_simple_changes: false
-          review_comment_lgtm: false
+          github_action_config.auto_review: "true"
+          github_action_config.auto_describe: "true"
+          github_action_config.auto_improve: "true"
