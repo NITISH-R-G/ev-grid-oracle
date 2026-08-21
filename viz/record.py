@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import argparse
 from pathlib import Path
-from typing import Optional
 
 import pygame
 
@@ -37,7 +36,7 @@ def record(
     env.reset(seed=seed)
     renderer = CityMapRenderer(env, cfg)
 
-    last_action: Optional[EVGridAction] = None
+    last_action: EVGridAction | None = None
     frame = 0
     for step in range(steps):
         st = env._grid_state
