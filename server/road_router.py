@@ -1,11 +1,11 @@
 from __future__ import annotations
 
-import json
 import gzip
+import json
 from dataclasses import dataclass
 from math import asin, cos, radians, sin, sqrt
 from pathlib import Path
-from typing import Callable, Optional
+from typing import Callable
 
 import networkx as nx
 
@@ -121,7 +121,7 @@ class RoadRouter:
         dst_lng: float,
         traffic: TrafficModel | None = None,
         tick: int | None = None,
-    ) -> Optional[tuple[list[list[float]], list[int]]]:
+    ) -> tuple[list[list[float]], list[int]] | None:
         a = self.nearest_node(lat=src_lat, lng=src_lng)
         b = self.nearest_node(lat=dst_lat, lng=dst_lng)
         try:

@@ -1,14 +1,13 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import Any, Optional, Tuple, cast
+from typing import Any, Tuple, cast
 
 from ev_grid_oracle.models import EVGridAction, GridState
 from ev_grid_oracle.parsing import parse_action
 from ev_grid_oracle.policies import baseline_policy
 
-
-_CACHE: dict[tuple[str, Optional[str]], tuple[Any, Any]] = {}
+_CACHE: dict[tuple[str, str | None], tuple[Any, Any]] = {}
 _CACHE_LOCK = None
 
 
@@ -69,7 +68,7 @@ class OracleAgent:
     Optional: load a trained LoRA adapter when `lora_repo_id` provided.
     """
 
-    lora_repo_id: Optional[str] = None
+    lora_repo_id: str | None = None
     base_model_id: str = "unsloth/Qwen2.5-3B-Instruct"
     max_new_tokens: int = 140
 
