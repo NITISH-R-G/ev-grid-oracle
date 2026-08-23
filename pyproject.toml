@@ -19,6 +19,11 @@ dev = [
   "pytest-cov>=4.0",
   "radon>=6.0",
   "jinja2>=3.1",
+  "mypy",
+  "bandit",
+  "openenv-core",
+  "vulture",
+  "ruff",
 ]
 demo = [
   "gradio>=4.44",
