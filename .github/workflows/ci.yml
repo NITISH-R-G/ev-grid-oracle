@@ -1,0 +1,34 @@
+name: CI Tests
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+  workflows: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install uv
+      run: pip install uv
+
+    - name: Install dependencies
+      run: |
+        uv pip install --system -e ".[dev,demo]"
+        uv pip install --system "httpx<0.28.0" httpx2 starlette
+
+    - name: Run pytest
+      run: |
+        uv run pytest tests/
