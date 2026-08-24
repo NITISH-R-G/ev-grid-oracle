@@ -42,6 +42,14 @@ jobs:
       run: |
         vulture . --min-confidence 80 --exclude .venv,venv,.cursor,web/node_modules
 
+    - name: SAST with Bandit
+      run: |
+        python -m bandit -r . -c pyproject.toml
+
+    - name: OpenEnv validation
+      run: |
+        openenv validate "$GITHUB_WORKSPACE"
+
     - name: Complexity Analysis with Radon
       run: |
         radon cc . -a -nc
@@ -87,7 +95,7 @@ jobs:
         node-version: '24'
 
     - name: Install jscpd
-      run: npm install -g jscpd
+      run: npm install -g jscpd@4.0.0
 
     - name: Check for duplicate code
-      run: jscpd . --ignore "**/*.json,**/*.md,**/*.yaml,**/*.yml,**/package-lock.json,**/node_modules/**,**/venv/**,**/.venv/**" --threshold 5
+      run: jscpd . --ignore "**/*.json,**/*.md,**/*.yaml,**/*.yml,**/package-lock.json,**/node_modules/**,**/venv/**,**/.venv/**,**/dist/**,**/build/**" --threshold 5
