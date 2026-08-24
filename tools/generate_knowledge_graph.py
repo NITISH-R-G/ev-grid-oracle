@@ -1,4 +1,4 @@
-import ast
+import ast  # noqa: EXE002
 import json
 import logging
 import os
@@ -68,7 +68,7 @@ def generate_knowledge_graph(repo_root: str) -> dict:
                             }
                         )
 
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 logger.warning(f"Failed to parse {rel_path}: {e}")
 
     return graph

@@ -229,7 +229,7 @@ def healthz(req: Request) -> dict[str, Any]:
     try:
         # Lazy import / init; should be cached if already loaded.
         get_router()
-    except Exception:
+    except Exception:  # noqa: BLE001
         router_ok = False
     return {
         "ok": True,
@@ -273,7 +273,7 @@ def _osm_route_polyline(
             traffic=traffic,
             tick=tick,
         )
-    except Exception:
+    except Exception:  # noqa: BLE001
         return None
 
 
@@ -294,7 +294,7 @@ def _graph_route_polyline(
                 core.city_graph, src_station_id, dst_station_id, weight="weight_minutes"
             ),
         )
-    except Exception:
+    except Exception:  # noqa: BLE001
         # Fallback: direct
         a = core.city_graph.nodes[src_station_id]
         b = core.city_graph.nodes[dst_station_id]
@@ -420,7 +420,7 @@ class MANewRequest(BaseModel):
 
 
 @app.post("/ma/new")
-def ma_new(req: Request, payload: MANewRequest = Body(...)) -> dict[str, Any]:
+def ma_new(req: Request, payload: MANewRequest = Body(...)) -> dict[str, Any]:  # noqa: B008
     _rate_limit(req, key="ma_new", limit=30, window_sec=60)
     t0 = time.time()
     rid = _request_id(req)
@@ -502,7 +502,8 @@ class MAAutoStepRequest(BaseModel):
 
 @app.post("/ma/auto_step")
 def ma_auto_step(
-    req: Request, payload: MAAutoStepRequest = Body(...)
+    req: Request,
+    payload: MAAutoStepRequest = Body(...),  # noqa: B008
 ) -> dict[str, Any]:
     _rate_limit(req, key="ma_auto_step", limit=120, window_sec=60)
     """
@@ -604,7 +605,7 @@ def ma_state(req: Request, session_id: str = Query(...)) -> dict[str, Any]:
 
 
 @app.post("/ma/step")
-def ma_step(req: Request, payload: MultiAgentStepRequest = Body(...)) -> dict[str, Any]:
+def ma_step(req: Request, payload: MultiAgentStepRequest = Body(...)) -> dict[str, Any]:  # noqa: B008
     _rate_limit(req, key="ma_step", limit=120, window_sec=60)
     t0 = time.time()
     rid = _request_id(req)
@@ -696,7 +697,7 @@ def _station_nodes(core: EVGridCore) -> list[dict[str, Any]]:
 
 
 @app.post("/demo/new")
-def demo_new(req: Request, payload: DemoNewRequest = Body(...)) -> dict[str, Any]:
+def demo_new(req: Request, payload: DemoNewRequest = Body(...)) -> dict[str, Any]:  # noqa: B008
     _rate_limit(req, key="demo_new", limit=30, window_sec=60)
     t0 = time.time()
     rid = _request_id(req)
@@ -797,7 +798,8 @@ class DemoSpawnVehicleRequest(BaseModel):
 
 @app.post("/demo/spawn_vehicle")
 def demo_spawn_vehicle(
-    req: Request, payload: DemoSpawnVehicleRequest = Body(...)
+    req: Request,
+    payload: DemoSpawnVehicleRequest = Body(...),  # noqa: B008
 ) -> dict[str, Any]:
     """
     Spawn a new EV at a valid road location (away from stations) and immediately compute
@@ -871,7 +873,7 @@ def demo_spawn_vehicle(
 
     try:
         action = baseline_policy(st, core.city_graph)
-    except Exception:
+    except Exception:  # noqa: BLE001
         # last-resort: pick nearest non-full station
         best = min(
             candidates, key=lambda s: haversine_m(lat, lng, float(s.lat), float(s.lng))
@@ -940,7 +942,7 @@ def demo_step(
     session_id: str = Body(...),
     mode: Literal["baseline", "oracle"] = Body("baseline"),
     oracle_lora_repo: str = Body("", embed=True),
-    forced_action: dict[str, Any] | None = Body(None),
+    forced_action: dict[str, Any] | None = Body(None),  # noqa: B008
 ) -> dict[str, Any]:
     _rate_limit(req, key="demo_step", limit=120, window_sec=60)
     t0 = time.time()
@@ -968,7 +970,7 @@ def demo_step(
         if forced_action is not None:
             try:
                 action = EVGridAction.model_validate(forced_action)
-            except Exception as ve:
+            except Exception as ve:  # noqa: BLE001
                 issues = ve.errors() if hasattr(ve, "errors") else [{"msg": str(ve)}]
                 # Pydantic v2 can include non-JSON-serializable objects under `ctx` (e.g., ValueError instances).
                 for it in issues:
@@ -981,7 +983,7 @@ def demo_step(
                                 }
                             else:
                                 cast(Any, it)["ctx"] = str(ctx)
-                        except Exception:
+                        except Exception:  # noqa: BLE001
                             it.pop("ctx", None)
                 raise HTTPException(
                     status_code=422,

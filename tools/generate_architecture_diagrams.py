@@ -1,4 +1,4 @@
-import ast
+import ast  # noqa: EXE002
 import json
 import logging
 import os
@@ -39,13 +39,13 @@ def generate_architecture(repo_root: str) -> dict:
                             graph["edges"].append(
                                 {"source": module_name, "target": alias.name}
                             )
-                    elif isinstance(node, ast.ImportFrom):
+                    elif isinstance(node, ast.ImportFrom):  # noqa: SIM102
                         if node.module:
                             graph["edges"].append(
                                 {"source": module_name, "target": node.module}
                             )
 
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 logger.warning(f"Failed to parse {rel_path}: {e}")
 
     return graph

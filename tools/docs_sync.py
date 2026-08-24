@@ -1,4 +1,4 @@
-import ast
+import ast  # noqa: EXE002
 import logging
 import os
 
@@ -53,7 +53,7 @@ def generate_docs(repo_root: str):
                 with open(out_path, "w", encoding="utf-8") as f:
                     f.write(doc_content)
 
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 logger.warning(f"Failed to process docs for {rel_path}: {e}")
 
 

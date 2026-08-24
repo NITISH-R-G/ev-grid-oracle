@@ -69,7 +69,7 @@ def compute_role_reward_breakdown(
         v = rb.get(key, 0.0)
         try:
             return float(v)
-        except Exception:
+        except Exception:  # noqa: BLE001
             return 0.0
 
     comps = {k: part(k) for k in keys}
@@ -95,7 +95,7 @@ def compute_role_reward_breakdown(
     }
     for k in keys:
         wmap = weights.get(k, {})
-        for r in out:
+        for r in out:  # noqa: PLC0206
             out[r][k] = float(comps[k]) * float(wmap.get(r, 0.0))
 
     totals: dict[Role, float] = {}
