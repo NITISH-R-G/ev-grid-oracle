@@ -1,7 +1,7 @@
-import os
-import json
 import ast
+import json
 import logging
+import os
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -69,7 +69,7 @@ def generate_knowledge_graph(repo_root: str) -> dict:
                         )
 
             except Exception as e:
-                logger.warning(f"Failed to parse {rel_path}: {e}")  # noqa: BLE001
+                logger.warning(f"Failed to parse {rel_path}: {e}")
 
     return graph
 

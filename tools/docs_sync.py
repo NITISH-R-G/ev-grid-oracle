@@ -1,6 +1,6 @@
-import os
 import ast
 import logging
+import os
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -54,7 +54,7 @@ def generate_docs(repo_root: str):
                     f.write(doc_content)
 
             except Exception as e:
-                logger.warning(f"Failed to process docs for {rel_path}: {e}")  # noqa: BLE001
+                logger.warning(f"Failed to process docs for {rel_path}: {e}")
 
 
 if __name__ == "__main__":
