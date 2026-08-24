@@ -72,6 +72,27 @@ export type MAStepResponse = {
   role_rewards?: any;
 };
 
+async function handleApiError(
+  r: Response,
+  defaultMessage: string,
+): Promise<never> {
+  let detail = "";
+  try {
+    const j = await r.json();
+    detail = j?.detail
+      ? ` — ${String(j.detail)}`
+      : ` — ${JSON.stringify(j).slice(0, 500)}`;
+  } catch {
+    try {
+      const txt = await r.text();
+      detail = txt ? ` — ${txt.slice(0, 500)}` : "";
+    } catch {
+      detail = "";
+    }
+  }
+  throw new Error(`${defaultMessage} failed: ${r.status}${detail}`);
+}
+
 async function sleep(ms: number) {
   await new Promise((r) => setTimeout(r, ms));
 }
@@ -94,23 +115,7 @@ export async function demoNew(
         body: JSON.stringify({ seed, scenario, fleet_mode }),
         signal: ctl.signal,
       });
-      if (!r.ok) {
-        let detail = "";
-        try {
-          const j = await r.json();
-          detail = j?.detail
-            ? ` — ${String(j.detail)}`
-            : ` — ${JSON.stringify(j).slice(0, 500)}`;
-        } catch {
-          try {
-            const txt = await r.text();
-            detail = txt ? ` — ${txt.slice(0, 500)}` : "";
-          } catch {
-            detail = "";
-          }
-        }
-        throw new Error(`demoNew failed: ${r.status}${detail}`);
-      }
+      if (!r.ok) await handleApiError(r, "demoNew");
       return (await r.json()) as DemoNewResponse;
     } catch (e: any) {
       lastErr = e;
@@ -147,23 +152,7 @@ export async function demoStep(args: {
       body: JSON.stringify(args),
       signal: ctl.signal,
     });
-    if (!r.ok) {
-      let detail = "";
-      try {
-        const j = await r.json();
-        detail = j?.detail
-          ? ` — ${String(j.detail)}`
-          : ` — ${JSON.stringify(j).slice(0, 500)}`;
-      } catch {
-        try {
-          const txt = await r.text();
-          detail = txt ? ` — ${txt.slice(0, 500)}` : "";
-        } catch {
-          detail = "";
-        }
-      }
-      throw new Error(`demoStep failed: ${r.status}${detail}`);
-    }
+    if (!r.ok) await handleApiError(r, "demoStep");
     return (await r.json()) as DemoStepResponse;
   } catch (e: any) {
     if (e?.name === "AbortError") {
@@ -187,23 +176,7 @@ export async function demoSpawnVehicle(args: {
     headers: { "content-type": "application/json" },
     body: JSON.stringify(args),
   });
-  if (!r.ok) {
-    let detail = "";
-    try {
-      const j = await r.json();
-      detail = j?.detail
-        ? ` — ${String(j.detail)}`
-        : ` — ${JSON.stringify(j).slice(0, 500)}`;
-    } catch {
-      try {
-        const txt = await r.text();
-        detail = txt ? ` — ${txt.slice(0, 500)}` : "";
-      } catch {
-        detail = "";
-      }
-    }
-    throw new Error(`demoSpawnVehicle failed: ${r.status}${detail}`);
-  }
+  if (!r.ok) await handleApiError(r, "demoSpawnVehicle");
   return (await r.json()) as DemoSpawnVehicleResponse;
 }
 
