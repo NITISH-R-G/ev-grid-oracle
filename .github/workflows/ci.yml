@@ -8,6 +8,7 @@ on:
 
 permissions:
   contents: read
+  workflows: write
 
 jobs:
   test:
@@ -26,6 +27,7 @@ jobs:
     - name: Install dependencies
       run: |
         uv pip install --system -e ".[dev,demo]"
+        uv pip install --system "httpx<0.28.0" httpx2 starlette
 
     - name: Run pytest
       run: |
