@@ -13,7 +13,6 @@ from ev_grid_oracle.oracle_agent import OracleAgent
 from ev_grid_oracle.policies import baseline_policy
 from training.evaluate import run_episode, summarize
 
-
 Mode = Literal["Untrained Baseline", "Oracle Agent"]
 
 
@@ -128,27 +127,24 @@ def step_once(
             action_type=ActionType.load_shift, ev_id="EV-000", defer_minutes=0
         )
         sess.last_action_text = "ACTION: load_shift (no pending EVs)"
+    elif mode == "Untrained Baseline":
+        action = baseline_policy(state, sess.env.city_graph)
+        sess.last_action_text = f"Baseline picked {action.action_type.value} -> {action.station_id or 'NONE'}"
     else:
-        if mode == "Untrained Baseline":
-            action = baseline_policy(state, sess.env.city_graph)
-            sess.last_action_text = f"Baseline picked {action.action_type.value} -> {action.station_id or 'NONE'}"
-        else:
-            oracle_lora_repo = (oracle_lora_repo or "").strip()
-            if sess.oracle is None or sess.oracle_lora_repo != oracle_lora_repo:
-                sess.oracle_lora_repo = oracle_lora_repo
-                sess.oracle = OracleAgent(lora_repo_id=oracle_lora_repo or None)
-            prompt = _build_prompt(state)
-            action = (
-                sess.oracle.act(state, prompt, sess.env.city_graph)
-                if sess.oracle
-                else baseline_policy(state, sess.env.city_graph)
-            )
-            tag = (
-                "Oracle"
-                if sess.oracle and sess.oracle.is_active
-                else "Oracle (fallback)"
-            )
-            sess.last_action_text = f"{tag} picked {action.action_type.value} -> {action.station_id or 'NONE'}"
+        oracle_lora_repo = (oracle_lora_repo or "").strip()
+        if sess.oracle is None or sess.oracle_lora_repo != oracle_lora_repo:
+            sess.oracle_lora_repo = oracle_lora_repo
+            sess.oracle = OracleAgent(lora_repo_id=oracle_lora_repo or None)
+        prompt = _build_prompt(state)
+        action = (
+            sess.oracle.act(state, prompt, sess.env.city_graph)
+            if sess.oracle
+            else baseline_policy(state, sess.env.city_graph)
+        )
+        tag = "Oracle" if sess.oracle and sess.oracle.is_active else "Oracle (fallback)"
+        sess.last_action_text = (
+            f"{tag} picked {action.action_type.value} -> {action.station_id or 'NONE'}"
+        )
 
     obs = sess.env.step(action)
     img = render_map(sess.env)
@@ -218,7 +214,7 @@ with gr.Blocks(title="EV Grid Oracle") as demo:
         sess = new_session(seed_val)
         return sess, render_map(sess.env), "", "", ""
 
-    start.click(_start, inputs=[seed], outputs=[state, img, thought, kpi, kpi_summary])
+    start.click(_start, inputs=[seed], outputs=[state, img, thought, kpi, kpi_summary])  # type: ignore[attr-defined]
 
     oracle_lora = gr.Textbox(
         label="Oracle LoRA repo id (optional)",
@@ -232,7 +228,7 @@ with gr.Blocks(title="EV Grid Oracle") as demo:
         im, t, k = step_once(sess, mode_val, oracle_lora_repo)
         return sess, im, t, k
 
-    step.click(
+    step.click(  # type: ignore[attr-defined]
         _step, inputs=[state, mode, oracle_lora], outputs=[state, img, thought, kpi]
     )
 
@@ -243,7 +239,7 @@ with gr.Blocks(title="EV Grid Oracle") as demo:
             im, t, k = step_once(sess, mode_val, oracle_lora_repo)
             yield sess, im, t, k
 
-    run60.click(
+    run60.click(  # type: ignore[attr-defined]
         _run60, inputs=[state, mode, oracle_lora], outputs=[state, img, thought, kpi]
     )
 
@@ -264,7 +260,7 @@ with gr.Blocks(title="EV Grid Oracle") as demo:
     def _kpis(seed_val: int, oracle_lora_repo: str):
         return compute_kpis(seed_val, episodes=10, oracle_lora_repo=oracle_lora_repo)
 
-    kpis_btn.click(_kpis, inputs=[seed, oracle_lora], outputs=[kpi_summary])
+    kpis_btn.click(_kpis, inputs=[seed, oracle_lora], outputs=[kpi_summary])  # type: ignore[attr-defined]
 
 
 if __name__ == "__main__":
