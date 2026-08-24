@@ -1,0 +1,79 @@
+name: Autonomous Repository Maintenance
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  schedule:
+    - cron: '0 0 * * *' # Daily at midnight UTC
+
+permissions:
+  contents: write
+  pull-requests: write
+  issues: write
+
+jobs:
+  maintenance:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          lfs: true
+          ref: ${{ github.head_ref || github.ref }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install uv
+        run: pip install uv
+
+      - name: Install dependencies
+        run: |
+          uv pip install --system -e ".[dev,demo]"
+          uv pip install --system cyclonedx-bom
+
+      - name: Auto-fix formatting and linting (Python)
+        run: |
+          uv run --with ruff ruff check --fix .
+          uv run --with ruff ruff format .
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Auto-fix formatting (Frontend/JSON/MD)
+        run: |
+          npm install -g prettier
+          prettier --write "**/*.{ts,js,json,md,yml,yaml}" --ignore-path .prettierignore
+
+      - name: Generate Knowledge Graph
+        run: python tools/generate_knowledge_graph.py
+        continue-on-error: true
+
+      - name: Sync Documentation
+        run: python tools/docs_sync.py
+        continue-on-error: true
+
+      - name: Generate Architecture Diagrams
+        run: python tools/generate_architecture_diagrams.py
+        continue-on-error: true
+
+      - name: Generate SBOM
+        run: cyclonedx-py environment -o artifacts/bom.json
+        continue-on-error: true
+
+      - name: Commit changes
+        if: github.event_name == 'push' || github.event_name == 'schedule' || github.event.pull_request.head.repo.full_name == github.repository
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git diff --quiet && git diff --staged --quiet || (git commit -m "chore: auto-maintenance fixes and doc updates" && git push)
