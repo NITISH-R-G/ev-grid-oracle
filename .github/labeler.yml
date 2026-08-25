@@ -1,0 +1,23 @@
+backend:
+  - any:
+      - 'server/**/*'
+      - 'ev_grid_oracle/**/*'
+      - '*.py'
+frontend:
+  - any:
+      - 'web/**/*'
+documentation:
+  - any:
+      - 'docs/**/*'
+      - '*.md'
+      - 'artifacts/*.json'
+tools:
+  - any:
+      - 'tools/**/*'
+infrastructure:
+  - any:
+      - '.github/**/*'
+      - 'Dockerfile'
+      - 'docker-compose.yml'
+      - '*.toml'
+      - '*.yaml'

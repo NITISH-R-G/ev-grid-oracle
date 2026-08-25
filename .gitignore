@@ -31,3 +31,9 @@ ev_grid_oracle.egg-info/
 .coverage
 dashboard_output/
 build/
+.ruff_cache/
+.pytest_cache/
+.mypy_cache/
+.venv/
+dashboard_output/
+bom.json
