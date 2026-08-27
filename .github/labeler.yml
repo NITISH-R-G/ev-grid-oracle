@@ -1,0 +1,15 @@
+python:
+  - all:
+    - changed-files:
+      - any-glob-to-any-file: '**/*.py'
+
+documentation:
+  - all:
+    - changed-files:
+      - any-glob-to-any-file: '**/*.md'
+      - any-glob-to-any-file: 'docs/**/*'
+
+frontend:
+  - all:
+    - changed-files:
+      - any-glob-to-any-file: 'web/**/*'

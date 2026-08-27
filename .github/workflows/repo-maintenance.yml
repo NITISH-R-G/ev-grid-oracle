@@ -1,0 +1,63 @@
+name: Repository Maintenance
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  schedule:
+    - cron: '0 0 * * *' # Daily at midnight UTC
+
+permissions:
+  contents: write
+
+jobs:
+  maintenance:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'schedule' || github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.head_ref || github.ref }}
+          lfs: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install uv
+        run: pip install uv
+
+      - name: Install dependencies
+        run: |
+          uv pip install --system -e ".[dev,demo]"
+          uv pip install --system cyclonedx-bom
+
+      - name: Generate Knowledge Graph
+        run: |
+          mkdir -p artifacts
+          python tools/generate_knowledge_graph.py || echo "Knowledge graph generation failed, skipping."
+
+      - name: Sync Documentation
+        run: |
+          mkdir -p docs
+          python tools/docs_sync.py || echo "Docs sync failed, skipping."
+
+      - name: Generate Architecture Diagrams
+        run: |
+          mkdir -p artifacts
+          python tools/generate_architecture_diagrams.py || echo "Architecture diagram generation failed, skipping."
+
+      - name: Generate SBOM
+        run: |
+          mkdir -p artifacts
+          cyclonedx-py environment -o artifacts/bom.json || echo "SBOM generation failed, skipping."
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add -A
+          git diff-index --quiet HEAD || git commit -m "chore(maintenance): automated repository updates"
+          git push
