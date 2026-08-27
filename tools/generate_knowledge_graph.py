@@ -1,7 +1,7 @@
-import os
 import ast
 import json
 import logging
+import os
 from typing import Any
 
 logging.basicConfig(level=logging.INFO)
@@ -9,7 +9,12 @@ logger = logging.getLogger(__name__)
 
 
 def generate_knowledge_graph() -> None:
-    graph: dict[str, list[Any]] = {"files": [], "classes": [], "functions": [], "relationships": []}
+    graph: dict[str, list[Any]] = {
+        "files": [],
+        "classes": [],
+        "functions": [],
+        "relationships": [],
+    }
 
     for root, dirs, files in os.walk("."):
         dirs[:] = [d for d in dirs if not d.startswith(".")]
