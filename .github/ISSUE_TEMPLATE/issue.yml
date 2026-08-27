@@ -1,0 +1,24 @@
+name: Standard Issue
+description: Report a bug or request a feature
+title: "[Issue]: "
+labels: ["triage"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this issue report!
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: A clear and concise description of what the issue or feature request is.
+      placeholder: Tell us what you see, what you expect to see, or what you'd like to see added.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps To Reproduce (if bug)
+      description: Steps to reproduce the behavior.
+    validations:
+      required: false
