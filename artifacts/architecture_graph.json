@@ -1,0 +1,2156 @@
+{
+  "nodes": [
+    {
+      "id": "subprocess"
+    },
+    {
+      "id": "tests.__init__"
+    },
+    {
+      "id": "server.road_router"
+    },
+    {
+      "id": "tensorboard.backend.event_processing.event_accumulator"
+    },
+    {
+      "id": "ev_grid_oracle.reward_hack"
+    },
+    {
+      "id": "pytest"
+    },
+    {
+      "id": "viz.record"
+    },
+    {
+      "id": "viz.record_two_phase"
+    },
+    {
+      "id": "models"
+    },
+    {
+      "id": "sys"
+    },
+    {
+      "id": "pathlib"
+    },
+    {
+      "id": "env"
+    },
+    {
+      "id": "ev_grid_oracle.road_env"
+    },
+    {
+      "id": "demand_sim"
+    },
+    {
+      "id": "copy"
+    },
+    {
+      "id": "tools.fetch_bangalore_roads_overpass"
+    },
+    {
+      "id": "fastapi.testclient"
+    },
+    {
+      "id": "ev_grid_oracle.demand_sim"
+    },
+    {
+      "id": "ev_grid_oracle.road_models"
+    },
+    {
+      "id": "server.role_metrics"
+    },
+    {
+      "id": "fastapi.staticfiles"
+    },
+    {
+      "id": "training.__init__"
+    },
+    {
+      "id": "pygame"
+    },
+    {
+      "id": "time"
+    },
+    {
+      "id": "viz.gradio_demo"
+    },
+    {
+      "id": "tools.generate_health_dashboard"
+    },
+    {
+      "id": "ev_grid_oracle.parsing"
+    },
+    {
+      "id": "__future__"
+    },
+    {
+      "id": "tools.prune_osm_geojson"
+    },
+    {
+      "id": "openenv.core.env_server.types"
+    },
+    {
+      "id": "grid_sim"
+    },
+    {
+      "id": "gzip"
+    },
+    {
+      "id": "reward"
+    },
+    {
+      "id": "reward_hack"
+    },
+    {
+      "id": "ast"
+    },
+    {
+      "id": "torch"
+    },
+    {
+      "id": "ev_grid_oracle.oracle_agent"
+    },
+    {
+      "id": "tools.__init__"
+    },
+    {
+      "id": "argparse"
+    },
+    {
+      "id": "matplotlib.pyplot"
+    },
+    {
+      "id": "ev_grid_oracle.reward"
+    },
+    {
+      "id": "ev_grid_oracle.world_model_verifier"
+    },
+    {
+      "id": "uvicorn"
+    },
+    {
+      "id": "tools.write_eval_snapshot"
+    },
+    {
+      "id": "logging"
+    },
+    {
+      "id": "server.ev_grid_environment"
+    },
+    {
+      "id": "os"
+    },
+    {
+      "id": "networkx"
+    },
+    {
+      "id": "openenv.core.env_server.interfaces"
+    },
+    {
+      "id": "tests.test_world_model_verifier"
+    },
+    {
+      "id": "uuid"
+    },
+    {
+      "id": "ev_grid_oracle.policies"
+    },
+    {
+      "id": "personas"
+    },
+    {
+      "id": "training.evaluate"
+    },
+    {
+      "id": "tools.sync_space_to_hub"
+    },
+    {
+      "id": "huggingface_hub"
+    },
+    {
+      "id": "tools.docs_sync"
+    },
+    {
+      "id": "tools.fetch_osm_roads"
+    },
+    {
+      "id": "collections"
+    },
+    {
+      "id": "threading"
+    },
+    {
+      "id": "peft"
+    },
+    {
+      "id": "ev_grid_oracle.multi_agent"
+    },
+    {
+      "id": "tools.generate_knowledge_graph"
+    },
+    {
+      "id": "urllib.request"
+    },
+    {
+      "id": "tests.test_evaluate_paired"
+    },
+    {
+      "id": "tests.test_reward"
+    },
+    {
+      "id": "tests.test_fair_eval_mcnemar"
+    },
+    {
+      "id": "tests.test_env_determinism"
+    },
+    {
+      "id": "scenarios"
+    },
+    {
+      "id": "statistics"
+    },
+    {
+      "id": "road_models"
+    },
+    {
+      "id": "ev_grid_oracle.traffic"
+    },
+    {
+      "id": "ev_grid_oracle.grid_sim"
+    },
+    {
+      "id": "datetime"
+    },
+    {
+      "id": "server.app"
+    },
+    {
+      "id": "server.ev_grid_road_environment"
+    },
+    {
+      "id": "server.__init__"
+    },
+    {
+      "id": "ev_grid_oracle.scenarios"
+    },
+    {
+      "id": "bescom_feed"
+    },
+    {
+      "id": "tools.export_grpo_tensorboard_plots"
+    },
+    {
+      "id": "training.make_plots"
+    },
+    {
+      "id": "tools.build_road_graph"
+    },
+    {
+      "id": "openai"
+    },
+    {
+      "id": "ev_grid_oracle.bescom_feed"
+    },
+    {
+      "id": "policies"
+    },
+    {
+      "id": "PIL"
+    },
+    {
+      "id": "ev_grid_oracle.models"
+    },
+    {
+      "id": "pydantic"
+    },
+    {
+      "id": "tests.test_demo_api"
+    },
+    {
+      "id": "urllib.parse"
+    },
+    {
+      "id": "tests.test_models_and_graph"
+    },
+    {
+      "id": "ev_grid_oracle.__init__"
+    },
+    {
+      "id": "tests.test_parsing"
+    },
+    {
+      "id": "hashlib"
+    },
+    {
+      "id": "tools.road_reward_smoke"
+    },
+    {
+      "id": "city_graph"
+    },
+    {
+      "id": "viz.city_map"
+    },
+    {
+      "id": "ev_grid_oracle.env"
+    },
+    {
+      "id": "transformers"
+    },
+    {
+      "id": "json"
+    },
+    {
+      "id": "ev_grid_oracle.personas"
+    },
+    {
+      "id": "tools.generate_architecture_diagrams"
+    },
+    {
+      "id": "tools.build_roads_render"
+    },
+    {
+      "id": "viz.__init__"
+    },
+    {
+      "id": "gradio"
+    },
+    {
+      "id": "dataclasses"
+    },
+    {
+      "id": "random"
+    },
+    {
+      "id": "typing"
+    },
+    {
+      "id": "concurrent.futures"
+    },
+    {
+      "id": "jinja2"
+    },
+    {
+      "id": "ev_grid_oracle.city_graph"
+    },
+    {
+      "id": "enum"
+    },
+    {
+      "id": "math"
+    },
+    {
+      "id": "re"
+    },
+    {
+      "id": "fastapi"
+    },
+    {
+      "id": "fastapi.responses"
+    },
+    {
+      "id": "openenv.core.env_server.http_server"
+    },
+    {
+      "id": "test_script"
+    },
+    {
+      "id": "tests.test_policies_collapse"
+    },
+    {
+      "id": "training.fair_eval"
+    }
+  ],
+  "links": [
+    {
+      "source": "test_script",
+      "target": "pydantic",
+      "type": "imports_from"
+    },
+    {
+      "source": "viz.record_two_phase",
+      "target": "__future__",
+      "type": "imports_from"
+    },
+    {
+      "source": "viz.record_two_phase",
+      "target": "argparse",
+      "type": "imports"
+    },
+    {
+      "source": "viz.record_two_phase",
+      "target": "pathlib",
+      "type": "imports_from"
+    },
+    {
+      "source": "viz.record_two_phase",
+      "target": "typing",
+      "type": "imports_from"
+    },
+    {
+      "source": "viz.record_two_phase",
+      "target": "pygame",
+      "type": "imports"
+    },
+    {
+      "source": "viz.record_two_phase",
+      "target": "ev_grid_oracle.city_graph",
+      "type": "imports_from"
+    },
+    {
+      "source": "viz.record_two_phase",
+      "target": "ev_grid_oracle.env",
+      "type": "imports_from"
+    },
+    {
+      "source": "viz.record_two_phase",
+      "target": "ev_grid_oracle.models",
+      "type": "imports_from"
+    },
+    {
+      "source": "viz.record_two_phase",
+      "target": "ev_grid_oracle.oracle_agent",
+      "type": "imports_from"
+    },
+    {
+      "source": "viz.record_two_phase",
+      "target": "ev_grid_oracle.policies",
+      "type": "imports_from"
+    },
+    {
+      "source": "viz.record_two_phase",
+      "target": "viz.city_map",
+      "type": "imports_from"
+    },
+    {
+      "source": "viz.city_map",
+      "target": "__future__",
+      "type": "imports_from"
+    },
+    {
+      "source": "viz.city_map",
+      "target": "math",
+      "type": "imports"
+    },
+    {
+      "source": "viz.city_map",
+      "target": "dataclasses",
+      "type": "imports_from"
+    },
+    {
+      "source": "viz.city_map",
+      "target": "typing",
+      "type": "imports_from"
+    },
+    {
+      "source": "viz.city_map",
+      "target": "pygame",
+      "type": "imports"
+    },
+    {
+      "source": "viz.city_map",
+      "target": "ev_grid_oracle.city_graph",
+      "type": "imports_from"
+    },
+    {
+      "source": "viz.city_map",
+      "target": "ev_grid_oracle.env",
+      "type": "imports_from"
+    },
+    {
+      "source": "viz.city_map",
+      "target": "ev_grid_oracle.models",
+      "type": "imports_from"
+    },
+    {
+      "source": "viz.city_map",
+      "target": "ev_grid_oracle.policies",
+      "type": "imports_from"
+    },
+    {
+      "source": "viz.record",
+      "target": "__future__",
+      "type": "imports_from"
+    },
+    {
+      "source": "viz.record",
+      "target": "argparse",
+      "type": "imports"
+    },
+    {
+      "source": "viz.record",
+      "target": "pathlib",
+      "type": "imports_from"
+    },
+    {
+      "source": "viz.record",
+      "target": "typing",
+      "type": "imports_from"
+    },
+    {
+      "source": "viz.record",
+      "target": "pygame",
+      "type": "imports"
+    },
+    {
+      "source": "viz.record",
+      "target": "ev_grid_oracle.city_graph",
+      "type": "imports_from"
+    },
+    {
+      "source": "viz.record",
+      "target": "ev_grid_oracle.env",
+      "type": "imports_from"
+    },
+    {
+      "source": "viz.record",
+      "target": "ev_grid_oracle.models",
+      "type": "imports_from"
+    },
+    {
+      "source": "viz.record",
+      "target": "ev_grid_oracle.policies",
+      "type": "imports_from"
+    },
+    {
+      "source": "viz.record",
+      "target": "viz.city_map",
+      "type": "imports_from"
+    },
+    {
+      "source": "viz.gradio_demo",
+      "target": "__future__",
+      "type": "imports_from"
+    },
+    {
+      "source": "viz.gradio_demo",
+      "target": "dataclasses",
+      "type": "imports_from"
+    },
+    {
+      "source": "viz.gradio_demo",
+      "target": "typing",
+      "type": "imports_from"
+    },
+    {
+      "source": "viz.gradio_demo",
+      "target": "gradio",
+      "type": "imports"
+    },
+    {
+      "source": "viz.gradio_demo",
+      "target": "PIL",
+      "type": "imports_from"
+    },
+    {
+      "source": "viz.gradio_demo",
+      "target": "ev_grid_oracle.city_graph",
+      "type": "imports_from"
+    },
+    {
+      "source": "viz.gradio_demo",
+      "target": "ev_grid_oracle.env",
+      "type": "imports_from"
+    },
+    {
+      "source": "viz.gradio_demo",
+      "target": "ev_grid_oracle.models",
+      "type": "imports_from"
+    },
+    {
+      "source": "viz.gradio_demo",
+      "target": "ev_grid_oracle.oracle_agent",
+      "type": "imports_from"
+    },
+    {
+      "source": "viz.gradio_demo",
+      "target": "ev_grid_oracle.policies",
+      "type": "imports_from"
+    },
+    {
+      "source": "viz.gradio_demo",
+      "target": "training.evaluate",
+      "type": "imports_from"
+    },
+    {
+      "source": "server.app",
+      "target": "__future__",
+      "type": "imports_from"
+    },
+    {
+      "source": "server.app",
+      "target": "concurrent.futures",
+      "type": "imports"
+    },
+    {
+      "source": "server.app",
+      "target": "os",
+      "type": "imports"
+    },
+    {
+      "source": "server.app",
+      "target": "pathlib",
+      "type": "imports_from"
+    },
+    {
+      "source": "server.app",
+      "target": "time",
+      "type": "imports"
+    },
+    {
+      "source": "server.app",
+      "target": "collections",
+      "type": "imports_from"
+    },
+    {
+      "source": "server.app",
+      "target": "logging",
+      "type": "imports"
+    },
+    {
+      "source": "server.app",
+      "target": "server.road_router",
+      "type": "imports_from"
+    },
+    {
+      "source": "server.app",
+      "target": "ev_grid_oracle.traffic",
+      "type": "imports_from"
+    },
+    {
+      "source": "server.app",
+      "target": "hashlib",
+      "type": "imports"
+    },
+    {
+      "source": "server.app",
+      "target": "typing",
+      "type": "imports_from"
+    },
+    {
+      "source": "server.app",
+      "target": "uuid",
+      "type": "imports_from"
+    },
+    {
+      "source": "server.app",
+      "target": "pydantic",
+      "type": "imports_from"
+    },
+    {
+      "source": "server.app",
+      "target": "fastapi",
+      "type": "imports_from"
+    },
+    {
+      "source": "server.app",
+      "target": "fastapi.responses",
+      "type": "imports_from"
+    },
+    {
+      "source": "server.app",
+      "target": "fastapi.staticfiles",
+      "type": "imports_from"
+    },
+    {
+      "source": "server.app",
+      "target": "ev_grid_oracle.city_graph",
+      "type": "imports_from"
+    },
+    {
+      "source": "server.app",
+      "target": "networkx",
+      "type": "imports"
+    },
+    {
+      "source": "server.app",
+      "target": "ev_grid_oracle.env",
+      "type": "imports_from"
+    },
+    {
+      "source": "server.app",
+      "target": "ev_grid_oracle.models",
+      "type": "imports_from"
+    },
+    {
+      "source": "server.app",
+      "target": "ev_grid_oracle.oracle_agent",
+      "type": "imports_from"
+    },
+    {
+      "source": "server.app",
+      "target": "ev_grid_oracle.policies",
+      "type": "imports_from"
+    },
+    {
+      "source": "server.app",
+      "target": "ev_grid_oracle.parsing",
+      "type": "imports_from"
+    },
+    {
+      "source": "server.app",
+      "target": "ev_grid_oracle.reward",
+      "type": "imports_from"
+    },
+    {
+      "source": "server.app",
+      "target": "ev_grid_oracle.scenarios",
+      "type": "imports_from"
+    },
+    {
+      "source": "server.app",
+      "target": "ev_grid_oracle.world_model_verifier",
+      "type": "imports_from"
+    },
+    {
+      "source": "server.app",
+      "target": "ev_grid_oracle.multi_agent",
+      "type": "imports_from"
+    },
+    {
+      "source": "server.app",
+      "target": "server.ev_grid_environment",
+      "type": "imports_from"
+    },
+    {
+      "source": "server.app",
+      "target": "server.ev_grid_road_environment",
+      "type": "imports_from"
+    },
+    {
+      "source": "server.app",
+      "target": "ev_grid_oracle.road_models",
+      "type": "imports_from"
+    },
+    {
+      "source": "server.app",
+      "target": "server.role_metrics",
+      "type": "imports_from"
+    },
+    {
+      "source": "server.app",
+      "target": "server.road_router",
+      "type": "imports_from"
+    },
+    {
+      "source": "server.app",
+      "target": "openenv.core.env_server.http_server",
+      "type": "imports_from"
+    },
+    {
+      "source": "server.app",
+      "target": "ev_grid_oracle.scenarios",
+      "type": "imports_from"
+    },
+    {
+      "source": "server.app",
+      "target": "uvicorn",
+      "type": "imports"
+    },
+    {
+      "source": "server.app",
+      "target": "ev_grid_oracle.scenarios",
+      "type": "imports_from"
+    },
+    {
+      "source": "server.ev_grid_environment",
+      "target": "__future__",
+      "type": "imports_from"
+    },
+    {
+      "source": "server.ev_grid_environment",
+      "target": "uuid",
+      "type": "imports_from"
+    },
+    {
+      "source": "server.ev_grid_environment",
+      "target": "openenv.core.env_server.interfaces",
+      "type": "imports_from"
+    },
+    {
+      "source": "server.ev_grid_environment",
+      "target": "openenv.core.env_server.types",
+      "type": "imports_from"
+    },
+    {
+      "source": "server.ev_grid_environment",
+      "target": "ev_grid_oracle.city_graph",
+      "type": "imports_from"
+    },
+    {
+      "source": "server.ev_grid_environment",
+      "target": "ev_grid_oracle.env",
+      "type": "imports_from"
+    },
+    {
+      "source": "server.ev_grid_environment",
+      "target": "ev_grid_oracle.models",
+      "type": "imports_from"
+    },
+    {
+      "source": "server.ev_grid_road_environment",
+      "target": "__future__",
+      "type": "imports_from"
+    },
+    {
+      "source": "server.ev_grid_road_environment",
+      "target": "uuid",
+      "type": "imports_from"
+    },
+    {
+      "source": "server.ev_grid_road_environment",
+      "target": "openenv.core.env_server.interfaces",
+      "type": "imports_from"
+    },
+    {
+      "source": "server.ev_grid_road_environment",
+      "target": "openenv.core.env_server.types",
+      "type": "imports_from"
+    },
+    {
+      "source": "server.ev_grid_road_environment",
+      "target": "ev_grid_oracle.road_env",
+      "type": "imports_from"
+    },
+    {
+      "source": "server.ev_grid_road_environment",
+      "target": "ev_grid_oracle.road_models",
+      "type": "imports_from"
+    },
+    {
+      "source": "server.role_metrics",
+      "target": "__future__",
+      "type": "imports_from"
+    },
+    {
+      "source": "server.role_metrics",
+      "target": "typing",
+      "type": "imports_from"
+    },
+    {
+      "source": "server.role_metrics",
+      "target": "ev_grid_oracle.models",
+      "type": "imports_from"
+    },
+    {
+      "source": "server.road_router",
+      "target": "__future__",
+      "type": "imports_from"
+    },
+    {
+      "source": "server.road_router",
+      "target": "json",
+      "type": "imports"
+    },
+    {
+      "source": "server.road_router",
+      "target": "gzip",
+      "type": "imports"
+    },
+    {
+      "source": "server.road_router",
+      "target": "dataclasses",
+      "type": "imports_from"
+    },
+    {
+      "source": "server.road_router",
+      "target": "math",
+      "type": "imports_from"
+    },
+    {
+      "source": "server.road_router",
+      "target": "pathlib",
+      "type": "imports_from"
+    },
+    {
+      "source": "server.road_router",
+      "target": "typing",
+      "type": "imports_from"
+    },
+    {
+      "source": "server.road_router",
+      "target": "networkx",
+      "type": "imports"
+    },
+    {
+      "source": "server.road_router",
+      "target": "ev_grid_oracle.traffic",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.bescom_feed",
+      "target": "__future__",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.bescom_feed",
+      "target": "dataclasses",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.bescom_feed",
+      "target": "hashlib",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.bescom_feed",
+      "target": "random",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.bescom_feed",
+      "target": "models",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.road_models",
+      "target": "__future__",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.road_models",
+      "target": "openenv.core.env_server.types",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.road_models",
+      "target": "pydantic",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.road_env",
+      "target": "__future__",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.road_env",
+      "target": "random",
+      "type": "imports"
+    },
+    {
+      "source": "ev_grid_oracle.road_env",
+      "target": "dataclasses",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.road_env",
+      "target": "networkx",
+      "type": "imports"
+    },
+    {
+      "source": "ev_grid_oracle.road_env",
+      "target": "ev_grid_oracle.city_graph",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.road_env",
+      "target": "server.road_router",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.road_env",
+      "target": "road_models",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.multi_agent",
+      "target": "__future__",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.multi_agent",
+      "target": "dataclasses",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.multi_agent",
+      "target": "typing",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.multi_agent",
+      "target": "env",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.multi_agent",
+      "target": "models",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.multi_agent",
+      "target": "policies",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.city_graph",
+      "target": "__future__",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.city_graph",
+      "target": "dataclasses",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.city_graph",
+      "target": "math",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.city_graph",
+      "target": "typing",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.city_graph",
+      "target": "networkx",
+      "type": "imports"
+    },
+    {
+      "source": "ev_grid_oracle.city_graph",
+      "target": "models",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.reward",
+      "target": "__future__",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.reward",
+      "target": "dataclasses",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.reward",
+      "target": "statistics",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.reward",
+      "target": "networkx",
+      "type": "imports"
+    },
+    {
+      "source": "ev_grid_oracle.reward",
+      "target": "models",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.reward",
+      "target": "math",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.reward_hack",
+      "target": "__future__",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.reward_hack",
+      "target": "dataclasses",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.reward_hack",
+      "target": "models",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.personas",
+      "target": "__future__",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.personas",
+      "target": "dataclasses",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.personas",
+      "target": "random",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.personas",
+      "target": "typing",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.world_model_verifier",
+      "target": "__future__",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.world_model_verifier",
+      "target": "copy",
+      "type": "imports"
+    },
+    {
+      "source": "ev_grid_oracle.world_model_verifier",
+      "target": "dataclasses",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.world_model_verifier",
+      "target": "statistics",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.world_model_verifier",
+      "target": "env",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.world_model_verifier",
+      "target": "grid_sim",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.world_model_verifier",
+      "target": "models",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.grid_sim",
+      "target": "__future__",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.grid_sim",
+      "target": "dataclasses",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.grid_sim",
+      "target": "math",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.models",
+      "target": "__future__",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.models",
+      "target": "enum",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.models",
+      "target": "typing",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.models",
+      "target": "openenv.core.env_server.types",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.models",
+      "target": "pydantic",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.scenarios",
+      "target": "__future__",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.scenarios",
+      "target": "dataclasses",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.scenarios",
+      "target": "typing",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.env",
+      "target": "__future__",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.env",
+      "target": "dataclasses",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.env",
+      "target": "random",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.env",
+      "target": "typing",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.env",
+      "target": "networkx",
+      "type": "imports"
+    },
+    {
+      "source": "ev_grid_oracle.env",
+      "target": "city_graph",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.env",
+      "target": "demand_sim",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.env",
+      "target": "grid_sim",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.env",
+      "target": "models",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.env",
+      "target": "reward",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.env",
+      "target": "reward_hack",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.env",
+      "target": "bescom_feed",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.env",
+      "target": "personas",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.env",
+      "target": "scenarios",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.parsing",
+      "target": "__future__",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.parsing",
+      "target": "re",
+      "type": "imports"
+    },
+    {
+      "source": "ev_grid_oracle.parsing",
+      "target": "typing",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.parsing",
+      "target": "models",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.oracle_agent",
+      "target": "__future__",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.oracle_agent",
+      "target": "dataclasses",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.oracle_agent",
+      "target": "typing",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.oracle_agent",
+      "target": "ev_grid_oracle.models",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.oracle_agent",
+      "target": "ev_grid_oracle.parsing",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.oracle_agent",
+      "target": "ev_grid_oracle.policies",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.oracle_agent",
+      "target": "torch",
+      "type": "imports"
+    },
+    {
+      "source": "ev_grid_oracle.oracle_agent",
+      "target": "threading",
+      "type": "imports"
+    },
+    {
+      "source": "ev_grid_oracle.oracle_agent",
+      "target": "torch",
+      "type": "imports"
+    },
+    {
+      "source": "ev_grid_oracle.oracle_agent",
+      "target": "peft",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.oracle_agent",
+      "target": "transformers",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.oracle_agent",
+      "target": "threading",
+      "type": "imports"
+    },
+    {
+      "source": "ev_grid_oracle.oracle_agent",
+      "target": "torch",
+      "type": "imports"
+    },
+    {
+      "source": "ev_grid_oracle.demand_sim",
+      "target": "__future__",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.demand_sim",
+      "target": "dataclasses",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.demand_sim",
+      "target": "math",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.demand_sim",
+      "target": "random",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.policies",
+      "target": "__future__",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.policies",
+      "target": "ev_grid_oracle.city_graph",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.policies",
+      "target": "ev_grid_oracle.models",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.traffic",
+      "target": "__future__",
+      "type": "imports_from"
+    },
+    {
+      "source": "ev_grid_oracle.traffic",
+      "target": "hashlib",
+      "type": "imports"
+    },
+    {
+      "source": "ev_grid_oracle.traffic",
+      "target": "math",
+      "type": "imports"
+    },
+    {
+      "source": "ev_grid_oracle.traffic",
+      "target": "dataclasses",
+      "type": "imports_from"
+    },
+    {
+      "source": "tools.build_road_graph",
+      "target": "__future__",
+      "type": "imports_from"
+    },
+    {
+      "source": "tools.build_road_graph",
+      "target": "argparse",
+      "type": "imports"
+    },
+    {
+      "source": "tools.build_road_graph",
+      "target": "json",
+      "type": "imports"
+    },
+    {
+      "source": "tools.build_road_graph",
+      "target": "hashlib",
+      "type": "imports"
+    },
+    {
+      "source": "tools.build_road_graph",
+      "target": "gzip",
+      "type": "imports"
+    },
+    {
+      "source": "tools.build_road_graph",
+      "target": "dataclasses",
+      "type": "imports_from"
+    },
+    {
+      "source": "tools.build_road_graph",
+      "target": "math",
+      "type": "imports_from"
+    },
+    {
+      "source": "tools.build_road_graph",
+      "target": "pathlib",
+      "type": "imports_from"
+    },
+    {
+      "source": "tools.build_road_graph",
+      "target": "typing",
+      "type": "imports_from"
+    },
+    {
+      "source": "tools.build_road_graph",
+      "target": "networkx",
+      "type": "imports"
+    },
+    {
+      "source": "tools.sync_space_to_hub",
+      "target": "__future__",
+      "type": "imports_from"
+    },
+    {
+      "source": "tools.sync_space_to_hub",
+      "target": "argparse",
+      "type": "imports"
+    },
+    {
+      "source": "tools.sync_space_to_hub",
+      "target": "os",
+      "type": "imports"
+    },
+    {
+      "source": "tools.sync_space_to_hub",
+      "target": "subprocess",
+      "type": "imports"
+    },
+    {
+      "source": "tools.sync_space_to_hub",
+      "target": "sys",
+      "type": "imports"
+    },
+    {
+      "source": "tools.sync_space_to_hub",
+      "target": "pathlib",
+      "type": "imports_from"
+    },
+    {
+      "source": "tools.sync_space_to_hub",
+      "target": "huggingface_hub",
+      "type": "imports_from"
+    },
+    {
+      "source": "tools.generate_knowledge_graph",
+      "target": "os",
+      "type": "imports"
+    },
+    {
+      "source": "tools.generate_knowledge_graph",
+      "target": "ast",
+      "type": "imports"
+    },
+    {
+      "source": "tools.generate_knowledge_graph",
+      "target": "json",
+      "type": "imports"
+    },
+    {
+      "source": "tools.generate_knowledge_graph",
+      "target": "logging",
+      "type": "imports"
+    },
+    {
+      "source": "tools.generate_knowledge_graph",
+      "target": "typing",
+      "type": "imports_from"
+    },
+    {
+      "source": "tools.fetch_bangalore_roads_overpass",
+      "target": "__future__",
+      "type": "imports_from"
+    },
+    {
+      "source": "tools.fetch_bangalore_roads_overpass",
+      "target": "argparse",
+      "type": "imports"
+    },
+    {
+      "source": "tools.fetch_bangalore_roads_overpass",
+      "target": "json",
+      "type": "imports"
+    },
+    {
+      "source": "tools.fetch_bangalore_roads_overpass",
+      "target": "time",
+      "type": "imports"
+    },
+    {
+      "source": "tools.fetch_bangalore_roads_overpass",
+      "target": "urllib.parse",
+      "type": "imports"
+    },
+    {
+      "source": "tools.fetch_bangalore_roads_overpass",
+      "target": "urllib.request",
+      "type": "imports"
+    },
+    {
+      "source": "tools.fetch_bangalore_roads_overpass",
+      "target": "pathlib",
+      "type": "imports_from"
+    },
+    {
+      "source": "tools.fetch_bangalore_roads_overpass",
+      "target": "typing",
+      "type": "imports_from"
+    },
+    {
+      "source": "tools.export_grpo_tensorboard_plots",
+      "target": "__future__",
+      "type": "imports_from"
+    },
+    {
+      "source": "tools.export_grpo_tensorboard_plots",
+      "target": "argparse",
+      "type": "imports"
+    },
+    {
+      "source": "tools.export_grpo_tensorboard_plots",
+      "target": "re",
+      "type": "imports"
+    },
+    {
+      "source": "tools.export_grpo_tensorboard_plots",
+      "target": "pathlib",
+      "type": "imports_from"
+    },
+    {
+      "source": "tools.export_grpo_tensorboard_plots",
+      "target": "matplotlib.pyplot",
+      "type": "imports"
+    },
+    {
+      "source": "tools.export_grpo_tensorboard_plots",
+      "target": "tensorboard.backend.event_processing.event_accumulator",
+      "type": "imports_from"
+    },
+    {
+      "source": "tools.generate_architecture_diagrams",
+      "target": "os",
+      "type": "imports"
+    },
+    {
+      "source": "tools.generate_architecture_diagrams",
+      "target": "ast",
+      "type": "imports"
+    },
+    {
+      "source": "tools.generate_architecture_diagrams",
+      "target": "json",
+      "type": "imports"
+    },
+    {
+      "source": "tools.generate_architecture_diagrams",
+      "target": "logging",
+      "type": "imports"
+    },
+    {
+      "source": "tools.generate_architecture_diagrams",
+      "target": "typing",
+      "type": "imports_from"
+    },
+    {
+      "source": "tools.prune_osm_geojson",
+      "target": "__future__",
+      "type": "imports_from"
+    },
+    {
+      "source": "tools.prune_osm_geojson",
+      "target": "argparse",
+      "type": "imports"
+    },
+    {
+      "source": "tools.prune_osm_geojson",
+      "target": "json",
+      "type": "imports"
+    },
+    {
+      "source": "tools.prune_osm_geojson",
+      "target": "sys",
+      "type": "imports"
+    },
+    {
+      "source": "tools.prune_osm_geojson",
+      "target": "pathlib",
+      "type": "imports_from"
+    },
+    {
+      "source": "tools.prune_osm_geojson",
+      "target": "ev_grid_oracle.city_graph",
+      "type": "imports_from"
+    },
+    {
+      "source": "tools.docs_sync",
+      "target": "os",
+      "type": "imports"
+    },
+    {
+      "source": "tools.docs_sync",
+      "target": "ast",
+      "type": "imports"
+    },
+    {
+      "source": "tools.docs_sync",
+      "target": "logging",
+      "type": "imports"
+    },
+    {
+      "source": "tools.road_reward_smoke",
+      "target": "__future__",
+      "type": "imports_from"
+    },
+    {
+      "source": "tools.road_reward_smoke",
+      "target": "re",
+      "type": "imports"
+    },
+    {
+      "source": "tools.road_reward_smoke",
+      "target": "ev_grid_oracle.road_env",
+      "type": "imports_from"
+    },
+    {
+      "source": "tools.road_reward_smoke",
+      "target": "ev_grid_oracle.road_models",
+      "type": "imports_from"
+    },
+    {
+      "source": "tools.generate_health_dashboard",
+      "target": "json",
+      "type": "imports"
+    },
+    {
+      "source": "tools.generate_health_dashboard",
+      "target": "subprocess",
+      "type": "imports"
+    },
+    {
+      "source": "tools.generate_health_dashboard",
+      "target": "os",
+      "type": "imports"
+    },
+    {
+      "source": "tools.generate_health_dashboard",
+      "target": "datetime",
+      "type": "imports_from"
+    },
+    {
+      "source": "tools.generate_health_dashboard",
+      "target": "jinja2",
+      "type": "imports_from"
+    },
+    {
+      "source": "tools.generate_health_dashboard",
+      "target": "urllib.request",
+      "type": "imports"
+    },
+    {
+      "source": "tools.generate_health_dashboard",
+      "target": "openai",
+      "type": "imports"
+    },
+    {
+      "source": "tools.write_eval_snapshot",
+      "target": "__future__",
+      "type": "imports_from"
+    },
+    {
+      "source": "tools.write_eval_snapshot",
+      "target": "os",
+      "type": "imports"
+    },
+    {
+      "source": "tools.write_eval_snapshot",
+      "target": "subprocess",
+      "type": "imports"
+    },
+    {
+      "source": "tools.write_eval_snapshot",
+      "target": "sys",
+      "type": "imports"
+    },
+    {
+      "source": "tools.write_eval_snapshot",
+      "target": "pathlib",
+      "type": "imports_from"
+    },
+    {
+      "source": "tools.fetch_osm_roads",
+      "target": "__future__",
+      "type": "imports_from"
+    },
+    {
+      "source": "tools.fetch_osm_roads",
+      "target": "argparse",
+      "type": "imports"
+    },
+    {
+      "source": "tools.fetch_osm_roads",
+      "target": "json",
+      "type": "imports"
+    },
+    {
+      "source": "tools.fetch_osm_roads",
+      "target": "time",
+      "type": "imports"
+    },
+    {
+      "source": "tools.fetch_osm_roads",
+      "target": "urllib.parse",
+      "type": "imports"
+    },
+    {
+      "source": "tools.fetch_osm_roads",
+      "target": "urllib.request",
+      "type": "imports"
+    },
+    {
+      "source": "tools.fetch_osm_roads",
+      "target": "dataclasses",
+      "type": "imports_from"
+    },
+    {
+      "source": "tools.fetch_osm_roads",
+      "target": "pathlib",
+      "type": "imports_from"
+    },
+    {
+      "source": "tools.build_roads_render",
+      "target": "__future__",
+      "type": "imports_from"
+    },
+    {
+      "source": "tools.build_roads_render",
+      "target": "argparse",
+      "type": "imports"
+    },
+    {
+      "source": "tools.build_roads_render",
+      "target": "json",
+      "type": "imports"
+    },
+    {
+      "source": "tools.build_roads_render",
+      "target": "pathlib",
+      "type": "imports_from"
+    },
+    {
+      "source": "tools.build_roads_render",
+      "target": "typing",
+      "type": "imports_from"
+    },
+    {
+      "source": "training.fair_eval",
+      "target": "__future__",
+      "type": "imports_from"
+    },
+    {
+      "source": "training.fair_eval",
+      "target": "argparse",
+      "type": "imports"
+    },
+    {
+      "source": "training.fair_eval",
+      "target": "json",
+      "type": "imports"
+    },
+    {
+      "source": "training.fair_eval",
+      "target": "math",
+      "type": "imports"
+    },
+    {
+      "source": "training.fair_eval",
+      "target": "pathlib",
+      "type": "imports_from"
+    },
+    {
+      "source": "training.fair_eval",
+      "target": "typing",
+      "type": "imports_from"
+    },
+    {
+      "source": "training.fair_eval",
+      "target": "matplotlib.pyplot",
+      "type": "imports"
+    },
+    {
+      "source": "training.make_plots",
+      "target": "__future__",
+      "type": "imports_from"
+    },
+    {
+      "source": "training.make_plots",
+      "target": "argparse",
+      "type": "imports"
+    },
+    {
+      "source": "training.make_plots",
+      "target": "json",
+      "type": "imports"
+    },
+    {
+      "source": "training.make_plots",
+      "target": "math",
+      "type": "imports"
+    },
+    {
+      "source": "training.make_plots",
+      "target": "pathlib",
+      "type": "imports_from"
+    },
+    {
+      "source": "training.make_plots",
+      "target": "typing",
+      "type": "imports_from"
+    },
+    {
+      "source": "training.make_plots",
+      "target": "matplotlib.pyplot",
+      "type": "imports"
+    },
+    {
+      "source": "training.evaluate",
+      "target": "__future__",
+      "type": "imports_from"
+    },
+    {
+      "source": "training.evaluate",
+      "target": "argparse",
+      "type": "imports"
+    },
+    {
+      "source": "training.evaluate",
+      "target": "json",
+      "type": "imports"
+    },
+    {
+      "source": "training.evaluate",
+      "target": "os",
+      "type": "imports"
+    },
+    {
+      "source": "training.evaluate",
+      "target": "collections",
+      "type": "imports_from"
+    },
+    {
+      "source": "training.evaluate",
+      "target": "dataclasses",
+      "type": "imports_from"
+    },
+    {
+      "source": "training.evaluate",
+      "target": "statistics",
+      "type": "imports_from"
+    },
+    {
+      "source": "training.evaluate",
+      "target": "typing",
+      "type": "imports_from"
+    },
+    {
+      "source": "training.evaluate",
+      "target": "ev_grid_oracle.city_graph",
+      "type": "imports_from"
+    },
+    {
+      "source": "training.evaluate",
+      "target": "ev_grid_oracle.env",
+      "type": "imports_from"
+    },
+    {
+      "source": "training.evaluate",
+      "target": "ev_grid_oracle.models",
+      "type": "imports_from"
+    },
+    {
+      "source": "training.evaluate",
+      "target": "ev_grid_oracle.oracle_agent",
+      "type": "imports_from"
+    },
+    {
+      "source": "training.evaluate",
+      "target": "ev_grid_oracle.policies",
+      "type": "imports_from"
+    },
+    {
+      "source": "training.evaluate",
+      "target": "ev_grid_oracle.scenarios",
+      "type": "imports_from"
+    },
+    {
+      "source": "tests.test_demo_api",
+      "target": "fastapi.testclient",
+      "type": "imports_from"
+    },
+    {
+      "source": "tests.test_demo_api",
+      "target": "server.app",
+      "type": "imports_from"
+    },
+    {
+      "source": "tests.test_demo_api",
+      "target": "server.app",
+      "type": "imports_from"
+    },
+    {
+      "source": "tests.test_demo_api",
+      "target": "server.app",
+      "type": "imports_from"
+    },
+    {
+      "source": "tests.test_demo_api",
+      "target": "server.app",
+      "type": "imports_from"
+    },
+    {
+      "source": "tests.test_demo_api",
+      "target": "server.app",
+      "type": "imports"
+    },
+    {
+      "source": "tests.test_demo_api",
+      "target": "server.app",
+      "type": "imports_from"
+    },
+    {
+      "source": "tests.test_demo_api",
+      "target": "server.app",
+      "type": "imports_from"
+    },
+    {
+      "source": "tests.test_env_determinism",
+      "target": "__future__",
+      "type": "imports_from"
+    },
+    {
+      "source": "tests.test_env_determinism",
+      "target": "pytest",
+      "type": "imports"
+    },
+    {
+      "source": "tests.test_env_determinism",
+      "target": "pydantic",
+      "type": "imports_from"
+    },
+    {
+      "source": "tests.test_env_determinism",
+      "target": "ev_grid_oracle.city_graph",
+      "type": "imports_from"
+    },
+    {
+      "source": "tests.test_env_determinism",
+      "target": "ev_grid_oracle.env",
+      "type": "imports_from"
+    },
+    {
+      "source": "tests.test_env_determinism",
+      "target": "ev_grid_oracle.models",
+      "type": "imports_from"
+    },
+    {
+      "source": "tests.test_env_determinism",
+      "target": "ev_grid_oracle.policies",
+      "type": "imports_from"
+    },
+    {
+      "source": "tests.test_reward",
+      "target": "ev_grid_oracle.city_graph",
+      "type": "imports_from"
+    },
+    {
+      "source": "tests.test_reward",
+      "target": "ev_grid_oracle.env",
+      "type": "imports_from"
+    },
+    {
+      "source": "tests.test_reward",
+      "target": "ev_grid_oracle.models",
+      "type": "imports_from"
+    },
+    {
+      "source": "tests.test_reward",
+      "target": "ev_grid_oracle.reward",
+      "type": "imports_from"
+    },
+    {
+      "source": "tests.test_reward",
+      "target": "typing",
+      "type": "imports_from"
+    },
+    {
+      "source": "tests.test_world_model_verifier",
+      "target": "ev_grid_oracle.city_graph",
+      "type": "imports_from"
+    },
+    {
+      "source": "tests.test_world_model_verifier",
+      "target": "ev_grid_oracle.env",
+      "type": "imports_from"
+    },
+    {
+      "source": "tests.test_world_model_verifier",
+      "target": "ev_grid_oracle.models",
+      "type": "imports_from"
+    },
+    {
+      "source": "tests.test_world_model_verifier",
+      "target": "ev_grid_oracle.policies",
+      "type": "imports_from"
+    },
+    {
+      "source": "tests.test_world_model_verifier",
+      "target": "ev_grid_oracle.world_model_verifier",
+      "type": "imports_from"
+    },
+    {
+      "source": "tests.test_evaluate_paired",
+      "target": "__future__",
+      "type": "imports_from"
+    },
+    {
+      "source": "tests.test_evaluate_paired",
+      "target": "json",
+      "type": "imports"
+    },
+    {
+      "source": "tests.test_evaluate_paired",
+      "target": "os",
+      "type": "imports"
+    },
+    {
+      "source": "tests.test_evaluate_paired",
+      "target": "subprocess",
+      "type": "imports"
+    },
+    {
+      "source": "tests.test_evaluate_paired",
+      "target": "sys",
+      "type": "imports"
+    },
+    {
+      "source": "tests.test_evaluate_paired",
+      "target": "pathlib",
+      "type": "imports_from"
+    },
+    {
+      "source": "tests.test_evaluate_paired",
+      "target": "pytest",
+      "type": "imports"
+    },
+    {
+      "source": "tests.test_evaluate_paired",
+      "target": "ev_grid_oracle.city_graph",
+      "type": "imports_from"
+    },
+    {
+      "source": "tests.test_evaluate_paired",
+      "target": "ev_grid_oracle.env",
+      "type": "imports_from"
+    },
+    {
+      "source": "tests.test_evaluate_paired",
+      "target": "training.evaluate",
+      "type": "imports_from"
+    },
+    {
+      "source": "tests.test_evaluate_paired",
+      "target": "training.evaluate",
+      "type": "imports_from"
+    },
+    {
+      "source": "tests.test_models_and_graph",
+      "target": "pytest",
+      "type": "imports"
+    },
+    {
+      "source": "tests.test_models_and_graph",
+      "target": "ev_grid_oracle.city_graph",
+      "type": "imports_from"
+    },
+    {
+      "source": "tests.test_models_and_graph",
+      "target": "ev_grid_oracle.models",
+      "type": "imports_from"
+    },
+    {
+      "source": "tests.test_models_and_graph",
+      "target": "ev_grid_oracle.env",
+      "type": "imports_from"
+    },
+    {
+      "source": "tests.test_fair_eval_mcnemar",
+      "target": "__future__",
+      "type": "imports_from"
+    },
+    {
+      "source": "tests.test_fair_eval_mcnemar",
+      "target": "training.fair_eval",
+      "type": "imports_from"
+    },
+    {
+      "source": "tests.test_parsing",
+      "target": "ev_grid_oracle.parsing",
+      "type": "imports_from"
+    },
+    {
+      "source": "tests.test_policies_collapse",
+      "target": "__future__",
+      "type": "imports_from"
+    },
+    {
+      "source": "tests.test_policies_collapse",
+      "target": "ev_grid_oracle.city_graph",
+      "type": "imports_from"
+    },
+    {
+      "source": "tests.test_policies_collapse",
+      "target": "ev_grid_oracle.env",
+      "type": "imports_from"
+    },
+    {
+      "source": "tests.test_policies_collapse",
+      "target": "ev_grid_oracle.models",
+      "type": "imports_from"
+    },
+    {
+      "source": "tests.test_policies_collapse",
+      "target": "ev_grid_oracle.policies",
+      "type": "imports_from"
+    }
+  ]
+}

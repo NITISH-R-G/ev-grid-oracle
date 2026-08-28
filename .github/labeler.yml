@@ -1,0 +1,23 @@
+core:
+  - pyproject.toml
+  - openenv.yaml
+  - 'ev_grid_oracle/**/*'
+
+frontend:
+  - 'web/**/*'
+
+backend:
+  - 'server/**/*'
+
+documentation:
+  - '**/*.md'
+  - 'docs/**/*'
+
+tests:
+  - 'tests/**/*'
+
+tools:
+  - 'tools/**/*'
+
+ci-cd:
+  - '.github/workflows/**/*'

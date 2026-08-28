@@ -1,4 +1,4 @@
-name: AI PR Agent
+name: AI PR Reviewer
 
 on:
   pull_request:
@@ -6,15 +6,15 @@ on:
   issue_comment:
     types: [created]
 
+permissions:
+  contents: read
+  pull-requests: write
+  issues: write
+
 jobs:
-  pr_agent:
+  review:
     runs-on: ubuntu-latest
-    permissions:
-      issues: write
-      pull-requests: write
-      contents: write
-    name: Run PR Agent
-    if: ${{ github.event.sender.type != 'Bot' }}
+    if: github.event_name == 'pull_request' || (github.event_name == 'issue_comment' && contains(github.event.comment.body, '/review'))
     steps:
       - name: PR Agent action step
         id: pragent
