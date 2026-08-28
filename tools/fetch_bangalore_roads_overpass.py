@@ -74,7 +74,7 @@ def _http_post(url: str, data: dict[str, str], *, retries: int = 3) -> bytes:
         try:
             with urllib.request.urlopen(req, timeout=240) as r:  # nosec B310
                 return r.read()
-        except Exception as e:  # noqa: BLE001
+        except Exception as e:
             last_err = e
             if attempt >= retries:
                 raise

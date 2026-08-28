@@ -67,7 +67,7 @@ def generate_docs(source_dir=".", output_dir="docs"):
                                     )
 
                         logger.info(f"Generated docs for {rel_path} at {out_path}")
-                except Exception as e:  # noqa: BLE001
+                except Exception as e:
                     logger.warning(f"Failed to parse {file_path}: {e}")
 
 

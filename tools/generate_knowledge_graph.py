@@ -73,7 +73,7 @@ def generate_knowledge_graph(
                                     "type": "contains_function",
                                 }
                             )
-                except Exception as e:  # noqa: BLE001
+                except Exception as e:
                     logger.warning(f"Failed to parse {file_path}: {e}")
 
     with open(output_file, "w", encoding="utf-8") as out:

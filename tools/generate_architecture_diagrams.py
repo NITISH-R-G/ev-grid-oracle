@@ -61,7 +61,7 @@ def generate_architecture_diagrams(
                                     }
                                 )
                                 nodes_set.add(node.module)
-                except Exception as e:  # noqa: BLE001
+                except Exception as e:
                     logger.warning(f"Failed to parse {file_path}: {e}")
 
     for node in nodes_set:
