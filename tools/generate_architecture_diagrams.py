@@ -1,26 +1,29 @@
-import os
 import ast
 import json
 import logging
+import os
 from typing import Any
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-def generate_architecture_diagrams(source_dir: str = ".", output_file: str = "artifacts/architecture_graph.json") -> None:
+
+def generate_architecture_diagrams(
+    source_dir: str = ".", output_file: str = "artifacts/architecture_graph.json"
+) -> None:
     os.makedirs(os.path.dirname(output_file), exist_ok=True)
 
     # Store relationships as dependencies (e.g., file -> imported module)
-    graph: dict[str, Any] = {
-        "nodes": [],
-        "links": []
-    }
+    graph: dict[str, Any] = {"nodes": [], "links": []}
 
     nodes_set = set()
 
     for root, dirs, files in os.walk(source_dir):
         # Explicitly skip ignored directories
-        if any(ignored in root.split(os.path.sep) for ignored in [".git", ".venv", "__pycache__", "node_modules", ".cursor"]):
+        if any(
+            ignored in root.split(os.path.sep)
+            for ignored in [".git", ".venv", "__pycache__", "node_modules", ".cursor"]
+        ):
             continue
 
         for file in files:
@@ -40,22 +43,26 @@ def generate_architecture_diagrams(source_dir: str = ".", output_file: str = "ar
                     for node in ast.walk(tree):
                         if isinstance(node, ast.Import):
                             for alias in node.names:
-                                graph["links"].append({
-                                    "source": module_name,
-                                    "target": alias.name,
-                                    "type": "imports"
-                                })
+                                graph["links"].append(
+                                    {
+                                        "source": module_name,
+                                        "target": alias.name,
+                                        "type": "imports",
+                                    }
+                                )
                                 nodes_set.add(alias.name)
                         elif isinstance(node, ast.ImportFrom):
                             if node.module:
-                                graph["links"].append({
-                                    "source": module_name,
-                                    "target": node.module,
-                                    "type": "imports_from"
-                                })
+                                graph["links"].append(
+                                    {
+                                        "source": module_name,
+                                        "target": node.module,
+                                        "type": "imports_from",
+                                    }
+                                )
                                 nodes_set.add(node.module)
-                except Exception as e:
-                    logger.warning(f"Failed to parse {file_path}: {e}") # noqa: BLE001
+                except Exception as e:  # noqa: BLE001
+                    logger.warning(f"Failed to parse {file_path}: {e}")
 
     for node in nodes_set:
         graph["nodes"].append({"id": node})
@@ -64,6 +71,7 @@ def generate_architecture_diagrams(source_dir: str = ".", output_file: str = "ar
         json.dump(graph, out, indent=2)
 
     logger.info(f"Architecture diagram graph generated at {output_file}")
+
 
 if __name__ == "__main__":
     generate_architecture_diagrams()

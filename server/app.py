@@ -1,14 +1,15 @@
 from __future__ import annotations
 
 import concurrent.futures
+import hashlib
+import logging
 import os
-from pathlib import Path
 import time
 from collections import OrderedDict
-import logging
-from server.road_router import get_router
+from pathlib import Path
+
 from ev_grid_oracle.traffic import TrafficModel
-import hashlib
+from server.road_router import get_router
 
 try:
     from openenv.core.env_server.http_server import create_app
@@ -17,43 +18,43 @@ except ImportError as e:  # pragma: no cover
 
 from typing import Any, Literal, cast
 from uuid import uuid4
-from pydantic import BaseModel, Field
 
+import networkx as nx
 from fastapi import Body, HTTPException, Query, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel, Field
 
-from ev_grid_oracle.city_graph import build_city_graph, _BY_ID, _BY_SLUG
-import networkx as nx
+from ev_grid_oracle.city_graph import _BY_ID, _BY_SLUG, build_city_graph
 from ev_grid_oracle.env import EVGridCore, _build_prompt
 from ev_grid_oracle.models import (
     ActionType,
-    EVRequest,
     EVGridAction,
     EVGridObservation,
+    EVRequest,
     GridDirective,
     MultiAgentStepRequest,
     NegotiationMessage,
 )
+from ev_grid_oracle.multi_agent import MultiAgentSession
 from ev_grid_oracle.oracle_agent import OracleAgent
-from ev_grid_oracle.policies import baseline_policy
 from ev_grid_oracle.parsing import parse_simulation
+from ev_grid_oracle.policies import baseline_policy
 from ev_grid_oracle.reward import split_role_rewards
+from ev_grid_oracle.road_models import RoadAction, RoadObservation
 from ev_grid_oracle.scenarios import ScenarioName
 from ev_grid_oracle.world_model_verifier import (
     rollout_deterministic_5ticks,
     score_prediction,
 )
-from ev_grid_oracle.multi_agent import MultiAgentSession
 from server.ev_grid_environment import EVGridEnvironment
 from server.ev_grid_road_environment import EVGridRoadEnvironment
-from ev_grid_oracle.road_models import RoadAction, RoadObservation
+from server.road_router import haversine_m
 from server.role_metrics import (
     compute_role_kpis,
     compute_role_reward_breakdown,
     summarize_action,
 )
-from server.road_router import haversine_m
 
 log = logging.getLogger("ev-grid-oracle")
 if not log.handlers:
@@ -228,7 +229,7 @@ def healthz(req: Request) -> dict[str, Any]:
     try:
         # Lazy import / init; should be cached if already loaded.
         get_router()
-    except Exception:
+    except Exception:  # noqa: BLE001
         router_ok = False
     return {
         "ok": True,
@@ -249,7 +250,7 @@ _DEMO_SESSION_TTL_SEC = int(os.getenv("DEMO_SESSION_TTL_SEC", "3600"))  # 1h
 _DEMO_MAX_SESSIONS = int(os.getenv("DEMO_MAX_SESSIONS", "64"))
 
 # Ordered for deterministic eviction of oldest sessions.
-_demo_sessions: "OrderedDict[str, tuple[float, EVGridCore]]" = OrderedDict()
+_demo_sessions: OrderedDict[str, tuple[float, EVGridCore]] = OrderedDict()
 _demo_graph = build_city_graph()
 _SIM_VERSION = "2026-04-26.1"
 
@@ -272,7 +273,7 @@ def _osm_route_polyline(
             traffic=traffic,
             tick=tick,
         )
-    except Exception:
+    except Exception:  # noqa: BLE001
         return None
 
 
@@ -293,7 +294,7 @@ def _graph_route_polyline(
                 core.city_graph, src_station_id, dst_station_id, weight="weight_minutes"
             ),
         )
-    except Exception:
+    except Exception:  # noqa: BLE001
         # Fallback: direct
         a = core.city_graph.nodes[src_station_id]
         b = core.city_graph.nodes[dst_station_id]
@@ -383,7 +384,7 @@ class DemoNewRequest(BaseModel):
 
 _MA_SESSION_TTL_SEC = int(os.getenv("MA_SESSION_TTL_SEC", "3600"))
 _MA_MAX_SESSIONS = int(os.getenv("MA_MAX_SESSIONS", "64"))
-_ma_sessions: "OrderedDict[str, tuple[float, MultiAgentSession]]" = OrderedDict()
+_ma_sessions: OrderedDict[str, tuple[float, MultiAgentSession]] = OrderedDict()
 
 
 def _ma_gc(now: float | None = None) -> None:
@@ -457,7 +458,7 @@ def ma_new(req: Request, payload: MANewRequest = Body(...)) -> dict[str, Any]:
         }
     except HTTPException:
         raise
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         log.exception(
             "ma_new_error", extra={"rid": rid, "ms": int((time.time() - t0) * 1000)}
         )
@@ -733,7 +734,7 @@ def demo_new(req: Request, payload: DemoNewRequest = Body(...)) -> dict[str, Any
         }
     except HTTPException:
         raise
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         log.exception(
             "demo_new_error", extra={"rid": rid, "ms": int((time.time() - t0) * 1000)}
         )
@@ -870,7 +871,7 @@ def demo_spawn_vehicle(
 
     try:
         action = baseline_policy(st, core.city_graph)
-    except Exception:
+    except Exception:  # noqa: BLE001
         # last-resort: pick nearest non-full station
         best = min(
             candidates, key=lambda s: haversine_m(lat, lng, float(s.lat), float(s.lng))
@@ -980,7 +981,7 @@ def demo_step(
                                 }
                             else:
                                 cast(Any, it)["ctx"] = str(ctx)
-                        except Exception:
+                        except Exception:  # noqa: BLE001
                             it.pop("ctx", None)
                 raise HTTPException(
                     status_code=422,
@@ -1159,7 +1160,7 @@ def demo_step(
             seed_i = int(core._seed_for_bescom)
             scen = str(core.scenario)
             h = hashlib.sha1(
-                f"{seed_i}|{scen}|{mode}|ambient|{tick_i}".encode("utf-8"),
+                f"{seed_i}|{scen}|{mode}|ambient|{tick_i}".encode(),
                 usedforsecurity=False,
             ).digest()
             a_i = int.from_bytes(h[:2], "big") % len(st.stations)
@@ -1248,7 +1249,7 @@ def demo_step(
         return out
     except HTTPException:
         raise
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001
         log.exception(
             "demo_step_error",
             extra={
