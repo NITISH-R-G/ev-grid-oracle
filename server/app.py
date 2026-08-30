@@ -99,7 +99,7 @@ def _demo_oracle_act_with_guard(
     """
     Run oracle policy with CPU-Space-safe guards.
 
-    Returns: action, oracle_text, oracle_llm_active, oracle__timed_out, oracle__skipped_env
+    Returns: action, oracle_text, oracle_llm_active, oracle___timed_out, oracle___skipped_env
     """
     if _oracle_skip_llm_env():
         a, t = OracleAgent(lora_repo_id=None).act_with_text(
@@ -229,7 +229,7 @@ def healthz(req: Request) -> dict[str, Any]:
     try:
         # Lazy import / init; should be cached if already loaded.
         get_router()
-    except Exception:  # noqa: BLE001
+    except Exception:  # noqa: BLE001  # noqa: BLE001
         router_ok = False
     return {
         "ok": True,
@@ -273,7 +273,7 @@ def _osm_route_polyline(
             traffic=traffic,
             tick=tick,
         )
-    except Exception:  # noqa: BLE001
+    except Exception:  # noqa: BLE001  # noqa: BLE001
         return None
 
 
@@ -294,7 +294,7 @@ def _graph_route_polyline(
                 core.city_graph, src_station_id, dst_station_id, weight="weight_minutes"
             ),
         )
-    except Exception:  # noqa: BLE001
+    except Exception:  # noqa: BLE001  # noqa: BLE001
         # Fallback: direct
         a = core.city_graph.nodes[src_station_id]
         b = core.city_graph.nodes[dst_station_id]
@@ -362,7 +362,7 @@ def _demo_session_get(session_id: str) -> EVGridCore | None:
     row = _demo_sessions.get(session_id)
     if row is None:
         return None
-    _ts, core = row
+    __ts, core = row
     # touch (LRU-ish)
     _demo_sessions.move_to_end(session_id, last=True)
     _demo_sessions[session_id] = (time.time(), core)
@@ -525,7 +525,7 @@ def ma_auto_step(
             text="Routing using heuristic baseline under grid constraints.",
         )
     else:
-        action, _txt, active, _timed_out, _skipped = _demo_oracle_act_with_guard(
+        action, _txt, active, __timed_out, __skipped = _demo_oracle_act_with_guard(
             st=st, core=sess.core, oracle_lora_repo=payload.oracle_lora_repo
         )
         fleet_action = action
@@ -871,7 +871,7 @@ def demo_spawn_vehicle(
 
     try:
         action = baseline_policy(st, core.city_graph)
-    except Exception:  # noqa: BLE001
+    except Exception:  # noqa: BLE001  # noqa: BLE001
         # last-resort: pick nearest non-full station
         best = min(
             candidates, key=lambda s: haversine_m(lat, lng, float(s.lat), float(s.lng))
@@ -957,8 +957,8 @@ def demo_step(
         st = core._grid_state
         oracle_llm_active = False
         oracle_text = ""
-        oracle__timed_out = False
-        oracle__skipped_env = False
+        oracle___timed_out = False
+        oracle___skipped_env = False
         dream_score = None
         dream_breakdown: dict[str, float] = {}
         dream_pred = None
@@ -981,7 +981,7 @@ def demo_step(
                                 }
                             else:
                                 cast(Any, it)["ctx"] = str(ctx)
-                        except Exception:  # noqa: BLE001
+                        except Exception:  # noqa: BLE001  # noqa: BLE001
                             it.pop("ctx", None)
                 raise HTTPException(
                     status_code=422,
@@ -1065,8 +1065,8 @@ def demo_step(
                     action,
                     oracle_text,
                     oracle_llm_active,
-                    oracle__timed_out,
-                    oracle__skipped_env,
+                    oracle___timed_out,
+                    oracle___skipped_env,
                 ) = _demo_oracle_act_with_guard(
                     st=st, core=core, oracle_lora_repo=oracle_lora_repo
                 )
@@ -1222,8 +1222,8 @@ def demo_step(
             "mode": mode,
             "oracle_lora_repo": (oracle_lora_repo or "").strip(),
             "oracle_llm_active": oracle_llm_active,
-            "oracle__timed_out": oracle__timed_out,
-            "oracle__skipped_env": oracle__skipped_env,
+            "oracle___timed_out": oracle___timed_out,
+            "oracle___skipped_env": oracle___skipped_env,
             "action": summarize_action(action),
             "oracle_text": oracle_text,
             "dream_score": dream_score,
@@ -1240,8 +1240,8 @@ def demo_step(
                 "mode": mode,
                 "tick": int(core.step_count),
                 "oracle_active": bool(oracle_llm_active),
-                "oracle_timeout": bool(oracle__timed_out),
-                "oracle__skipped": bool(oracle__skipped_env),
+                "oracle_timeout": bool(oracle___timed_out),
+                "oracle___skipped": bool(oracle___skipped_env),
                 "forced": bool(forced_action is not None),
                 "ms": int((time.time() - t0) * 1000),
             },
