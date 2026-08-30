@@ -58,7 +58,7 @@ def generate_knowledge_graph(root_dir="."):
                                 "module": node.module,
                                 "file": rel_path
                             })
-            except Exception as e:  # noqa: BLE001  # noqa: BLE001
+            except Exception as e:  # noqa: BLE001  # noqa: BLE001  # noqa: BLE001
                 logger.warning(f"Failed to parse {filepath}: {e}")
 
     os.makedirs("artifacts", exist_ok=True)

@@ -40,6 +40,8 @@ def renewable_pct(hour: int, params: GridParams | None = None) -> float:
         params = GridParams()
     if params is None:
         params = GridParams()
+    if params is None:
+        params = GridParams()
     # Midday solar bump: peak around 13:00, low at night.
     angle = 2 * pi * ((hour - 13) / 24.0)
     ren = params.renewable_base + params.renewable_amplitude * (0.5 + 0.5 * cos(angle))

@@ -26,7 +26,7 @@ def baseline_policy(state: GridState, graph) -> EVGridAction:
             tmin = travel_time_minutes(
                 graph, from_station.station_id, s.station_id, default_if_missing=90.0
             )
-        except Exception:  # noqa: BLE001  # noqa: BLE001
+        except Exception:  # noqa: BLE001  # noqa: BLE001  # noqa: BLE001
             tmin = 60.0
 
         load = s.occupied_slots / max(1, s.total_slots)
@@ -103,7 +103,7 @@ def nearest_travel_only_policy(state: GridState, graph) -> EVGridAction:
             tmin = travel_time_minutes(
                 graph, from_station.station_id, s.station_id, default_if_missing=90.0
             )
-        except Exception:  # noqa: BLE001  # noqa: BLE001
+        except Exception:  # noqa: BLE001  # noqa: BLE001  # noqa: BLE001
             tmin = 60.0
         if tmin < best_t:
             best_t = tmin

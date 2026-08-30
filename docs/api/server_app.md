@@ -36,7 +36,7 @@ No documentation provided.
 
 Run oracle policy with CPU-Space-safe guards.
 
-Returns: action, oracle_text, oracle_llm_active, oracle___timed_out, oracle___skipped_env
+Returns: action, oracle_text, oracle_llm_active, oracle_timed_out, oracle_skipped_env
 
 ### Function `root`
 

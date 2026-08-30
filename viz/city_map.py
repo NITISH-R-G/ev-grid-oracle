@@ -50,6 +50,8 @@ class CityMapRenderer:
             cfg = RenderConfig()
         if cfg is None:
             cfg = RenderConfig()
+        if cfg is None:
+            cfg = RenderConfig()
         self.env = env
         self.cfg = cfg
         self._font = pygame.font.SysFont("Consolas", 18)

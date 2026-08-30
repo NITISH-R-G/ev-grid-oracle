@@ -50,7 +50,7 @@ def sync_docs(root_dir="."):
                             f.write("\n## Functions\n\n")
                             f.write("\n".join(functions))
 
-            except Exception as e:  # noqa: BLE001  # noqa: BLE001
+            except Exception as e:  # noqa: BLE001  # noqa: BLE001  # noqa: BLE001
                 logger.warning(f"Failed to process docs for {filepath}: {e}")
 
     logger.info("API documentation generated in docs/api/")
