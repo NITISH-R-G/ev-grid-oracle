@@ -70,7 +70,7 @@ class RoadRouter:
         nodes_in = obj.get("nodes", [])
         edges_in = obj.get("edges", [])
         if not isinstance(nodes_in, list) or not isinstance(edges_in, list):
-            raise ValueError("invalid road graph json")
+            raise TypeError("invalid road graph json")
 
         nodes: list[tuple[float, float]] = []
         for n in nodes_in:

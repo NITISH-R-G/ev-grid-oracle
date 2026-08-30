@@ -99,7 +99,7 @@ def _demo_oracle_act_with_guard(
     """
     Run oracle policy with CPU-Space-safe guards.
 
-    Returns: action, oracle_text, oracle_llm_active, oracle_timed_out, oracle_skipped_env
+    Returns: action, oracle_text, oracle_llm_active, oracle__timed_out, oracle__skipped_env
     """
     if _oracle_skip_llm_env():
         a, t = OracleAgent(lora_repo_id=None).act_with_text(
@@ -362,7 +362,7 @@ def _demo_session_get(session_id: str) -> EVGridCore | None:
     row = _demo_sessions.get(session_id)
     if row is None:
         return None
-    ts, core = row
+    _ts, core = row
     # touch (LRU-ish)
     _demo_sessions.move_to_end(session_id, last=True)
     _demo_sessions[session_id] = (time.time(), core)
@@ -420,7 +420,7 @@ class MANewRequest(BaseModel):
 
 
 @app.post("/ma/new")
-def ma_new(req: Request, payload: MANewRequest = Body(...)) -> dict[str, Any]:
+def ma_new(req: Request, payload: MANewRequest) -> dict[str, Any]:
     _rate_limit(req, key="ma_new", limit=30, window_sec=60)
     t0 = time.time()
     rid = _request_id(req)
@@ -502,7 +502,7 @@ class MAAutoStepRequest(BaseModel):
 
 @app.post("/ma/auto_step")
 def ma_auto_step(
-    req: Request, payload: MAAutoStepRequest = Body(...)
+    req: Request, payload: MAAutoStepRequest
 ) -> dict[str, Any]:
     _rate_limit(req, key="ma_auto_step", limit=120, window_sec=60)
     """
@@ -525,7 +525,7 @@ def ma_auto_step(
             text="Routing using heuristic baseline under grid constraints.",
         )
     else:
-        action, _txt, active, timed_out, skipped = _demo_oracle_act_with_guard(
+        action, _txt, active, _timed_out, _skipped = _demo_oracle_act_with_guard(
             st=st, core=sess.core, oracle_lora_repo=payload.oracle_lora_repo
         )
         fleet_action = action
@@ -604,7 +604,7 @@ def ma_state(req: Request, session_id: str = Query(...)) -> dict[str, Any]:
 
 
 @app.post("/ma/step")
-def ma_step(req: Request, payload: MultiAgentStepRequest = Body(...)) -> dict[str, Any]:
+def ma_step(req: Request, payload: MultiAgentStepRequest) -> dict[str, Any]:
     _rate_limit(req, key="ma_step", limit=120, window_sec=60)
     t0 = time.time()
     rid = _request_id(req)
@@ -696,7 +696,7 @@ def _station_nodes(core: EVGridCore) -> list[dict[str, Any]]:
 
 
 @app.post("/demo/new")
-def demo_new(req: Request, payload: DemoNewRequest = Body(...)) -> dict[str, Any]:
+def demo_new(req: Request, payload: DemoNewRequest) -> dict[str, Any]:
     _rate_limit(req, key="demo_new", limit=30, window_sec=60)
     t0 = time.time()
     rid = _request_id(req)
@@ -797,7 +797,7 @@ class DemoSpawnVehicleRequest(BaseModel):
 
 @app.post("/demo/spawn_vehicle")
 def demo_spawn_vehicle(
-    req: Request, payload: DemoSpawnVehicleRequest = Body(...)
+    req: Request, payload: DemoSpawnVehicleRequest
 ) -> dict[str, Any]:
     """
     Spawn a new EV at a valid road location (away from stations) and immediately compute
@@ -938,9 +938,9 @@ def demo_spawn_vehicle(
 def demo_step(
     req: Request,
     session_id: str = Body(...),
-    mode: Literal["baseline", "oracle"] = Body("baseline"),
-    oracle_lora_repo: str = Body("", embed=True),
-    forced_action: dict[str, Any] | None = Body(None),
+    mode: Literal["baseline", "oracle"] = "baseline",
+    oracle_lora_repo: str = "",
+    forced_action: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     _rate_limit(req, key="demo_step", limit=120, window_sec=60)
     t0 = time.time()
@@ -957,8 +957,8 @@ def demo_step(
         st = core._grid_state
         oracle_llm_active = False
         oracle_text = ""
-        oracle_timed_out = False
-        oracle_skipped_env = False
+        oracle__timed_out = False
+        oracle__skipped_env = False
         dream_score = None
         dream_breakdown: dict[str, float] = {}
         dream_pred = None
@@ -1065,8 +1065,8 @@ def demo_step(
                     action,
                     oracle_text,
                     oracle_llm_active,
-                    oracle_timed_out,
-                    oracle_skipped_env,
+                    oracle__timed_out,
+                    oracle__skipped_env,
                 ) = _demo_oracle_act_with_guard(
                     st=st, core=core, oracle_lora_repo=oracle_lora_repo
                 )
@@ -1222,8 +1222,8 @@ def demo_step(
             "mode": mode,
             "oracle_lora_repo": (oracle_lora_repo or "").strip(),
             "oracle_llm_active": oracle_llm_active,
-            "oracle_timed_out": oracle_timed_out,
-            "oracle_skipped_env": oracle_skipped_env,
+            "oracle__timed_out": oracle__timed_out,
+            "oracle__skipped_env": oracle__skipped_env,
             "action": summarize_action(action),
             "oracle_text": oracle_text,
             "dream_score": dream_score,
@@ -1240,8 +1240,8 @@ def demo_step(
                 "mode": mode,
                 "tick": int(core.step_count),
                 "oracle_active": bool(oracle_llm_active),
-                "oracle_timeout": bool(oracle_timed_out),
-                "oracle_skipped": bool(oracle_skipped_env),
+                "oracle_timeout": bool(oracle__timed_out),
+                "oracle__skipped": bool(oracle__skipped_env),
                 "forced": bool(forced_action is not None),
                 "ms": int((time.time() - t0) * 1000),
             },
