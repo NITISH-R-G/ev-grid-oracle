@@ -31,7 +31,7 @@ ev_grid_oracle.egg-info/
 .coverage
 dashboard_output/
 build/
-tools/docs_sync.py
-tools/generate_architecture_diagrams.py
-tools/generate_knowledge_graph.py
-create_repo_files.py
+.venv/
+__pycache__/
+.pytest_cache/
+*.egg-info/

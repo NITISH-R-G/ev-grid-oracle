@@ -1,7 +1,7 @@
-import os
 import ast
 import json
 import logging
+import os
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -38,7 +38,7 @@ def generate_architecture(root_dir="."):
                     elif isinstance(node, ast.ImportFrom):
                         if node.module:
                             links.append({"source": module_name, "target": node.module, "value": 1})
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 logger.warning(f"Error parsing {filepath}: {e}")
 
     # Filter external links for cleaner graph

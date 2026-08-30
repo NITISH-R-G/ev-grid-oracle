@@ -1,0 +1,726 @@
+{
+  "nodes": [
+    {
+      "id": "test_script",
+      "group": 1
+    },
+    {
+      "id": "create_repo_files",
+      "group": 1
+    },
+    {
+      "id": "viz.record_two_phase",
+      "group": 1
+    },
+    {
+      "id": "viz.city_map",
+      "group": 1
+    },
+    {
+      "id": "viz.__init__",
+      "group": 1
+    },
+    {
+      "id": "viz.record",
+      "group": 1
+    },
+    {
+      "id": "viz.gradio_demo",
+      "group": 1
+    },
+    {
+      "id": "server.app",
+      "group": 1
+    },
+    {
+      "id": "server.ev_grid_environment",
+      "group": 1
+    },
+    {
+      "id": "server.ev_grid_road_environment",
+      "group": 1
+    },
+    {
+      "id": "server.role_metrics",
+      "group": 1
+    },
+    {
+      "id": "server.__init__",
+      "group": 1
+    },
+    {
+      "id": "server.road_router",
+      "group": 1
+    },
+    {
+      "id": "ev_grid_oracle.bescom_feed",
+      "group": 1
+    },
+    {
+      "id": "ev_grid_oracle.road_models",
+      "group": 1
+    },
+    {
+      "id": "ev_grid_oracle.road_env",
+      "group": 1
+    },
+    {
+      "id": "ev_grid_oracle.multi_agent",
+      "group": 1
+    },
+    {
+      "id": "ev_grid_oracle.city_graph",
+      "group": 1
+    },
+    {
+      "id": "ev_grid_oracle.reward",
+      "group": 1
+    },
+    {
+      "id": "ev_grid_oracle.reward_hack",
+      "group": 1
+    },
+    {
+      "id": "ev_grid_oracle.__init__",
+      "group": 1
+    },
+    {
+      "id": "ev_grid_oracle.personas",
+      "group": 1
+    },
+    {
+      "id": "ev_grid_oracle.world_model_verifier",
+      "group": 1
+    },
+    {
+      "id": "ev_grid_oracle.grid_sim",
+      "group": 1
+    },
+    {
+      "id": "ev_grid_oracle.models",
+      "group": 1
+    },
+    {
+      "id": "ev_grid_oracle.scenarios",
+      "group": 1
+    },
+    {
+      "id": "ev_grid_oracle.env",
+      "group": 1
+    },
+    {
+      "id": "ev_grid_oracle.parsing",
+      "group": 1
+    },
+    {
+      "id": "ev_grid_oracle.oracle_agent",
+      "group": 1
+    },
+    {
+      "id": "ev_grid_oracle.demand_sim",
+      "group": 1
+    },
+    {
+      "id": "ev_grid_oracle.policies",
+      "group": 1
+    },
+    {
+      "id": "ev_grid_oracle.traffic",
+      "group": 1
+    },
+    {
+      "id": "tools.build_road_graph",
+      "group": 1
+    },
+    {
+      "id": "tools.sync_space_to_hub",
+      "group": 1
+    },
+    {
+      "id": "tools.generate_knowledge_graph",
+      "group": 1
+    },
+    {
+      "id": "tools.fetch_bangalore_roads_overpass",
+      "group": 1
+    },
+    {
+      "id": "tools.export_grpo_tensorboard_plots",
+      "group": 1
+    },
+    {
+      "id": "tools.generate_architecture_diagrams",
+      "group": 1
+    },
+    {
+      "id": "tools.prune_osm_geojson",
+      "group": 1
+    },
+    {
+      "id": "tools.__init__",
+      "group": 1
+    },
+    {
+      "id": "tools.docs_sync",
+      "group": 1
+    },
+    {
+      "id": "tools.road_reward_smoke",
+      "group": 1
+    },
+    {
+      "id": "tools.generate_health_dashboard",
+      "group": 1
+    },
+    {
+      "id": "tools.write_eval_snapshot",
+      "group": 1
+    },
+    {
+      "id": "tools.fetch_osm_roads",
+      "group": 1
+    },
+    {
+      "id": "tools.build_roads_render",
+      "group": 1
+    },
+    {
+      "id": "training.fair_eval",
+      "group": 1
+    },
+    {
+      "id": "training.__init__",
+      "group": 1
+    },
+    {
+      "id": "training.make_plots",
+      "group": 1
+    },
+    {
+      "id": "training.evaluate",
+      "group": 1
+    },
+    {
+      "id": "tests.test_demo_api",
+      "group": 1
+    },
+    {
+      "id": "tests.test_env_determinism",
+      "group": 1
+    },
+    {
+      "id": "tests.test_reward",
+      "group": 1
+    },
+    {
+      "id": "tests.test_world_model_verifier",
+      "group": 1
+    },
+    {
+      "id": "tests.test_evaluate_paired",
+      "group": 1
+    },
+    {
+      "id": "tests.__init__",
+      "group": 1
+    },
+    {
+      "id": "tests.test_models_and_graph",
+      "group": 1
+    },
+    {
+      "id": "tests.test_fair_eval_mcnemar",
+      "group": 1
+    },
+    {
+      "id": "tests.test_parsing",
+      "group": 1
+    },
+    {
+      "id": "tests.test_policies_collapse",
+      "group": 1
+    }
+  ],
+  "links": [
+    {
+      "source": "viz.record_two_phase",
+      "target": "ev_grid_oracle.city_graph",
+      "value": 1
+    },
+    {
+      "source": "viz.record_two_phase",
+      "target": "ev_grid_oracle.env",
+      "value": 1
+    },
+    {
+      "source": "viz.record_two_phase",
+      "target": "ev_grid_oracle.models",
+      "value": 1
+    },
+    {
+      "source": "viz.record_two_phase",
+      "target": "ev_grid_oracle.oracle_agent",
+      "value": 1
+    },
+    {
+      "source": "viz.record_two_phase",
+      "target": "ev_grid_oracle.policies",
+      "value": 1
+    },
+    {
+      "source": "viz.record_two_phase",
+      "target": "viz.city_map",
+      "value": 1
+    },
+    {
+      "source": "viz.city_map",
+      "target": "ev_grid_oracle.city_graph",
+      "value": 1
+    },
+    {
+      "source": "viz.city_map",
+      "target": "ev_grid_oracle.env",
+      "value": 1
+    },
+    {
+      "source": "viz.city_map",
+      "target": "ev_grid_oracle.models",
+      "value": 1
+    },
+    {
+      "source": "viz.city_map",
+      "target": "ev_grid_oracle.policies",
+      "value": 1
+    },
+    {
+      "source": "viz.record",
+      "target": "ev_grid_oracle.city_graph",
+      "value": 1
+    },
+    {
+      "source": "viz.record",
+      "target": "ev_grid_oracle.env",
+      "value": 1
+    },
+    {
+      "source": "viz.record",
+      "target": "ev_grid_oracle.models",
+      "value": 1
+    },
+    {
+      "source": "viz.record",
+      "target": "ev_grid_oracle.policies",
+      "value": 1
+    },
+    {
+      "source": "viz.record",
+      "target": "viz.city_map",
+      "value": 1
+    },
+    {
+      "source": "viz.gradio_demo",
+      "target": "ev_grid_oracle.city_graph",
+      "value": 1
+    },
+    {
+      "source": "viz.gradio_demo",
+      "target": "ev_grid_oracle.env",
+      "value": 1
+    },
+    {
+      "source": "viz.gradio_demo",
+      "target": "ev_grid_oracle.models",
+      "value": 1
+    },
+    {
+      "source": "viz.gradio_demo",
+      "target": "ev_grid_oracle.oracle_agent",
+      "value": 1
+    },
+    {
+      "source": "viz.gradio_demo",
+      "target": "ev_grid_oracle.policies",
+      "value": 1
+    },
+    {
+      "source": "viz.gradio_demo",
+      "target": "training.evaluate",
+      "value": 1
+    },
+    {
+      "source": "server.app",
+      "target": "server.road_router",
+      "value": 1
+    },
+    {
+      "source": "server.app",
+      "target": "ev_grid_oracle.traffic",
+      "value": 1
+    },
+    {
+      "source": "server.app",
+      "target": "ev_grid_oracle.city_graph",
+      "value": 1
+    },
+    {
+      "source": "server.app",
+      "target": "ev_grid_oracle.env",
+      "value": 1
+    },
+    {
+      "source": "server.app",
+      "target": "ev_grid_oracle.models",
+      "value": 1
+    },
+    {
+      "source": "server.app",
+      "target": "ev_grid_oracle.oracle_agent",
+      "value": 1
+    },
+    {
+      "source": "server.app",
+      "target": "ev_grid_oracle.policies",
+      "value": 1
+    },
+    {
+      "source": "server.app",
+      "target": "ev_grid_oracle.parsing",
+      "value": 1
+    },
+    {
+      "source": "server.app",
+      "target": "ev_grid_oracle.reward",
+      "value": 1
+    },
+    {
+      "source": "server.app",
+      "target": "ev_grid_oracle.scenarios",
+      "value": 1
+    },
+    {
+      "source": "server.app",
+      "target": "ev_grid_oracle.world_model_verifier",
+      "value": 1
+    },
+    {
+      "source": "server.app",
+      "target": "ev_grid_oracle.multi_agent",
+      "value": 1
+    },
+    {
+      "source": "server.app",
+      "target": "server.ev_grid_environment",
+      "value": 1
+    },
+    {
+      "source": "server.app",
+      "target": "server.ev_grid_road_environment",
+      "value": 1
+    },
+    {
+      "source": "server.app",
+      "target": "ev_grid_oracle.road_models",
+      "value": 1
+    },
+    {
+      "source": "server.app",
+      "target": "server.role_metrics",
+      "value": 1
+    },
+    {
+      "source": "server.app",
+      "target": "server.road_router",
+      "value": 1
+    },
+    {
+      "source": "server.app",
+      "target": "ev_grid_oracle.scenarios",
+      "value": 1
+    },
+    {
+      "source": "server.app",
+      "target": "ev_grid_oracle.scenarios",
+      "value": 1
+    },
+    {
+      "source": "server.ev_grid_environment",
+      "target": "ev_grid_oracle.city_graph",
+      "value": 1
+    },
+    {
+      "source": "server.ev_grid_environment",
+      "target": "ev_grid_oracle.env",
+      "value": 1
+    },
+    {
+      "source": "server.ev_grid_environment",
+      "target": "ev_grid_oracle.models",
+      "value": 1
+    },
+    {
+      "source": "server.ev_grid_road_environment",
+      "target": "ev_grid_oracle.road_env",
+      "value": 1
+    },
+    {
+      "source": "server.ev_grid_road_environment",
+      "target": "ev_grid_oracle.road_models",
+      "value": 1
+    },
+    {
+      "source": "server.role_metrics",
+      "target": "ev_grid_oracle.models",
+      "value": 1
+    },
+    {
+      "source": "server.road_router",
+      "target": "ev_grid_oracle.traffic",
+      "value": 1
+    },
+    {
+      "source": "ev_grid_oracle.road_env",
+      "target": "ev_grid_oracle.city_graph",
+      "value": 1
+    },
+    {
+      "source": "ev_grid_oracle.road_env",
+      "target": "server.road_router",
+      "value": 1
+    },
+    {
+      "source": "ev_grid_oracle.oracle_agent",
+      "target": "ev_grid_oracle.models",
+      "value": 1
+    },
+    {
+      "source": "ev_grid_oracle.oracle_agent",
+      "target": "ev_grid_oracle.parsing",
+      "value": 1
+    },
+    {
+      "source": "ev_grid_oracle.oracle_agent",
+      "target": "ev_grid_oracle.policies",
+      "value": 1
+    },
+    {
+      "source": "ev_grid_oracle.policies",
+      "target": "ev_grid_oracle.city_graph",
+      "value": 1
+    },
+    {
+      "source": "ev_grid_oracle.policies",
+      "target": "ev_grid_oracle.models",
+      "value": 1
+    },
+    {
+      "source": "tools.prune_osm_geojson",
+      "target": "ev_grid_oracle.city_graph",
+      "value": 1
+    },
+    {
+      "source": "tools.road_reward_smoke",
+      "target": "ev_grid_oracle.road_env",
+      "value": 1
+    },
+    {
+      "source": "tools.road_reward_smoke",
+      "target": "ev_grid_oracle.road_models",
+      "value": 1
+    },
+    {
+      "source": "training.evaluate",
+      "target": "ev_grid_oracle.city_graph",
+      "value": 1
+    },
+    {
+      "source": "training.evaluate",
+      "target": "ev_grid_oracle.env",
+      "value": 1
+    },
+    {
+      "source": "training.evaluate",
+      "target": "ev_grid_oracle.models",
+      "value": 1
+    },
+    {
+      "source": "training.evaluate",
+      "target": "ev_grid_oracle.oracle_agent",
+      "value": 1
+    },
+    {
+      "source": "training.evaluate",
+      "target": "ev_grid_oracle.policies",
+      "value": 1
+    },
+    {
+      "source": "training.evaluate",
+      "target": "ev_grid_oracle.scenarios",
+      "value": 1
+    },
+    {
+      "source": "tests.test_demo_api",
+      "target": "server.app",
+      "value": 1
+    },
+    {
+      "source": "tests.test_demo_api",
+      "target": "server.app",
+      "value": 1
+    },
+    {
+      "source": "tests.test_demo_api",
+      "target": "server.app",
+      "value": 1
+    },
+    {
+      "source": "tests.test_demo_api",
+      "target": "server.app",
+      "value": 1
+    },
+    {
+      "source": "tests.test_demo_api",
+      "target": "server.app",
+      "value": 1
+    },
+    {
+      "source": "tests.test_demo_api",
+      "target": "server.app",
+      "value": 1
+    },
+    {
+      "source": "tests.test_demo_api",
+      "target": "server.app",
+      "value": 1
+    },
+    {
+      "source": "tests.test_env_determinism",
+      "target": "ev_grid_oracle.city_graph",
+      "value": 1
+    },
+    {
+      "source": "tests.test_env_determinism",
+      "target": "ev_grid_oracle.env",
+      "value": 1
+    },
+    {
+      "source": "tests.test_env_determinism",
+      "target": "ev_grid_oracle.models",
+      "value": 1
+    },
+    {
+      "source": "tests.test_env_determinism",
+      "target": "ev_grid_oracle.policies",
+      "value": 1
+    },
+    {
+      "source": "tests.test_reward",
+      "target": "ev_grid_oracle.city_graph",
+      "value": 1
+    },
+    {
+      "source": "tests.test_reward",
+      "target": "ev_grid_oracle.env",
+      "value": 1
+    },
+    {
+      "source": "tests.test_reward",
+      "target": "ev_grid_oracle.models",
+      "value": 1
+    },
+    {
+      "source": "tests.test_reward",
+      "target": "ev_grid_oracle.reward",
+      "value": 1
+    },
+    {
+      "source": "tests.test_world_model_verifier",
+      "target": "ev_grid_oracle.city_graph",
+      "value": 1
+    },
+    {
+      "source": "tests.test_world_model_verifier",
+      "target": "ev_grid_oracle.env",
+      "value": 1
+    },
+    {
+      "source": "tests.test_world_model_verifier",
+      "target": "ev_grid_oracle.models",
+      "value": 1
+    },
+    {
+      "source": "tests.test_world_model_verifier",
+      "target": "ev_grid_oracle.policies",
+      "value": 1
+    },
+    {
+      "source": "tests.test_world_model_verifier",
+      "target": "ev_grid_oracle.world_model_verifier",
+      "value": 1
+    },
+    {
+      "source": "tests.test_evaluate_paired",
+      "target": "ev_grid_oracle.city_graph",
+      "value": 1
+    },
+    {
+      "source": "tests.test_evaluate_paired",
+      "target": "ev_grid_oracle.env",
+      "value": 1
+    },
+    {
+      "source": "tests.test_evaluate_paired",
+      "target": "training.evaluate",
+      "value": 1
+    },
+    {
+      "source": "tests.test_evaluate_paired",
+      "target": "training.evaluate",
+      "value": 1
+    },
+    {
+      "source": "tests.test_models_and_graph",
+      "target": "ev_grid_oracle.city_graph",
+      "value": 1
+    },
+    {
+      "source": "tests.test_models_and_graph",
+      "target": "ev_grid_oracle.models",
+      "value": 1
+    },
+    {
+      "source": "tests.test_models_and_graph",
+      "target": "ev_grid_oracle.env",
+      "value": 1
+    },
+    {
+      "source": "tests.test_fair_eval_mcnemar",
+      "target": "training.fair_eval",
+      "value": 1
+    },
+    {
+      "source": "tests.test_parsing",
+      "target": "ev_grid_oracle.parsing",
+      "value": 1
+    },
+    {
+      "source": "tests.test_policies_collapse",
+      "target": "ev_grid_oracle.city_graph",
+      "value": 1
+    },
+    {
+      "source": "tests.test_policies_collapse",
+      "target": "ev_grid_oracle.env",
+      "value": 1
+    },
+    {
+      "source": "tests.test_policies_collapse",
+      "target": "ev_grid_oracle.models",
+      "value": 1
+    },
+    {
+      "source": "tests.test_policies_collapse",
+      "target": "ev_grid_oracle.policies",
+      "value": 1
+    }
+  ]
+}

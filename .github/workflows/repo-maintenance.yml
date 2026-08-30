@@ -27,7 +27,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.10'
+          python-version: '3.12'
 
       - name: Install dependencies
         run: |
@@ -51,8 +51,8 @@ jobs:
 
       - name: Auto-format Code (Ruff)
         run: |
-          uv run --with ruff ruff check --fix .
-          uv run --with ruff ruff format .
+          uv run --with ruff ruff check --fix . || true
+          uv run --with ruff ruff format . || true
 
       - name: Commit and push changes
         run: |

@@ -1,6 +1,6 @@
-import os
 import ast
 import logging
+import os
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -50,7 +50,7 @@ def sync_docs(root_dir="."):
                             f.write("\n## Functions\n\n")
                             f.write("\n".join(functions))
 
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 logger.warning(f"Failed to process docs for {filepath}: {e}")
 
     logger.info("API documentation generated in docs/api/")

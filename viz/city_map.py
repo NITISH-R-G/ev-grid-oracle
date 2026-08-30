@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
-from typing import Optional
 
 import pygame
 
@@ -28,7 +27,7 @@ def _norm(v: float, lo: float, hi: float) -> float:
     if hi <= lo:
         return 0.0
     x = (v - lo) / (hi - lo)
-    return 0.0 if x < 0.0 else 1.0 if x > 1.0 else x
+    return 0.0 if x < 0.0 else min(x, 1.0)
 
 
 @dataclass
@@ -91,7 +90,7 @@ class CityMapRenderer:
         self,
         surf: pygame.Surface,
         *,
-        last_action: Optional[EVGridAction] = None,
+        last_action: EVGridAction | None = None,
         mode_label: str = "",
     ):
         cfg = self.cfg
@@ -255,7 +254,7 @@ def run_live(seed: int = 123, *, mode: str = "baseline"):
     env.reset(seed=seed)
     renderer = CityMapRenderer(env, cfg)
 
-    last_action: Optional[EVGridAction] = None
+    last_action: EVGridAction | None = None
     running = True
     while running:
         for event in pygame.event.get():
