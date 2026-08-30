@@ -1,14 +1,14 @@
 from __future__ import annotations
 
+import typing
 from dataclasses import dataclass
-from typing import Any, Optional, Tuple, cast
+from typing import Any, cast
 
 from ev_grid_oracle.models import EVGridAction, GridState
 from ev_grid_oracle.parsing import parse_action
 from ev_grid_oracle.policies import baseline_policy
 
-
-_CACHE: dict[tuple[str, Optional[str]], tuple[Any, Any]] = {}
+_CACHE: dict[tuple[str, str | None], tuple[Any, Any]] = {}
 _CACHE_LOCK = None
 
 
@@ -20,7 +20,7 @@ class OracleRuntime:
     """
 
     _lock = None
-    _loaded: dict[tuple[str, str, str], tuple[object, object]] = {}
+    _loaded: typing.ClassVar[dict[tuple[str, str, str], tuple[object, object]]] = {}
 
     @classmethod
     def load(
@@ -41,7 +41,7 @@ class OracleRuntime:
             import torch
             from peft import PeftModel
             from transformers import AutoModelForCausalLM, AutoTokenizer
-        except Exception:
+        except Exception:  # noqa: BLE001  # noqa: BLE001  # noqa: BLE001
             return None
 
         dtype = torch.float16 if device.startswith("cuda") else torch.float32
@@ -69,7 +69,7 @@ class OracleAgent:
     Optional: load a trained LoRA adapter when `lora_repo_id` provided.
     """
 
-    lora_repo_id: Optional[str] = None
+    lora_repo_id: str | None = None
     base_model_id: str = "unsloth/Qwen2.5-3B-Instruct"
     max_new_tokens: int = 140
 
@@ -94,7 +94,7 @@ class OracleAgent:
         # Lazy import to keep Space CPU demo alive even without ML deps.
         try:
             import torch
-        except Exception:
+        except Exception:  # noqa: BLE001  # noqa: BLE001  # noqa: BLE001
             # No deps -> baseline fallback
             self.lora_repo_id = None
             return
@@ -129,7 +129,7 @@ class OracleAgent:
 
     def act_with_text(
         self, state: GridState, prompt: str, graph
-    ) -> Tuple[EVGridAction, str]:
+    ) -> tuple[EVGridAction, str]:
         # choose target ev_id (matches env prompt builder v0)
         ev_id = state.pending_evs[0].ev_id if state.pending_evs else "EV-000"
 

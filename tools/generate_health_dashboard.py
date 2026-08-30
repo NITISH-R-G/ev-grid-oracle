@@ -1,7 +1,8 @@
 import json
-import subprocess  # nosec B404
 import os
+import subprocess  # nosec B404
 from datetime import datetime, timezone
+
 from jinja2 import Environment, FileSystemLoader
 
 # Extract sensitive variables immediately to prevent child processes
@@ -19,7 +20,7 @@ def run_cmd(cmd: list[str]) -> str:
     try:
         result = subprocess.run(cmd, capture_output=True, text=True, check=False)  # nosec B603
         return result.stdout
-    except Exception:
+    except Exception:  # noqa: BLE001  # noqa: BLE001  # noqa: BLE001
         return ""
 
 
@@ -119,7 +120,7 @@ def fetch_github_stats():
                 ]
             )
 
-    except Exception as e:
+    except Exception as e:  # noqa: BLE001  # noqa: BLE001  # noqa: BLE001
         print(f"Error fetching GitHub API stats: {e}")
 
     return pr_analytics, issue_management
@@ -194,7 +195,7 @@ def run_ruff():
     try:
         data = json.loads(output)
         return len(data)
-    except Exception:
+    except Exception:  # noqa: BLE001  # noqa: BLE001  # noqa: BLE001
         return 0
 
 
@@ -266,10 +267,9 @@ def generate_ai_insights(scores, complexity, vulns, lint_errors):
                 if line.strip()
             ]
             return insights
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001  # noqa: BLE001  # noqa: BLE001
             print(f"Failed to generate AI insights via OpenAI: {e}")
             # Fallback to static insights on error
-            pass
 
     # Static Fallback
     insights = []
