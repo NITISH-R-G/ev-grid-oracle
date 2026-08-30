@@ -1,0 +1,62 @@
+name: Repository Maintenance & Auto-Generation
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  schedule:
+    - cron: '0 0 * * *' # Daily
+
+permissions:
+  contents: write
+
+jobs:
+  maintenance:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'schedule' || github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.head_ref || github.ref }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Install dependencies
+        run: |
+          pip install uv
+          uv pip install --system -e ".[dev,demo]"
+          pip install cyclonedx-bom
+
+      - name: Generate Knowledge Graph
+        run: python tools/generate_knowledge_graph.py
+
+      - name: Generate Documentation
+        run: python tools/docs_sync.py
+
+      - name: Generate Architecture Diagrams
+        run: python tools/generate_architecture_diagrams.py
+
+      - name: Generate SBOM
+        run: |
+          mkdir -p artifacts
+          cyclonedx-py environment -o artifacts/bom.json || true
+
+      - name: Auto-format Code (Ruff)
+        run: |
+          uv run --with ruff ruff check --fix .
+          uv run --with ruff ruff format .
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+          git add docs/api/ artifacts/knowledge_graph.json artifacts/architecture_graph.json artifacts/bom.json || true
+          git diff --quiet && git diff --staged --quiet || (git commit -m "chore: auto-generate artifacts and format code" && git push)

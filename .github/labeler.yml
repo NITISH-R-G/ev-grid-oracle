@@ -1,0 +1,12 @@
+python:
+  - all:
+    - changed-files:
+      - any-glob-to-any-file: '**/*.py'
+frontend:
+  - all:
+    - changed-files:
+      - any-glob-to-any-file: ['web/**', '**/*.ts', '**/*.tsx']
+docs:
+  - all:
+    - changed-files:
+      - any-glob-to-any-file: '**/*.md'
