@@ -18,3 +18,4 @@ Collapse baseline: always load_shift on head EV (ignores queues / grid).
 
 Collapse baseline: minimize travel time only (ignores price, wait, stress).
 Used to show greedy multi-objective baseline is not trivially dominated.
+

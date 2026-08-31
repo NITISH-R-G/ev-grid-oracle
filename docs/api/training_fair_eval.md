@@ -39,3 +39,4 @@ Bar chart: select headline baseline vs oracle binary rates with Wilson error bar
 ## Function: `rate`
 
 ## Function: `errs`
+

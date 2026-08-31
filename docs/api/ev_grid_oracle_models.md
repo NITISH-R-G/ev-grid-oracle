@@ -51,3 +51,4 @@ Kept intentionally small and verifiable for hackathon judging.
 ## Function: `_occupied_le_total`
 
 ## Function: `_check_consistency`
+

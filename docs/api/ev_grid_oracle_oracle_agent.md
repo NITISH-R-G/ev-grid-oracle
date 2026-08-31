@@ -24,3 +24,4 @@ Optional: load a trained LoRA adapter when `lora_repo_id` provided.
 ## Function: `is_active`
 
 ## Function: `_generate`
+

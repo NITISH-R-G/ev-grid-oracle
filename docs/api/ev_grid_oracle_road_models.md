@@ -10,3 +10,4 @@ choose the next connected node (no teleportation).
 ## Class: `RoadObservation`
 
 ## Function: `_non_trivial`
+

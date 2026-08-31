@@ -16,3 +16,4 @@ Returns a multiplier m in [0.35, 1.15] to scale base travel_s on an edge.
 ## Function: `multiplier_for_edge`
 
 ## Function: `hotspot`
+

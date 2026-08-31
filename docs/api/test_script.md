@@ -3,3 +3,4 @@
 ## Class: `ChargerType`
 
 ## Class: `StationState`
+
