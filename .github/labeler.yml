@@ -1,0 +1,27 @@
+# Add 'frontend' label to any changes in the web/ directory
+frontend:
+  - changed-files:
+    - any-glob-to-any-file: web/**/*
+
+# Add 'backend' label to any python code changes
+backend:
+  - changed-files:
+    - any-glob-to-any-file: '*.py'
+    - any-glob-to-any-file: '**/*.py'
+
+# Add 'documentation' label to any docs changes
+documentation:
+  - changed-files:
+    - any-glob-to-any-file: docs/**/*
+    - any-glob-to-any-file: '*.md'
+    - any-glob-to-any-file: '**/*.md'
+
+# Add 'tools' label to any tools changes
+tools:
+  - changed-files:
+    - any-glob-to-any-file: tools/**/*
+
+# Add 'ci' label to workflow changes
+ci:
+  - changed-files:
+    - any-glob-to-any-file: .github/**/*
