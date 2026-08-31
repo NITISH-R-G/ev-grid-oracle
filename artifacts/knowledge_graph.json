@@ -1,0 +1,1580 @@
+{
+  "./test_script.py": {
+    "classes": [
+      {
+        "name": "ChargerType",
+        "docstring": null
+      },
+      {
+        "name": "StationState",
+        "docstring": null
+      }
+    ],
+    "functions": []
+  },
+  "./training/__init__.py": {
+    "classes": [],
+    "functions": []
+  },
+  "./training/fair_eval.py": {
+    "classes": [],
+    "functions": [
+      {
+        "name": "_binom_two_sided_exact_p",
+        "docstring": "Two-sided exact test for Binomial(n, p); used for McNemar discordant pairs (p=0.5)."
+      },
+      {
+        "name": "mcnemar_discordant",
+        "docstring": "McNemar on paired binary outcomes.\nb01 = count(baseline True, oracle False); b10 = count(baseline False, oracle True)."
+      },
+      {
+        "name": "paired_mcnemar_analysis",
+        "docstring": "Paired McNemar for headline binaries (same rows as Wilson chart)."
+      },
+      {
+        "name": "wilson_interval",
+        "docstring": "Wilson score interval for a binomial proportion.\nReturns (low, high, p_hat). For n==0 returns (nan, nan, nan)."
+      },
+      {
+        "name": "_binary_keys",
+        "docstring": null
+      },
+      {
+        "name": "analyze_per_episode",
+        "docstring": null
+      },
+      {
+        "name": "_paired_improvement_counts",
+        "docstring": "Operational 'wins' where oracle strictly improves a binary bad outcome vs baseline."
+      },
+      {
+        "name": "plot_fair_eval",
+        "docstring": "Bar chart: select headline baseline vs oracle binary rates with Wilson error bars."
+      },
+      {
+        "name": "main",
+        "docstring": null
+      },
+      {
+        "name": "pmf",
+        "docstring": null
+      },
+      {
+        "name": "pair",
+        "docstring": null
+      },
+      {
+        "name": "rate",
+        "docstring": null
+      },
+      {
+        "name": "errs",
+        "docstring": null
+      }
+    ]
+  },
+  "./training/make_plots.py": {
+    "classes": [],
+    "functions": [
+      {
+        "name": "_boxplot_compat",
+        "docstring": null
+      },
+      {
+        "name": "_per_episode_rows",
+        "docstring": null
+      },
+      {
+        "name": "plot_kpi_bars",
+        "docstring": null
+      },
+      {
+        "name": "plot_episode_trajectories",
+        "docstring": null
+      },
+      {
+        "name": "plot_delta_histograms",
+        "docstring": null
+      },
+      {
+        "name": "plot_reward_breakdown",
+        "docstring": null
+      },
+      {
+        "name": "plot_boxplots",
+        "docstring": null
+      },
+      {
+        "name": "plot_oracle_win_rates",
+        "docstring": null
+      },
+      {
+        "name": "plot_paired_scatter",
+        "docstring": null
+      },
+      {
+        "name": "plot_binary_timeline",
+        "docstring": null
+      },
+      {
+        "name": "plot_fair_eval_rates",
+        "docstring": null
+      },
+      {
+        "name": "plot_mcnemar_summary",
+        "docstring": null
+      },
+      {
+        "name": "plot_dashboard_grid",
+        "docstring": null
+      },
+      {
+        "name": "main",
+        "docstring": null
+      },
+      {
+        "name": "rate",
+        "docstring": null
+      }
+    ]
+  },
+  "./training/evaluate.py": {
+    "classes": [
+      {
+        "name": "EpisodeMetrics",
+        "docstring": null
+      }
+    ],
+    "functions": [
+      {
+        "name": "_episode_metrics_to_json",
+        "docstring": null
+      },
+      {
+        "name": "run_episode",
+        "docstring": null
+      },
+      {
+        "name": "summarize",
+        "docstring": null
+      },
+      {
+        "name": "summarize_reward_breakdown",
+        "docstring": null
+      },
+      {
+        "name": "main",
+        "docstring": null
+      }
+    ]
+  },
+  "./viz/__init__.py": {
+    "classes": [],
+    "functions": []
+  },
+  "./viz/city_map.py": {
+    "classes": [
+      {
+        "name": "RenderConfig",
+        "docstring": null
+      },
+      {
+        "name": "CityMapRenderer",
+        "docstring": null
+      }
+    ],
+    "functions": [
+      {
+        "name": "_station_color",
+        "docstring": null
+      },
+      {
+        "name": "_norm",
+        "docstring": null
+      },
+      {
+        "name": "run_live",
+        "docstring": null
+      },
+      {
+        "name": "__init__",
+        "docstring": null
+      },
+      {
+        "name": "xy",
+        "docstring": null
+      },
+      {
+        "name": "draw_arrow",
+        "docstring": null
+      },
+      {
+        "name": "render",
+        "docstring": null
+      },
+      {
+        "name": "_draw_background",
+        "docstring": null
+      },
+      {
+        "name": "_draw_edges",
+        "docstring": null
+      },
+      {
+        "name": "_draw_glow",
+        "docstring": null
+      },
+      {
+        "name": "_draw_animated_route",
+        "docstring": null
+      },
+      {
+        "name": "blit_line",
+        "docstring": null
+      }
+    ]
+  },
+  "./viz/record_two_phase.py": {
+    "classes": [],
+    "functions": [
+      {
+        "name": "_step_action",
+        "docstring": null
+      },
+      {
+        "name": "record_phase",
+        "docstring": null
+      },
+      {
+        "name": "main",
+        "docstring": null
+      }
+    ]
+  },
+  "./viz/record.py": {
+    "classes": [],
+    "functions": [
+      {
+        "name": "record",
+        "docstring": "Record frames as PNGs.\n\n- `tick_every_frames`: how many frames to show per env.step() (slows animation, looks smoother)."
+      },
+      {
+        "name": "main",
+        "docstring": null
+      }
+    ]
+  },
+  "./viz/gradio_demo.py": {
+    "classes": [
+      {
+        "name": "Session",
+        "docstring": null
+      }
+    ],
+    "functions": [
+      {
+        "name": "_norm",
+        "docstring": null
+      },
+      {
+        "name": "_station_color",
+        "docstring": null
+      },
+      {
+        "name": "render_map",
+        "docstring": null
+      },
+      {
+        "name": "new_session",
+        "docstring": null
+      },
+      {
+        "name": "step_once",
+        "docstring": null
+      },
+      {
+        "name": "compute_kpis",
+        "docstring": null
+      },
+      {
+        "name": "xy",
+        "docstring": null
+      },
+      {
+        "name": "_start",
+        "docstring": null
+      },
+      {
+        "name": "_step",
+        "docstring": null
+      },
+      {
+        "name": "_run60",
+        "docstring": null
+      },
+      {
+        "name": "_start_and_maybe_autoplay",
+        "docstring": null
+      },
+      {
+        "name": "_kpis",
+        "docstring": null
+      }
+    ]
+  },
+  "./ev_grid_oracle/__init__.py": {
+    "classes": [],
+    "functions": []
+  },
+  "./ev_grid_oracle/reward_hack.py": {
+    "classes": [
+      {
+        "name": "RewardHackDetector",
+        "docstring": "Stateful, deterministic detector for common reward-hacking patterns.\n\nGoal: give the existing anti-hack flags \"teeth\" by detecting multi-step\nexploit patterns, not just single-step invalidity."
+      }
+    ],
+    "functions": [
+      {
+        "name": "reset",
+        "docstring": null
+      },
+      {
+        "name": "step",
+        "docstring": null
+      },
+      {
+        "name": "add",
+        "docstring": null
+      }
+    ]
+  },
+  "./ev_grid_oracle/reward.py": {
+    "classes": [
+      {
+        "name": "RewardWeights",
+        "docstring": null
+      }
+    ],
+    "functions": [
+      {
+        "name": "_haversine_km",
+        "docstring": null
+      },
+      {
+        "name": "_graph_route_km",
+        "docstring": "Approximate driving distance along the city graph using haversine edge weights.\nReturns None if no path exists."
+      },
+      {
+        "name": "compute_reward",
+        "docstring": "Deterministic, verifier-style reward with breakdown.\n\nMatches hackathon spec: wait, grid_stress, peak, renewable, urgency, anti-hack."
+      },
+      {
+        "name": "split_role_rewards",
+        "docstring": "Deterministic role-level reward views derived from the same underlying breakdown.\n\nThis is intentionally simple and bounded (judge-friendly): it does not claim\nfull MARL credit assignment, but it does make incentives explicit."
+      },
+      {
+        "name": "add_flag",
+        "docstring": null
+      },
+      {
+        "name": "f",
+        "docstring": null
+      }
+    ]
+  },
+  "./ev_grid_oracle/policies.py": {
+    "classes": [],
+    "functions": [
+      {
+        "name": "baseline_policy",
+        "docstring": "Greedy baseline: pick station minimizing (travel_time + wait + stress + price), avoid full.\n\nDeterministic given state."
+      },
+      {
+        "name": "always_defer_policy",
+        "docstring": "Collapse baseline: always defer (reward-hack / fairness stressor)."
+      },
+      {
+        "name": "always_load_shift_policy",
+        "docstring": "Collapse baseline: always load_shift on head EV (ignores queues / grid)."
+      },
+      {
+        "name": "nearest_travel_only_policy",
+        "docstring": "Collapse baseline: minimize travel time only (ignores price, wait, stress).\nUsed to show greedy multi-objective baseline is not trivially dominated."
+      }
+    ]
+  },
+  "./ev_grid_oracle/traffic.py": {
+    "classes": [
+      {
+        "name": "TrafficModel",
+        "docstring": "Deterministic synthetic traffic for hackathon demos.\n\nReturns a multiplier m in [0.35, 1.15] to scale base travel_s on an edge."
+      }
+    ],
+    "functions": [
+      {
+        "name": "_clamp",
+        "docstring": null
+      },
+      {
+        "name": "_stable_u01",
+        "docstring": "Stable pseudo-random in [0,1) from input parts.\nDeterministic across processes and Python versions."
+      },
+      {
+        "name": "multiplier_for_edge",
+        "docstring": null
+      },
+      {
+        "name": "hotspot",
+        "docstring": null
+      }
+    ]
+  },
+  "./ev_grid_oracle/grid_sim.py": {
+    "classes": [
+      {
+        "name": "GridParams",
+        "docstring": null
+      }
+    ],
+    "functions": [
+      {
+        "name": "_clamp01",
+        "docstring": null
+      },
+      {
+        "name": "baseline_grid_load",
+        "docstring": null
+      },
+      {
+        "name": "renewable_pct",
+        "docstring": null
+      },
+      {
+        "name": "update_grid_load",
+        "docstring": null
+      }
+    ]
+  },
+  "./ev_grid_oracle/models.py": {
+    "classes": [
+      {
+        "name": "ChargerType",
+        "docstring": null
+      },
+      {
+        "name": "ChargeRate",
+        "docstring": null
+      },
+      {
+        "name": "ActionType",
+        "docstring": null
+      },
+      {
+        "name": "DayType",
+        "docstring": null
+      },
+      {
+        "name": "PeakRisk",
+        "docstring": null
+      },
+      {
+        "name": "StationState",
+        "docstring": null
+      },
+      {
+        "name": "EVRequest",
+        "docstring": null
+      },
+      {
+        "name": "BESCOMFeederState",
+        "docstring": "Lightweight, judge-friendly feeder snapshot (mocked but deterministic)."
+      },
+      {
+        "name": "GridState",
+        "docstring": null
+      },
+      {
+        "name": "EVGridAction",
+        "docstring": null
+      },
+      {
+        "name": "EVGridObservation",
+        "docstring": null
+      },
+      {
+        "name": "NegotiationMessage",
+        "docstring": "A short, bounded message used in the explicit multi-agent protocol.\n\nThis is *not* a free-form chat reward. It exists so judges can see\nnegotiation/constraints explicitly and we can penalize empty spam."
+      },
+      {
+        "name": "GridDirective",
+        "docstring": "GridOperator -> FleetDispatcher constraint signal (verifiable)."
+      },
+      {
+        "name": "MultiAgentStepRequest",
+        "docstring": null
+      },
+      {
+        "name": "MultiAgentStepResponse",
+        "docstring": null
+      },
+      {
+        "name": "SimTopStation",
+        "docstring": null
+      },
+      {
+        "name": "SimulationPrediction",
+        "docstring": "Aggregated 'dream state' prediction for T+5 ticks.\nKept intentionally small and verifiable for hackathon judging."
+      }
+    ],
+    "functions": [
+      {
+        "name": "to_jsonable",
+        "docstring": null
+      },
+      {
+        "name": "_occupied_le_total",
+        "docstring": null
+      },
+      {
+        "name": "_check_consistency",
+        "docstring": null
+      }
+    ]
+  },
+  "./ev_grid_oracle/multi_agent.py": {
+    "classes": [
+      {
+        "name": "MultiAgentSession",
+        "docstring": "Minimal explicit multi-agent wrapper around EVGridCore.\n\n- GridOperator emits a directive (constraint signal) + optional message.\n- FleetDispatcher emits an action + optional message.\n- Resolver applies directive deterministically and steps EVGridCore."
+      }
+    ],
+    "functions": [
+      {
+        "name": "step",
+        "docstring": null
+      },
+      {
+        "name": "snapshot",
+        "docstring": "Read-only view of the underlying core state."
+      }
+    ]
+  },
+  "./ev_grid_oracle/bescom_feed.py": {
+    "classes": [
+      {
+        "name": "BESCOMFeedAPI",
+        "docstring": "Deterministic BESCOM feeder \"API mock\".\n\n- No network calls (HF Spaces safe).\n- Feeder loads are derived from: time-of-day + grid_load_pct + station loads.\n- Output is stable under (seed, scenario, tick) so judge replays match."
+      }
+    ],
+    "functions": [
+      {
+        "name": "snapshot",
+        "docstring": null
+      },
+      {
+        "name": "_stable_seed",
+        "docstring": null
+      },
+      {
+        "name": "_zone_for_station",
+        "docstring": null
+      }
+    ]
+  },
+  "./ev_grid_oracle/oracle_agent.py": {
+    "classes": [
+      {
+        "name": "OracleRuntime",
+        "docstring": "Singleton-style loader that prefers CUDA when available.\n\nThis keeps T4 Spaces fast and makes oracle behavior undeniable."
+      },
+      {
+        "name": "OracleAgent",
+        "docstring": "Oracle agent wrapper.\n\nDefault: baseline fallback (always available).\nOptional: load a trained LoRA adapter when `lora_repo_id` provided."
+      }
+    ],
+    "functions": [
+      {
+        "name": "load",
+        "docstring": null
+      },
+      {
+        "name": "_ensure_loaded",
+        "docstring": null
+      },
+      {
+        "name": "act",
+        "docstring": null
+      },
+      {
+        "name": "act_with_text",
+        "docstring": null
+      },
+      {
+        "name": "is_active",
+        "docstring": null
+      },
+      {
+        "name": "_generate",
+        "docstring": null
+      }
+    ]
+  },
+  "./ev_grid_oracle/road_models.py": {
+    "classes": [
+      {
+        "name": "RoadAction",
+        "docstring": "Minimal action space for RL on a real road graph:\nchoose the next connected node (no teleportation)."
+      },
+      {
+        "name": "RoadState",
+        "docstring": null
+      },
+      {
+        "name": "RoadObservation",
+        "docstring": null
+      }
+    ],
+    "functions": [
+      {
+        "name": "_non_trivial",
+        "docstring": null
+      }
+    ]
+  },
+  "./ev_grid_oracle/road_env.py": {
+    "classes": [
+      {
+        "name": "RoadCore",
+        "docstring": null
+      }
+    ],
+    "functions": [
+      {
+        "name": "reset",
+        "docstring": null
+      },
+      {
+        "name": "step",
+        "docstring": null
+      },
+      {
+        "name": "_obs",
+        "docstring": null
+      }
+    ]
+  },
+  "./ev_grid_oracle/demand_sim.py": {
+    "classes": [
+      {
+        "name": "DemandParams",
+        "docstring": null
+      }
+    ],
+    "functions": [
+      {
+        "name": "_gaussian_bump",
+        "docstring": null
+      },
+      {
+        "name": "expected_arrivals_per_step",
+        "docstring": null
+      },
+      {
+        "name": "sample_arrivals_per_step",
+        "docstring": null
+      }
+    ]
+  },
+  "./ev_grid_oracle/world_model_verifier.py": {
+    "classes": [
+      {
+        "name": "PredictionScore",
+        "docstring": null
+      }
+    ],
+    "functions": [
+      {
+        "name": "_top3",
+        "docstring": null
+      },
+      {
+        "name": "rollout_deterministic_5ticks",
+        "docstring": "Deterministic verifier rollout: apply action once, then advance 5 ticks with *no new arrivals*.\nThis is intentionally verifier-friendly (stable + reproducible) for RLVR."
+      },
+      {
+        "name": "score_prediction",
+        "docstring": "Score dream-state prediction accuracy against a deterministic T+5 verifier rollout.\nReturns score in [0,1]."
+      }
+    ]
+  },
+  "./ev_grid_oracle/env.py": {
+    "classes": [
+      {
+        "name": "EVGridCore",
+        "docstring": "Core env logic (no HTTP). Server wraps this.\n\nv0 slice: deterministic schema, minimal dynamics.\nNext slices add demand_sim/grid_sim/reward engine."
+      }
+    ],
+    "functions": [
+      {
+        "name": "_peak_risk",
+        "docstring": null
+      },
+      {
+        "name": "_make_ev",
+        "docstring": null
+      },
+      {
+        "name": "_apply_action",
+        "docstring": null
+      },
+      {
+        "name": "_drain_queues_and_charging",
+        "docstring": null
+      },
+      {
+        "name": "_update_station_waits",
+        "docstring": null
+      },
+      {
+        "name": "_build_prompt",
+        "docstring": null
+      },
+      {
+        "name": "reset",
+        "docstring": null
+      },
+      {
+        "name": "step",
+        "docstring": null
+      },
+      {
+        "name": "_apply_tariff_mult",
+        "docstring": null
+      }
+    ]
+  },
+  "./ev_grid_oracle/scenarios.py": {
+    "classes": [
+      {
+        "name": "ScenarioEvent",
+        "docstring": null
+      },
+      {
+        "name": "ScenarioModifiers",
+        "docstring": "Lightweight knobs applied on top of the core simulator.\nThese are intentionally simple and deterministic for replayable judging."
+      }
+    ],
+    "functions": [
+      {
+        "name": "scenario_schedule",
+        "docstring": "Deterministic, fixed-tick stress tests (OpenOfficeRL-style).\n\nNote: ticks are env steps (5-minute increments by default)."
+      },
+      {
+        "name": "apply_scenario_events",
+        "docstring": "Returns updated modifiers and the list of events that fired this tick."
+      }
+    ]
+  },
+  "./ev_grid_oracle/personas.py": {
+    "classes": [
+      {
+        "name": "PersonaParams",
+        "docstring": null
+      }
+    ],
+    "functions": [
+      {
+        "name": "choose_persona",
+        "docstring": null
+      }
+    ]
+  },
+  "./ev_grid_oracle/parsing.py": {
+    "classes": [],
+    "functions": [
+      {
+        "name": "parse_simulation",
+        "docstring": null
+      },
+      {
+        "name": "parse_action",
+        "docstring": null
+      },
+      {
+        "name": "parse_simulation_and_action",
+        "docstring": "Parse both dream prediction and action (either can be missing)."
+      }
+    ]
+  },
+  "./ev_grid_oracle/city_graph.py": {
+    "classes": [
+      {
+        "name": "StationSpec",
+        "docstring": null
+      }
+    ],
+    "functions": [
+      {
+        "name": "get_station_by_id",
+        "docstring": null
+      },
+      {
+        "name": "get_station_by_slug",
+        "docstring": null
+      },
+      {
+        "name": "haversine_km",
+        "docstring": null
+      },
+      {
+        "name": "_edge_minutes",
+        "docstring": null
+      },
+      {
+        "name": "_add_chain_edges",
+        "docstring": null
+      },
+      {
+        "name": "_add_dense_within_cluster",
+        "docstring": null
+      },
+      {
+        "name": "build_city_graph",
+        "docstring": null
+      },
+      {
+        "name": "travel_time_minutes",
+        "docstring": null
+      },
+      {
+        "name": "nearest_stations_by_geo",
+        "docstring": null
+      }
+    ]
+  },
+  "./tests/__init__.py": {
+    "classes": [],
+    "functions": []
+  },
+  "./tests/test_fair_eval_mcnemar.py": {
+    "classes": [],
+    "functions": [
+      {
+        "name": "test_mcnemar_no_discordant_is_neutral",
+        "docstring": null
+      },
+      {
+        "name": "test_mcnemar_strong_asymmetry_low_p",
+        "docstring": null
+      },
+      {
+        "name": "test_paired_mcnemar_analysis_shape",
+        "docstring": null
+      }
+    ]
+  },
+  "./tests/test_evaluate_paired.py": {
+    "classes": [],
+    "functions": [
+      {
+        "name": "_chdir_repo_root",
+        "docstring": null
+      },
+      {
+        "name": "test_baseline_rollout_identical_for_same_seed_and_scenario",
+        "docstring": null
+      },
+      {
+        "name": "test_oracle_matches_baseline_when_skip_llm",
+        "docstring": null
+      },
+      {
+        "name": "test_evaluate_cli_paired_json",
+        "docstring": null
+      },
+      {
+        "name": "test_fair_eval_cli",
+        "docstring": null
+      }
+    ]
+  },
+  "./tests/test_models_and_graph.py": {
+    "classes": [],
+    "functions": [
+      {
+        "name": "test_city_graph_connected_and_25_stations",
+        "docstring": null
+      },
+      {
+        "name": "test_action_route_requires_station_id_and_zero_defer",
+        "docstring": null
+      },
+      {
+        "name": "test_action_defer_requires_positive_defer_minutes",
+        "docstring": null
+      },
+      {
+        "name": "test_time_advances_with_5min_steps",
+        "docstring": null
+      }
+    ]
+  },
+  "./tests/test_demo_api.py": {
+    "classes": [],
+    "functions": [
+      {
+        "name": "test_demo_new_and_step_roundtrip",
+        "docstring": null
+      },
+      {
+        "name": "test_demo_spawn_vehicle_route_event",
+        "docstring": null
+      },
+      {
+        "name": "test_demo_step_forced_action_validation_422",
+        "docstring": null
+      },
+      {
+        "name": "test_health_shape",
+        "docstring": null
+      },
+      {
+        "name": "test_demo_sessions_ttl_eviction",
+        "docstring": null
+      },
+      {
+        "name": "test_ma_new_and_step_roundtrip",
+        "docstring": null
+      }
+    ]
+  },
+  "./tests/test_policies_collapse.py": {
+    "classes": [],
+    "functions": [
+      {
+        "name": "_run_policy",
+        "docstring": null
+      },
+      {
+        "name": "test_collapse_policies_do_not_crash",
+        "docstring": null
+      },
+      {
+        "name": "test_collapse_policies_return_valid_actions_when_pending",
+        "docstring": null
+      }
+    ]
+  },
+  "./tests/test_parsing.py": {
+    "classes": [],
+    "functions": [
+      {
+        "name": "test_parse_simulation_valid",
+        "docstring": null
+      },
+      {
+        "name": "test_parse_simulation_missing_match",
+        "docstring": null
+      },
+      {
+        "name": "test_parse_simulation_exception_handling",
+        "docstring": null
+      }
+    ]
+  },
+  "./tests/test_reward.py": {
+    "classes": [],
+    "functions": [
+      {
+        "name": "test_reward_breakdown_has_keys_and_total",
+        "docstring": null
+      },
+      {
+        "name": "test_deferring_critical_ev_penalized",
+        "docstring": null
+      },
+      {
+        "name": "test_invalid_station_routes_penalized",
+        "docstring": null
+      },
+      {
+        "name": "test_split_role_rewards_exception_handling",
+        "docstring": null
+      }
+    ]
+  },
+  "./tests/test_world_model_verifier.py": {
+    "classes": [],
+    "functions": [
+      {
+        "name": "test_rollout_deterministic_is_stable",
+        "docstring": null
+      },
+      {
+        "name": "test_prediction_score_higher_when_close",
+        "docstring": null
+      }
+    ]
+  },
+  "./tests/test_env_determinism.py": {
+    "classes": [],
+    "functions": [
+      {
+        "name": "test_reset_state_identical_two_cores_same_seed",
+        "docstring": null
+      },
+      {
+        "name": "test_step_sequence_identical_two_cores_same_actions",
+        "docstring": null
+      },
+      {
+        "name": "test_ev_grid_action_rejects_malformed_payload",
+        "docstring": null
+      },
+      {
+        "name": "test_route_action_requires_station",
+        "docstring": null
+      }
+    ]
+  },
+  "./tools/__init__.py": {
+    "classes": [],
+    "functions": []
+  },
+  "./tools/docs_sync.py": {
+    "classes": [],
+    "functions": [
+      {
+        "name": "sync_docs",
+        "docstring": null
+      }
+    ]
+  },
+  "./tools/prune_osm_geojson.py": {
+    "classes": [],
+    "functions": [
+      {
+        "name": "_pad_bbox",
+        "docstring": null
+      },
+      {
+        "name": "_line_intersects_bbox",
+        "docstring": null
+      },
+      {
+        "name": "_simplify_uniform",
+        "docstring": null
+      },
+      {
+        "name": "main",
+        "docstring": null
+      }
+    ]
+  },
+  "./tools/sync_space_to_hub.py": {
+    "classes": [],
+    "functions": [
+      {
+        "name": "main",
+        "docstring": null
+      }
+    ]
+  },
+  "./tools/fetch_bangalore_roads_overpass.py": {
+    "classes": [],
+    "functions": [
+      {
+        "name": "_chunk",
+        "docstring": null
+      },
+      {
+        "name": "_overpass_query",
+        "docstring": null
+      },
+      {
+        "name": "_tile_bbox",
+        "docstring": null
+      },
+      {
+        "name": "_http_post",
+        "docstring": null
+      },
+      {
+        "name": "_to_geojson",
+        "docstring": null
+      },
+      {
+        "name": "main",
+        "docstring": null
+      }
+    ]
+  },
+  "./tools/fetch_osm_roads.py": {
+    "classes": [
+      {
+        "name": "BBox",
+        "docstring": null
+      }
+    ],
+    "functions": [
+      {
+        "name": "_fetch_overpass",
+        "docstring": null
+      },
+      {
+        "name": "_simplify_line",
+        "docstring": null
+      },
+      {
+        "name": "_to_feature_collection",
+        "docstring": null
+      },
+      {
+        "name": "build_query",
+        "docstring": null
+      },
+      {
+        "name": "main",
+        "docstring": null
+      }
+    ]
+  },
+  "./tools/generate_architecture_diagrams.py": {
+    "classes": [],
+    "functions": [
+      {
+        "name": "generate_architecture_diagrams",
+        "docstring": null
+      }
+    ]
+  },
+  "./tools/export_grpo_tensorboard_plots.py": {
+    "classes": [],
+    "functions": [
+      {
+        "name": "_pick_tags",
+        "docstring": null
+      },
+      {
+        "name": "main",
+        "docstring": null
+      },
+      {
+        "name": "plot_tag",
+        "docstring": null
+      }
+    ]
+  },
+  "./tools/generate_health_dashboard.py": {
+    "classes": [],
+    "functions": [
+      {
+        "name": "run_cmd",
+        "docstring": null
+      },
+      {
+        "name": "get_git_stats",
+        "docstring": null
+      },
+      {
+        "name": "get_leaderboard",
+        "docstring": null
+      },
+      {
+        "name": "get_documentation_health",
+        "docstring": null
+      },
+      {
+        "name": "fetch_github_stats",
+        "docstring": null
+      },
+      {
+        "name": "run_pytest_cov",
+        "docstring": null
+      },
+      {
+        "name": "run_radon",
+        "docstring": null
+      },
+      {
+        "name": "run_bandit",
+        "docstring": null
+      },
+      {
+        "name": "run_ruff",
+        "docstring": null
+      },
+      {
+        "name": "calculate_health_scores",
+        "docstring": null
+      },
+      {
+        "name": "generate_ai_insights",
+        "docstring": null
+      },
+      {
+        "name": "main",
+        "docstring": null
+      }
+    ]
+  },
+  "./tools/generate_knowledge_graph.py": {
+    "classes": [],
+    "functions": [
+      {
+        "name": "generate_knowledge_graph",
+        "docstring": null
+      }
+    ]
+  },
+  "./tools/road_reward_smoke.py": {
+    "classes": [],
+    "functions": [
+      {
+        "name": "main",
+        "docstring": null
+      },
+      {
+        "name": "parse",
+        "docstring": null
+      },
+      {
+        "name": "reward",
+        "docstring": null
+      }
+    ]
+  },
+  "./tools/build_road_graph.py": {
+    "classes": [
+      {
+        "name": "Node",
+        "docstring": null
+      }
+    ],
+    "functions": [
+      {
+        "name": "haversine_m",
+        "docstring": null
+      },
+      {
+        "name": "_encode_signed",
+        "docstring": null
+      },
+      {
+        "name": "encode_polyline_latlng",
+        "docstring": "Google polyline encoding for [lat,lng] points.\nStored as a compact ASCII string to shrink graph artifacts."
+      },
+      {
+        "name": "speed_kmh",
+        "docstring": null
+      },
+      {
+        "name": "snap",
+        "docstring": null
+      },
+      {
+        "name": "_coords_latlng_from_geojson_line",
+        "docstring": null
+      },
+      {
+        "name": "parse_args",
+        "docstring": null
+      },
+      {
+        "name": "build_adjacency",
+        "docstring": "Pass 1: build point adjacency over snapped coordinates.\nIntersections/endpoints are nodes where degree != 2."
+      },
+      {
+        "name": "contract_edges",
+        "docstring": "Pass 2: for each way, contract degree-2 chains into intersection-to-intersection edges."
+      },
+      {
+        "name": "filter_largest_component",
+        "docstring": "Pass 3: Keep only the largest connected component (by node count) to satisfy routing coverage."
+      },
+      {
+        "name": "main",
+        "docstring": null
+      },
+      {
+        "name": "add_neighbor",
+        "docstring": null
+      },
+      {
+        "name": "get_node",
+        "docstring": null
+      },
+      {
+        "name": "flush",
+        "docstring": null
+      }
+    ]
+  },
+  "./tools/build_roads_render.py": {
+    "classes": [],
+    "functions": [
+      {
+        "name": "main",
+        "docstring": null
+      }
+    ]
+  },
+  "./tools/write_eval_snapshot.py": {
+    "classes": [],
+    "functions": [
+      {
+        "name": "main",
+        "docstring": null
+      }
+    ]
+  },
+  "./server/__init__.py": {
+    "classes": [],
+    "functions": []
+  },
+  "./server/app.py": {
+    "classes": [
+      {
+        "name": "DemoNewRequest",
+        "docstring": null
+      },
+      {
+        "name": "MANewRequest",
+        "docstring": null
+      },
+      {
+        "name": "MAAutoStepRequest",
+        "docstring": null
+      },
+      {
+        "name": "DemoSpawnVehicleRequest",
+        "docstring": null
+      }
+    ],
+    "functions": [
+      {
+        "name": "_request_id",
+        "docstring": null
+      },
+      {
+        "name": "_oracle_skip_llm_env",
+        "docstring": null
+      },
+      {
+        "name": "_rate_limit",
+        "docstring": null
+      },
+      {
+        "name": "_demo_oracle_act_with_guard",
+        "docstring": "Run oracle policy with CPU-Space-safe guards.\n\nReturns: action, oracle_text, oracle_llm_active, oracle_timed_out, oracle_skipped_env"
+      },
+      {
+        "name": "root",
+        "docstring": null
+      },
+      {
+        "name": "healthz",
+        "docstring": "HF Spaces / cold-start friendly health endpoint.\nKeep it fast and dependency-safe (no heavy routing work)."
+      },
+      {
+        "name": "_osm_route_polyline",
+        "docstring": null
+      },
+      {
+        "name": "_graph_route_polyline",
+        "docstring": "Return a render-friendly polyline (lat/lng pairs) along the station graph.\nv0 fallback was a straight line; this produces a multi-point path so the UI reads like navigation."
+      },
+      {
+        "name": "_spawn_road_point_away_from_stations",
+        "docstring": "Pick a deterministic road-graph node location (lat,lng) that is not within\n`min_station_dist_m` of any station. Deterministic for a given seed_key."
+      },
+      {
+        "name": "_demo_session_gc",
+        "docstring": null
+      },
+      {
+        "name": "_demo_session_get",
+        "docstring": null
+      },
+      {
+        "name": "_ma_gc",
+        "docstring": null
+      },
+      {
+        "name": "_ma_get",
+        "docstring": null
+      },
+      {
+        "name": "ma_new",
+        "docstring": null
+      },
+      {
+        "name": "_grid_policy",
+        "docstring": null
+      },
+      {
+        "name": "ma_auto_step",
+        "docstring": null
+      },
+      {
+        "name": "ma_state",
+        "docstring": null
+      },
+      {
+        "name": "ma_step",
+        "docstring": null
+      },
+      {
+        "name": "_obs_to_jsonable",
+        "docstring": null
+      },
+      {
+        "name": "_station_nodes",
+        "docstring": null
+      },
+      {
+        "name": "demo_new",
+        "docstring": null
+      },
+      {
+        "name": "demo_state",
+        "docstring": null
+      },
+      {
+        "name": "demo_spawn_vehicle",
+        "docstring": "Spawn a new EV at a valid road location (away from stations) and immediately compute\nan assignment + route event for the frontend."
+      },
+      {
+        "name": "demo_step",
+        "docstring": null
+      },
+      {
+        "name": "main",
+        "docstring": null
+      },
+      {
+        "name": "run",
+        "docstring": null
+      }
+    ]
+  },
+  "./server/ev_grid_road_environment.py": {
+    "classes": [
+      {
+        "name": "EVGridRoadEnvironment",
+        "docstring": "Separate OpenEnv environment that forces real-road-graph actions.\nMounted as a sub-app under /road/ so it doesn't break the existing env."
+      }
+    ],
+    "functions": [
+      {
+        "name": "__init__",
+        "docstring": null
+      },
+      {
+        "name": "reset",
+        "docstring": null
+      },
+      {
+        "name": "step",
+        "docstring": null
+      },
+      {
+        "name": "state",
+        "docstring": null
+      }
+    ]
+  },
+  "./server/ev_grid_environment.py": {
+    "classes": [
+      {
+        "name": "EVGridEnvironment",
+        "docstring": null
+      }
+    ],
+    "functions": [
+      {
+        "name": "__init__",
+        "docstring": null
+      },
+      {
+        "name": "reset",
+        "docstring": null
+      },
+      {
+        "name": "step",
+        "docstring": null
+      },
+      {
+        "name": "state",
+        "docstring": null
+      }
+    ]
+  },
+  "./server/role_metrics.py": {
+    "classes": [],
+    "functions": [
+      {
+        "name": "compute_role_kpis",
+        "docstring": null
+      },
+      {
+        "name": "compute_role_reward_breakdown",
+        "docstring": "Lightweight, explainable credit assignment for demo storytelling.\n\nThis is NOT a full MARL credit assignment \u2014 it allocates the *same* component\nvalues across roles with fixed weights so totals remain easy to interpret."
+      },
+      {
+        "name": "_peak_risk_score",
+        "docstring": null
+      },
+      {
+        "name": "summarize_action",
+        "docstring": null
+      },
+      {
+        "name": "part",
+        "docstring": null
+      }
+    ]
+  },
+  "./server/road_router.py": {
+    "classes": [
+      {
+        "name": "RoadRouter",
+        "docstring": null
+      }
+    ],
+    "functions": [
+      {
+        "name": "haversine_m",
+        "docstring": null
+      },
+      {
+        "name": "decode_polyline_latlng",
+        "docstring": null
+      },
+      {
+        "name": "get_router",
+        "docstring": null
+      },
+      {
+        "name": "_next",
+        "docstring": null
+      },
+      {
+        "name": "load",
+        "docstring": null
+      },
+      {
+        "name": "nearest_node",
+        "docstring": null
+      },
+      {
+        "name": "route_polyline",
+        "docstring": null
+      },
+      {
+        "name": "_w",
+        "docstring": null
+      }
+    ]
+  }
+}
