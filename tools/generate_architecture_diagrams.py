@@ -33,7 +33,7 @@ def build_architecture_graph(repo_root: str):
             try:
                 with open(filepath, "r", encoding="utf-8") as f:
                     tree = ast.parse(f.read(), filename=filepath)
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 print(f"Failed to parse {filepath}: {e}", file=sys.stderr)
                 continue
 
