@@ -1,0 +1,80 @@
+name: Repository Maintenance Automation
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  schedule:
+    - cron: '0 2 * * *' # Daily at 2 AM UTC
+
+permissions:
+  contents: write
+
+jobs:
+  maintenance:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'schedule' || github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+          ref: ${{ github.head_ref || github.ref }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install Prettier globally
+        run: npm install -g prettier
+
+      - name: Install uv
+        run: pip install uv
+
+      - name: Install dependencies
+        run: |
+          uv pip install --system -e ".[dev,demo]" cyclonedx-bom
+
+      - name: Run Ruff Format
+        run: |
+          ruff format . || true
+
+      - name: Run Prettier
+        run: |
+          prettier --write "**/*.{js,jsx,ts,tsx,css,md,json}" || true
+
+      - name: Generate SBOM
+        run: |
+          mkdir -p artifacts
+          cyclonedx-py environment -o artifacts/bom.json || true
+
+      - name: Synchronize Documentation
+        run: |
+          python tools/docs_sync.py || true
+
+      - name: Generate Knowledge Graph
+        run: |
+          python tools/generate_knowledge_graph.py || true
+
+      - name: Generate Architecture Diagrams
+        run: |
+          python tools/generate_architecture_diagrams.py || true
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "chore: autonomous repository maintenance [skip ci]"
+            git push
+          fi
