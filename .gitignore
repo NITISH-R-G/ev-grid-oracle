@@ -33,3 +33,4 @@ ev_grid_oracle.egg-info/
 .coverage
 dashboard_output/
 build/
+docs/api/

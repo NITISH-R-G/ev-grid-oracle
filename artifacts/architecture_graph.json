@@ -2,465 +2,466 @@
   "test_script.py": [
     "pydantic"
   ],
-  "training/__init__.py": [],
-  "training/fair_eval.py": [
-    "json",
-    "typing",
-    "pathlib",
-    "matplotlib.pyplot",
-    "math",
-    "__future__",
-    "argparse"
-  ],
-  "training/make_plots.py": [
-    "json",
-    "typing",
-    "pathlib",
-    "matplotlib.pyplot",
-    "math",
-    "__future__",
-    "argparse"
-  ],
-  "training/evaluate.py": [
-    "statistics",
-    "json",
-    "collections",
-    "typing",
-    "ev_grid_oracle.city_graph",
-    "dataclasses",
-    "ev_grid_oracle.scenarios",
-    "ev_grid_oracle.env",
-    "ev_grid_oracle.models",
-    "ev_grid_oracle.policies",
-    "os",
-    "ev_grid_oracle.oracle_agent",
-    "__future__",
-    "argparse"
-  ],
-  "viz/__init__.py": [],
-  "viz/city_map.py": [
-    "pygame",
-    "typing",
-    "ev_grid_oracle.city_graph",
-    "dataclasses",
-    "ev_grid_oracle.env",
-    "ev_grid_oracle.models",
-    "ev_grid_oracle.policies",
-    "math",
-    "__future__"
-  ],
   "viz/record_two_phase.py": [
     "pygame",
-    "typing",
-    "ev_grid_oracle.city_graph",
     "viz.city_map",
-    "ev_grid_oracle.env",
+    "ev_grid_oracle.city_graph",
     "ev_grid_oracle.models",
-    "ev_grid_oracle.policies",
+    "argparse",
     "pathlib",
-    "ev_grid_oracle.oracle_agent",
     "__future__",
-    "argparse"
+    "ev_grid_oracle.oracle_agent",
+    "ev_grid_oracle.env",
+    "ev_grid_oracle.policies",
+    "typing"
   ],
+  "viz/city_map.py": [
+    "pygame",
+    "ev_grid_oracle.city_graph",
+    "ev_grid_oracle.models",
+    "dataclasses",
+    "__future__",
+    "math",
+    "ev_grid_oracle.env",
+    "ev_grid_oracle.policies",
+    "typing"
+  ],
+  "viz/__init__.py": [],
   "viz/record.py": [
     "pygame",
-    "typing",
-    "ev_grid_oracle.city_graph",
     "viz.city_map",
-    "ev_grid_oracle.env",
+    "ev_grid_oracle.city_graph",
     "ev_grid_oracle.models",
-    "ev_grid_oracle.policies",
+    "argparse",
     "pathlib",
     "__future__",
-    "argparse"
+    "ev_grid_oracle.env",
+    "ev_grid_oracle.policies",
+    "typing"
   ],
   "viz/gradio_demo.py": [
-    "PIL",
-    "typing",
-    "ev_grid_oracle.city_graph",
-    "dataclasses",
-    "ev_grid_oracle.env",
     "gradio",
-    "ev_grid_oracle.models",
-    "ev_grid_oracle.policies",
-    "training.evaluate",
-    "ev_grid_oracle.oracle_agent",
-    "__future__"
-  ],
-  "ev_grid_oracle/__init__.py": [],
-  "ev_grid_oracle/reward_hack.py": [
-    "models",
-    "dataclasses",
-    "__future__"
-  ],
-  "ev_grid_oracle/reward.py": [
-    "dataclasses",
-    "models",
-    "networkx",
-    "__future__",
-    "statistics"
-  ],
-  "ev_grid_oracle/policies.py": [
     "ev_grid_oracle.city_graph",
-    "__future__",
-    "ev_grid_oracle.models"
-  ],
-  "ev_grid_oracle/traffic.py": [
-    "math",
+    "ev_grid_oracle.models",
     "dataclasses",
     "__future__",
-    "hashlib"
+    "ev_grid_oracle.oracle_agent",
+    "training.evaluate",
+    "ev_grid_oracle.env",
+    "PIL",
+    "ev_grid_oracle.policies",
+    "typing"
   ],
-  "ev_grid_oracle/grid_sim.py": [
-    "math",
-    "dataclasses",
-    "__future__"
-  ],
-  "ev_grid_oracle/models.py": [
-    "typing",
+  "server/app.py": [
+    "logging",
+    "ev_grid_oracle.models",
+    "fastapi.staticfiles",
+    "concurrent.futures",
     "pydantic",
-    "enum",
-    "openenv.core.env_server.types",
-    "__future__"
+    "uuid",
+    "time",
+    "ev_grid_oracle.world_model_verifier",
+    "ev_grid_oracle.policies",
+    "server.road_router",
+    "ev_grid_oracle.traffic",
+    "collections",
+    "fastapi",
+    "pathlib",
+    "__future__",
+    "ev_grid_oracle.parsing",
+    "ev_grid_oracle.scenarios",
+    "ev_grid_oracle.road_models",
+    "ev_grid_oracle.multi_agent",
+    "ev_grid_oracle.city_graph",
+    "server.role_metrics",
+    "networkx",
+    "server.ev_grid_environment",
+    "ev_grid_oracle.reward",
+    "fastapi.responses",
+    "os",
+    "server.ev_grid_road_environment",
+    "ev_grid_oracle.oracle_agent",
+    "hashlib",
+    "ev_grid_oracle.env",
+    "typing"
   ],
-  "ev_grid_oracle/multi_agent.py": [
-    "typing",
-    "policies",
+  "server/ev_grid_environment.py": [
+    "openenv.core.env_server.types",
+    "ev_grid_oracle.city_graph",
+    "ev_grid_oracle.models",
+    "__future__",
+    "openenv.core.env_server.interfaces",
+    "ev_grid_oracle.env",
+    "uuid"
+  ],
+  "server/ev_grid_road_environment.py": [
+    "openenv.core.env_server.types",
+    "__future__",
+    "openenv.core.env_server.interfaces",
+    "ev_grid_oracle.road_models",
+    "uuid",
+    "ev_grid_oracle.road_env"
+  ],
+  "server/role_metrics.py": [
+    "__future__",
+    "ev_grid_oracle.models",
+    "typing"
+  ],
+  "server/__init__.py": [],
+  "server/road_router.py": [
+    "gzip",
+    "ev_grid_oracle.traffic",
+    "json",
     "dataclasses",
-    "models",
-    "env",
-    "__future__"
+    "pathlib",
+    "__future__",
+    "math",
+    "networkx",
+    "typing"
   ],
   "ev_grid_oracle/bescom_feed.py": [
+    "random",
     "dataclasses",
     "models",
-    "random",
     "__future__",
     "hashlib"
   ],
-  "ev_grid_oracle/oracle_agent.py": [
-    "typing",
-    "dataclasses",
-    "ev_grid_oracle.models",
-    "ev_grid_oracle.policies",
-    "ev_grid_oracle.parsing",
-    "__future__"
-  ],
   "ev_grid_oracle/road_models.py": [
-    "pydantic",
     "openenv.core.env_server.types",
-    "__future__"
+    "__future__",
+    "pydantic"
   ],
   "ev_grid_oracle/road_env.py": [
-    "road_models",
+    "server.road_router",
+    "random",
     "ev_grid_oracle.city_graph",
     "dataclasses",
-    "server.road_router",
+    "__future__",
     "networkx",
-    "random",
-    "__future__"
+    "road_models"
   ],
-  "ev_grid_oracle/demand_sim.py": [
-    "math",
-    "random",
-    "dataclasses",
-    "__future__"
-  ],
-  "ev_grid_oracle/world_model_verifier.py": [
-    "copy",
+  "ev_grid_oracle/multi_agent.py": [
     "dataclasses",
     "models",
+    "__future__",
     "env",
-    "grid_sim",
-    "__future__",
-    "statistics"
-  ],
-  "ev_grid_oracle/env.py": [
-    "bescom_feed",
-    "typing",
-    "dataclasses",
-    "models",
-    "demand_sim",
-    "reward_hack",
-    "scenarios",
-    "networkx",
-    "grid_sim",
-    "reward",
-    "random",
-    "city_graph",
-    "__future__",
-    "personas"
-  ],
-  "ev_grid_oracle/scenarios.py": [
-    "dataclasses",
-    "__future__",
-    "typing"
-  ],
-  "ev_grid_oracle/personas.py": [
-    "random",
-    "dataclasses",
-    "__future__",
-    "typing"
-  ],
-  "ev_grid_oracle/parsing.py": [
-    "models",
-    "re",
-    "__future__",
+    "policies",
     "typing"
   ],
   "ev_grid_oracle/city_graph.py": [
-    "typing",
     "dataclasses",
     "models",
-    "networkx",
+    "__future__",
     "math",
-    "__future__"
+    "networkx",
+    "typing"
   ],
-  "tests/__init__.py": [],
-  "tests/test_fair_eval_mcnemar.py": [
-    "training.fair_eval",
-    "__future__"
+  "ev_grid_oracle/reward.py": [
+    "dataclasses",
+    "statistics",
+    "models",
+    "__future__",
+    "networkx"
   ],
-  "tests/test_evaluate_paired.py": [
-    "json",
-    "pytest",
-    "ev_grid_oracle.city_graph",
-    "subprocess",
-    "sys",
-    "ev_grid_oracle.env",
-    "pathlib",
-    "os",
-    "__future__"
+  "ev_grid_oracle/reward_hack.py": [
+    "__future__",
+    "dataclasses",
+    "models"
   ],
-  "tests/test_models_and_graph.py": [
-    "ev_grid_oracle.city_graph",
-    "pytest",
-    "ev_grid_oracle.models"
+  "ev_grid_oracle/__init__.py": [],
+  "ev_grid_oracle/personas.py": [
+    "random",
+    "__future__",
+    "dataclasses",
+    "typing"
   ],
-  "tests/test_demo_api.py": [
-    "fastapi.testclient"
+  "ev_grid_oracle/world_model_verifier.py": [
+    "grid_sim",
+    "copy",
+    "dataclasses",
+    "statistics",
+    "models",
+    "__future__",
+    "env"
   ],
-  "tests/test_policies_collapse.py": [
-    "ev_grid_oracle.city_graph",
-    "ev_grid_oracle.env",
-    "ev_grid_oracle.models",
-    "ev_grid_oracle.policies",
-    "__future__"
+  "ev_grid_oracle/grid_sim.py": [
+    "__future__",
+    "dataclasses",
+    "math"
   ],
-  "tests/test_parsing.py": [
-    "ev_grid_oracle.parsing"
-  ],
-  "tests/test_reward.py": [
-    "ev_grid_oracle.city_graph",
-    "ev_grid_oracle.reward",
-    "ev_grid_oracle.env",
-    "ev_grid_oracle.models"
-  ],
-  "tests/test_world_model_verifier.py": [
-    "ev_grid_oracle.world_model_verifier",
-    "ev_grid_oracle.city_graph",
-    "ev_grid_oracle.env",
-    "ev_grid_oracle.policies",
-    "ev_grid_oracle.models"
-  ],
-  "tests/test_env_determinism.py": [
-    "pytest",
+  "ev_grid_oracle/models.py": [
+    "openenv.core.env_server.types",
+    "__future__",
     "pydantic",
-    "ev_grid_oracle.city_graph",
-    "ev_grid_oracle.env",
-    "ev_grid_oracle.models",
-    "ev_grid_oracle.policies",
-    "__future__"
+    "enum",
+    "typing"
   ],
-  "tools/__init__.py": [],
-  "tools/docs_sync.py": [
-    "os",
-    "sys",
-    "ast"
-  ],
-  "tools/prune_osm_geojson.py": [
-    "json",
-    "ev_grid_oracle.city_graph",
-    "sys",
-    "pathlib",
+  "ev_grid_oracle/scenarios.py": [
     "__future__",
-    "argparse"
-  ],
-  "tools/sync_space_to_hub.py": [
-    "subprocess",
-    "sys",
-    "pathlib",
-    "os",
-    "__future__",
-    "argparse"
-  ],
-  "tools/fetch_bangalore_roads_overpass.py": [
-    "urllib.request",
-    "json",
-    "typing",
-    "time",
-    "urllib.parse",
-    "pathlib",
-    "__future__",
-    "argparse"
-  ],
-  "tools/fetch_osm_roads.py": [
-    "urllib.request",
-    "json",
-    "time",
     "dataclasses",
-    "urllib.parse",
-    "pathlib",
-    "__future__",
-    "argparse"
+    "typing"
   ],
-  "tools/generate_architecture_diagrams.py": [
-    "os",
-    "sys",
-    "json",
-    "ast"
-  ],
-  "tools/export_grpo_tensorboard_plots.py": [
-    "pathlib",
-    "re",
-    "__future__",
-    "argparse"
-  ],
-  "tools/generate_health_dashboard.py": [
-    "json",
-    "subprocess",
-    "datetime",
-    "jinja2",
-    "os"
-  ],
-  "tools/generate_knowledge_graph.py": [
-    "json",
-    "typing",
-    "sys",
-    "os",
-    "ast"
-  ],
-  "tools/road_reward_smoke.py": [
-    "ev_grid_oracle.road_env",
-    "ev_grid_oracle.road_models",
-    "re",
-    "__future__"
-  ],
-  "tools/build_road_graph.py": [
-    "argparse",
-    "json",
-    "typing",
-    "gzip",
-    "pathlib",
+  "ev_grid_oracle/env.py": [
+    "grid_sim",
+    "random",
+    "reward",
     "dataclasses",
+    "models",
+    "bescom_feed",
+    "reward_hack",
+    "__future__",
+    "demand_sim",
+    "scenarios",
     "networkx",
-    "math",
-    "__future__",
-    "hashlib"
+    "city_graph",
+    "personas",
+    "typing"
   ],
-  "tools/build_roads_render.py": [
-    "json",
-    "typing",
-    "pathlib",
+  "ev_grid_oracle/parsing.py": [
+    "re",
     "__future__",
-    "argparse"
+    "models",
+    "typing"
   ],
-  "tools/write_eval_snapshot.py": [
-    "subprocess",
-    "sys",
-    "pathlib",
-    "os",
-    "__future__"
+  "ev_grid_oracle/oracle_agent.py": [
+    "ev_grid_oracle.models",
+    "dataclasses",
+    "__future__",
+    "ev_grid_oracle.parsing",
+    "ev_grid_oracle.policies",
+    "typing"
+  ],
+  "ev_grid_oracle/demand_sim.py": [
+    "random",
+    "__future__",
+    "dataclasses",
+    "math"
+  ],
+  "ev_grid_oracle/policies.py": [
+    "__future__",
+    "ev_grid_oracle.models",
+    "ev_grid_oracle.city_graph"
+  ],
+  "ev_grid_oracle/traffic.py": [
+    "__future__",
+    "dataclasses",
+    "hashlib",
+    "math"
   ],
   ".cursor/skills/generate-openenv-env/assets/openenv_env_template/__init__.py": [
     "client",
     "models"
   ],
-  ".cursor/skills/generate-openenv-env/assets/openenv_env_template/models.py": [
-    "pydantic",
-    "openenv.core.env_server.types"
-  ],
   ".cursor/skills/generate-openenv-env/assets/openenv_env_template/client.py": [
-    "typing",
-    "openenv.core",
-    "models",
     "openenv.core.client_types",
-    "openenv.core.env_server.types"
+    "openenv.core.env_server.types",
+    "models",
+    "openenv.core",
+    "typing"
+  ],
+  ".cursor/skills/generate-openenv-env/assets/openenv_env_template/models.py": [
+    "openenv.core.env_server.types",
+    "pydantic"
+  ],
+  ".cursor/skills/generate-openenv-env/assets/openenv_env_template/server/app.py": [],
+  ".cursor/skills/generate-openenv-env/assets/openenv_env_template/server/__ENV_NAME___environment.py": [
+    "openenv.core.env_server.types",
+    "uuid",
+    "openenv.core.env_server.interfaces"
   ],
   ".cursor/skills/generate-openenv-env/assets/openenv_env_template/server/__init__.py": [
     "__ENV_NAME___environment"
   ],
-  ".cursor/skills/generate-openenv-env/assets/openenv_env_template/server/app.py": [],
-  ".cursor/skills/generate-openenv-env/assets/openenv_env_template/server/__ENV_NAME___environment.py": [
-    "openenv.core.env_server.interfaces",
-    "openenv.core.env_server.types",
-    "uuid"
-  ],
-  "server/__init__.py": [],
-  "server/app.py": [
-    "ev_grid_oracle.road_models",
-    "collections",
-    "ev_grid_oracle.multi_agent",
-    "ev_grid_oracle.env",
-    "ev_grid_oracle.models",
-    "ev_grid_oracle.parsing",
+  "tools/build_road_graph.py": [
+    "gzip",
+    "json",
+    "dataclasses",
+    "argparse",
+    "pathlib",
     "__future__",
     "hashlib",
-    "fastapi.staticfiles",
-    "pydantic",
+    "math",
     "networkx",
-    "ev_grid_oracle.policies",
+    "typing"
+  ],
+  "tools/sync_space_to_hub.py": [
+    "argparse",
+    "os",
     "pathlib",
-    "ev_grid_oracle.oracle_agent",
-    "fastapi",
-    "ev_grid_oracle.world_model_verifier",
-    "ev_grid_oracle.city_graph",
-    "server.role_metrics",
-    "ev_grid_oracle.reward",
-    "server.road_router",
-    "server.ev_grid_road_environment",
-    "ev_grid_oracle.scenarios",
-    "uuid",
-    "fastapi.responses",
-    "server.ev_grid_environment",
-    "typing",
+    "__future__",
+    "sys",
+    "subprocess"
+  ],
+  "tools/generate_knowledge_graph.py": [
+    "json",
+    "ast",
+    "os",
+    "sys",
+    "typing"
+  ],
+  "tools/fetch_bangalore_roads_overpass.py": [
+    "urllib.request",
+    "json",
+    "argparse",
+    "pathlib",
+    "__future__",
     "time",
-    "concurrent.futures",
-    "logging",
-    "ev_grid_oracle.traffic",
+    "urllib.parse",
+    "typing"
+  ],
+  "tools/export_grpo_tensorboard_plots.py": [
+    "re",
+    "__future__",
+    "argparse",
+    "pathlib"
+  ],
+  "tools/generate_architecture_diagrams.py": [
+    "json",
+    "ast",
+    "os",
+    "sys",
+    "typing"
+  ],
+  "tools/prune_osm_geojson.py": [
+    "json",
+    "ev_grid_oracle.city_graph",
+    "argparse",
+    "pathlib",
+    "__future__",
+    "sys"
+  ],
+  "tools/__init__.py": [],
+  "tools/docs_sync.py": [
+    "sys",
+    "ast",
     "os"
   ],
-  "server/ev_grid_road_environment.py": [
-    "openenv.core.env_server.interfaces",
+  "tools/road_reward_smoke.py": [
+    "re",
+    "__future__",
     "ev_grid_oracle.road_models",
-    "ev_grid_oracle.road_env",
-    "openenv.core.env_server.types",
-    "uuid",
-    "__future__"
+    "ev_grid_oracle.road_env"
   ],
-  "server/ev_grid_environment.py": [
-    "openenv.core.env_server.interfaces",
-    "ev_grid_oracle.city_graph",
-    "openenv.core.env_server.types",
-    "uuid",
-    "ev_grid_oracle.env",
-    "ev_grid_oracle.models",
-    "__future__"
+  "tools/generate_health_dashboard.py": [
+    "jinja2",
+    "json",
+    "os",
+    "datetime",
+    "subprocess"
   ],
-  "server/role_metrics.py": [
-    "ev_grid_oracle.models",
+  "tools/write_eval_snapshot.py": [
+    "os",
+    "pathlib",
+    "__future__",
+    "sys",
+    "subprocess"
+  ],
+  "tools/fetch_osm_roads.py": [
+    "urllib.request",
+    "json",
+    "dataclasses",
+    "argparse",
+    "pathlib",
+    "__future__",
+    "time",
+    "urllib.parse"
+  ],
+  "tools/build_roads_render.py": [
+    "json",
+    "argparse",
+    "pathlib",
     "__future__",
     "typing"
   ],
-  "server/road_router.py": [
+  "training/fair_eval.py": [
     "json",
-    "typing",
-    "gzip",
+    "argparse",
+    "matplotlib.pyplot",
     "pathlib",
-    "dataclasses",
-    "ev_grid_oracle.traffic",
-    "networkx",
+    "__future__",
     "math",
-    "__future__"
+    "typing"
+  ],
+  "training/__init__.py": [],
+  "training/make_plots.py": [
+    "json",
+    "argparse",
+    "matplotlib.pyplot",
+    "pathlib",
+    "__future__",
+    "math",
+    "typing"
+  ],
+  "training/evaluate.py": [
+    "json",
+    "collections",
+    "dataclasses",
+    "statistics",
+    "argparse",
+    "os",
+    "ev_grid_oracle.city_graph",
+    "ev_grid_oracle.models",
+    "__future__",
+    "ev_grid_oracle.scenarios",
+    "ev_grid_oracle.oracle_agent",
+    "ev_grid_oracle.env",
+    "ev_grid_oracle.policies",
+    "typing"
+  ],
+  "tests/test_demo_api.py": [
+    "fastapi.testclient"
+  ],
+  "tests/test_env_determinism.py": [
+    "ev_grid_oracle.city_graph",
+    "pytest",
+    "ev_grid_oracle.models",
+    "__future__",
+    "pydantic",
+    "ev_grid_oracle.env",
+    "ev_grid_oracle.policies"
+  ],
+  "tests/test_reward.py": [
+    "ev_grid_oracle.env",
+    "ev_grid_oracle.city_graph",
+    "ev_grid_oracle.models",
+    "ev_grid_oracle.reward"
+  ],
+  "tests/test_world_model_verifier.py": [
+    "ev_grid_oracle.city_graph",
+    "ev_grid_oracle.models",
+    "ev_grid_oracle.env",
+    "ev_grid_oracle.world_model_verifier",
+    "ev_grid_oracle.policies"
+  ],
+  "tests/test_evaluate_paired.py": [
+    "json",
+    "pytest",
+    "ev_grid_oracle.city_graph",
+    "os",
+    "pathlib",
+    "__future__",
+    "sys",
+    "subprocess",
+    "ev_grid_oracle.env"
+  ],
+  "tests/__init__.py": [],
+  "tests/test_models_and_graph.py": [
+    "ev_grid_oracle.city_graph",
+    "pytest",
+    "ev_grid_oracle.models"
+  ],
+  "tests/test_fair_eval_mcnemar.py": [
+    "__future__",
+    "training.fair_eval"
+  ],
+  "tests/test_parsing.py": [
+    "ev_grid_oracle.parsing"
+  ],
+  "tests/test_policies_collapse.py": [
+    "ev_grid_oracle.city_graph",
+    "ev_grid_oracle.models",
+    "__future__",
+    "ev_grid_oracle.env",
+    "ev_grid_oracle.policies"
   ]
 }
