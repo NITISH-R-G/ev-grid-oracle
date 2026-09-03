@@ -1,0 +1,16 @@
+python:
+  - any:
+      - '**/*.py'
+
+frontend:
+  - any:
+      - 'web/**/*'
+
+documentation:
+  - any:
+      - '**/*.md'
+      - 'docs/**/*'
+
+actions:
+  - any:
+      - '.github/workflows/**/*'
