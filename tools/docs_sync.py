@@ -1,6 +1,6 @@
 import os
 import ast
-from pathlib import Path
+
 
 def generate_markdown(file_path: str, rel_path: str) -> str:
     with open(file_path, "r", encoding="utf-8") as f:
@@ -44,6 +44,7 @@ def generate_markdown(file_path: str, rel_path: str) -> str:
 
     return "\n".join(md_lines)
 
+
 def main() -> None:
     root_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
     docs_api_dir = os.path.join(root_dir, "docs", "api")
@@ -51,10 +52,23 @@ def main() -> None:
 
     for root, dirs, files in os.walk(root_dir):
         # Ignore hidden directories like .git, .github, .venv
-        dirs[:] = [d for d in dirs if not d.startswith('.')]
+        dirs[:] = [d for d in dirs if not d.startswith(".")]
 
         # Optionally exclude other non-source directories
-        dirs[:] = [d for d in dirs if d not in ('docs', 'artifacts', 'dashboard_output', 'node_modules', 'dist', 'build', '__pycache__')]
+        dirs[:] = [
+            d
+            for d in dirs
+            if d
+            not in (
+                "docs",
+                "artifacts",
+                "dashboard_output",
+                "node_modules",
+                "dist",
+                "build",
+                "__pycache__",
+            )
+        ]
 
         for file in files:
             if file.endswith(".py"):
@@ -71,6 +85,7 @@ def main() -> None:
                         out_f.write(md_content)
 
     print(f"Documentation generated in {docs_api_dir}")
+
 
 if __name__ == "__main__":
     main()
