@@ -1,0 +1,78 @@
+name: Repository Maintenance Automation
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  schedule:
+    - cron: '0 0 * * *'
+
+permissions:
+  contents: write
+
+jobs:
+  maintenance:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'schedule' || github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+          lfs: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install uv
+        run: pip install uv
+
+      - name: Install Python dependencies
+        run: |
+          uv pip install --system -e ".[dev,demo]"
+          uv pip install --system cyclonedx-bom
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install Prettier globally
+        run: npm install -g prettier
+
+      - name: Lint and Format Python
+        run: |
+          uv run --with ruff ruff check --fix .
+          uv run --with ruff ruff format .
+
+      - name: Format Frontend and Docs
+        run: |
+          prettier --write "**/*.{json,md,yml,yaml,html,js,ts,jsx,tsx}" --ignore-path .prettierignore
+
+      - name: Sync Documentation
+        run: |
+          python tools/docs_sync.py
+
+      - name: Generate Knowledge Graph
+        run: |
+          python tools/generate_knowledge_graph.py
+
+      - name: Generate Architecture Diagrams
+        run: |
+          python tools/generate_architecture_diagrams.py
+
+      - name: Generate SBOM
+        run: |
+          cyclonedx-py environment -o bom.json
+
+      - name: Commit changes
+        run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
+          git add -A
+          git diff --quiet && git diff --staged --quiet || (git commit -m "chore: auto-maintenance updates [skip ci]" && git push)
