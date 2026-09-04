@@ -45,7 +45,9 @@ class RenderConfig:
 
 
 class CityMapRenderer:
-    def __init__(self, env: EVGridCore, cfg: RenderConfig = RenderConfig()):
+    def __init__(self, env: EVGridCore, cfg: RenderConfig | None = None):
+        if cfg is None:
+            cfg = RenderConfig()
         self.env = env
         self.cfg = cfg
         self._font = pygame.font.SysFont("Consolas", 18)
@@ -260,20 +262,19 @@ def run_live(seed: int = 123, *, mode: str = "baseline"):
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
-                    # one sim tick
-                    st = env._grid_state
-                    if st is None or not st.pending_evs:
-                        action = EVGridAction(
-                            action_type=ActionType.load_shift,
-                            ev_id="EV-000",
-                            defer_minutes=0,
-                        )
-                    else:
-                        action = baseline_policy(st, env.city_graph)
-                    last_action = action
-                    env.step(action)
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                # one sim tick
+                st = env._grid_state
+                if st is None or not st.pending_evs:
+                    action = EVGridAction(
+                        action_type=ActionType.load_shift,
+                        ev_id="EV-000",
+                        defer_minutes=0,
+                    )
+                else:
+                    action = baseline_policy(st, env.city_graph)
+                last_action = action
+                env.step(action)
 
         renderer.render(screen, last_action=last_action, mode_label=mode)
         pygame.display.flip()
