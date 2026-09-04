@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Run a tiny paired evaluate.py job and write artifacts/eval_snapshot.json (no LLM)."""
 
 from __future__ import annotations
