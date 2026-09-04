@@ -1,0 +1,26 @@
+# Add 'python' label to any python file changes
+python:
+  - any:
+    - changed-files:
+      - any-glob-to-any-file: '**/*.py'
+
+# Add 'frontend' label to any web file changes
+frontend:
+  - any:
+    - changed-files:
+      - any-glob-to-any-file: 'web/**/*'
+      - any-glob-to-any-file: 'web/*.json'
+      - any-glob-to-any-file: 'web/*.ts'
+
+# Add 'documentation' label to any docs or markdown file changes
+documentation:
+  - any:
+    - changed-files:
+      - any-glob-to-any-file: '**/*.md'
+      - any-glob-to-any-file: 'docs/**/*'
+
+# Add 'github-actions' label to any workflow changes
+github-actions:
+  - any:
+    - changed-files:
+      - any-glob-to-any-file: '.github/workflows/*'
