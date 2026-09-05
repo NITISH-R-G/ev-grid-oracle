@@ -3,55 +3,84 @@ import os
 from pathlib import Path
 
 
-def sync_docs() -> None:
-    output_dir = Path("docs/api")
-    output_dir.mkdir(parents=True, exist_ok=True)
+def generate_docs() -> None:
+    """Generates markdown API documentation for Python files."""
+    docs_dir = Path("docs/api")
+    docs_dir.mkdir(parents=True, exist_ok=True)
 
     for root, dirs, files in os.walk("."):
-        dirs[:] = [d for d in dirs if not d.startswith(".")]
+        dirs[:] = [
+            d
+            for d in dirs
+            if not d.startswith(".")
+            and d
+            not in [
+                "venv",
+                "env",
+                "__pycache__",
+                "node_modules",
+                "dashboard_output",
+                "build",
+                "dist",
+                "docs",
+            ]
+        ]
 
         for file in files:
             if file.endswith(".py"):
-                filepath = os.path.join(root, file)
+                file_path = os.path.join(root, file)
                 try:
-                    with open(filepath, "r", encoding="utf-8") as f:
+                    with open(file_path, "r", encoding="utf-8") as f:
                         source = f.read()
-                        tree = ast.parse(source, filename=filepath)
 
-                    doc_content = f"# Documentation for `{filepath}`\n\n"
+                    tree = ast.parse(source)
+
+                    has_content = False
+
+                    # Create a path-safe markdown filename
+                    rel_path = os.path.relpath(file_path, ".")
+                    safe_name = rel_path.replace(os.sep, "_").replace(".py", ".md")
+                    doc_path = docs_dir / safe_name
+
+                    doc_content = f"# API Reference: `{rel_path}`\n\n"
 
                     module_doc = ast.get_docstring(tree)
                     if module_doc:
-                        doc_content += f"## Module Documentation\n\n{module_doc}\n\n"
+                        doc_content += f"{module_doc}\n\n"
 
-                    for node in ast.walk(tree):
+                    for node in tree.body:
                         if isinstance(node, ast.ClassDef):
-                            doc_content += f"## Class: `{node.name}`\n"
+                            has_content = True
+                            doc_content += f"## Class `{node.name}`\n\n"
                             class_doc = ast.get_docstring(node)
                             if class_doc:
-                                doc_content += f"\n{class_doc}\n"
-                            doc_content += "\n"
-                        elif isinstance(node, ast.FunctionDef):
-                            doc_content += f"### Function: `{node.name}`\n"
+                                doc_content += f"{class_doc}\n\n"
+
+                            for item in node.body:
+                                if isinstance(
+                                    item, (ast.FunctionDef, ast.AsyncFunctionDef)
+                                ):
+                                    doc_content += f"### Method `{item.name}`\n\n"
+                                    method_doc = ast.get_docstring(item)
+                                    if method_doc:
+                                        doc_content += f"{method_doc}\n\n"
+
+                        elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                            has_content = True
+                            doc_content += f"## Function `{node.name}`\n\n"
                             func_doc = ast.get_docstring(node)
                             if func_doc:
-                                doc_content += f"\n{func_doc}\n"
-                            doc_content += "\n"
+                                doc_content += f"{func_doc}\n\n"
 
-                    # Create safe filename to prevent collisions
-                    safe_filename = filepath.replace(os.sep, "_").replace(".py", ".md")
-                    safe_filename = safe_filename.removeprefix("_")
+                    if has_content:
+                        with open(doc_path, "w", encoding="utf-8") as out_f:
+                            out_f.write(doc_content)
 
-                    output_file = output_dir / safe_filename
-                    with open(output_file, "w", encoding="utf-8") as f:
-                        f.write(doc_content)
-                except Exception:  # noqa: BLE001, S110
-                    pass
+                except Exception as e:  # noqa: BLE001
+                    print(f"Error documenting {file_path}: {e}")
+
+    print("Generated API documentation successfully.")
 
 
 if __name__ == "__main__":
-    import logging
-
-    logger = logging.getLogger(__name__)
-    sync_docs()
-    logger.warning("Generated documentation.")
+    generate_docs()

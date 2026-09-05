@@ -10,7 +10,7 @@ def main() -> int:
     core = RoadCore(g=None, nodes=[])
     obs = core.reset(seed=0)
     st = obs.state
-    nb = list(core.g.neighbors(st.node))[0]
+    nb = next(iter(core.g.neighbors(st.node)))
 
     ok = f"CURRENT_NODE: {st.node}\nNEXT_NODE: {int(nb)}\nREASON: go\nCONFIDENCE: 0.7\n"
     bad = f"CURRENT_NODE: {st.node + 999}\nNEXT_NODE: {int(nb)}\nREASON: hack\nCONFIDENCE: 0.7\n"

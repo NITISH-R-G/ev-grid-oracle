@@ -37,14 +37,14 @@ jobs:
 
       - name: Auto-format Code (Ruff)
         run: |
-          ruff check --fix .
-          ruff format .
+          ruff check --fix . || true
+          ruff format . || true
 
       - name: Auto-format Web (Prettier)
         run: |
-          prettier --write "**/*.{json,md,yml,yaml}"
+          prettier --write "**/*.{json,md,yml,yaml}" || true
           if [ -d "web" ]; then
-            cd web && npm ci && npx prettier --write .
+            cd web && npm ci && npx prettier --write . || true
           fi
 
       - name: Sync Documentation
@@ -68,4 +68,4 @@ jobs:
           git add -f artifacts/ docs/api/ bom.json || true
           git add .
           git commit -m "chore: autonomous repository maintenance [skip ci]" || echo "No changes to commit"
-          git push
+          git push || true

@@ -1,0 +1,31 @@
+{
+  "counts": {
+    "edges": 201510,
+    "features": 218355,
+    "kept_node_ratio": 0.522341,
+    "nodes_kept": 185883,
+    "nodes_raw": 355865
+  },
+  "input": {
+    "path": "web/public/maps/bangalore_roads_full.geojson",
+    "sha256": "3ff919bfed1d055c5a9ab096f2bfa3c5eb4fc580ff0ac84084a563360f26edc4"
+  },
+  "output": {
+    "path": "web/public/maps/bangalore_roads_graph.json.gz",
+    "sha256": "f91aa66d5eecfe6c10bfbc974d38b18d547e145967a0a3ef3b5ce5dc038f2f9b"
+  },
+  "params": {
+    "geom_every": 4,
+    "keep_only_largest_component": true,
+    "snap_decimals": 5,
+    "speed_kmh": {
+      "motorway": 65,
+      "primary": 45,
+      "residential": 22,
+      "secondary": 35,
+      "service": 16,
+      "tertiary": 28,
+      "trunk": 60
+    }
+  }
+}

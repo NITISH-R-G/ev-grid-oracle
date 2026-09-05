@@ -1,22 +1,29 @@
 # Contributing Guidelines
 
-Thank you for your interest in contributing! We welcome contributions of all kinds: bug reports, feature requests, documentation improvements, and code changes.
+Thank you for your interest in contributing to our project! We welcome contributions from everyone.
 
-## Development Workflow
+## Getting Started
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
+1. **Fork the Repository:** Start by forking the repository to your own GitHub account.
+2. **Clone the Repository:** Clone the repository to your local machine.
+3. **Install Dependencies:** Follow the instructions in the `README.md` to install all necessary dependencies (e.g., using `uv pip install -e ".[dev,demo]"`).
+4. **Create a Branch:** Create a new branch for your feature or bug fix (`git checkout -b feature/your-feature-name`).
 
-## Testing and Quality
+## Development Process
 
-* Ensure your code passes all linting and formatting checks.
-* Include appropriate tests for your changes.
-* Document any new features or API changes.
+1. **Write Code:** Implement your feature or fix the bug. Please follow our coding style and conventions.
+2. **Write Tests:** Ensure you add tests for any new functionality or bug fixes.
+3. **Run Checks:** Run our validation scripts (`./validate-submission.sh`) to ensure code quality, formatting, and tests pass.
+4. **Commit Changes:** Commit your changes with a clear and descriptive commit message.
 
-## Issue Reporting
+## Pull Requests
 
-* Use the appropriate issue templates.
-* Provide as much detail as possible to help us understand and reproduce the problem.
+1. **Push Changes:** Push your branch to your forked repository.
+2. **Open a Pull Request:** Open a Pull Request against our `main` branch.
+3. **Review:** Our automated systems (and maintainers) will review your PR. Please be ready to respond to feedback and make necessary changes.
+
+## Reporting Issues
+
+If you find a bug or have a feature request, please open an issue using the provided issue templates. Provide as much context and detail as possible.
+
+We look forward to your contributions!

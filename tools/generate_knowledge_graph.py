@@ -1,70 +1,69 @@
 import ast
 import json
 import os
-from pathlib import Path
 from typing import Any
 
 
-def generate_knowledge_graph() -> dict[str, Any]:
-    graph: dict[str, list[dict[str, Any]]] = {"nodes": [], "edges": []}
+def generate_knowledge_graph() -> None:
+    """Generates a JSON knowledge graph of Python files in the repository."""
+    graph: dict[str, dict[str, list[dict[str, Any]]]] = {}
 
     for root, dirs, files in os.walk("."):
-        # Explicitly ignore hidden system directories
-        dirs[:] = [d for d in dirs if not d.startswith(".")]
+        dirs[:] = [
+            d
+            for d in dirs
+            if not d.startswith(".")
+            and d
+            not in [
+                "venv",
+                "env",
+                "__pycache__",
+                "node_modules",
+                "dashboard_output",
+                "build",
+                "dist",
+            ]
+        ]
 
         for file in files:
             if file.endswith(".py"):
-                filepath = os.path.join(root, file)
+                file_path = os.path.join(root, file)
                 try:
-                    with open(filepath, "r", encoding="utf-8") as f:
-                        tree = ast.parse(f.read(), filename=filepath)
+                    with open(file_path, "r", encoding="utf-8") as f:
+                        source = f.read()
 
-                    graph["nodes"].append(
-                        {"id": filepath, "type": "file", "name": file}
-                    )
+                    tree = ast.parse(source)
+
+                    classes = []
+                    functions = []
 
                     for node in ast.walk(tree):
                         if isinstance(node, ast.ClassDef):
-                            class_id = f"{filepath}::{node.name}"
-                            graph["nodes"].append(
-                                {"id": class_id, "type": "class", "name": node.name}
-                            )
-                            graph["edges"].append(
+                            classes.append(
                                 {
-                                    "source": filepath,
-                                    "target": class_id,
-                                    "type": "contains",
+                                    "name": node.name,
+                                    "docstring": ast.get_docstring(node),
+                                    "line_number": node.lineno,
                                 }
                             )
-                        elif isinstance(node, ast.FunctionDef):
-                            func_id = f"{filepath}::{node.name}"
-                            graph["nodes"].append(
-                                {"id": func_id, "type": "function", "name": node.name}
-                            )
-                            graph["edges"].append(
+                        elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
+                            functions.append(
                                 {
-                                    "source": filepath,
-                                    "target": func_id,
-                                    "type": "contains",
+                                    "name": node.name,
+                                    "docstring": ast.get_docstring(node),
+                                    "line_number": node.lineno,
                                 }
                             )
 
-                except Exception:  # noqa: BLE001, S110
-                    # Catch and ignore parsing errors for basic implementation
-                    pass
-    return graph
+                    if classes or functions:
+                        graph[file_path] = {"classes": classes, "functions": functions}
+                except Exception as e:  # noqa: BLE001
+                    print(f"Error parsing {file_path}: {e}")
+
+    with open("knowledge_graph.json", "w", encoding="utf-8") as f:
+        json.dump(graph, f, indent=2)
+    print("Generated knowledge_graph.json successfully.")
 
 
 if __name__ == "__main__":
-    import logging
-
-    logger = logging.getLogger(__name__)
-    output_dir = Path("artifacts")
-    output_dir.mkdir(parents=True, exist_ok=True)
-
-    graph = generate_knowledge_graph()
-    output_file = output_dir / "knowledge_graph.json"
-
-    with open(output_file, "w", encoding="utf-8") as f:
-        json.dump(graph, f, indent=2)
-    logger.warning(f"Generated knowledge graph at {output_file}")
+    generate_knowledge_graph()

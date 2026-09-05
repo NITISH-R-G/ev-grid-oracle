@@ -1,22 +1,18 @@
-frontend:
-  - any:
-    - 'web/**/*'
-
-backend:
-  - any:
-    - 'server/**/*'
-
 python:
-  - any:
-    - '**/*.py'
+  - any-glob-to-any-file:
+      - '**/*.py'
+      - 'pyproject.toml'
+      - 'requirements.txt'
+
+frontend:
+  - any-glob-to-any-file:
+      - 'web/**/*'
+
+github_actions:
+  - any-glob-to-any-file:
+      - '.github/workflows/*'
 
 documentation:
-  - any:
-    - '**/*.md'
-    - 'docs/**/*'
-
-infrastructure:
-  - any:
-    - '.github/**/*'
-    - 'Dockerfile'
-    - 'openenv.yaml'
+  - any-glob-to-any-file:
+      - '**/*.md'
+      - 'docs/**/*'
