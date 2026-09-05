@@ -1,0 +1,71 @@
+name: Repository Maintenance & Autonomous Updates
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  schedule:
+    - cron: '0 3 * * *' # Daily at 3 AM
+
+permissions:
+  contents: write
+
+jobs:
+  maintenance:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'schedule' || github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Dependencies
+        run: |
+          npm install -g prettier
+          pip install uv
+          uv pip install --system -e ".[dev,demo]"
+
+      - name: Auto-format Code (Ruff)
+        run: |
+          ruff check --fix . || true
+          ruff format . || true
+
+      - name: Auto-format Web (Prettier)
+        run: |
+          prettier --write "**/*.{json,md,yml,yaml}" || true
+          if [ -d "web" ]; then
+            cd web && npm ci && npx prettier --write . || true
+          fi
+
+      - name: Sync Documentation
+        run: python tools/docs_sync.py || true
+
+      - name: Generate Architecture Diagram
+        run: python tools/generate_architecture_diagrams.py || true
+
+      - name: Generate Knowledge Graph
+        run: python tools/generate_knowledge_graph.py || true
+
+      - name: Generate SBOM
+        run: |
+          pip install cyclonedx-bom cyclonedx-py
+          cyclonedx-py environment -o bom.json || true
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add -f artifacts/ docs/api/ bom.json || true
+          git add .
+          git commit -m "chore: autonomous repository maintenance [skip ci]" || echo "No changes to commit"
+          git push || true
