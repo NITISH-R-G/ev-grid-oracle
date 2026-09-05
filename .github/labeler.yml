@@ -1,0 +1,22 @@
+frontend:
+  - any:
+    - 'web/**/*'
+
+backend:
+  - any:
+    - 'server/**/*'
+
+python:
+  - any:
+    - '**/*.py'
+
+documentation:
+  - any:
+    - '**/*.md'
+    - 'docs/**/*'
+
+infrastructure:
+  - any:
+    - '.github/**/*'
+    - 'Dockerfile'
+    - 'openenv.yaml'
