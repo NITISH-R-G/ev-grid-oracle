@@ -1,0 +1,65 @@
+name: Repository Maintenance & Auto-Generation
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+  schedule:
+    - cron: '0 2 * * *' # Daily at 2 AM UTC
+
+permissions:
+  contents: write
+
+jobs:
+  maintenance:
+    if: github.event_name == 'push' || github.event_name == 'schedule' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+          ref: ${{ github.head_ref || github.ref }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install uv
+        run: pip install uv
+
+      - name: Install dependencies
+        run: uv pip install --system -e ".[dev,demo]" cyclonedx-bom
+
+      - name: Run Architecture Diagrams Generation
+        run: python tools/generate_architecture_diagrams.py
+
+      - name: Run Knowledge Graph Generation
+        run: python tools/generate_knowledge_graph.py
+
+      - name: Run Documentation Sync
+        run: python tools/docs_sync.py
+
+      - name: Generate SBOM
+        run: cyclonedx-py environment -o bom.json
+
+      - name: Auto-fix formatting
+        run: uv run --with ruff ruff check --fix . || true
+        continue-on-error: false
+
+      - name: Auto-fix format
+        run: uv run --with ruff ruff format . || true
+        continue-on-error: false
+
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Auto-generate repository artifacts, docs, and format"
+          file_pattern: "artifacts/ docs/api/ bom.json **/*.py"
+          add_options: "-f"

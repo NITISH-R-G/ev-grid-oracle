@@ -15,12 +15,14 @@ class GridParams:
 
 
 def _clamp01(x: float) -> float:
-    return 0.0 if x < 0.0 else 1.0 if x > 1.0 else x
+    return 0.0 if x < 0.0 else min(x, 1.0)
 
 
 def baseline_grid_load(
-    hour: int, *, day_type: str, params: GridParams = GridParams()
+    hour: int, *, day_type: str, params: GridParams | None = None
 ) -> float:
+    if params is None:
+        params = GridParams()
     # Two-peak-ish load using cosine: highest around evening, lower around midday.
     # Map hour->angle with peak near 18:00.
     angle = 2 * pi * ((hour - 18) / 24.0)
@@ -29,7 +31,9 @@ def baseline_grid_load(
     return _clamp01(load * day_mult)
 
 
-def renewable_pct(hour: int, params: GridParams = GridParams()) -> float:
+def renewable_pct(hour: int, params: GridParams | None = None) -> float:
+    if params is None:
+        params = GridParams()
     # Midday solar bump: peak around 13:00, low at night.
     angle = 2 * pi * ((hour - 13) / 24.0)
     ren = params.renewable_base + params.renewable_amplitude * (0.5 + 0.5 * cos(angle))
@@ -42,8 +46,10 @@ def update_grid_load(
     day_type: str,
     occupied_slots_total: int,
     load_shift_action_strength: float = 0.0,
-    params: GridParams = GridParams(),
+    params: GridParams | None = None,
 ) -> tuple[float, float]:
+    if params is None:
+        params = GridParams()
     base = baseline_grid_load(hour, day_type=day_type, params=params)
     added = occupied_slots_total * params.charging_load_per_ev
     load = _clamp01(base + added - load_shift_action_strength)
