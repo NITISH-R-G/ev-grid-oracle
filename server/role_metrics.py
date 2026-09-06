@@ -69,7 +69,7 @@ def compute_role_reward_breakdown(
         v = rb.get(key, 0.0)
         try:
             return float(v)
-        except Exception: # noqa: BLE001
+        except Exception:  # noqa: BLE001
             return 0.0
 
     comps = {k: part(k) for k in keys}
