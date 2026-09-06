@@ -1,30 +1,32 @@
+import os
 import ast
 import json
 import logging
-import os
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-
 def generate_architecture_graph(root_dir="."):
-    graph = {"nodes": [], "edges": []}
+    graph = {
+        "nodes": [],
+        "edges": []
+    }
 
     modules = set()
     dependencies = []
 
     for root, dirs, files in os.walk(root_dir):
         # Ignore hidden directories
-        dirs[:] = [d for d in dirs if not d.startswith(".")]
+        dirs[:] = [d for d in dirs if not d.startswith('.')]
 
         for file in files:
             if file.endswith(".py"):
                 filepath = os.path.join(root, file)
-                module_name = (
-                    filepath.replace("/", ".").replace("\\", ".").replace(".py", "")
-                )
-                module_name = module_name.removeprefix(".")
-                module_name = module_name.removeprefix(".")
+                module_name = filepath.replace("/", ".").replace("\\", ".").replace(".py", "")
+                if module_name.startswith("."):
+                    module_name = module_name[1:]
+                if module_name.startswith("."):
+                     module_name = module_name[1:]
 
                 modules.add(module_name)
 
@@ -40,7 +42,7 @@ def generate_architecture_graph(root_dir="."):
                             if node.module:
                                 dependencies.append((module_name, node.module))
 
-                except Exception as e:  # noqa: BLE001
+                except Exception as e: # noqa: BLE001
                     logger.warning(f"Failed to parse {filepath}: {e}")
 
     for module in modules:
@@ -53,7 +55,6 @@ def generate_architecture_graph(root_dir="."):
     with open("artifacts/architecture_graph.json", "w", encoding="utf-8") as f:
         json.dump(graph, f, indent=2)
     logger.info("Architecture graph generated at artifacts/architecture_graph.json")
-
 
 if __name__ == "__main__":
     generate_architecture_graph()

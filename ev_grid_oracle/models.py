@@ -1,9 +1,10 @@
 from __future__ import annotations
 
 from enum import Enum
-from typing import Any, Literal
+from typing import Any, Literal, Optional
 
 from openenv.core.env_server.types import Action, Observation
+
 from pydantic import BaseModel, ConfigDict, Field, field_validator, model_validator
 
 
@@ -109,12 +110,12 @@ class EVGridAction(Action):
 
     action_type: ActionType
     ev_id: str
-    station_id: str | None = None
+    station_id: Optional[str] = None
     charge_rate: ChargeRate = ChargeRate.fast
     defer_minutes: int = Field(0, ge=0)
 
     @model_validator(mode="after")
-    def _check_consistency(self) -> EVGridAction:
+    def _check_consistency(self) -> "EVGridAction":
         if self.action_type == ActionType.route:
             if not self.station_id:
                 raise ValueError("station_id required when action_type='route'")

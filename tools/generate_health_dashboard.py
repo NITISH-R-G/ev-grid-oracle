@@ -1,8 +1,7 @@
 import json
-import os
 import subprocess  # nosec B404
+import os
 from datetime import datetime, timezone
-
 from jinja2 import Environment, FileSystemLoader
 
 # Extract sensitive variables immediately to prevent child processes
@@ -270,6 +269,7 @@ def generate_ai_insights(scores, complexity, vulns, lint_errors):
         except Exception as e:
             print(f"Failed to generate AI insights via OpenAI: {e}")
             # Fallback to static insights on error
+            pass
 
     # Static Fallback
     insights = []

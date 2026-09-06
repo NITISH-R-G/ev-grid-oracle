@@ -1,14 +1,16 @@
 from __future__ import annotations
 
 import re
+from typing import Optional, Tuple
 
 from .models import (
     ActionType,
     ChargeRate,
     EVGridAction,
-    SimTopStation,
     SimulationPrediction,
+    SimTopStation,
 )
+
 
 ACTION_RE = re.compile(
     r"ACTION:\s*(?P<action>route|defer|load_shift)\s*\n"
@@ -28,7 +30,7 @@ SIM_RE = re.compile(
 )
 
 
-def parse_simulation(text: str) -> SimulationPrediction | None:
+def parse_simulation(text: str) -> Optional[SimulationPrediction]:
     m = SIM_RE.search(text)
     if not m:
         return None
@@ -56,7 +58,7 @@ def parse_simulation(text: str) -> SimulationPrediction | None:
         return None
 
 
-def parse_action(text: str, *, ev_id: str) -> EVGridAction | None:
+def parse_action(text: str, *, ev_id: str) -> Optional[EVGridAction]:
     m = ACTION_RE.search(text.strip())
     if not m:
         return None
@@ -82,7 +84,7 @@ def parse_action(text: str, *, ev_id: str) -> EVGridAction | None:
 
 def parse_simulation_and_action(
     text: str, *, ev_id: str
-) -> tuple[SimulationPrediction | None, EVGridAction | None]:
+) -> Tuple[Optional[SimulationPrediction], Optional[EVGridAction]]:
     """
     Parse both dream prediction and action (either can be missing).
     """

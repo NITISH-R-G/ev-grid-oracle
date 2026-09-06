@@ -1,15 +1,16 @@
 from __future__ import annotations
 
 import argparse
-import gzip
-import hashlib
 import json
+import hashlib
+import gzip
 from dataclasses import dataclass
 from math import asin, cos, radians, sin, sqrt
 from pathlib import Path
 from typing import Any
 
 import networkx as nx
+
 
 ROOT = Path(__file__).resolve().parents[1]
 
