@@ -223,15 +223,15 @@ def contract_edges(
             dist_m = 0.0
             for (la1, lo1), (la2, lo2) in itertools.pairwise(seg_geom):
                 dist_m += haversine_m(float(la1), float(lo1), float(la2), float(lo2))
-            v_kmh = speed_kmh(highway)
+            v_kmh = speed_kmh(highway)  # noqa: B023
             travel_s = dist_m / max(1e-3, (v_kmh * 1000.0 / 3600.0))
 
             edges.append(
                 {
                     "a": int(a_id),
                     "b": int(b_id),
-                    "highway": highway,
-                    "name": name,
+                    "highway": highway,  # noqa: B023
+                    "name": name,  # noqa: B023
                     "dist_m": round(dist_m, 3),
                     "travel_s": round(travel_s, 4),
                     "geom_poly": encode_polyline_latlng(

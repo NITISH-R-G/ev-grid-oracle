@@ -72,7 +72,7 @@ def _graph_route_km(
             else:
                 total += float(w)
         return float(total)
-    except Exception:  # noqa: BLE001
+    except Exception: # noqa: BLE001
         return None
 
 
@@ -248,7 +248,7 @@ def split_role_rewards(
     def f(x: str) -> float:
         try:
             return float(rb.get(x, 0.0))
-        except Exception:  # noqa: BLE001
+        except Exception: # noqa: BLE001
             return 0.0
 
     fleet = {

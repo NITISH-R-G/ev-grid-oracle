@@ -52,7 +52,7 @@ def parse_simulation(text: str) -> SimulationPrediction | None:
         return SimulationPrediction(
             t5_grid_load_pct=grid, t5_renewable_pct=ren, t5_top_stations=tops
         )
-    except Exception:  # noqa: BLE001
+    except Exception: # noqa: BLE001
         return None
 
 
@@ -76,7 +76,7 @@ def parse_action(text: str, *, ev_id: str) -> EVGridAction | None:
             charge_rate=rate,
             defer_minutes=defer,
         )
-    except Exception:  # noqa: BLE001
+    except Exception: # noqa: BLE001
         return None
 
 
