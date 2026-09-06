@@ -40,7 +40,7 @@ class OracleRuntime:
             import torch
             from peft import PeftModel
             from transformers import AutoModelForCausalLM, AutoTokenizer
-        except Exception:
+        except Exception: # noqa: BLE001
             return None
 
         dtype = torch.float16 if device.startswith("cuda") else torch.float32
@@ -93,7 +93,7 @@ class OracleAgent:
         # Lazy import to keep Space CPU demo alive even without ML deps.
         try:
             import torch
-        except Exception:
+        except Exception: # noqa: BLE001
             # No deps -> baseline fallback
             self.lora_repo_id = None
             return

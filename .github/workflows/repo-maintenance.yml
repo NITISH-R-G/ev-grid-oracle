@@ -51,11 +51,11 @@ jobs:
 
       - name: Auto-fix formatting
         run: uv run --with ruff ruff check --fix . || true
-        continue-on-error: true
+        continue-on-error: false
 
       - name: Auto-fix format
         run: uv run --with ruff ruff format . || true
-        continue-on-error: true
+        continue-on-error: false
 
       - name: Commit changes
         uses: stefanzweifel/git-auto-commit-action@v5
