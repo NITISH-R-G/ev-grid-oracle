@@ -124,9 +124,7 @@ class EVGridAction(Action):
             raise ValueError("defer_minutes must be > 0 when action_type='defer'")
         if self.action_type == ActionType.load_shift and self.defer_minutes != 0:
             # For v1: still tie action to an EV (ev_id) but station optional.
-                raise ValueError(
-                    "defer_minutes must be 0 when action_type='load_shift'"
-                )
+            raise ValueError("defer_minutes must be 0 when action_type='load_shift'")
         return self
 
 

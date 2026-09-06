@@ -147,7 +147,7 @@ class RoadRouter:
                 weight_fn = _w
 
             path = nx.shortest_path(self.g, a, b, weight=weight_fn)
-        except Exception: # noqa: BLE001
+        except Exception:  # noqa: BLE001
             return None
         poly: list[list[float]] = []
         seg_m_q: list[int] = []
