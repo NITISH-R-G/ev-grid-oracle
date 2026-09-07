@@ -1,5 +1,6 @@
 import ast
 import json
+import logging
 import os
 from typing import Any
 
@@ -21,8 +22,8 @@ def extract_imports(filepath: str) -> list[str]:
                 if node.module:
                     imports.append(node.module)
 
-    except Exception:
-        pass
+    except Exception as e:
+        logging.getLogger(__name__).warning(f"Error: {e}")
 
     return imports
 
