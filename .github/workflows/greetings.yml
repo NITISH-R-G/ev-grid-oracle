@@ -1,0 +1,21 @@
+name: Greetings
+
+on:
+  pull_request_target:
+    types: [opened]
+  issues:
+    types: [opened]
+
+permissions:
+  issues: write
+  pull-requests: write
+
+jobs:
+  welcome:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/first-interaction@v1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          issue-message: "Welcome to our repository! Thank you for opening your first issue. Our AI and maintainers will look into it shortly."
+          pr-message: "Welcome to our repository! Thank you for submitting your first pull request. Please ensure you have run `./validate-submission.sh` locally."
