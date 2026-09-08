@@ -1,0 +1,27 @@
+core:
+  - any:
+      - 'ev_grid_oracle/**/*'
+      - 'server/**/*'
+
+frontend:
+  - any:
+      - 'web/**/*'
+
+documentation:
+  - any:
+      - 'docs/**/*'
+      - '*.md'
+      - 'artifacts/*.json'
+
+training:
+  - any:
+      - 'training/**/*'
+
+testing:
+  - any:
+      - 'tests/**/*'
+
+tools-and-automation:
+  - any:
+      - 'tools/**/*'
+      - '.github/**/*'
