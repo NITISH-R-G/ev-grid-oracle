@@ -1,0 +1,76 @@
+name: Repository Maintenance Automation
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  schedule:
+    - cron: '0 0 * * *'
+
+permissions:
+  contents: write
+
+jobs:
+  maintenance:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'schedule' || github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install Tools
+        run: |
+          pip install uv
+          uv pip install --system -e ".[dev]"
+          npm install -g prettier
+          pip install cyclonedx-bom
+
+      - name: Auto-format Python
+        run: |
+          uv run --with ruff ruff check --fix .
+          uv run --with ruff ruff format .
+
+      - name: Auto-format Web and Docs
+        run: |
+          prettier --write "web/**/*.{ts,tsx,js,jsx,json,css}" "**/*.md" "**/*.json"
+
+      - name: Generate Knowledge Graph
+        run: |
+          python tools/generate_knowledge_graph.py
+
+      - name: Generate Architecture Diagrams
+        run: |
+          python tools/generate_architecture_diagrams.py
+
+      - name: Sync Documentation
+        run: |
+          python tools/docs_sync.py
+
+      - name: Generate SBOM
+        run: |
+          mkdir -p artifacts
+          cyclonedx-py environment -o artifacts/bom.json
+
+      - name: Commit and Push
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add .
+          git add -f artifacts/ docs/api/ || true
+          git commit -m "chore: autonomous repository maintenance [skip ci]" || echo "No changes to commit"
+          git push
