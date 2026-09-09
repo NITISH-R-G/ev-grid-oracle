@@ -1,0 +1,15 @@
+docs:
+  - "docs/**/*"
+  - "*.md"
+
+tests:
+  - "tests/**/*"
+
+tools:
+  - "tools/**/*"
+
+web:
+  - "web/**/*"
+
+workflows:
+  - ".github/workflows/**/*"
