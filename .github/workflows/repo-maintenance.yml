@@ -1,0 +1,90 @@
+name: Repository Maintenance
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  pull_request:
+    branches:
+      - main
+      - master
+  schedule:
+    - cron: '0 0 * * *' # Daily at midnight
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  maintenance:
+    if: github.event_name == 'push' || github.event_name == 'schedule' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Install uv
+        run: pip install uv
+
+      - name: Install cyclonedx-py
+        run: pip install cyclonedx-bom
+
+      - name: Install dependencies
+        run: |
+          uv pip install --system -e ".[dev,demo]"
+
+      - name: Install Prettier globally
+        run: npm install -g prettier
+
+      - name: Run Autofix (Ruff)
+        run: |
+          uv run --with ruff ruff check --fix . || true
+          uv run --with ruff ruff format . || true
+
+      - name: Run Autofix (Prettier)
+        run: |
+          prettier --write "**/*.{json,md,yaml,yml}" || true
+          if [ -d "web" ]; then
+            cd web
+            npm ci
+            npx prettier --write . || true
+            cd ..
+          fi
+
+      - name: Generate Knowledge Graph
+        run: python tools/generate_knowledge_graph.py || true
+
+      - name: Generate Architecture Diagrams
+        run: python tools/generate_architecture_diagrams.py || true
+
+      - name: Generate API Docs
+        run: python tools/docs_sync.py || true
+
+      - name: Generate SBOM
+        run: cyclonedx-py environment -o bom.json || true
+
+      - name: Commit changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f artifacts/ docs/api/ || true
+          git add .
+          if ! git diff --cached --quiet; then
+            git commit -m "chore(maintenance): auto-format, update docs, architecture, knowledge graph, and SBOM"
+            git push
+          else
+            echo "No changes to commit"
+          fi
