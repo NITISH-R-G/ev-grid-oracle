@@ -25,7 +25,7 @@ def generate_docs(src_dir, dest_dir):
                                 if doc:
                                     out.write(f"{doc}\n\n")
                         except Exception:  # noqa: BLE001
-                            pass
+                            continue
 
 
 if __name__ == "__main__":

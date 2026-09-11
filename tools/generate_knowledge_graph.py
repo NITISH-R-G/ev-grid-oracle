@@ -30,7 +30,7 @@ def build_graph(src_dir, dest_file):
                                         }
                                     )
                         except Exception:  # noqa: BLE001
-                            pass
+                            continue
     os.makedirs(os.path.dirname(dest_file), exist_ok=True)
     with open(dest_file, "w", encoding="utf-8") as f:
         json.dump(graph, f, indent=2)
