@@ -15,7 +15,7 @@ def main() -> int:
     ok = f"CURRENT_NODE: {st.node}\nNEXT_NODE: {int(nb)}\nREASON: go\nCONFIDENCE: 0.7\n"
     bad = f"CURRENT_NODE: {st.node + 999}\nNEXT_NODE: {int(nb)}\nREASON: hack\nCONFIDENCE: 0.7\n"
 
-    r = re.compile(r"CURRENT_NODE:\s*(\d+)\s*\nNEXT_NODE:\s*(\d+)\s*\n", re.I)
+    r = re.compile(r"CURRENT_NODE:\s*(\d+)\s*\nNEXT_NODE:\s*(\d+)\s*\n", re.IGNORECASE)
 
     def parse(t: str) -> RoadAction | None:
         m = r.search(t.strip())

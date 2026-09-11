@@ -1,0 +1,17 @@
+"area/frontend":
+  - web/**/*
+
+"area/backend":
+  - server/**/*
+  - ev_grid_oracle/**/*
+
+"area/tools":
+  - tools/**/*
+
+"area/docs":
+  - docs/**/*
+  - README.md
+  - "**/*.md"
+
+"area/github-actions":
+  - .github/workflows/**/*
