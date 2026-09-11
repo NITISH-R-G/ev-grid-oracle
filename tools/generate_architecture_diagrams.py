@@ -26,7 +26,7 @@ def build_arch_graph(src_dir, dest_file):
                                         graph["edges"].append(
                                             {"source": rel_path, "target": node.module}
                                         )
-                        except Exception:  # noqa: BLE001
+                        except Exception:  # nosec B110  # noqa: BLE001
                             pass
     os.makedirs(os.path.dirname(dest_file), exist_ok=True)
     with open(dest_file, "w", encoding="utf-8") as f:

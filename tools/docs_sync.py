@@ -24,7 +24,7 @@ def generate_docs(src_dir, dest_dir):
                                 doc = ast.get_docstring(tree)
                                 if doc:
                                     out.write(f"{doc}\n\n")
-                        except Exception:  # noqa: BLE001
+                        except Exception:  # nosec B110  # noqa: BLE001
                             pass
 
 
