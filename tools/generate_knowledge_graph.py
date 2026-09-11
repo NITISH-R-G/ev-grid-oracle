@@ -29,8 +29,8 @@ def build_graph(src_dir, dest_file):
                                             "target": f"{rel_path}:{node.name}",
                                         }
                                     )
-                        except Exception:  # noqa: BLE001
-                            continue
+                        except Exception:  # nosec B112
+                            continue  # noqa: BLE001
     os.makedirs(os.path.dirname(dest_file), exist_ok=True)
     with open(dest_file, "w", encoding="utf-8") as f:
         json.dump(graph, f, indent=2)
