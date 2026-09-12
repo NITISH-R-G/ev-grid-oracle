@@ -1,0 +1,19 @@
+backend:
+  - "server/**/*"
+  - "ev_grid_oracle/**/*"
+
+frontend:
+  - "web/**/*"
+
+tools:
+  - "tools/**/*"
+
+tests:
+  - "tests/**/*"
+
+documentation:
+  - "**/*.md"
+  - "docs/**/*"
+
+ci-cd:
+  - ".github/**/*"
