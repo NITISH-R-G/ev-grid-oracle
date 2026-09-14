@@ -1,0 +1,63 @@
+name: Autonomous Repo Maintenance
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  schedule:
+    - cron: '0 2 * * *' # Daily at 2 AM UTC
+permissions:
+  contents: write
+jobs:
+  maintenance:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'schedule' || github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: \${{ github.head_ref || github.ref }}
+          lfs: true
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install Prettier
+        run: npm install -g prettier
+      - name: Install uv and dependencies
+        run: |
+          pip install uv
+          uv pip install --system -e ".[dev,demo]"
+          uv pip install --system cyclonedx-bom
+      - name: Autofix Python Code
+        run: |
+          uv run --with ruff ruff check --fix . || true
+          uv run --with ruff ruff format . || true
+      - name: Autofix Other Files
+        run: |
+          prettier --write "**/*.{json,md,yaml,yml,ts,tsx,css,html}" || true
+      - name: Generate SBOM
+        run: |
+          cyclonedx-py environment -o bom.json || true
+      - name: Sync Documentation
+        run: |
+          mkdir -p docs/api
+          python tools/docs_sync.py || true
+      - name: Generate Knowledge Graph
+        run: |
+          mkdir -p artifacts
+          python tools/generate_knowledge_graph.py || true
+      - name: Generate Architecture Diagram
+        run: |
+          mkdir -p artifacts
+          python tools/generate_architecture_diagrams.py || true
+      - name: Commit changes
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add -f artifacts/ docs/api/ || true
+          git add . || true
+          git diff --quiet && git diff --staged --quiet || (git commit -m "chore: autonomous repository maintenance" && git push)
