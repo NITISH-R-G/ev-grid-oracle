@@ -14,11 +14,11 @@ jobs:
       pull-requests: write
       contents: write
     name: Run PR Agent
-    if: ${{ github.event.sender.type != 'Bot' }}
+    if: \${{ github.event.sender.type != 'Bot' }}
     steps:
       - name: PR Agent action step
         id: pragent
-        uses: coderabbitai/ai-pr-reviewer@latest
+        uses: coderabbitai/openai-pr-reviewer@latest
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          GITHUB_TOKEN: \${{ secrets.GITHUB_TOKEN }}
+          OPENAI_API_KEY: \${{ secrets.OPENAI_API_KEY }}
