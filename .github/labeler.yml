@@ -1,0 +1,15 @@
+frontend:
+  - web/**/*
+
+python:
+  - "**/*.py"
+
+tests:
+  - tests/**/*
+
+documentation:
+  - "**/*.md"
+  - docs/**/*
+
+ci-cd:
+  - .github/workflows/**/*

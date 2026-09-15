@@ -1,0 +1,60 @@
+name: Repository Maintenance
+on:
+  push:
+    branches: [ "main" ]
+  schedule:
+    - cron: '0 0 * * *' # Daily at midnight UTC
+
+permissions:
+  contents: write
+
+jobs:
+  maintenance:
+    if: github.event_name == 'push' || github.event_name == 'schedule' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: |
+          pip install uv
+          uv pip install --system -e ".[dev,demo]" cyclonedx-bom
+
+      - name: Auto-Fix Python Code (Ruff)
+        run: |
+          uv run --with ruff ruff check --fix .
+          uv run --with ruff ruff format .
+
+      - name: Run Documentation Sync
+        run: python tools/docs_sync.py
+
+      - name: Generate Knowledge Graph
+        run: python tools/generate_knowledge_graph.py
+
+      - name: Generate Architecture Diagram
+        run: python tools/generate_architecture_diagrams.py
+
+      - name: Generate SBOM
+        run: cyclonedx-py environment -o bom.json
+
+      - name: Auto-Fix Frontend Code (Prettier)
+        run: |
+          npm install -g prettier
+          cd web && npm ci && npx prettier --write .
+
+      - name: Commit Changes
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add -f artifacts/ docs/api/ || true
+          git add .
+          git commit -m "chore(maintenance): auto-fix code, generate SBOM, update docs and graphs" || exit 0
+          git push
