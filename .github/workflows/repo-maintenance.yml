@@ -16,6 +16,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
+          node-version: "22"
+        with:
           ref: ${{ github.head_ref || github.ref }}
 
       - name: Set up Python

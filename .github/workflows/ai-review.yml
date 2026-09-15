@@ -14,6 +14,8 @@ jobs:
     steps:
       - name: Checkout Repo
         uses: actions/checkout@v4
+        with:
+          node-version: "22"
 
       - name: CodeRabbit AI PR Reviewer
         uses: coderabbitai/ai-pr-reviewer@latest
