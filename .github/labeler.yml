@@ -1,21 +1,27 @@
 frontend:
-  - web/**/*
+  - any:
+      - 'web/**/*'
 
 backend:
-  - server/**/*
-  - ev_grid_oracle/**/*
+  - any:
+      - 'server/**/*'
+      - 'ev_grid_oracle/**/*'
 
 ci:
-  - .github/**/*
-  - .github/workflows/**/*
+  - any:
+      - '.github/**/*'
+      - '.github/workflows/**/*'
 
 documentation:
-  - docs/**/*
-  - '**/*.md'
+  - any:
+      - 'docs/**/*'
+      - '**/*.md'
 
 tests:
-  - tests/**/*
+  - any:
+      - 'tests/**/*'
 
 tools:
-  - tools/**/*
-  - training/**/*
+  - any:
+      - 'tools/**/*'
+      - 'training/**/*'
