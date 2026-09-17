@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from math import asin, cos, radians, sin, sqrt
-from typing import Optional
 
 import networkx as nx
 
@@ -255,7 +254,7 @@ def build_city_graph() -> nx.Graph:
 
     if not nx.is_connected(g):
         # Fail fast: graph must be connected for routing to work.
-        comps = [sorted(list(c)) for c in nx.connected_components(g)]
+        comps = [sorted(c) for c in nx.connected_components(g)]
         raise RuntimeError(f"city graph not connected, components={comps}")
 
     return g
@@ -266,7 +265,7 @@ def travel_time_minutes(
     from_station_id: str,
     to_station_id: str,
     *,
-    default_if_missing: Optional[float] = None,
+    default_if_missing: float | None = None,
 ) -> float:
     if from_station_id == to_station_id:
         return 0.0

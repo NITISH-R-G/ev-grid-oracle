@@ -1,0 +1,27 @@
+frontend:
+  - any:
+      - 'web/**/*'
+
+backend:
+  - any:
+      - 'server/**/*'
+      - 'ev_grid_oracle/**/*'
+
+ci:
+  - any:
+      - '.github/**/*'
+      - '.github/workflows/**/*'
+
+documentation:
+  - any:
+      - 'docs/**/*'
+      - '**/*.md'
+
+tests:
+  - any:
+      - 'tests/**/*'
+
+tools:
+  - any:
+      - 'tools/**/*'
+      - 'training/**/*'
