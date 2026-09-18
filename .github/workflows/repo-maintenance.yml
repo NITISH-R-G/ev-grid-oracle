@@ -1,0 +1,64 @@
+name: Repository Maintenance
+
+on:
+  push:
+    branches: ["main", "master"]
+  pull_request:
+    branches: ["main", "master"]
+  schedule:
+    - cron: "0 4 * * *" # Daily at 4 AM UTC
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  maintenance:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'schedule' || github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+          fetch-depth: 0
+          lfs: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: "pip"
+
+      - name: Install dependencies
+        run: |
+          pip install uv
+          uv pip install --system -e ".[dev,demo]"
+          uv pip install --system cyclonedx-bom
+
+      - name: Run Ruff Autofix
+        run: |
+          uv run ruff check --fix . || true
+          uv run ruff format . || true
+
+      - name: Generate Knowledge Graph
+        run: python tools/generate_knowledge_graph.py
+
+      - name: Sync API Documentation
+        run: python tools/docs_sync.py
+
+      - name: Generate Architecture Diagrams
+        run: python tools/generate_architecture_diagrams.py
+
+      - name: Generate SBOM
+        run: |
+          cyclonedx-py environment -o bom.json
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f artifacts/ docs/api/ || true
+          git add bom.json || true
+          git commit -a -m "chore(auto): repo maintenance, autofixes, and artifacts update" || echo "No changes to commit"
+          git push
