@@ -1,16 +1,28 @@
 backend:
-  - server/**/*
-  - tools/**/*
-  - tests/**/*
-  - ev_grid_oracle/**/*
-  - pyproject.toml
+  - any:
+    - changed-files:
+      - any-glob-to-any-file:
+        - server/**/*
+        - tools/**/*
+        - tests/**/*
+        - ev_grid_oracle/**/*
+        - pyproject.toml
 
 frontend:
-  - web/**/*
+  - any:
+    - changed-files:
+      - any-glob-to-any-file:
+        - web/**/*
 
 workflows:
-  - .github/workflows/**/*
+  - any:
+    - changed-files:
+      - any-glob-to-any-file:
+        - .github/workflows/**/*
 
 documentation:
-  - docs/**/*
-  - "**/*.md"
+  - any:
+    - changed-files:
+      - any-glob-to-any-file:
+        - docs/**/*
+        - "**/*.md"
