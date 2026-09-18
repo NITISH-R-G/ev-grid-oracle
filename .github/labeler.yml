@@ -1,0 +1,16 @@
+backend:
+  - server/**/*
+  - tools/**/*
+  - tests/**/*
+  - ev_grid_oracle/**/*
+  - pyproject.toml
+
+frontend:
+  - web/**/*
+
+workflows:
+  - .github/workflows/**/*
+
+documentation:
+  - docs/**/*
+  - "**/*.md"
