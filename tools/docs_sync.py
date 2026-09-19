@@ -37,9 +37,7 @@ def generate_docs() -> None:
                     has_content = True
                     docstring = ast.get_docstring(node) or "No docstring available."
                     doc_content += f"## Class: `{node.name}`\n\n{docstring}\n\n"
-                elif isinstance(node, ast.FunctionDef) or isinstance(
-                    node, ast.AsyncFunctionDef
-                ):
+                elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
                     has_content = True
                     docstring = ast.get_docstring(node) or "No docstring available."
                     doc_content += f"## Function: `{node.name}`\n\n{docstring}\n\n"

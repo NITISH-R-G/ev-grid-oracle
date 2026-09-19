@@ -254,7 +254,7 @@ def build_city_graph() -> nx.Graph:
 
     if not nx.is_connected(g):
         # Fail fast: graph must be connected for routing to work.
-        comps = [sorted(list(c)) for c in nx.connected_components(g)]
+        comps = [sorted(c) for c in nx.connected_components(g)]
         raise RuntimeError(f"city graph not connected, components={comps}")
 
     return g

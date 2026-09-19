@@ -51,9 +51,7 @@ def generate_knowledge_graph() -> None:
                     }
                     knowledge_graph["classes"].append(class_info)
                     file_info["classes"].append(node.name)
-                elif isinstance(node, ast.FunctionDef) or isinstance(
-                    node, ast.AsyncFunctionDef
-                ):
+                elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
                     func_info = {
                         "name": node.name,
                         "docstring": ast.get_docstring(node),
