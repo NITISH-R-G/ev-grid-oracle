@@ -26,8 +26,7 @@ def generate_architecture_diagrams() -> None:
             module_name = (
                 filepath.replace("./", "").replace("/", ".").replace(".py", "")
             )
-            if module_name.endswith(".__init__"):
-                module_name = module_name[:-9]
+            module_name = module_name.removesuffix(".__init__")
 
             modules.add(module_name)
 
