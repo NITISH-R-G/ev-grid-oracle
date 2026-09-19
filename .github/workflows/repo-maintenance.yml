@@ -44,8 +44,8 @@ jobs:
 
       - name: Run Auto-Format and Linting (Ruff & Prettier)
         run: |
-          uv run ruff check --fix .
-          uv run ruff format .
+          uv run --with ruff ruff check --fix .
+          uv run --with ruff ruff format .
           prettier --write "**/*.{json,md,yaml,yml}" "web/**/*.{js,ts,jsx,tsx,json,md}"
 
       - name: Generate API Documentation
