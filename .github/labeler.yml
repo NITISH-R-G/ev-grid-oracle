@@ -1,0 +1,27 @@
+core:
+  - any:
+      - 'server/**/*'
+      - 'ev_grid_oracle/**/*'
+
+frontend:
+  - any:
+      - 'web/**/*'
+
+docs:
+  - any:
+      - 'docs/**/*'
+      - '*.md'
+
+tools:
+  - any:
+      - 'tools/**/*'
+
+tests:
+  - any:
+      - 'tests/**/*'
+
+ci:
+  - any:
+      - '.github/**/*'
+      - '*.yaml'
+      - '*.yml'
