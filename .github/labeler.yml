@@ -1,0 +1,15 @@
+documentation:
+  - all:
+      - any: ['**/*.md', 'docs/**']
+
+backend:
+  - all:
+      - any: ['**/*.py', 'pyproject.toml']
+
+frontend:
+  - all:
+      - any: ['web/**']
+
+infrastructure:
+  - all:
+      - any: ['.github/**', 'Dockerfile', 'openenv.yaml']
