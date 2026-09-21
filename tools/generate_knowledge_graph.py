@@ -3,6 +3,7 @@ import json
 import os
 from typing import Any
 
+
 def parse_file(filepath: str) -> dict[str, list[dict[str, Any]]]:
     with open(filepath, "r", encoding="utf-8") as f:
         try:

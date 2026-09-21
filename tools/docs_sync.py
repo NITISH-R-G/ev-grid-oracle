@@ -2,6 +2,7 @@ import ast
 import os
 from typing import Any
 
+
 def extract_docs(filepath: str) -> dict[str, list[dict[str, Any]]]:
     with open(filepath, "r", encoding="utf-8") as f:
         try:
@@ -56,12 +57,10 @@ def main() -> None:
                     f.write(f"# Documentation for `{rel_path}`\n\n")
                     if docs["classes"]:
                         f.write("## Classes\n\n")
-                        for cls in docs["classes"]:
-                            f.write(f"### `{cls['name']}`\n\n{cls['docstring']}\n\n")
+                        f.writelines(f"### `{cls['name']}`\n\n{cls['docstring']}\n\n" for cls in docs["classes"])
                     if docs["functions"]:
                         f.write("## Functions\n\n")
-                        for func in docs["functions"]:
-                            f.write(f"### `{func['name']}`\n\n{func['docstring']}\n\n")
+                        f.writelines(f"### `{func['name']}`\n\n{func['docstring']}\n\n" for func in docs["functions"])
 
 if __name__ == "__main__":
     main()

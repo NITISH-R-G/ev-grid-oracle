@@ -3,6 +3,7 @@ import json
 import os
 from typing import Any
 
+
 def get_imports(filepath: str) -> list[str]:
     imports: list[str] = []
     with open(filepath, "r", encoding="utf-8") as f:
@@ -16,9 +17,8 @@ def get_imports(filepath: str) -> list[str]:
         if isinstance(node, ast.Import):
             for alias in node.names:
                 imports.append(alias.name)
-        elif isinstance(node, ast.ImportFrom):
-            if node.module:
-                imports.append(node.module)
+        elif isinstance(node, ast.ImportFrom) and node.module:
+            imports.append(node.module)
 
     return imports
 
