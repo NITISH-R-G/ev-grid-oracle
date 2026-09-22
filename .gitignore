@@ -1,11 +1,19 @@
 .venv/
 __pycache__/
 *.pyc
+.mypy_cache/
+.ruff_cache/
 .pytest_cache/
 *.egg-info/
 .superpowers/
 .cursor/*
 !.cursor/rules/
+
+# Large map files
+web/public/maps/bangalore_roads_graph.json
+web/public/maps/bangalore_roads_graph.json.gz
+web/public/maps/bangalore_roads_full.geojson
+web/public/maps/bangalore_roads_render.json
 
 # Large generated artifacts (keep small plots committed)
 artifacts/frames*/
