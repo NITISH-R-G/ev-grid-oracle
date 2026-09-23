@@ -1,14 +1,15 @@
 from __future__ import annotations
 
 import concurrent.futures
+import hashlib
+import logging
 import os
-from pathlib import Path
 import time
 from collections import OrderedDict
-import logging
-from server.road_router import get_router
+from pathlib import Path
+
 from ev_grid_oracle.traffic import TrafficModel
-import hashlib
+from server.road_router import get_router
 
 try:
     from openenv.core.env_server.http_server import create_app
@@ -17,43 +18,43 @@ except ImportError as e:  # pragma: no cover
 
 from typing import Any, Literal, cast
 from uuid import uuid4
-from pydantic import BaseModel, Field
 
+import networkx as nx
 from fastapi import Body, HTTPException, Query, Request
 from fastapi.responses import HTMLResponse
 from fastapi.staticfiles import StaticFiles
+from pydantic import BaseModel, Field
 
-from ev_grid_oracle.city_graph import build_city_graph, _BY_ID, _BY_SLUG
-import networkx as nx
+from ev_grid_oracle.city_graph import _BY_ID, _BY_SLUG, build_city_graph
 from ev_grid_oracle.env import EVGridCore, _build_prompt
 from ev_grid_oracle.models import (
     ActionType,
-    EVRequest,
     EVGridAction,
     EVGridObservation,
+    EVRequest,
     GridDirective,
     MultiAgentStepRequest,
     NegotiationMessage,
 )
+from ev_grid_oracle.multi_agent import MultiAgentSession
 from ev_grid_oracle.oracle_agent import OracleAgent
-from ev_grid_oracle.policies import baseline_policy
 from ev_grid_oracle.parsing import parse_simulation
+from ev_grid_oracle.policies import baseline_policy
 from ev_grid_oracle.reward import split_role_rewards
+from ev_grid_oracle.road_models import RoadAction, RoadObservation
 from ev_grid_oracle.scenarios import ScenarioName
 from ev_grid_oracle.world_model_verifier import (
     rollout_deterministic_5ticks,
     score_prediction,
 )
-from ev_grid_oracle.multi_agent import MultiAgentSession
 from server.ev_grid_environment import EVGridEnvironment
 from server.ev_grid_road_environment import EVGridRoadEnvironment
-from ev_grid_oracle.road_models import RoadAction, RoadObservation
+from server.road_router import haversine_m
 from server.role_metrics import (
     compute_role_kpis,
     compute_role_reward_breakdown,
     summarize_action,
 )
-from server.road_router import haversine_m
 
 log = logging.getLogger("ev-grid-oracle")
 if not log.handlers:
@@ -249,7 +250,7 @@ _DEMO_SESSION_TTL_SEC = int(os.getenv("DEMO_SESSION_TTL_SEC", "3600"))  # 1h
 _DEMO_MAX_SESSIONS = int(os.getenv("DEMO_MAX_SESSIONS", "64"))
 
 # Ordered for deterministic eviction of oldest sessions.
-_demo_sessions: "OrderedDict[str, tuple[float, EVGridCore]]" = OrderedDict()
+_demo_sessions: OrderedDict[str, tuple[float, EVGridCore]] = OrderedDict()
 _demo_graph = build_city_graph()
 _SIM_VERSION = "2026-04-26.1"
 
@@ -361,7 +362,7 @@ def _demo_session_get(session_id: str) -> EVGridCore | None:
     row = _demo_sessions.get(session_id)
     if row is None:
         return None
-    ts, core = row
+    _ts, core = row
     # touch (LRU-ish)
     _demo_sessions.move_to_end(session_id, last=True)
     _demo_sessions[session_id] = (time.time(), core)
@@ -383,7 +384,7 @@ class DemoNewRequest(BaseModel):
 
 _MA_SESSION_TTL_SEC = int(os.getenv("MA_SESSION_TTL_SEC", "3600"))
 _MA_MAX_SESSIONS = int(os.getenv("MA_MAX_SESSIONS", "64"))
-_ma_sessions: "OrderedDict[str, tuple[float, MultiAgentSession]]" = OrderedDict()
+_ma_sessions: OrderedDict[str, tuple[float, MultiAgentSession]] = OrderedDict()
 
 
 def _ma_gc(now: float | None = None) -> None:
@@ -524,7 +525,7 @@ def ma_auto_step(
             text="Routing using heuristic baseline under grid constraints.",
         )
     else:
-        action, _txt, active, timed_out, skipped = _demo_oracle_act_with_guard(
+        action, _txt, active, _timed_out, _skipped = _demo_oracle_act_with_guard(
             st=st, core=sess.core, oracle_lora_repo=payload.oracle_lora_repo
         )
         fleet_action = action
@@ -1159,7 +1160,7 @@ def demo_step(
             seed_i = int(core._seed_for_bescom)
             scen = str(core.scenario)
             h = hashlib.sha1(
-                f"{seed_i}|{scen}|{mode}|ambient|{tick_i}".encode("utf-8"),
+                f"{seed_i}|{scen}|{mode}|ambient|{tick_i}".encode(),
                 usedforsecurity=False,
             ).digest()
             a_i = int.from_bytes(h[:2], "big") % len(st.stations)
