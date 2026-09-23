@@ -15,4 +15,4 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ github.event.sender.type != 'Bot' }}
     steps:
-      - uses: coderabbitai/coderabbit-pr-review@main
+      - uses: coderabbitai/openai-pr-reviewer@latest
