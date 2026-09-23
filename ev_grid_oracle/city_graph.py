@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from math import asin, cos, radians, sin, sqrt
-from typing import Optional
 
 import networkx as nx
 
@@ -266,7 +265,7 @@ def travel_time_minutes(
     from_station_id: str,
     to_station_id: str,
     *,
-    default_if_missing: Optional[float] = None,
+    default_if_missing: float | None = None,
 ) -> float:
     if from_station_id == to_station_id:
         return 0.0

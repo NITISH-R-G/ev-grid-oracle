@@ -1,0 +1,71 @@
+name: Repository Maintenance & Intelligence
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  schedule:
+    - cron: '0 0 * * *' # Daily
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  maintenance:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'schedule' || github.event.pull_request.head.repo.full_name == github.repository || github.event_name == 'workflow_dispatch'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+          fetch-depth: 0
+          lfs: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: |
+          pip install uv
+          uv pip install --system -e ".[dev,demo]"
+          uv pip install --system cyclonedx-bom ruff
+          npm install -g prettier
+
+      - name: Auto-fix Python Formatting & Linting
+        run: |
+          ruff check --unsafe-fixes --fix .
+          ruff format .
+
+      - name: Generate Knowledge Graph
+        run: python tools/generate_knowledge_graph.py
+        continue-on-error: true
+
+      - name: Generate Architecture Diagrams
+        run: python tools/generate_architecture_diagrams.py
+        continue-on-error: true
+
+      - name: Sync Documentation
+        run: python tools/docs_sync.py
+        continue-on-error: true
+
+      - name: Generate SBOM
+        run: cyclonedx-py environment -o artifacts/bom.json
+        continue-on-error: true
+
+      - name: Commit changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add -f artifacts/ docs/api/ || true
+          git add .
+          git commit -m "chore: autonomous repository maintenance & intelligence [skip ci]" || echo "No changes to commit"
+          git push

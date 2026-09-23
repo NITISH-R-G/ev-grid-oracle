@@ -31,3 +31,18 @@ ev_grid_oracle.egg-info/
 .coverage
 dashboard_output/
 build/
+
+# Caches
+.mypy_cache/
+.ruff_cache/
+
+# Large generated map files
+web/public/maps/bangalore_roads_graph.json
+web/public/maps/bangalore_roads_graph.json.gz
+web/public/maps/bangalore_roads_full.geojson
+web/public/maps/bangalore_roads_render.json
+
+# Docs API output
+docs/api/
+docs/api/
+artifacts/
