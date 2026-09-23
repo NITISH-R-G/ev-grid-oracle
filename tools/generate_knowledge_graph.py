@@ -23,9 +23,7 @@ def extract_knowledge(filepath: str) -> dict[str, Any]:
                     "lineno": node.lineno,
                 }
             )
-        elif isinstance(node, ast.FunctionDef) or isinstance(
-            node, ast.AsyncFunctionDef
-        ):
+        elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
             functions.append(
                 {
                     "name": node.name,

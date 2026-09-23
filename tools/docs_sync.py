@@ -22,9 +22,7 @@ def extract_docs(filepath: str) -> dict[str, Any]:
                     "lineno": node.lineno,
                 }
             )
-        elif isinstance(node, ast.FunctionDef) or isinstance(
-            node, ast.AsyncFunctionDef
-        ):
+        elif isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)):
             # Exclude private/dunder methods unless they are __init__
             if node.name.startswith("_") and node.name != "__init__":
                 continue
