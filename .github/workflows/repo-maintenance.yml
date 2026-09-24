@@ -1,0 +1,66 @@
+name: Repository Maintenance Automation
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  schedule:
+    - cron: '0 2 * * *' # Daily at 2 AM UTC
+
+permissions:
+  contents: write
+
+jobs:
+  maintenance:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'schedule' || github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+          lfs: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install uv
+        run: pip install uv
+
+      - name: Install dependencies
+        run: |
+          uv pip install --system -e ".[dev,demo]"
+          uv pip install --system cyclonedx-bom
+
+      - name: Auto-fix linting issues with Ruff
+        run: |
+          ruff check --unsafe-fixes --fix . || true
+          ruff format . || true
+
+      - name: Run Documentation Sync
+        run: python tools/docs_sync.py
+
+      - name: Generate Knowledge Graph
+        run: python tools/generate_knowledge_graph.py
+
+      - name: Generate Architecture Diagrams
+        run: python tools/generate_architecture_diagrams.py
+
+      - name: Generate SBOM
+        run: cyclonedx-py environment -o artifacts/bom.json
+
+      - name: Commit and push changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f artifacts/ docs/api/ || true
+          git add -u || true
+          if ! git diff --staged --quiet; then
+            git commit -m "chore: automated repository maintenance [skip ci]"
+            git push
+          else
+            echo "No changes to commit."
+          fi
