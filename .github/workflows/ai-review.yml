@@ -14,4 +14,4 @@ jobs:
     if: ${{ github.event.sender.type != 'Bot' }}
     steps:
       - name: CodeRabbit PR Review
-        uses: coderabbitai/coderabbit-pr-review@v1
+        uses: coderabbitai/openai-pr-reviewer@latest

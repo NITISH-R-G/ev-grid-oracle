@@ -17,15 +17,15 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@v5
       with:
-        python-version: '3.12'
-
-    - name: Install uv
-      run: pip install uv
+        python-version: '3.10'
+        cache: 'pip'
 
     - name: Install dependencies
       run: |
-        uv pip install --system -e ".[dev,demo]"
-        uv pip install --system bandit safety pip-licenses
+        python -m pip install --upgrade pip
+        pip install bandit safety pip-licenses
+        if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+        if [ -f pyproject.toml ]; then pip install -e ".[dev]"; fi
 
     - name: Security Scanning with Bandit
       run: bandit -r . -c pyproject.toml
