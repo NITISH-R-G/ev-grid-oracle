@@ -2,3 +2,4 @@
 
 ## Module Docstring
 Run a tiny paired evaluate.py job and write artifacts/eval_snapshot.json (no LLM).
+
