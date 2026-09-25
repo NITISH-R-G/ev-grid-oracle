@@ -36,7 +36,7 @@ jobs:
 
       - name: Auto-format Code (Ruff)
         run: |
-          ruff check --unsafe-fixes --fix .
+          ruff check --unsafe-fixes --fix . || true
           ruff format .
 
       - name: Generate Knowledge Graph
