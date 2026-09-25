@@ -2,4 +2,3 @@
 
 ## Module Docstring
 EV Grid Oracle package.
-

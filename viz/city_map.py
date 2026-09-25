@@ -45,7 +45,8 @@ class RenderConfig:
 
 
 class CityMapRenderer:
-    def __init__(self, env: EVGridCore, cfg: RenderConfig = RenderConfig()):
+    def __init__(self, env: EVGridCore, cfg: RenderConfig | None = None):
+        cfg = cfg or RenderConfig()
         self.env = env
         self.cfg = cfg
         self._font = pygame.font.SysFont("Consolas", 18)

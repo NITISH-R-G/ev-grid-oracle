@@ -12,4 +12,3 @@ Usage:
   python tools/sync_space_to_hub.py
 
 Requires: `pip install huggingface_hub`, token with write access (`HF_TOKEN` or `huggingface-cli login`).
-

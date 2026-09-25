@@ -27,7 +27,7 @@ def generate_docs() -> None:
                 with open(filepath, "r", encoding="utf-8") as f:
                     source = f.read()
                 tree = ast.parse(source)
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 logger.warning(f"Failed to parse {filepath}: {e}")
                 continue
 

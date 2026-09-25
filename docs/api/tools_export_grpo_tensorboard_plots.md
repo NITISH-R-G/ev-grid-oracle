@@ -10,4 +10,3 @@ Hackathon requirement: committed plots from a *real* GRPO run. After `trainer.tr
   python tools/export_grpo_tensorboard_plots.py --logdir ev_oracle_grpo_road --out-dir artifacts
 
 Writes e.g. artifacts/grpo_loss.png and artifacts/grpo_reward.png (filenames depend on tags found).
-

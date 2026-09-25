@@ -35,7 +35,7 @@ def generate_knowledge_graph() -> None:
             try:
                 with open(filepath, "r", encoding="utf-8") as f:
                     source = f.read()
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 logger.warning(f"Could not read {filepath}: {e}")
                 continue
 
@@ -43,7 +43,7 @@ def generate_knowledge_graph() -> None:
 
             try:
                 tree = ast.parse(source)
-            except Exception as e:
+            except Exception as e:  # noqa: BLE001
                 logger.warning(f"Could not parse {filepath}: {e}")
                 continue
 
