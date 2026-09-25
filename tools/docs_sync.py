@@ -1,6 +1,6 @@
-import os
 import ast
 import logging
+import os
 
 logger = logging.getLogger(__name__)
 
@@ -58,12 +58,10 @@ def generate_docs() -> None:
                         out.write(f"## Module Docstring\n{docstring}\n\n")
                     if classes_docs:
                         out.write("## Classes\n")
-                        for c in classes_docs:
-                            out.write(c)
+                        out.writelines(classes_docs)
                     if functions_docs:
                         out.write("## Functions\n")
-                        for f_doc in functions_docs:
-                            out.write(f_doc)
+                        out.writelines(functions_docs)
 
                 logger.info(f"Generated docs for {filepath} at {out_path}")
 

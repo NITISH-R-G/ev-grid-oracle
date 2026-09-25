@@ -1,7 +1,7 @@
-import os
 import ast
 import json
 import logging
+import os
 from typing import Any
 
 logger = logging.getLogger(__name__)
@@ -29,8 +29,7 @@ def generate_architecture_graph() -> None:
             # Approximate module path e.g. ev_grid_oracle.env
             rel_path = os.path.relpath(filepath, ".")
             mod_path = rel_path.replace(".py", "").replace(os.sep, ".")
-            if mod_path.endswith(".__init__"):
-                mod_path = mod_path[:-9]
+            mod_path = mod_path.removesuffix(".__init__")
 
             modules[filepath] = mod_path
             graph["nodes"].append(
@@ -53,15 +52,14 @@ def generate_architecture_graph() -> None:
                     graph["edges"].append(
                         {"source": mod_name, "target": name.name, "type": "imports"}
                     )
-            elif isinstance(node, ast.ImportFrom):
-                if node.module:
-                    graph["edges"].append(
-                        {
-                            "source": mod_name,
-                            "target": node.module,
-                            "type": "imports_from",
-                        }
-                    )
+            elif isinstance(node, ast.ImportFrom) and node.module:
+                graph["edges"].append(
+                    {
+                        "source": mod_name,
+                        "target": node.module,
+                        "type": "imports_from",
+                    }
+                )
 
     os.makedirs("artifacts", exist_ok=True)
     out_path = os.path.join("artifacts", "architecture_graph.json")
