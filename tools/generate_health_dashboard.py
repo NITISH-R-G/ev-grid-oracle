@@ -1,3 +1,4 @@
+import contextlib
 import json
 import os
 import subprocess  # nosec B404
@@ -141,7 +142,7 @@ def run_pytest_cov():
         ]
     )
     if os.path.exists("coverage.json"):
-        with open("coverage.json", "r") as f:
+        with open("coverage.json") as f:
             data = json.load(f)
         return data.get("totals", {}).get("percent_covered", 0)
     return 0
@@ -158,10 +159,8 @@ def run_radon():
             parts = line.split("(")
             if len(parts) > 1:
                 val = parts[1].replace(")", "").strip()
-                try:
+                with contextlib.suppress(ValueError):
                     avg_complexity = float(val)
-                except ValueError:
-                    pass
     return avg_complexity
 
 
@@ -180,7 +179,7 @@ def run_bandit():
         ]
     )
     if os.path.exists("bandit.json"):
-        with open("bandit.json", "r") as f:
+        with open("bandit.json") as f:
             data = json.load(f)
         results = data.get("results", [])
         metrics = data.get("metrics", {}).get("_totals", {})
@@ -256,10 +255,7 @@ def generate_ai_insights(scores, complexity, vulns, lint_errors):
             )
 
             insights_text = response.choices[0].message.content
-            if insights_text:
-                insights_text = insights_text.strip()
-            else:
-                insights_text = ""
+            insights_text = insights_text.strip() if insights_text else ""
             # Parse bullet points
             insights = [
                 line.strip("- *").strip()

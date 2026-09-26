@@ -39,7 +39,7 @@ def generate_architecture_diagrams(repo_root: Path, output_file: Path):
             add_node(module_id, "module")
 
             try:
-                with open(filepath, "r", encoding="utf-8") as f:
+                with open(filepath, encoding="utf-8") as f:
                     content = f.read()
 
                 module_ast = ast.parse(content)

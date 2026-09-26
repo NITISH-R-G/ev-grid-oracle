@@ -28,7 +28,7 @@ def generate_knowledge_graph(repo_root: Path, output_file: Path):
             rel_path = str(filepath.relative_to(repo_root))
 
             try:
-                with open(filepath, "r", encoding="utf-8") as f:
+                with open(filepath, encoding="utf-8") as f:
                     content = f.read()
 
                 module = ast.parse(content)

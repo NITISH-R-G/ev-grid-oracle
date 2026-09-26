@@ -1,12 +1,17 @@
 docs:
-  - "docs/**/*"
-  - "*.md"
+  - changed-files:
+    - any-glob-to-any-file: 'docs/**/*'
+    - any-glob-to-any-file: '*.md'
 frontend:
-  - "web/**/*"
+  - changed-files:
+    - any-glob-to-any-file: 'web/**/*'
 backend:
-  - "server/**/*"
-  - "ev_grid_oracle/**/*"
+  - changed-files:
+    - any-glob-to-any-file: 'server/**/*'
+    - any-glob-to-any-file: 'ev_grid_oracle/**/*'
 tools:
-  - "tools/**/*"
+  - changed-files:
+    - any-glob-to-any-file: 'tools/**/*'
 ci:
-  - ".github/**/*"
+  - changed-files:
+    - any-glob-to-any-file: '.github/**/*'

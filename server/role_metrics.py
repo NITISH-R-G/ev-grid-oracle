@@ -91,7 +91,7 @@ def compute_role_reward_breakdown(
     }
 
     out: dict[Role, dict[str, float]] = {
-        r: {k: 0.0 for k in keys} for r in ("discom", "cpo", "fleet", "driver")
+        r: dict.fromkeys(keys, 0.0) for r in ("discom", "cpo", "fleet", "driver")
     }
     for k in keys:
         wmap = weights.get(k, {})

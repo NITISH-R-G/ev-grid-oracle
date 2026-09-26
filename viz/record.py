@@ -38,7 +38,7 @@ def record(
 
     last_action: EVGridAction | None = None
     frame = 0
-    for step in range(steps):
+    for _step in range(steps):
         st = env._grid_state
         if st is None or not st.pending_evs:
             action = EVGridAction(

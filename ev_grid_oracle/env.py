@@ -179,7 +179,8 @@ class EVGridCore:
                 new_total = self._scenario_mods.slot_derate.get(s.station_id)
                 if new_total is not None and new_total < s.total_slots:
                     s.total_slots = int(new_total)
-                    s.occupied_slots = min(s.occupied_slots, s.total_slots)
+                    if s.occupied_slots > s.total_slots:
+                        s.occupied_slots = s.total_slots
 
         # 1) apply action (deterministic validation + state mutation)
         action_effect = _apply_action(prev_state, action)

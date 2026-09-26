@@ -25,7 +25,7 @@ def generate_docs(repo_root: Path, output_dir: Path):
                 continue
 
             try:
-                with open(filepath, "r", encoding="utf-8") as f:
+                with open(filepath, encoding="utf-8") as f:
                     content = f.read()
 
                 module = ast.parse(content)
