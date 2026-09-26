@@ -61,7 +61,7 @@ def generate_knowledge_graph(repo_root: Path, output_file: Path):
 
 
 if __name__ == "__main__":
-    root = Path(".").resolve()
+    root = Path.cwd()
     out_file = root / "artifacts" / "knowledge_graph.json"
     generate_knowledge_graph(root, out_file)
     print(f"Successfully generated knowledge graph to {out_file}")

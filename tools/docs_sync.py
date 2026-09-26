@@ -70,7 +70,7 @@ def generate_docs(repo_root: Path, output_dir: Path):
 
 
 if __name__ == "__main__":
-    root = Path(".").resolve()
+    root = Path.cwd()
     docs_out = root / "docs" / "api"
     generate_docs(root, docs_out)
     print(f"Successfully synced docs to {docs_out}")

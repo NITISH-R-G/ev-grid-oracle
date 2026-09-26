@@ -34,8 +34,7 @@ def generate_architecture_diagrams(repo_root: Path, output_file: Path):
 
             # Use module path as node ID (e.g., server/app.py -> server.app)
             module_id = rel_path.replace(".py", "").replace("/", ".")
-            if module_id.endswith(".__init__"):
-                module_id = module_id[:-9]
+            module_id = module_id.removesuffix(".__init__")
 
             add_node(module_id, "module")
 
@@ -84,7 +83,7 @@ def generate_architecture_diagrams(repo_root: Path, output_file: Path):
 
 
 if __name__ == "__main__":
-    root = Path(".").resolve()
+    root = Path.cwd()
     out_file = root / "artifacts" / "architecture_graph.json"
     generate_architecture_diagrams(root, out_file)
     print(f"Successfully generated architecture graph to {out_file}")
