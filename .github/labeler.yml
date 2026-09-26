@@ -1,0 +1,12 @@
+docs:
+  - "docs/**/*"
+  - "*.md"
+frontend:
+  - "web/**/*"
+backend:
+  - "server/**/*"
+  - "ev_grid_oracle/**/*"
+tools:
+  - "tools/**/*"
+ci:
+  - ".github/**/*"
