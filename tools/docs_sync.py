@@ -1,5 +1,5 @@
-import os
 import ast
+import os
 
 
 def sync_docs():
