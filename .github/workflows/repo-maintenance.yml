@@ -2,11 +2,11 @@ name: Repository Maintenance
 
 on:
   push:
-    branches: [ "main", "master" ]
+    branches: ["main", "master"]
   pull_request:
-    branches: [ "main", "master" ]
+    branches: ["main", "master"]
   schedule:
-    - cron: '0 0 * * *' # Daily at midnight
+    - cron: "0 0 * * *" # Daily at midnight
 
 permissions:
   contents: write
@@ -26,7 +26,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
+          python-version: "3.12"
 
       - name: Install uv and deps
         run: |
@@ -36,7 +36,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: "22"
 
       - name: Install Prettier
         run: npm install -g prettier
@@ -66,4 +66,6 @@ jobs:
           git add -f artifacts/ docs/api/ bom.json || true
           git add -u
           git commit -m "chore: autonomous repository maintenance [skip ci]" || echo "No changes to commit"
+          # Exclude .github workflows from auto-commits to avoid token scope errors
+          git restore --staged .github/workflows/ || true
           git push

@@ -6,7 +6,7 @@ status: draft
 
 ## Goal
 
-Make the map *feel like a real mobility product*:
+Make the map _feel like a real mobility product_:
 
 - Vehicles (cars + bikes) **move place-to-place** along real Bangalore road geometry (already done).
 - Motion is **traffic-aware** (slows in congestion, smooth near intersections, no teleporting).
@@ -207,4 +207,3 @@ Backward compatibility:
   - and arrive at a charger chosen by the agents.
 - Baseline vs Oracle difference is legible in < 3 seconds:
   - Oracle reduces ETA + queueing + grid stress under the same traffic field.
-

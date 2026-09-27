@@ -1,28 +1,28 @@
 frontend:
   - changed-files:
-    - any-glob-to-any-file: 'web/**/*'
+      - any-glob-to-any-file: "web/**/*"
 
 backend:
   - changed-files:
-    - any-glob-to-any-file: 'server/**/*'
-    - any-glob-to-any-file: 'ev_grid_oracle/**/*'
+      - any-glob-to-any-file: "server/**/*"
+      - any-glob-to-any-file: "ev_grid_oracle/**/*"
 
 documentation:
   - changed-files:
-    - any-glob-to-any-file: '**/*.md'
-    - any-glob-to-any-file: 'docs/**/*'
+      - any-glob-to-any-file: "**/*.md"
+      - any-glob-to-any-file: "docs/**/*"
 
 ci:
   - changed-files:
-    - any-glob-to-any-file: '.github/**/*'
-    - any-glob-to-any-file: 'validate-submission.sh'
-    - any-glob-to-any-file: 'Dockerfile'
-    - any-glob-to-any-file: 'openenv.yaml'
+      - any-glob-to-any-file: ".github/**/*"
+      - any-glob-to-any-file: "validate-submission.sh"
+      - any-glob-to-any-file: "Dockerfile"
+      - any-glob-to-any-file: "openenv.yaml"
 
 tools:
   - changed-files:
-    - any-glob-to-any-file: 'tools/**/*'
+      - any-glob-to-any-file: "tools/**/*"
 
 tests:
   - changed-files:
-    - any-glob-to-any-file: 'tests/**/*'
+      - any-glob-to-any-file: "tests/**/*"
