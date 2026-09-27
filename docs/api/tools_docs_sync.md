@@ -1,0 +1,4 @@
+# API Documentation for `tools/docs_sync.py`
+
+## Function `sync_docs`
+
