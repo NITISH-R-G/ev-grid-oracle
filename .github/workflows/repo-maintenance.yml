@@ -1,0 +1,71 @@
+name: Repository Maintenance
+
+on:
+  push:
+    branches: ["main", "master"]
+  pull_request:
+    branches: ["main", "master"]
+  schedule:
+    - cron: "0 0 * * *" # Daily at midnight
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  maintenance:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'schedule' || github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+          lfs: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv and deps
+        run: |
+          pip install uv
+          uv pip install --system ruff cyclonedx-bom
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install Prettier
+        run: npm install -g prettier
+
+      - name: Run Auto-Format & Autofix
+        run: |
+          ruff check --unsafe-fixes --fix . || true
+          ruff format . || true
+          prettier --write "**/*.{json,md,yaml,yml,html}"
+
+      - name: Generate SBOM
+        run: cyclonedx-py environment -o bom.json || true
+
+      - name: Run Documentation Sync
+        run: python tools/docs_sync.py || true
+
+      - name: Generate Knowledge Graph
+        run: python tools/generate_knowledge_graph.py || true
+
+      - name: Generate Architecture Diagrams
+        run: python tools/generate_architecture_diagrams.py || true
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "GitHub Actions Bot"
+          git config --global user.email "actions@github.com"
+          git add -f artifacts/ docs/api/ bom.json || true
+          git add -u
+          git commit -m "chore: autonomous repository maintenance [skip ci]" || echo "No changes to commit"
+          # Exclude .github workflows from auto-commits to avoid token scope errors
+          git restore --staged .github/workflows/ || true
+          git push

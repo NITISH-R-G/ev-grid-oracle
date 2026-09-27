@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-
 from openenv.core.env_server.types import Action, Observation
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
@@ -17,7 +16,7 @@ class RoadAction(Action):
     next_node: int = Field(..., ge=0)
 
     @model_validator(mode="after")
-    def _non_trivial(self) -> "RoadAction":
+    def _non_trivial(self) -> RoadAction:
         if self.current_node == self.next_node:
             raise ValueError("next_node must differ from current_node")
         return self
