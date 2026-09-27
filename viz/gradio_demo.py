@@ -13,6 +13,7 @@ from ev_grid_oracle.oracle_agent import OracleAgent
 from ev_grid_oracle.policies import baseline_policy
 from training.evaluate import run_episode, summarize
 
+
 Mode = Literal["Untrained Baseline", "Oracle Agent"]
 
 
@@ -20,7 +21,7 @@ def _norm(v: float, lo: float, hi: float) -> float:
     if hi <= lo:
         return 0.0
     x = (v - lo) / (hi - lo)
-    return 0.0 if x < 0.0 else min(x, 1.0)
+    return 0.0 if x < 0.0 else 1.0 if x > 1.0 else x
 
 
 def _station_color(load_pct: float) -> tuple[int, int, int]:
