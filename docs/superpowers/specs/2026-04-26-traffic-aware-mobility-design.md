@@ -6,7 +6,7 @@ status: draft
 
 ## Goal
 
-Make the map _feel like a real mobility product_:
+Make the map *feel like a real mobility product*:
 
 - Vehicles (cars + bikes) **move place-to-place** along real Bangalore road geometry (already done).
 - Motion is **traffic-aware** (slows in congestion, smooth near intersections, no teleporting).

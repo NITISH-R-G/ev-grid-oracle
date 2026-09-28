@@ -4,6 +4,7 @@ from dataclasses import dataclass
 from random import Random
 from typing import Literal
 
+
 FleetPersona = Literal[
     "TaxiFleet", "CorporateShuttle", "DeliveryFleet", "PrivateOwner", "Emergency"
 ]

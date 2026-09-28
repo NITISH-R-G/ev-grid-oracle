@@ -10,12 +10,12 @@ def main() -> int:
     core = RoadCore(g=None, nodes=[])
     obs = core.reset(seed=0)
     st = obs.state
-    nb = next(iter(core.g.neighbors(st.node)))
+    nb = list(core.g.neighbors(st.node))[0]
 
     ok = f"CURRENT_NODE: {st.node}\nNEXT_NODE: {int(nb)}\nREASON: go\nCONFIDENCE: 0.7\n"
     bad = f"CURRENT_NODE: {st.node + 999}\nNEXT_NODE: {int(nb)}\nREASON: hack\nCONFIDENCE: 0.7\n"
 
-    r = re.compile(r"CURRENT_NODE:\s*(\d+)\s*\nNEXT_NODE:\s*(\d+)\s*\n", re.IGNORECASE)
+    r = re.compile(r"CURRENT_NODE:\s*(\d+)\s*\nNEXT_NODE:\s*(\d+)\s*\n", re.I)
 
     def parse(t: str) -> RoadAction | None:
         m = r.search(t.strip())

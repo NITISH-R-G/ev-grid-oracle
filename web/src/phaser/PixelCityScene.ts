@@ -65,7 +65,8 @@ export class PixelCityScene extends Phaser.Scene {
   private sessionId: string | null = null;
   private nodes: StationNode[] = [];
   private projector:
-    ((lat: number, lng: number) => { x: number; y: number }) | null = null;
+    | ((lat: number, lng: number) => { x: number; y: number })
+    | null = null;
 
   private stationsLayer!: Phaser.GameObjects.Container;
   private fxLayer!: Phaser.GameObjects.Container;
