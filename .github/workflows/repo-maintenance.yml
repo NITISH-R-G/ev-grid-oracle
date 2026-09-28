@@ -1,0 +1,84 @@
+name: Repository Maintenance Automation
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  schedule:
+    - cron: '0 0 * * *' # Daily at midnight UTC
+
+permissions:
+  contents: write
+
+jobs:
+  maintenance:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'schedule' || github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+          lfs: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install uv
+        run: pip install uv
+
+      - name: Install global tools
+        run: npm install -g prettier
+
+      - name: Install dependencies
+        run: |
+          uv pip install --system cyclonedx-bom
+          uv pip install --system -e ".[dev,demo]"
+
+      - name: Code Quality Autofix (Ruff)
+        run: |
+          uv run --with ruff ruff check --unsafe-fixes --fix . || true
+          uv run --with ruff ruff format . || true
+
+      - name: Format Prettier files
+        run: |
+          prettier --write "**/*.{json,md,yaml,yml,html,css,js,ts}" || true
+
+      - name: Generate API Documentation
+        run: |
+          python tools/docs_sync.py || true
+
+      - name: Generate Architecture Diagrams
+        run: |
+          python tools/generate_architecture_diagrams.py || true
+
+      - name: Generate Knowledge Graph
+        run: |
+          python tools/generate_knowledge_graph.py || true
+
+      - name: Generate SBOM
+        run: |
+          cyclonedx-py environment -o artifacts/bom.json || true
+
+      - name: Commit changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add -f artifacts/ docs/api/ || true
+          git add .
+          git reset -- .github/workflows/ || true
+          if git diff --cached --quiet; then
+            echo "No changes to commit."
+          else
+            git commit -m "chore: autonomous repository maintenance [skip ci]"
+            git push
+          fi
