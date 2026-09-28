@@ -1,0 +1,21 @@
+frontend:
+  - any:
+      - 'web/**/*'
+
+backend:
+  - any:
+      - 'server/**/*'
+      - 'ev_grid_oracle/**/*'
+
+tools:
+  - any:
+      - 'tools/**/*'
+
+docs:
+  - any:
+      - '*.md'
+      - 'docs/**/*'
+
+ci:
+  - any:
+      - '.github/**/*'
