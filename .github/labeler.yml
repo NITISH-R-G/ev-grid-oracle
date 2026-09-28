@@ -1,21 +1,21 @@
 frontend:
   - any:
-      - 'web/**/*'
+      - "web/**/*"
 
 backend:
   - any:
-      - 'server/**/*'
-      - 'ev_grid_oracle/**/*'
+      - "server/**/*"
+      - "ev_grid_oracle/**/*"
 
 tools:
   - any:
-      - 'tools/**/*'
+      - "tools/**/*"
 
 docs:
   - any:
-      - '*.md'
-      - 'docs/**/*'
+      - "*.md"
+      - "docs/**/*"
 
 ci:
   - any:
-      - '.github/**/*'
+      - ".github/**/*"
