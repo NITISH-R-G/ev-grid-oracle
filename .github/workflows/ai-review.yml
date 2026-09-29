@@ -1,4 +1,4 @@
-name: AI PR Agent
+name: AI PR Review
 
 on:
   pull_request:
