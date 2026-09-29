@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Local submission checks: pytest + optional openenv validate + optional Docker.
+# Local submission checks: uv run pytest + optional openenv validate + optional Docker.
 # Writes a timestamped log to assets/validation_output.txt (for judge / audit trail).
 set -euo pipefail
 
@@ -22,8 +22,8 @@ OUT="$ROOT/assets/validation_output.txt"
   python -m mypy .
   echo "--- bandit ---"
   python -m bandit -r . -c pyproject.toml
-  echo "--- pytest (install dev deps first: pip install -e \".[dev]\") ---"
-  python -m pytest tests/ -q --tb=line
+  echo "--- uv run pytest (install dev deps first: pip install -e \".[dev]\") ---"
+  python -m uv run pytest tests/ -q --tb=line
   if command -v openenv >/dev/null 2>&1; then
     echo "--- openenv validate ---"
     openenv validate "$ROOT"
