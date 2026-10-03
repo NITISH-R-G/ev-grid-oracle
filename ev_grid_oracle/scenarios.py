@@ -3,6 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any, Literal, TypedDict
 
+
 ScenarioName = Literal[
     "baseline",
     "heatwave_peak",
@@ -187,7 +188,7 @@ def apply_scenario_events(
 
     # Stable ids for bookmarks / UI (deterministic).
     for e in fired:
-        e.setdefault("id", f"{name}:{int(e['tick'])}:{e.get('type', '')!s}")
+        e.setdefault("id", f"{name}:{int(e['tick'])}:{str(e.get('type', ''))}")
 
     # Modifiers are "sticky": once an event changes a knob, it persists.
     for e in fired:
