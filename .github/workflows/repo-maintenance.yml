@@ -24,6 +24,11 @@ jobs:
           lfs: true
           ref: ${{ github.head_ref || github.ref }}
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
