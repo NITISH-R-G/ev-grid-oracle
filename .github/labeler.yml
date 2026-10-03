@@ -1,0 +1,7 @@
+bug:
+  - changed-files:
+    - any-glob-to-any-file: '**/*.py'
+
+enhancement:
+  - changed-files:
+    - any-glob-to-any-file: 'docs/**/*'
