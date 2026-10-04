@@ -1,0 +1,68 @@
+name: Repository Maintenance
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  schedule:
+    - cron: '0 2 * * *' # Daily at 2 AM
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  maintenance:
+    if: github.event_name == 'push' || github.event_name == 'schedule' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Install dependencies
+        run: |
+          pip install uv cyclonedx-bom
+          uv pip install --system -e ".[dev,demo]"
+          npm install -g prettier
+
+      - name: Run Autofixes
+        run: |
+          ruff check --unsafe-fixes --fix . || true
+          ruff format . || true
+          prettier --write "**/*.{json,md,yaml,yml,html,css,js,ts}" || true
+
+      - name: Generate API Docs
+        run: |
+          python tools/docs_sync.py || true
+
+      - name: Generate Knowledge Graph
+        run: |
+          python tools/generate_knowledge_graph.py || true
+
+      - name: Generate Architecture Diagrams
+        run: |
+          python tools/generate_architecture_diagrams.py || true
+
+      - name: Generate SBOM
+        run: |
+          cyclonedx-py environment -o bom.json || true
+
+      - name: Commit changes
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          git add -f artifacts/ docs/api/ bom.json || true
+          git add -A || true
+          git commit -m "chore: automated repository maintenance [skip ci]" || echo "No changes to commit"
+          git push

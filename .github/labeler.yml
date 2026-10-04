@@ -1,0 +1,21 @@
+"frontend":
+  - any:
+    - "web/**/*"
+
+"backend":
+  - any:
+    - "server/**/*"
+    - "ev_grid_oracle/**/*"
+
+"documentation":
+  - any:
+    - "docs/**/*"
+    - "*.md"
+
+"tooling":
+  - any:
+    - "tools/**/*"
+
+"tests":
+  - any:
+    - "tests/**/*"
