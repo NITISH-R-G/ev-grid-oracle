@@ -1,241 +1,794 @@
 {
   "nodes": [
     {
-      "id": "./test_script.py:ChargerType",
-      "type": "class",
-      "file": "./test_script.py",
-      "name": "ChargerType",
-      "doc": null
-    },
-    {
-      "id": "./test_script.py:StationState",
-      "type": "class",
-      "file": "./test_script.py",
-      "name": "StationState",
-      "doc": null
-    },
-    {
-      "id": "./viz/record_two_phase.py:_step_action",
+      "id": "./tools/sync_space_to_hub.py:main",
       "type": "function",
-      "file": "./viz/record_two_phase.py",
-      "name": "_step_action",
-      "doc": null
-    },
-    {
-      "id": "./viz/record_two_phase.py:record_phase",
-      "type": "function",
-      "file": "./viz/record_two_phase.py",
-      "name": "record_phase",
-      "doc": null
-    },
-    {
-      "id": "./viz/record_two_phase.py:main",
-      "type": "function",
-      "file": "./viz/record_two_phase.py",
+      "file": "./tools/sync_space_to_hub.py",
       "name": "main",
       "doc": null
     },
     {
-      "id": "./viz/city_map.py:_station_color",
+      "id": "./tools/write_eval_snapshot.py:main",
       "type": "function",
-      "file": "./viz/city_map.py",
-      "name": "_station_color",
+      "file": "./tools/write_eval_snapshot.py",
+      "name": "main",
       "doc": null
     },
     {
-      "id": "./viz/city_map.py:_norm",
+      "id": "./tools/build_roads_render.py:main",
       "type": "function",
-      "file": "./viz/city_map.py",
-      "name": "_norm",
+      "file": "./tools/build_roads_render.py",
+      "name": "main",
       "doc": null
     },
     {
-      "id": "./viz/city_map.py:RenderConfig",
+      "id": "./tools/fetch_osm_roads.py:BBox",
       "type": "class",
-      "file": "./viz/city_map.py",
-      "name": "RenderConfig",
+      "file": "./tools/fetch_osm_roads.py",
+      "name": "BBox",
       "doc": null
     },
     {
-      "id": "./viz/city_map.py:CityMapRenderer",
+      "id": "./tools/fetch_osm_roads.py:_fetch_overpass",
+      "type": "function",
+      "file": "./tools/fetch_osm_roads.py",
+      "name": "_fetch_overpass",
+      "doc": null
+    },
+    {
+      "id": "./tools/fetch_osm_roads.py:_simplify_line",
+      "type": "function",
+      "file": "./tools/fetch_osm_roads.py",
+      "name": "_simplify_line",
+      "doc": null
+    },
+    {
+      "id": "./tools/fetch_osm_roads.py:_to_feature_collection",
+      "type": "function",
+      "file": "./tools/fetch_osm_roads.py",
+      "name": "_to_feature_collection",
+      "doc": null
+    },
+    {
+      "id": "./tools/fetch_osm_roads.py:build_query",
+      "type": "function",
+      "file": "./tools/fetch_osm_roads.py",
+      "name": "build_query",
+      "doc": null
+    },
+    {
+      "id": "./tools/fetch_osm_roads.py:main",
+      "type": "function",
+      "file": "./tools/fetch_osm_roads.py",
+      "name": "main",
+      "doc": null
+    },
+    {
+      "id": "./tools/prune_osm_geojson.py:_pad_bbox",
+      "type": "function",
+      "file": "./tools/prune_osm_geojson.py",
+      "name": "_pad_bbox",
+      "doc": null
+    },
+    {
+      "id": "./tools/prune_osm_geojson.py:_line_intersects_bbox",
+      "type": "function",
+      "file": "./tools/prune_osm_geojson.py",
+      "name": "_line_intersects_bbox",
+      "doc": null
+    },
+    {
+      "id": "./tools/prune_osm_geojson.py:_simplify_uniform",
+      "type": "function",
+      "file": "./tools/prune_osm_geojson.py",
+      "name": "_simplify_uniform",
+      "doc": null
+    },
+    {
+      "id": "./tools/prune_osm_geojson.py:main",
+      "type": "function",
+      "file": "./tools/prune_osm_geojson.py",
+      "name": "main",
+      "doc": null
+    },
+    {
+      "id": "./tools/build_road_graph.py:haversine_m",
+      "type": "function",
+      "file": "./tools/build_road_graph.py",
+      "name": "haversine_m",
+      "doc": null
+    },
+    {
+      "id": "./tools/build_road_graph.py:_encode_signed",
+      "type": "function",
+      "file": "./tools/build_road_graph.py",
+      "name": "_encode_signed",
+      "doc": null
+    },
+    {
+      "id": "./tools/build_road_graph.py:encode_polyline_latlng",
+      "type": "function",
+      "file": "./tools/build_road_graph.py",
+      "name": "encode_polyline_latlng",
+      "doc": "Google polyline encoding for [lat,lng] points.\nStored as a compact ASCII string to shrink graph artifacts."
+    },
+    {
+      "id": "./tools/build_road_graph.py:speed_kmh",
+      "type": "function",
+      "file": "./tools/build_road_graph.py",
+      "name": "speed_kmh",
+      "doc": null
+    },
+    {
+      "id": "./tools/build_road_graph.py:Node",
       "type": "class",
-      "file": "./viz/city_map.py",
-      "name": "CityMapRenderer",
+      "file": "./tools/build_road_graph.py",
+      "name": "Node",
       "doc": null
     },
     {
-      "id": "./viz/city_map.py:run_live",
+      "id": "./tools/build_road_graph.py:snap",
       "type": "function",
-      "file": "./viz/city_map.py",
-      "name": "run_live",
+      "file": "./tools/build_road_graph.py",
+      "name": "snap",
       "doc": null
     },
     {
-      "id": "./viz/city_map.py:__init__",
+      "id": "./tools/build_road_graph.py:_coords_latlng_from_geojson_line",
       "type": "function",
-      "file": "./viz/city_map.py",
+      "file": "./tools/build_road_graph.py",
+      "name": "_coords_latlng_from_geojson_line",
+      "doc": null
+    },
+    {
+      "id": "./tools/build_road_graph.py:parse_args",
+      "type": "function",
+      "file": "./tools/build_road_graph.py",
+      "name": "parse_args",
+      "doc": null
+    },
+    {
+      "id": "./tools/build_road_graph.py:build_adjacency",
+      "type": "function",
+      "file": "./tools/build_road_graph.py",
+      "name": "build_adjacency",
+      "doc": "Pass 1: build point adjacency over snapped coordinates.\nIntersections/endpoints are nodes where degree != 2."
+    },
+    {
+      "id": "./tools/build_road_graph.py:contract_edges",
+      "type": "function",
+      "file": "./tools/build_road_graph.py",
+      "name": "contract_edges",
+      "doc": "Pass 2: for each way, contract degree-2 chains into intersection-to-intersection edges."
+    },
+    {
+      "id": "./tools/build_road_graph.py:filter_largest_component",
+      "type": "function",
+      "file": "./tools/build_road_graph.py",
+      "name": "filter_largest_component",
+      "doc": "Pass 3: Keep only the largest connected component (by node count) to satisfy routing coverage."
+    },
+    {
+      "id": "./tools/build_road_graph.py:main",
+      "type": "function",
+      "file": "./tools/build_road_graph.py",
+      "name": "main",
+      "doc": null
+    },
+    {
+      "id": "./tools/build_road_graph.py:add_neighbor",
+      "type": "function",
+      "file": "./tools/build_road_graph.py",
+      "name": "add_neighbor",
+      "doc": null
+    },
+    {
+      "id": "./tools/build_road_graph.py:get_node",
+      "type": "function",
+      "file": "./tools/build_road_graph.py",
+      "name": "get_node",
+      "doc": null
+    },
+    {
+      "id": "./tools/build_road_graph.py:flush",
+      "type": "function",
+      "file": "./tools/build_road_graph.py",
+      "name": "flush",
+      "doc": null
+    },
+    {
+      "id": "./tools/generate_architecture_diagrams.py:generate_architecture_diagrams",
+      "type": "function",
+      "file": "./tools/generate_architecture_diagrams.py",
+      "name": "generate_architecture_diagrams",
+      "doc": null
+    },
+    {
+      "id": "./tools/generate_health_dashboard.py:run_cmd",
+      "type": "function",
+      "file": "./tools/generate_health_dashboard.py",
+      "name": "run_cmd",
+      "doc": null
+    },
+    {
+      "id": "./tools/generate_health_dashboard.py:get_git_stats",
+      "type": "function",
+      "file": "./tools/generate_health_dashboard.py",
+      "name": "get_git_stats",
+      "doc": null
+    },
+    {
+      "id": "./tools/generate_health_dashboard.py:get_leaderboard",
+      "type": "function",
+      "file": "./tools/generate_health_dashboard.py",
+      "name": "get_leaderboard",
+      "doc": null
+    },
+    {
+      "id": "./tools/generate_health_dashboard.py:get_documentation_health",
+      "type": "function",
+      "file": "./tools/generate_health_dashboard.py",
+      "name": "get_documentation_health",
+      "doc": null
+    },
+    {
+      "id": "./tools/generate_health_dashboard.py:fetch_github_stats",
+      "type": "function",
+      "file": "./tools/generate_health_dashboard.py",
+      "name": "fetch_github_stats",
+      "doc": null
+    },
+    {
+      "id": "./tools/generate_health_dashboard.py:run_pytest_cov",
+      "type": "function",
+      "file": "./tools/generate_health_dashboard.py",
+      "name": "run_pytest_cov",
+      "doc": null
+    },
+    {
+      "id": "./tools/generate_health_dashboard.py:run_radon",
+      "type": "function",
+      "file": "./tools/generate_health_dashboard.py",
+      "name": "run_radon",
+      "doc": null
+    },
+    {
+      "id": "./tools/generate_health_dashboard.py:run_bandit",
+      "type": "function",
+      "file": "./tools/generate_health_dashboard.py",
+      "name": "run_bandit",
+      "doc": null
+    },
+    {
+      "id": "./tools/generate_health_dashboard.py:run_ruff",
+      "type": "function",
+      "file": "./tools/generate_health_dashboard.py",
+      "name": "run_ruff",
+      "doc": null
+    },
+    {
+      "id": "./tools/generate_health_dashboard.py:calculate_health_scores",
+      "type": "function",
+      "file": "./tools/generate_health_dashboard.py",
+      "name": "calculate_health_scores",
+      "doc": null
+    },
+    {
+      "id": "./tools/generate_health_dashboard.py:generate_ai_insights",
+      "type": "function",
+      "file": "./tools/generate_health_dashboard.py",
+      "name": "generate_ai_insights",
+      "doc": null
+    },
+    {
+      "id": "./tools/generate_health_dashboard.py:main",
+      "type": "function",
+      "file": "./tools/generate_health_dashboard.py",
+      "name": "main",
+      "doc": null
+    },
+    {
+      "id": "./tools/road_reward_smoke.py:main",
+      "type": "function",
+      "file": "./tools/road_reward_smoke.py",
+      "name": "main",
+      "doc": null
+    },
+    {
+      "id": "./tools/road_reward_smoke.py:parse",
+      "type": "function",
+      "file": "./tools/road_reward_smoke.py",
+      "name": "parse",
+      "doc": null
+    },
+    {
+      "id": "./tools/road_reward_smoke.py:reward",
+      "type": "function",
+      "file": "./tools/road_reward_smoke.py",
+      "name": "reward",
+      "doc": null
+    },
+    {
+      "id": "./tools/generate_knowledge_graph.py:generate_knowledge_graph",
+      "type": "function",
+      "file": "./tools/generate_knowledge_graph.py",
+      "name": "generate_knowledge_graph",
+      "doc": null
+    },
+    {
+      "id": "./tools/fetch_bangalore_roads_overpass.py:_chunk",
+      "type": "function",
+      "file": "./tools/fetch_bangalore_roads_overpass.py",
+      "name": "_chunk",
+      "doc": null
+    },
+    {
+      "id": "./tools/fetch_bangalore_roads_overpass.py:_overpass_query",
+      "type": "function",
+      "file": "./tools/fetch_bangalore_roads_overpass.py",
+      "name": "_overpass_query",
+      "doc": null
+    },
+    {
+      "id": "./tools/fetch_bangalore_roads_overpass.py:_tile_bbox",
+      "type": "function",
+      "file": "./tools/fetch_bangalore_roads_overpass.py",
+      "name": "_tile_bbox",
+      "doc": null
+    },
+    {
+      "id": "./tools/fetch_bangalore_roads_overpass.py:_http_post",
+      "type": "function",
+      "file": "./tools/fetch_bangalore_roads_overpass.py",
+      "name": "_http_post",
+      "doc": null
+    },
+    {
+      "id": "./tools/fetch_bangalore_roads_overpass.py:_to_geojson",
+      "type": "function",
+      "file": "./tools/fetch_bangalore_roads_overpass.py",
+      "name": "_to_geojson",
+      "doc": null
+    },
+    {
+      "id": "./tools/fetch_bangalore_roads_overpass.py:main",
+      "type": "function",
+      "file": "./tools/fetch_bangalore_roads_overpass.py",
+      "name": "main",
+      "doc": null
+    },
+    {
+      "id": "./tools/export_grpo_tensorboard_plots.py:_pick_tags",
+      "type": "function",
+      "file": "./tools/export_grpo_tensorboard_plots.py",
+      "name": "_pick_tags",
+      "doc": null
+    },
+    {
+      "id": "./tools/export_grpo_tensorboard_plots.py:main",
+      "type": "function",
+      "file": "./tools/export_grpo_tensorboard_plots.py",
+      "name": "main",
+      "doc": null
+    },
+    {
+      "id": "./tools/export_grpo_tensorboard_plots.py:plot_tag",
+      "type": "function",
+      "file": "./tools/export_grpo_tensorboard_plots.py",
+      "name": "plot_tag",
+      "doc": null
+    },
+    {
+      "id": "./tools/docs_sync.py:generate_docs",
+      "type": "function",
+      "file": "./tools/docs_sync.py",
+      "name": "generate_docs",
+      "doc": null
+    },
+    {
+      "id": "./training/make_plots.py:_boxplot_compat",
+      "type": "function",
+      "file": "./training/make_plots.py",
+      "name": "_boxplot_compat",
+      "doc": null
+    },
+    {
+      "id": "./training/make_plots.py:_per_episode_rows",
+      "type": "function",
+      "file": "./training/make_plots.py",
+      "name": "_per_episode_rows",
+      "doc": null
+    },
+    {
+      "id": "./training/make_plots.py:plot_kpi_bars",
+      "type": "function",
+      "file": "./training/make_plots.py",
+      "name": "plot_kpi_bars",
+      "doc": null
+    },
+    {
+      "id": "./training/make_plots.py:plot_episode_trajectories",
+      "type": "function",
+      "file": "./training/make_plots.py",
+      "name": "plot_episode_trajectories",
+      "doc": null
+    },
+    {
+      "id": "./training/make_plots.py:plot_delta_histograms",
+      "type": "function",
+      "file": "./training/make_plots.py",
+      "name": "plot_delta_histograms",
+      "doc": null
+    },
+    {
+      "id": "./training/make_plots.py:plot_reward_breakdown",
+      "type": "function",
+      "file": "./training/make_plots.py",
+      "name": "plot_reward_breakdown",
+      "doc": null
+    },
+    {
+      "id": "./training/make_plots.py:plot_boxplots",
+      "type": "function",
+      "file": "./training/make_plots.py",
+      "name": "plot_boxplots",
+      "doc": null
+    },
+    {
+      "id": "./training/make_plots.py:plot_oracle_win_rates",
+      "type": "function",
+      "file": "./training/make_plots.py",
+      "name": "plot_oracle_win_rates",
+      "doc": null
+    },
+    {
+      "id": "./training/make_plots.py:plot_paired_scatter",
+      "type": "function",
+      "file": "./training/make_plots.py",
+      "name": "plot_paired_scatter",
+      "doc": null
+    },
+    {
+      "id": "./training/make_plots.py:plot_binary_timeline",
+      "type": "function",
+      "file": "./training/make_plots.py",
+      "name": "plot_binary_timeline",
+      "doc": null
+    },
+    {
+      "id": "./training/make_plots.py:plot_fair_eval_rates",
+      "type": "function",
+      "file": "./training/make_plots.py",
+      "name": "plot_fair_eval_rates",
+      "doc": null
+    },
+    {
+      "id": "./training/make_plots.py:plot_mcnemar_summary",
+      "type": "function",
+      "file": "./training/make_plots.py",
+      "name": "plot_mcnemar_summary",
+      "doc": null
+    },
+    {
+      "id": "./training/make_plots.py:plot_dashboard_grid",
+      "type": "function",
+      "file": "./training/make_plots.py",
+      "name": "plot_dashboard_grid",
+      "doc": null
+    },
+    {
+      "id": "./training/make_plots.py:main",
+      "type": "function",
+      "file": "./training/make_plots.py",
+      "name": "main",
+      "doc": null
+    },
+    {
+      "id": "./training/make_plots.py:rate",
+      "type": "function",
+      "file": "./training/make_plots.py",
+      "name": "rate",
+      "doc": null
+    },
+    {
+      "id": "./training/evaluate.py:EpisodeMetrics",
+      "type": "class",
+      "file": "./training/evaluate.py",
+      "name": "EpisodeMetrics",
+      "doc": null
+    },
+    {
+      "id": "./training/evaluate.py:_episode_metrics_to_json",
+      "type": "function",
+      "file": "./training/evaluate.py",
+      "name": "_episode_metrics_to_json",
+      "doc": null
+    },
+    {
+      "id": "./training/evaluate.py:run_episode",
+      "type": "function",
+      "file": "./training/evaluate.py",
+      "name": "run_episode",
+      "doc": null
+    },
+    {
+      "id": "./training/evaluate.py:summarize",
+      "type": "function",
+      "file": "./training/evaluate.py",
+      "name": "summarize",
+      "doc": null
+    },
+    {
+      "id": "./training/evaluate.py:summarize_reward_breakdown",
+      "type": "function",
+      "file": "./training/evaluate.py",
+      "name": "summarize_reward_breakdown",
+      "doc": null
+    },
+    {
+      "id": "./training/evaluate.py:main",
+      "type": "function",
+      "file": "./training/evaluate.py",
+      "name": "main",
+      "doc": null
+    },
+    {
+      "id": "./training/fair_eval.py:_binom_two_sided_exact_p",
+      "type": "function",
+      "file": "./training/fair_eval.py",
+      "name": "_binom_two_sided_exact_p",
+      "doc": "Two-sided exact test for Binomial(n, p); used for McNemar discordant pairs (p=0.5)."
+    },
+    {
+      "id": "./training/fair_eval.py:mcnemar_discordant",
+      "type": "function",
+      "file": "./training/fair_eval.py",
+      "name": "mcnemar_discordant",
+      "doc": "McNemar on paired binary outcomes.\nb01 = count(baseline True, oracle False); b10 = count(baseline False, oracle True)."
+    },
+    {
+      "id": "./training/fair_eval.py:paired_mcnemar_analysis",
+      "type": "function",
+      "file": "./training/fair_eval.py",
+      "name": "paired_mcnemar_analysis",
+      "doc": "Paired McNemar for headline binaries (same rows as Wilson chart)."
+    },
+    {
+      "id": "./training/fair_eval.py:wilson_interval",
+      "type": "function",
+      "file": "./training/fair_eval.py",
+      "name": "wilson_interval",
+      "doc": "Wilson score interval for a binomial proportion.\nReturns (low, high, p_hat). For n==0 returns (nan, nan, nan)."
+    },
+    {
+      "id": "./training/fair_eval.py:_binary_keys",
+      "type": "function",
+      "file": "./training/fair_eval.py",
+      "name": "_binary_keys",
+      "doc": null
+    },
+    {
+      "id": "./training/fair_eval.py:analyze_per_episode",
+      "type": "function",
+      "file": "./training/fair_eval.py",
+      "name": "analyze_per_episode",
+      "doc": null
+    },
+    {
+      "id": "./training/fair_eval.py:_paired_improvement_counts",
+      "type": "function",
+      "file": "./training/fair_eval.py",
+      "name": "_paired_improvement_counts",
+      "doc": "Operational 'wins' where oracle strictly improves a binary bad outcome vs baseline."
+    },
+    {
+      "id": "./training/fair_eval.py:plot_fair_eval",
+      "type": "function",
+      "file": "./training/fair_eval.py",
+      "name": "plot_fair_eval",
+      "doc": "Bar chart: select headline baseline vs oracle binary rates with Wilson error bars."
+    },
+    {
+      "id": "./training/fair_eval.py:main",
+      "type": "function",
+      "file": "./training/fair_eval.py",
+      "name": "main",
+      "doc": null
+    },
+    {
+      "id": "./training/fair_eval.py:pmf",
+      "type": "function",
+      "file": "./training/fair_eval.py",
+      "name": "pmf",
+      "doc": null
+    },
+    {
+      "id": "./training/fair_eval.py:pair",
+      "type": "function",
+      "file": "./training/fair_eval.py",
+      "name": "pair",
+      "doc": null
+    },
+    {
+      "id": "./training/fair_eval.py:rate",
+      "type": "function",
+      "file": "./training/fair_eval.py",
+      "name": "rate",
+      "doc": null
+    },
+    {
+      "id": "./training/fair_eval.py:errs",
+      "type": "function",
+      "file": "./training/fair_eval.py",
+      "name": "errs",
+      "doc": null
+    },
+    {
+      "id": "./server/ev_grid_road_environment.py:EVGridRoadEnvironment",
+      "type": "class",
+      "file": "./server/ev_grid_road_environment.py",
+      "name": "EVGridRoadEnvironment",
+      "doc": "Separate OpenEnv environment that forces real-road-graph actions.\nMounted as a sub-app under /road/ so it doesn't break the existing env."
+    },
+    {
+      "id": "./server/ev_grid_road_environment.py:__init__",
+      "type": "function",
+      "file": "./server/ev_grid_road_environment.py",
       "name": "__init__",
       "doc": null
     },
     {
-      "id": "./viz/city_map.py:xy",
+      "id": "./server/ev_grid_road_environment.py:reset",
       "type": "function",
-      "file": "./viz/city_map.py",
-      "name": "xy",
+      "file": "./server/ev_grid_road_environment.py",
+      "name": "reset",
       "doc": null
     },
     {
-      "id": "./viz/city_map.py:draw_arrow",
+      "id": "./server/ev_grid_road_environment.py:step",
       "type": "function",
-      "file": "./viz/city_map.py",
-      "name": "draw_arrow",
+      "file": "./server/ev_grid_road_environment.py",
+      "name": "step",
       "doc": null
     },
     {
-      "id": "./viz/city_map.py:render",
+      "id": "./server/ev_grid_road_environment.py:state",
       "type": "function",
-      "file": "./viz/city_map.py",
-      "name": "render",
+      "file": "./server/ev_grid_road_environment.py",
+      "name": "state",
       "doc": null
     },
     {
-      "id": "./viz/city_map.py:_draw_background",
+      "id": "./server/road_router.py:haversine_m",
       "type": "function",
-      "file": "./viz/city_map.py",
-      "name": "_draw_background",
+      "file": "./server/road_router.py",
+      "name": "haversine_m",
       "doc": null
     },
     {
-      "id": "./viz/city_map.py:_draw_edges",
+      "id": "./server/road_router.py:decode_polyline_latlng",
       "type": "function",
-      "file": "./viz/city_map.py",
-      "name": "_draw_edges",
+      "file": "./server/road_router.py",
+      "name": "decode_polyline_latlng",
       "doc": null
     },
     {
-      "id": "./viz/city_map.py:_draw_glow",
-      "type": "function",
-      "file": "./viz/city_map.py",
-      "name": "_draw_glow",
-      "doc": null
-    },
-    {
-      "id": "./viz/city_map.py:_draw_animated_route",
-      "type": "function",
-      "file": "./viz/city_map.py",
-      "name": "_draw_animated_route",
-      "doc": null
-    },
-    {
-      "id": "./viz/city_map.py:blit_line",
-      "type": "function",
-      "file": "./viz/city_map.py",
-      "name": "blit_line",
-      "doc": null
-    },
-    {
-      "id": "./viz/record.py:record",
-      "type": "function",
-      "file": "./viz/record.py",
-      "name": "record",
-      "doc": "Record frames as PNGs.\n\n- `tick_every_frames`: how many frames to show per env.step() (slows animation, looks smoother)."
-    },
-    {
-      "id": "./viz/record.py:main",
-      "type": "function",
-      "file": "./viz/record.py",
-      "name": "main",
-      "doc": null
-    },
-    {
-      "id": "./viz/gradio_demo.py:_norm",
-      "type": "function",
-      "file": "./viz/gradio_demo.py",
-      "name": "_norm",
-      "doc": null
-    },
-    {
-      "id": "./viz/gradio_demo.py:_station_color",
-      "type": "function",
-      "file": "./viz/gradio_demo.py",
-      "name": "_station_color",
-      "doc": null
-    },
-    {
-      "id": "./viz/gradio_demo.py:render_map",
-      "type": "function",
-      "file": "./viz/gradio_demo.py",
-      "name": "render_map",
-      "doc": null
-    },
-    {
-      "id": "./viz/gradio_demo.py:Session",
+      "id": "./server/road_router.py:RoadRouter",
       "type": "class",
-      "file": "./viz/gradio_demo.py",
-      "name": "Session",
+      "file": "./server/road_router.py",
+      "name": "RoadRouter",
       "doc": null
     },
     {
-      "id": "./viz/gradio_demo.py:new_session",
+      "id": "./server/road_router.py:get_router",
       "type": "function",
-      "file": "./viz/gradio_demo.py",
-      "name": "new_session",
+      "file": "./server/road_router.py",
+      "name": "get_router",
       "doc": null
     },
     {
-      "id": "./viz/gradio_demo.py:step_once",
+      "id": "./server/road_router.py:_next",
       "type": "function",
-      "file": "./viz/gradio_demo.py",
-      "name": "step_once",
+      "file": "./server/road_router.py",
+      "name": "_next",
       "doc": null
     },
     {
-      "id": "./viz/gradio_demo.py:compute_kpis",
+      "id": "./server/road_router.py:load",
       "type": "function",
-      "file": "./viz/gradio_demo.py",
-      "name": "compute_kpis",
+      "file": "./server/road_router.py",
+      "name": "load",
       "doc": null
     },
     {
-      "id": "./viz/gradio_demo.py:xy",
+      "id": "./server/road_router.py:nearest_node",
       "type": "function",
-      "file": "./viz/gradio_demo.py",
-      "name": "xy",
+      "file": "./server/road_router.py",
+      "name": "nearest_node",
       "doc": null
     },
     {
-      "id": "./viz/gradio_demo.py:_start",
+      "id": "./server/road_router.py:route_polyline",
       "type": "function",
-      "file": "./viz/gradio_demo.py",
-      "name": "_start",
+      "file": "./server/road_router.py",
+      "name": "route_polyline",
       "doc": null
     },
     {
-      "id": "./viz/gradio_demo.py:_step",
+      "id": "./server/road_router.py:_w",
       "type": "function",
-      "file": "./viz/gradio_demo.py",
-      "name": "_step",
+      "file": "./server/road_router.py",
+      "name": "_w",
       "doc": null
     },
     {
-      "id": "./viz/gradio_demo.py:_run60",
+      "id": "./server/role_metrics.py:compute_role_kpis",
       "type": "function",
-      "file": "./viz/gradio_demo.py",
-      "name": "_run60",
+      "file": "./server/role_metrics.py",
+      "name": "compute_role_kpis",
       "doc": null
     },
     {
-      "id": "./viz/gradio_demo.py:_start_and_maybe_autoplay",
+      "id": "./server/role_metrics.py:compute_role_reward_breakdown",
       "type": "function",
-      "file": "./viz/gradio_demo.py",
-      "name": "_start_and_maybe_autoplay",
+      "file": "./server/role_metrics.py",
+      "name": "compute_role_reward_breakdown",
+      "doc": "Lightweight, explainable credit assignment for demo storytelling.\n\nThis is NOT a full MARL credit assignment \u2014 it allocates the *same* component\nvalues across roles with fixed weights so totals remain easy to interpret."
+    },
+    {
+      "id": "./server/role_metrics.py:_peak_risk_score",
+      "type": "function",
+      "file": "./server/role_metrics.py",
+      "name": "_peak_risk_score",
       "doc": null
     },
     {
-      "id": "./viz/gradio_demo.py:_kpis",
+      "id": "./server/role_metrics.py:summarize_action",
       "type": "function",
-      "file": "./viz/gradio_demo.py",
-      "name": "_kpis",
+      "file": "./server/role_metrics.py",
+      "name": "summarize_action",
+      "doc": null
+    },
+    {
+      "id": "./server/role_metrics.py:part",
+      "type": "function",
+      "file": "./server/role_metrics.py",
+      "name": "part",
+      "doc": null
+    },
+    {
+      "id": "./server/ev_grid_environment.py:EVGridEnvironment",
+      "type": "class",
+      "file": "./server/ev_grid_environment.py",
+      "name": "EVGridEnvironment",
+      "doc": null
+    },
+    {
+      "id": "./server/ev_grid_environment.py:__init__",
+      "type": "function",
+      "file": "./server/ev_grid_environment.py",
+      "name": "__init__",
+      "doc": null
+    },
+    {
+      "id": "./server/ev_grid_environment.py:reset",
+      "type": "function",
+      "file": "./server/ev_grid_environment.py",
+      "name": "reset",
+      "doc": null
+    },
+    {
+      "id": "./server/ev_grid_environment.py:step",
+      "type": "function",
+      "file": "./server/ev_grid_environment.py",
+      "name": "step",
+      "doc": null
+    },
+    {
+      "id": "./server/ev_grid_environment.py:state",
+      "type": "function",
+      "file": "./server/ev_grid_environment.py",
+      "name": "state",
       "doc": null
     },
     {
@@ -449,228 +1002,284 @@
       "doc": null
     },
     {
-      "id": "./server/ev_grid_environment.py:EVGridEnvironment",
+      "id": "./tests/test_models_and_graph.py:test_city_graph_connected_and_25_stations",
+      "type": "function",
+      "file": "./tests/test_models_and_graph.py",
+      "name": "test_city_graph_connected_and_25_stations",
+      "doc": null
+    },
+    {
+      "id": "./tests/test_models_and_graph.py:test_action_route_requires_station_id_and_zero_defer",
+      "type": "function",
+      "file": "./tests/test_models_and_graph.py",
+      "name": "test_action_route_requires_station_id_and_zero_defer",
+      "doc": null
+    },
+    {
+      "id": "./tests/test_models_and_graph.py:test_action_defer_requires_positive_defer_minutes",
+      "type": "function",
+      "file": "./tests/test_models_and_graph.py",
+      "name": "test_action_defer_requires_positive_defer_minutes",
+      "doc": null
+    },
+    {
+      "id": "./tests/test_models_and_graph.py:test_time_advances_with_5min_steps",
+      "type": "function",
+      "file": "./tests/test_models_and_graph.py",
+      "name": "test_time_advances_with_5min_steps",
+      "doc": null
+    },
+    {
+      "id": "./tests/test_env_determinism.py:test_reset_state_identical_two_cores_same_seed",
+      "type": "function",
+      "file": "./tests/test_env_determinism.py",
+      "name": "test_reset_state_identical_two_cores_same_seed",
+      "doc": null
+    },
+    {
+      "id": "./tests/test_env_determinism.py:test_step_sequence_identical_two_cores_same_actions",
+      "type": "function",
+      "file": "./tests/test_env_determinism.py",
+      "name": "test_step_sequence_identical_two_cores_same_actions",
+      "doc": null
+    },
+    {
+      "id": "./tests/test_env_determinism.py:test_ev_grid_action_rejects_malformed_payload",
+      "type": "function",
+      "file": "./tests/test_env_determinism.py",
+      "name": "test_ev_grid_action_rejects_malformed_payload",
+      "doc": null
+    },
+    {
+      "id": "./tests/test_env_determinism.py:test_route_action_requires_station",
+      "type": "function",
+      "file": "./tests/test_env_determinism.py",
+      "name": "test_route_action_requires_station",
+      "doc": null
+    },
+    {
+      "id": "./tests/test_policies_collapse.py:_run_policy",
+      "type": "function",
+      "file": "./tests/test_policies_collapse.py",
+      "name": "_run_policy",
+      "doc": null
+    },
+    {
+      "id": "./tests/test_policies_collapse.py:test_collapse_policies_do_not_crash",
+      "type": "function",
+      "file": "./tests/test_policies_collapse.py",
+      "name": "test_collapse_policies_do_not_crash",
+      "doc": null
+    },
+    {
+      "id": "./tests/test_policies_collapse.py:test_collapse_policies_return_valid_actions_when_pending",
+      "type": "function",
+      "file": "./tests/test_policies_collapse.py",
+      "name": "test_collapse_policies_return_valid_actions_when_pending",
+      "doc": null
+    },
+    {
+      "id": "./tests/test_evaluate_paired.py:_chdir_repo_root",
+      "type": "function",
+      "file": "./tests/test_evaluate_paired.py",
+      "name": "_chdir_repo_root",
+      "doc": null
+    },
+    {
+      "id": "./tests/test_evaluate_paired.py:test_baseline_rollout_identical_for_same_seed_and_scenario",
+      "type": "function",
+      "file": "./tests/test_evaluate_paired.py",
+      "name": "test_baseline_rollout_identical_for_same_seed_and_scenario",
+      "doc": null
+    },
+    {
+      "id": "./tests/test_evaluate_paired.py:test_oracle_matches_baseline_when_skip_llm",
+      "type": "function",
+      "file": "./tests/test_evaluate_paired.py",
+      "name": "test_oracle_matches_baseline_when_skip_llm",
+      "doc": null
+    },
+    {
+      "id": "./tests/test_evaluate_paired.py:test_evaluate_cli_paired_json",
+      "type": "function",
+      "file": "./tests/test_evaluate_paired.py",
+      "name": "test_evaluate_cli_paired_json",
+      "doc": null
+    },
+    {
+      "id": "./tests/test_evaluate_paired.py:test_fair_eval_cli",
+      "type": "function",
+      "file": "./tests/test_evaluate_paired.py",
+      "name": "test_fair_eval_cli",
+      "doc": null
+    },
+    {
+      "id": "./tests/test_parsing.py:test_parse_simulation_valid",
+      "type": "function",
+      "file": "./tests/test_parsing.py",
+      "name": "test_parse_simulation_valid",
+      "doc": null
+    },
+    {
+      "id": "./tests/test_parsing.py:test_parse_simulation_missing_match",
+      "type": "function",
+      "file": "./tests/test_parsing.py",
+      "name": "test_parse_simulation_missing_match",
+      "doc": null
+    },
+    {
+      "id": "./tests/test_parsing.py:test_parse_simulation_exception_handling",
+      "type": "function",
+      "file": "./tests/test_parsing.py",
+      "name": "test_parse_simulation_exception_handling",
+      "doc": null
+    },
+    {
+      "id": "./tests/test_fair_eval_mcnemar.py:test_mcnemar_no_discordant_is_neutral",
+      "type": "function",
+      "file": "./tests/test_fair_eval_mcnemar.py",
+      "name": "test_mcnemar_no_discordant_is_neutral",
+      "doc": null
+    },
+    {
+      "id": "./tests/test_fair_eval_mcnemar.py:test_mcnemar_strong_asymmetry_low_p",
+      "type": "function",
+      "file": "./tests/test_fair_eval_mcnemar.py",
+      "name": "test_mcnemar_strong_asymmetry_low_p",
+      "doc": null
+    },
+    {
+      "id": "./tests/test_fair_eval_mcnemar.py:test_paired_mcnemar_analysis_shape",
+      "type": "function",
+      "file": "./tests/test_fair_eval_mcnemar.py",
+      "name": "test_paired_mcnemar_analysis_shape",
+      "doc": null
+    },
+    {
+      "id": "./tests/test_demo_api.py:test_demo_new_and_step_roundtrip",
+      "type": "function",
+      "file": "./tests/test_demo_api.py",
+      "name": "test_demo_new_and_step_roundtrip",
+      "doc": null
+    },
+    {
+      "id": "./tests/test_demo_api.py:test_demo_spawn_vehicle_route_event",
+      "type": "function",
+      "file": "./tests/test_demo_api.py",
+      "name": "test_demo_spawn_vehicle_route_event",
+      "doc": null
+    },
+    {
+      "id": "./tests/test_demo_api.py:test_demo_step_forced_action_validation_422",
+      "type": "function",
+      "file": "./tests/test_demo_api.py",
+      "name": "test_demo_step_forced_action_validation_422",
+      "doc": null
+    },
+    {
+      "id": "./tests/test_demo_api.py:test_health_shape",
+      "type": "function",
+      "file": "./tests/test_demo_api.py",
+      "name": "test_health_shape",
+      "doc": null
+    },
+    {
+      "id": "./tests/test_demo_api.py:test_demo_sessions_ttl_eviction",
+      "type": "function",
+      "file": "./tests/test_demo_api.py",
+      "name": "test_demo_sessions_ttl_eviction",
+      "doc": null
+    },
+    {
+      "id": "./tests/test_demo_api.py:test_ma_new_and_step_roundtrip",
+      "type": "function",
+      "file": "./tests/test_demo_api.py",
+      "name": "test_ma_new_and_step_roundtrip",
+      "doc": null
+    },
+    {
+      "id": "./tests/test_world_model_verifier.py:test_rollout_deterministic_is_stable",
+      "type": "function",
+      "file": "./tests/test_world_model_verifier.py",
+      "name": "test_rollout_deterministic_is_stable",
+      "doc": null
+    },
+    {
+      "id": "./tests/test_world_model_verifier.py:test_prediction_score_higher_when_close",
+      "type": "function",
+      "file": "./tests/test_world_model_verifier.py",
+      "name": "test_prediction_score_higher_when_close",
+      "doc": null
+    },
+    {
+      "id": "./tests/test_reward.py:test_reward_breakdown_has_keys_and_total",
+      "type": "function",
+      "file": "./tests/test_reward.py",
+      "name": "test_reward_breakdown_has_keys_and_total",
+      "doc": null
+    },
+    {
+      "id": "./tests/test_reward.py:test_deferring_critical_ev_penalized",
+      "type": "function",
+      "file": "./tests/test_reward.py",
+      "name": "test_deferring_critical_ev_penalized",
+      "doc": null
+    },
+    {
+      "id": "./tests/test_reward.py:test_invalid_station_routes_penalized",
+      "type": "function",
+      "file": "./tests/test_reward.py",
+      "name": "test_invalid_station_routes_penalized",
+      "doc": null
+    },
+    {
+      "id": "./tests/test_reward.py:test_split_role_rewards_exception_handling",
+      "type": "function",
+      "file": "./tests/test_reward.py",
+      "name": "test_split_role_rewards_exception_handling",
+      "doc": null
+    },
+    {
+      "id": "./ev_grid_oracle/personas.py:PersonaParams",
       "type": "class",
-      "file": "./server/ev_grid_environment.py",
-      "name": "EVGridEnvironment",
+      "file": "./ev_grid_oracle/personas.py",
+      "name": "PersonaParams",
       "doc": null
     },
     {
-      "id": "./server/ev_grid_environment.py:__init__",
+      "id": "./ev_grid_oracle/personas.py:choose_persona",
       "type": "function",
-      "file": "./server/ev_grid_environment.py",
-      "name": "__init__",
+      "file": "./ev_grid_oracle/personas.py",
+      "name": "choose_persona",
       "doc": null
     },
     {
-      "id": "./server/ev_grid_environment.py:reset",
-      "type": "function",
-      "file": "./server/ev_grid_environment.py",
-      "name": "reset",
-      "doc": null
-    },
-    {
-      "id": "./server/ev_grid_environment.py:step",
-      "type": "function",
-      "file": "./server/ev_grid_environment.py",
-      "name": "step",
-      "doc": null
-    },
-    {
-      "id": "./server/ev_grid_environment.py:state",
-      "type": "function",
-      "file": "./server/ev_grid_environment.py",
-      "name": "state",
-      "doc": null
-    },
-    {
-      "id": "./server/ev_grid_road_environment.py:EVGridRoadEnvironment",
+      "id": "./ev_grid_oracle/scenarios.py:ScenarioEvent",
       "type": "class",
-      "file": "./server/ev_grid_road_environment.py",
-      "name": "EVGridRoadEnvironment",
-      "doc": "Separate OpenEnv environment that forces real-road-graph actions.\nMounted as a sub-app under /road/ so it doesn't break the existing env."
-    },
-    {
-      "id": "./server/ev_grid_road_environment.py:__init__",
-      "type": "function",
-      "file": "./server/ev_grid_road_environment.py",
-      "name": "__init__",
+      "file": "./ev_grid_oracle/scenarios.py",
+      "name": "ScenarioEvent",
       "doc": null
     },
     {
-      "id": "./server/ev_grid_road_environment.py:reset",
-      "type": "function",
-      "file": "./server/ev_grid_road_environment.py",
-      "name": "reset",
-      "doc": null
-    },
-    {
-      "id": "./server/ev_grid_road_environment.py:step",
-      "type": "function",
-      "file": "./server/ev_grid_road_environment.py",
-      "name": "step",
-      "doc": null
-    },
-    {
-      "id": "./server/ev_grid_road_environment.py:state",
-      "type": "function",
-      "file": "./server/ev_grid_road_environment.py",
-      "name": "state",
-      "doc": null
-    },
-    {
-      "id": "./server/role_metrics.py:compute_role_kpis",
-      "type": "function",
-      "file": "./server/role_metrics.py",
-      "name": "compute_role_kpis",
-      "doc": null
-    },
-    {
-      "id": "./server/role_metrics.py:compute_role_reward_breakdown",
-      "type": "function",
-      "file": "./server/role_metrics.py",
-      "name": "compute_role_reward_breakdown",
-      "doc": "Lightweight, explainable credit assignment for demo storytelling.\n\nThis is NOT a full MARL credit assignment \u2014 it allocates the *same* component\nvalues across roles with fixed weights so totals remain easy to interpret."
-    },
-    {
-      "id": "./server/role_metrics.py:_peak_risk_score",
-      "type": "function",
-      "file": "./server/role_metrics.py",
-      "name": "_peak_risk_score",
-      "doc": null
-    },
-    {
-      "id": "./server/role_metrics.py:summarize_action",
-      "type": "function",
-      "file": "./server/role_metrics.py",
-      "name": "summarize_action",
-      "doc": null
-    },
-    {
-      "id": "./server/role_metrics.py:part",
-      "type": "function",
-      "file": "./server/role_metrics.py",
-      "name": "part",
-      "doc": null
-    },
-    {
-      "id": "./server/road_router.py:haversine_m",
-      "type": "function",
-      "file": "./server/road_router.py",
-      "name": "haversine_m",
-      "doc": null
-    },
-    {
-      "id": "./server/road_router.py:decode_polyline_latlng",
-      "type": "function",
-      "file": "./server/road_router.py",
-      "name": "decode_polyline_latlng",
-      "doc": null
-    },
-    {
-      "id": "./server/road_router.py:RoadRouter",
+      "id": "./ev_grid_oracle/scenarios.py:ScenarioModifiers",
       "type": "class",
-      "file": "./server/road_router.py",
-      "name": "RoadRouter",
-      "doc": null
+      "file": "./ev_grid_oracle/scenarios.py",
+      "name": "ScenarioModifiers",
+      "doc": "Lightweight knobs applied on top of the core simulator.\nThese are intentionally simple and deterministic for replayable judging."
     },
     {
-      "id": "./server/road_router.py:get_router",
+      "id": "./ev_grid_oracle/scenarios.py:scenario_schedule",
       "type": "function",
-      "file": "./server/road_router.py",
-      "name": "get_router",
-      "doc": null
+      "file": "./ev_grid_oracle/scenarios.py",
+      "name": "scenario_schedule",
+      "doc": "Deterministic, fixed-tick stress tests (OpenOfficeRL-style).\n\nNote: ticks are env steps (5-minute increments by default)."
     },
     {
-      "id": "./server/road_router.py:_next",
+      "id": "./ev_grid_oracle/scenarios.py:apply_scenario_events",
       "type": "function",
-      "file": "./server/road_router.py",
-      "name": "_next",
-      "doc": null
-    },
-    {
-      "id": "./server/road_router.py:load",
-      "type": "function",
-      "file": "./server/road_router.py",
-      "name": "load",
-      "doc": null
-    },
-    {
-      "id": "./server/road_router.py:nearest_node",
-      "type": "function",
-      "file": "./server/road_router.py",
-      "name": "nearest_node",
-      "doc": null
-    },
-    {
-      "id": "./server/road_router.py:route_polyline",
-      "type": "function",
-      "file": "./server/road_router.py",
-      "name": "route_polyline",
-      "doc": null
-    },
-    {
-      "id": "./server/road_router.py:_w",
-      "type": "function",
-      "file": "./server/road_router.py",
-      "name": "_w",
-      "doc": null
-    },
-    {
-      "id": "./ev_grid_oracle/bescom_feed.py:BESCOMFeedAPI",
-      "type": "class",
-      "file": "./ev_grid_oracle/bescom_feed.py",
-      "name": "BESCOMFeedAPI",
-      "doc": "Deterministic BESCOM feeder \"API mock\".\n\n- No network calls (HF Spaces safe).\n- Feeder loads are derived from: time-of-day + grid_load_pct + station loads.\n- Output is stable under (seed, scenario, tick) so judge replays match."
-    },
-    {
-      "id": "./ev_grid_oracle/bescom_feed.py:snapshot",
-      "type": "function",
-      "file": "./ev_grid_oracle/bescom_feed.py",
-      "name": "snapshot",
-      "doc": null
-    },
-    {
-      "id": "./ev_grid_oracle/bescom_feed.py:_stable_seed",
-      "type": "function",
-      "file": "./ev_grid_oracle/bescom_feed.py",
-      "name": "_stable_seed",
-      "doc": null
-    },
-    {
-      "id": "./ev_grid_oracle/bescom_feed.py:_zone_for_station",
-      "type": "function",
-      "file": "./ev_grid_oracle/bescom_feed.py",
-      "name": "_zone_for_station",
-      "doc": null
-    },
-    {
-      "id": "./ev_grid_oracle/road_models.py:RoadAction",
-      "type": "class",
-      "file": "./ev_grid_oracle/road_models.py",
-      "name": "RoadAction",
-      "doc": "Minimal action space for RL on a real road graph:\nchoose the next connected node (no teleportation)."
-    },
-    {
-      "id": "./ev_grid_oracle/road_models.py:RoadState",
-      "type": "class",
-      "file": "./ev_grid_oracle/road_models.py",
-      "name": "RoadState",
-      "doc": null
-    },
-    {
-      "id": "./ev_grid_oracle/road_models.py:RoadObservation",
-      "type": "class",
-      "file": "./ev_grid_oracle/road_models.py",
-      "name": "RoadObservation",
-      "doc": null
-    },
-    {
-      "id": "./ev_grid_oracle/road_models.py:_non_trivial",
-      "type": "function",
-      "file": "./ev_grid_oracle/road_models.py",
-      "name": "_non_trivial",
-      "doc": null
+      "file": "./ev_grid_oracle/scenarios.py",
+      "name": "apply_scenario_events",
+      "doc": "Returns updated modifiers and the list of events that fired this tick."
     },
     {
       "id": "./ev_grid_oracle/road_env.py:RoadCore",
@@ -698,146 +1307,6 @@
       "type": "function",
       "file": "./ev_grid_oracle/road_env.py",
       "name": "_obs",
-      "doc": null
-    },
-    {
-      "id": "./ev_grid_oracle/multi_agent.py:MultiAgentSession",
-      "type": "class",
-      "file": "./ev_grid_oracle/multi_agent.py",
-      "name": "MultiAgentSession",
-      "doc": "Minimal explicit multi-agent wrapper around EVGridCore.\n\n- GridOperator emits a directive (constraint signal) + optional message.\n- FleetDispatcher emits an action + optional message.\n- Resolver applies directive deterministically and steps EVGridCore."
-    },
-    {
-      "id": "./ev_grid_oracle/multi_agent.py:step",
-      "type": "function",
-      "file": "./ev_grid_oracle/multi_agent.py",
-      "name": "step",
-      "doc": null
-    },
-    {
-      "id": "./ev_grid_oracle/multi_agent.py:snapshot",
-      "type": "function",
-      "file": "./ev_grid_oracle/multi_agent.py",
-      "name": "snapshot",
-      "doc": "Read-only view of the underlying core state."
-    },
-    {
-      "id": "./ev_grid_oracle/city_graph.py:StationSpec",
-      "type": "class",
-      "file": "./ev_grid_oracle/city_graph.py",
-      "name": "StationSpec",
-      "doc": null
-    },
-    {
-      "id": "./ev_grid_oracle/city_graph.py:get_station_by_id",
-      "type": "function",
-      "file": "./ev_grid_oracle/city_graph.py",
-      "name": "get_station_by_id",
-      "doc": null
-    },
-    {
-      "id": "./ev_grid_oracle/city_graph.py:get_station_by_slug",
-      "type": "function",
-      "file": "./ev_grid_oracle/city_graph.py",
-      "name": "get_station_by_slug",
-      "doc": null
-    },
-    {
-      "id": "./ev_grid_oracle/city_graph.py:haversine_km",
-      "type": "function",
-      "file": "./ev_grid_oracle/city_graph.py",
-      "name": "haversine_km",
-      "doc": null
-    },
-    {
-      "id": "./ev_grid_oracle/city_graph.py:_edge_minutes",
-      "type": "function",
-      "file": "./ev_grid_oracle/city_graph.py",
-      "name": "_edge_minutes",
-      "doc": null
-    },
-    {
-      "id": "./ev_grid_oracle/city_graph.py:_add_chain_edges",
-      "type": "function",
-      "file": "./ev_grid_oracle/city_graph.py",
-      "name": "_add_chain_edges",
-      "doc": null
-    },
-    {
-      "id": "./ev_grid_oracle/city_graph.py:_add_dense_within_cluster",
-      "type": "function",
-      "file": "./ev_grid_oracle/city_graph.py",
-      "name": "_add_dense_within_cluster",
-      "doc": null
-    },
-    {
-      "id": "./ev_grid_oracle/city_graph.py:build_city_graph",
-      "type": "function",
-      "file": "./ev_grid_oracle/city_graph.py",
-      "name": "build_city_graph",
-      "doc": null
-    },
-    {
-      "id": "./ev_grid_oracle/city_graph.py:travel_time_minutes",
-      "type": "function",
-      "file": "./ev_grid_oracle/city_graph.py",
-      "name": "travel_time_minutes",
-      "doc": null
-    },
-    {
-      "id": "./ev_grid_oracle/city_graph.py:nearest_stations_by_geo",
-      "type": "function",
-      "file": "./ev_grid_oracle/city_graph.py",
-      "name": "nearest_stations_by_geo",
-      "doc": null
-    },
-    {
-      "id": "./ev_grid_oracle/reward.py:RewardWeights",
-      "type": "class",
-      "file": "./ev_grid_oracle/reward.py",
-      "name": "RewardWeights",
-      "doc": null
-    },
-    {
-      "id": "./ev_grid_oracle/reward.py:_haversine_km",
-      "type": "function",
-      "file": "./ev_grid_oracle/reward.py",
-      "name": "_haversine_km",
-      "doc": null
-    },
-    {
-      "id": "./ev_grid_oracle/reward.py:_graph_route_km",
-      "type": "function",
-      "file": "./ev_grid_oracle/reward.py",
-      "name": "_graph_route_km",
-      "doc": "Approximate driving distance along the city graph using haversine edge weights.\nReturns None if no path exists."
-    },
-    {
-      "id": "./ev_grid_oracle/reward.py:compute_reward",
-      "type": "function",
-      "file": "./ev_grid_oracle/reward.py",
-      "name": "compute_reward",
-      "doc": "Deterministic, verifier-style reward with breakdown.\n\nMatches hackathon spec: wait, grid_stress, peak, renewable, urgency, anti-hack."
-    },
-    {
-      "id": "./ev_grid_oracle/reward.py:split_role_rewards",
-      "type": "function",
-      "file": "./ev_grid_oracle/reward.py",
-      "name": "split_role_rewards",
-      "doc": "Deterministic role-level reward views derived from the same underlying breakdown.\n\nThis is intentionally simple and bounded (judge-friendly): it does not claim\nfull MARL credit assignment, but it does make incentives explicit."
-    },
-    {
-      "id": "./ev_grid_oracle/reward.py:add_flag",
-      "type": "function",
-      "file": "./ev_grid_oracle/reward.py",
-      "name": "add_flag",
-      "doc": null
-    },
-    {
-      "id": "./ev_grid_oracle/reward.py:f",
-      "type": "function",
-      "file": "./ev_grid_oracle/reward.py",
-      "name": "f",
       "doc": null
     },
     {
@@ -869,81 +1338,32 @@
       "doc": null
     },
     {
-      "id": "./ev_grid_oracle/personas.py:PersonaParams",
-      "type": "class",
-      "file": "./ev_grid_oracle/personas.py",
-      "name": "PersonaParams",
-      "doc": null
-    },
-    {
-      "id": "./ev_grid_oracle/personas.py:choose_persona",
+      "id": "./ev_grid_oracle/policies.py:baseline_policy",
       "type": "function",
-      "file": "./ev_grid_oracle/personas.py",
-      "name": "choose_persona",
-      "doc": null
+      "file": "./ev_grid_oracle/policies.py",
+      "name": "baseline_policy",
+      "doc": "Greedy baseline: pick station minimizing (travel_time + wait + stress + price), avoid full.\n\nDeterministic given state."
     },
     {
-      "id": "./ev_grid_oracle/world_model_verifier.py:PredictionScore",
-      "type": "class",
-      "file": "./ev_grid_oracle/world_model_verifier.py",
-      "name": "PredictionScore",
-      "doc": null
-    },
-    {
-      "id": "./ev_grid_oracle/world_model_verifier.py:_top3",
+      "id": "./ev_grid_oracle/policies.py:always_defer_policy",
       "type": "function",
-      "file": "./ev_grid_oracle/world_model_verifier.py",
-      "name": "_top3",
-      "doc": null
+      "file": "./ev_grid_oracle/policies.py",
+      "name": "always_defer_policy",
+      "doc": "Collapse baseline: always defer (reward-hack / fairness stressor)."
     },
     {
-      "id": "./ev_grid_oracle/world_model_verifier.py:rollout_deterministic_5ticks",
+      "id": "./ev_grid_oracle/policies.py:always_load_shift_policy",
       "type": "function",
-      "file": "./ev_grid_oracle/world_model_verifier.py",
-      "name": "rollout_deterministic_5ticks",
-      "doc": "Deterministic verifier rollout: apply action once, then advance 5 ticks with *no new arrivals*.\nThis is intentionally verifier-friendly (stable + reproducible) for RLVR."
+      "file": "./ev_grid_oracle/policies.py",
+      "name": "always_load_shift_policy",
+      "doc": "Collapse baseline: always load_shift on head EV (ignores queues / grid)."
     },
     {
-      "id": "./ev_grid_oracle/world_model_verifier.py:score_prediction",
+      "id": "./ev_grid_oracle/policies.py:nearest_travel_only_policy",
       "type": "function",
-      "file": "./ev_grid_oracle/world_model_verifier.py",
-      "name": "score_prediction",
-      "doc": "Score dream-state prediction accuracy against a deterministic T+5 verifier rollout.\nReturns score in [0,1]."
-    },
-    {
-      "id": "./ev_grid_oracle/grid_sim.py:GridParams",
-      "type": "class",
-      "file": "./ev_grid_oracle/grid_sim.py",
-      "name": "GridParams",
-      "doc": null
-    },
-    {
-      "id": "./ev_grid_oracle/grid_sim.py:_clamp01",
-      "type": "function",
-      "file": "./ev_grid_oracle/grid_sim.py",
-      "name": "_clamp01",
-      "doc": null
-    },
-    {
-      "id": "./ev_grid_oracle/grid_sim.py:baseline_grid_load",
-      "type": "function",
-      "file": "./ev_grid_oracle/grid_sim.py",
-      "name": "baseline_grid_load",
-      "doc": null
-    },
-    {
-      "id": "./ev_grid_oracle/grid_sim.py:renewable_pct",
-      "type": "function",
-      "file": "./ev_grid_oracle/grid_sim.py",
-      "name": "renewable_pct",
-      "doc": null
-    },
-    {
-      "id": "./ev_grid_oracle/grid_sim.py:update_grid_load",
-      "type": "function",
-      "file": "./ev_grid_oracle/grid_sim.py",
-      "name": "update_grid_load",
-      "doc": null
+      "file": "./ev_grid_oracle/policies.py",
+      "name": "nearest_travel_only_policy",
+      "doc": "Collapse baseline: minimize travel time only (ignores price, wait, stress).\nUsed to show greedy multi-objective baseline is not trivially dominated."
     },
     {
       "id": "./ev_grid_oracle/models.py:ChargerType",
@@ -1086,34 +1506,6 @@
       "doc": null
     },
     {
-      "id": "./ev_grid_oracle/scenarios.py:ScenarioEvent",
-      "type": "class",
-      "file": "./ev_grid_oracle/scenarios.py",
-      "name": "ScenarioEvent",
-      "doc": null
-    },
-    {
-      "id": "./ev_grid_oracle/scenarios.py:ScenarioModifiers",
-      "type": "class",
-      "file": "./ev_grid_oracle/scenarios.py",
-      "name": "ScenarioModifiers",
-      "doc": "Lightweight knobs applied on top of the core simulator.\nThese are intentionally simple and deterministic for replayable judging."
-    },
-    {
-      "id": "./ev_grid_oracle/scenarios.py:scenario_schedule",
-      "type": "function",
-      "file": "./ev_grid_oracle/scenarios.py",
-      "name": "scenario_schedule",
-      "doc": "Deterministic, fixed-tick stress tests (OpenOfficeRL-style).\n\nNote: ticks are env steps (5-minute increments by default)."
-    },
-    {
-      "id": "./ev_grid_oracle/scenarios.py:apply_scenario_events",
-      "type": "function",
-      "file": "./ev_grid_oracle/scenarios.py",
-      "name": "apply_scenario_events",
-      "doc": "Returns updated modifiers and the list of events that fired this tick."
-    },
-    {
       "id": "./ev_grid_oracle/env.py:EVGridCore",
       "type": "class",
       "file": "./ev_grid_oracle/env.py",
@@ -1184,27 +1576,6 @@
       "doc": null
     },
     {
-      "id": "./ev_grid_oracle/parsing.py:parse_simulation",
-      "type": "function",
-      "file": "./ev_grid_oracle/parsing.py",
-      "name": "parse_simulation",
-      "doc": null
-    },
-    {
-      "id": "./ev_grid_oracle/parsing.py:parse_action",
-      "type": "function",
-      "file": "./ev_grid_oracle/parsing.py",
-      "name": "parse_action",
-      "doc": null
-    },
-    {
-      "id": "./ev_grid_oracle/parsing.py:parse_simulation_and_action",
-      "type": "function",
-      "file": "./ev_grid_oracle/parsing.py",
-      "name": "parse_simulation_and_action",
-      "doc": "Parse both dream prediction and action (either can be missing)."
-    },
-    {
       "id": "./ev_grid_oracle/oracle_agent.py:OracleRuntime",
       "type": "class",
       "file": "./ev_grid_oracle/oracle_agent.py",
@@ -1261,62 +1632,6 @@
       "doc": null
     },
     {
-      "id": "./ev_grid_oracle/demand_sim.py:DemandParams",
-      "type": "class",
-      "file": "./ev_grid_oracle/demand_sim.py",
-      "name": "DemandParams",
-      "doc": null
-    },
-    {
-      "id": "./ev_grid_oracle/demand_sim.py:_gaussian_bump",
-      "type": "function",
-      "file": "./ev_grid_oracle/demand_sim.py",
-      "name": "_gaussian_bump",
-      "doc": null
-    },
-    {
-      "id": "./ev_grid_oracle/demand_sim.py:expected_arrivals_per_step",
-      "type": "function",
-      "file": "./ev_grid_oracle/demand_sim.py",
-      "name": "expected_arrivals_per_step",
-      "doc": null
-    },
-    {
-      "id": "./ev_grid_oracle/demand_sim.py:sample_arrivals_per_step",
-      "type": "function",
-      "file": "./ev_grid_oracle/demand_sim.py",
-      "name": "sample_arrivals_per_step",
-      "doc": null
-    },
-    {
-      "id": "./ev_grid_oracle/policies.py:baseline_policy",
-      "type": "function",
-      "file": "./ev_grid_oracle/policies.py",
-      "name": "baseline_policy",
-      "doc": "Greedy baseline: pick station minimizing (travel_time + wait + stress + price), avoid full.\n\nDeterministic given state."
-    },
-    {
-      "id": "./ev_grid_oracle/policies.py:always_defer_policy",
-      "type": "function",
-      "file": "./ev_grid_oracle/policies.py",
-      "name": "always_defer_policy",
-      "doc": "Collapse baseline: always defer (reward-hack / fairness stressor)."
-    },
-    {
-      "id": "./ev_grid_oracle/policies.py:always_load_shift_policy",
-      "type": "function",
-      "file": "./ev_grid_oracle/policies.py",
-      "name": "always_load_shift_policy",
-      "doc": "Collapse baseline: always load_shift on head EV (ignores queues / grid)."
-    },
-    {
-      "id": "./ev_grid_oracle/policies.py:nearest_travel_only_policy",
-      "type": "function",
-      "file": "./ev_grid_oracle/policies.py",
-      "name": "nearest_travel_only_policy",
-      "doc": "Collapse baseline: minimize travel time only (ignores price, wait, stress).\nUsed to show greedy multi-objective baseline is not trivially dominated."
-    },
-    {
       "id": "./ev_grid_oracle/traffic.py:_clamp",
       "type": "function",
       "file": "./ev_grid_oracle/traffic.py",
@@ -1352,850 +1667,535 @@
       "doc": null
     },
     {
-      "id": "./tools/build_road_graph.py:haversine_m",
-      "type": "function",
-      "file": "./tools/build_road_graph.py",
-      "name": "haversine_m",
-      "doc": null
-    },
-    {
-      "id": "./tools/build_road_graph.py:_encode_signed",
-      "type": "function",
-      "file": "./tools/build_road_graph.py",
-      "name": "_encode_signed",
-      "doc": null
-    },
-    {
-      "id": "./tools/build_road_graph.py:encode_polyline_latlng",
-      "type": "function",
-      "file": "./tools/build_road_graph.py",
-      "name": "encode_polyline_latlng",
-      "doc": "Google polyline encoding for [lat,lng] points.\nStored as a compact ASCII string to shrink graph artifacts."
-    },
-    {
-      "id": "./tools/build_road_graph.py:speed_kmh",
-      "type": "function",
-      "file": "./tools/build_road_graph.py",
-      "name": "speed_kmh",
-      "doc": null
-    },
-    {
-      "id": "./tools/build_road_graph.py:Node",
+      "id": "./ev_grid_oracle/grid_sim.py:GridParams",
       "type": "class",
-      "file": "./tools/build_road_graph.py",
-      "name": "Node",
+      "file": "./ev_grid_oracle/grid_sim.py",
+      "name": "GridParams",
       "doc": null
     },
     {
-      "id": "./tools/build_road_graph.py:snap",
+      "id": "./ev_grid_oracle/grid_sim.py:_clamp01",
       "type": "function",
-      "file": "./tools/build_road_graph.py",
-      "name": "snap",
+      "file": "./ev_grid_oracle/grid_sim.py",
+      "name": "_clamp01",
       "doc": null
     },
     {
-      "id": "./tools/build_road_graph.py:_coords_latlng_from_geojson_line",
+      "id": "./ev_grid_oracle/grid_sim.py:baseline_grid_load",
       "type": "function",
-      "file": "./tools/build_road_graph.py",
-      "name": "_coords_latlng_from_geojson_line",
+      "file": "./ev_grid_oracle/grid_sim.py",
+      "name": "baseline_grid_load",
       "doc": null
     },
     {
-      "id": "./tools/build_road_graph.py:parse_args",
+      "id": "./ev_grid_oracle/grid_sim.py:renewable_pct",
       "type": "function",
-      "file": "./tools/build_road_graph.py",
-      "name": "parse_args",
+      "file": "./ev_grid_oracle/grid_sim.py",
+      "name": "renewable_pct",
       "doc": null
     },
     {
-      "id": "./tools/build_road_graph.py:build_adjacency",
+      "id": "./ev_grid_oracle/grid_sim.py:update_grid_load",
       "type": "function",
-      "file": "./tools/build_road_graph.py",
-      "name": "build_adjacency",
-      "doc": "Pass 1: build point adjacency over snapped coordinates.\nIntersections/endpoints are nodes where degree != 2."
-    },
-    {
-      "id": "./tools/build_road_graph.py:contract_edges",
-      "type": "function",
-      "file": "./tools/build_road_graph.py",
-      "name": "contract_edges",
-      "doc": "Pass 2: for each way, contract degree-2 chains into intersection-to-intersection edges."
-    },
-    {
-      "id": "./tools/build_road_graph.py:filter_largest_component",
-      "type": "function",
-      "file": "./tools/build_road_graph.py",
-      "name": "filter_largest_component",
-      "doc": "Pass 3: Keep only the largest connected component (by node count) to satisfy routing coverage."
-    },
-    {
-      "id": "./tools/build_road_graph.py:main",
-      "type": "function",
-      "file": "./tools/build_road_graph.py",
-      "name": "main",
+      "file": "./ev_grid_oracle/grid_sim.py",
+      "name": "update_grid_load",
       "doc": null
     },
     {
-      "id": "./tools/build_road_graph.py:add_neighbor",
-      "type": "function",
-      "file": "./tools/build_road_graph.py",
-      "name": "add_neighbor",
-      "doc": null
-    },
-    {
-      "id": "./tools/build_road_graph.py:get_node",
-      "type": "function",
-      "file": "./tools/build_road_graph.py",
-      "name": "get_node",
-      "doc": null
-    },
-    {
-      "id": "./tools/build_road_graph.py:flush",
-      "type": "function",
-      "file": "./tools/build_road_graph.py",
-      "name": "flush",
-      "doc": null
-    },
-    {
-      "id": "./tools/sync_space_to_hub.py:main",
-      "type": "function",
-      "file": "./tools/sync_space_to_hub.py",
-      "name": "main",
-      "doc": null
-    },
-    {
-      "id": "./tools/generate_knowledge_graph.py:generate_knowledge_graph",
-      "type": "function",
-      "file": "./tools/generate_knowledge_graph.py",
-      "name": "generate_knowledge_graph",
-      "doc": null
-    },
-    {
-      "id": "./tools/fetch_bangalore_roads_overpass.py:_chunk",
-      "type": "function",
-      "file": "./tools/fetch_bangalore_roads_overpass.py",
-      "name": "_chunk",
-      "doc": null
-    },
-    {
-      "id": "./tools/fetch_bangalore_roads_overpass.py:_overpass_query",
-      "type": "function",
-      "file": "./tools/fetch_bangalore_roads_overpass.py",
-      "name": "_overpass_query",
-      "doc": null
-    },
-    {
-      "id": "./tools/fetch_bangalore_roads_overpass.py:_tile_bbox",
-      "type": "function",
-      "file": "./tools/fetch_bangalore_roads_overpass.py",
-      "name": "_tile_bbox",
-      "doc": null
-    },
-    {
-      "id": "./tools/fetch_bangalore_roads_overpass.py:_http_post",
-      "type": "function",
-      "file": "./tools/fetch_bangalore_roads_overpass.py",
-      "name": "_http_post",
-      "doc": null
-    },
-    {
-      "id": "./tools/fetch_bangalore_roads_overpass.py:_to_geojson",
-      "type": "function",
-      "file": "./tools/fetch_bangalore_roads_overpass.py",
-      "name": "_to_geojson",
-      "doc": null
-    },
-    {
-      "id": "./tools/fetch_bangalore_roads_overpass.py:main",
-      "type": "function",
-      "file": "./tools/fetch_bangalore_roads_overpass.py",
-      "name": "main",
-      "doc": null
-    },
-    {
-      "id": "./tools/export_grpo_tensorboard_plots.py:_pick_tags",
-      "type": "function",
-      "file": "./tools/export_grpo_tensorboard_plots.py",
-      "name": "_pick_tags",
-      "doc": null
-    },
-    {
-      "id": "./tools/export_grpo_tensorboard_plots.py:main",
-      "type": "function",
-      "file": "./tools/export_grpo_tensorboard_plots.py",
-      "name": "main",
-      "doc": null
-    },
-    {
-      "id": "./tools/export_grpo_tensorboard_plots.py:plot_tag",
-      "type": "function",
-      "file": "./tools/export_grpo_tensorboard_plots.py",
-      "name": "plot_tag",
-      "doc": null
-    },
-    {
-      "id": "./tools/prune_osm_geojson.py:_pad_bbox",
-      "type": "function",
-      "file": "./tools/prune_osm_geojson.py",
-      "name": "_pad_bbox",
-      "doc": null
-    },
-    {
-      "id": "./tools/prune_osm_geojson.py:_line_intersects_bbox",
-      "type": "function",
-      "file": "./tools/prune_osm_geojson.py",
-      "name": "_line_intersects_bbox",
-      "doc": null
-    },
-    {
-      "id": "./tools/prune_osm_geojson.py:_simplify_uniform",
-      "type": "function",
-      "file": "./tools/prune_osm_geojson.py",
-      "name": "_simplify_uniform",
-      "doc": null
-    },
-    {
-      "id": "./tools/prune_osm_geojson.py:main",
-      "type": "function",
-      "file": "./tools/prune_osm_geojson.py",
-      "name": "main",
-      "doc": null
-    },
-    {
-      "id": "./tools/road_reward_smoke.py:main",
-      "type": "function",
-      "file": "./tools/road_reward_smoke.py",
-      "name": "main",
-      "doc": null
-    },
-    {
-      "id": "./tools/road_reward_smoke.py:parse",
-      "type": "function",
-      "file": "./tools/road_reward_smoke.py",
-      "name": "parse",
-      "doc": null
-    },
-    {
-      "id": "./tools/road_reward_smoke.py:reward",
-      "type": "function",
-      "file": "./tools/road_reward_smoke.py",
-      "name": "reward",
-      "doc": null
-    },
-    {
-      "id": "./tools/generate_health_dashboard.py:run_cmd",
-      "type": "function",
-      "file": "./tools/generate_health_dashboard.py",
-      "name": "run_cmd",
-      "doc": null
-    },
-    {
-      "id": "./tools/generate_health_dashboard.py:get_git_stats",
-      "type": "function",
-      "file": "./tools/generate_health_dashboard.py",
-      "name": "get_git_stats",
-      "doc": null
-    },
-    {
-      "id": "./tools/generate_health_dashboard.py:get_leaderboard",
-      "type": "function",
-      "file": "./tools/generate_health_dashboard.py",
-      "name": "get_leaderboard",
-      "doc": null
-    },
-    {
-      "id": "./tools/generate_health_dashboard.py:get_documentation_health",
-      "type": "function",
-      "file": "./tools/generate_health_dashboard.py",
-      "name": "get_documentation_health",
-      "doc": null
-    },
-    {
-      "id": "./tools/generate_health_dashboard.py:fetch_github_stats",
-      "type": "function",
-      "file": "./tools/generate_health_dashboard.py",
-      "name": "fetch_github_stats",
-      "doc": null
-    },
-    {
-      "id": "./tools/generate_health_dashboard.py:run_pytest_cov",
-      "type": "function",
-      "file": "./tools/generate_health_dashboard.py",
-      "name": "run_pytest_cov",
-      "doc": null
-    },
-    {
-      "id": "./tools/generate_health_dashboard.py:run_radon",
-      "type": "function",
-      "file": "./tools/generate_health_dashboard.py",
-      "name": "run_radon",
-      "doc": null
-    },
-    {
-      "id": "./tools/generate_health_dashboard.py:run_bandit",
-      "type": "function",
-      "file": "./tools/generate_health_dashboard.py",
-      "name": "run_bandit",
-      "doc": null
-    },
-    {
-      "id": "./tools/generate_health_dashboard.py:run_ruff",
-      "type": "function",
-      "file": "./tools/generate_health_dashboard.py",
-      "name": "run_ruff",
-      "doc": null
-    },
-    {
-      "id": "./tools/generate_health_dashboard.py:calculate_health_scores",
-      "type": "function",
-      "file": "./tools/generate_health_dashboard.py",
-      "name": "calculate_health_scores",
-      "doc": null
-    },
-    {
-      "id": "./tools/generate_health_dashboard.py:generate_ai_insights",
-      "type": "function",
-      "file": "./tools/generate_health_dashboard.py",
-      "name": "generate_ai_insights",
-      "doc": null
-    },
-    {
-      "id": "./tools/generate_health_dashboard.py:main",
-      "type": "function",
-      "file": "./tools/generate_health_dashboard.py",
-      "name": "main",
-      "doc": null
-    },
-    {
-      "id": "./tools/write_eval_snapshot.py:main",
-      "type": "function",
-      "file": "./tools/write_eval_snapshot.py",
-      "name": "main",
-      "doc": null
-    },
-    {
-      "id": "./tools/fetch_osm_roads.py:BBox",
+      "id": "./ev_grid_oracle/world_model_verifier.py:PredictionScore",
       "type": "class",
-      "file": "./tools/fetch_osm_roads.py",
-      "name": "BBox",
+      "file": "./ev_grid_oracle/world_model_verifier.py",
+      "name": "PredictionScore",
       "doc": null
     },
     {
-      "id": "./tools/fetch_osm_roads.py:_fetch_overpass",
+      "id": "./ev_grid_oracle/world_model_verifier.py:_top3",
       "type": "function",
-      "file": "./tools/fetch_osm_roads.py",
-      "name": "_fetch_overpass",
+      "file": "./ev_grid_oracle/world_model_verifier.py",
+      "name": "_top3",
       "doc": null
     },
     {
-      "id": "./tools/fetch_osm_roads.py:_simplify_line",
+      "id": "./ev_grid_oracle/world_model_verifier.py:rollout_deterministic_5ticks",
       "type": "function",
-      "file": "./tools/fetch_osm_roads.py",
-      "name": "_simplify_line",
-      "doc": null
+      "file": "./ev_grid_oracle/world_model_verifier.py",
+      "name": "rollout_deterministic_5ticks",
+      "doc": "Deterministic verifier rollout: apply action once, then advance 5 ticks with *no new arrivals*.\nThis is intentionally verifier-friendly (stable + reproducible) for RLVR."
     },
     {
-      "id": "./tools/fetch_osm_roads.py:_to_feature_collection",
+      "id": "./ev_grid_oracle/world_model_verifier.py:score_prediction",
       "type": "function",
-      "file": "./tools/fetch_osm_roads.py",
-      "name": "_to_feature_collection",
-      "doc": null
+      "file": "./ev_grid_oracle/world_model_verifier.py",
+      "name": "score_prediction",
+      "doc": "Score dream-state prediction accuracy against a deterministic T+5 verifier rollout.\nReturns score in [0,1]."
     },
     {
-      "id": "./tools/fetch_osm_roads.py:build_query",
-      "type": "function",
-      "file": "./tools/fetch_osm_roads.py",
-      "name": "build_query",
-      "doc": null
-    },
-    {
-      "id": "./tools/fetch_osm_roads.py:main",
-      "type": "function",
-      "file": "./tools/fetch_osm_roads.py",
-      "name": "main",
-      "doc": null
-    },
-    {
-      "id": "./tools/build_roads_render.py:main",
-      "type": "function",
-      "file": "./tools/build_roads_render.py",
-      "name": "main",
-      "doc": null
-    },
-    {
-      "id": "./training/fair_eval.py:_binom_two_sided_exact_p",
-      "type": "function",
-      "file": "./training/fair_eval.py",
-      "name": "_binom_two_sided_exact_p",
-      "doc": "Two-sided exact test for Binomial(n, p); used for McNemar discordant pairs (p=0.5)."
-    },
-    {
-      "id": "./training/fair_eval.py:mcnemar_discordant",
-      "type": "function",
-      "file": "./training/fair_eval.py",
-      "name": "mcnemar_discordant",
-      "doc": "McNemar on paired binary outcomes.\nb01 = count(baseline True, oracle False); b10 = count(baseline False, oracle True)."
-    },
-    {
-      "id": "./training/fair_eval.py:paired_mcnemar_analysis",
-      "type": "function",
-      "file": "./training/fair_eval.py",
-      "name": "paired_mcnemar_analysis",
-      "doc": "Paired McNemar for headline binaries (same rows as Wilson chart)."
-    },
-    {
-      "id": "./training/fair_eval.py:wilson_interval",
-      "type": "function",
-      "file": "./training/fair_eval.py",
-      "name": "wilson_interval",
-      "doc": "Wilson score interval for a binomial proportion.\nReturns (low, high, p_hat). For n==0 returns (nan, nan, nan)."
-    },
-    {
-      "id": "./training/fair_eval.py:_binary_keys",
-      "type": "function",
-      "file": "./training/fair_eval.py",
-      "name": "_binary_keys",
-      "doc": null
-    },
-    {
-      "id": "./training/fair_eval.py:analyze_per_episode",
-      "type": "function",
-      "file": "./training/fair_eval.py",
-      "name": "analyze_per_episode",
-      "doc": null
-    },
-    {
-      "id": "./training/fair_eval.py:_paired_improvement_counts",
-      "type": "function",
-      "file": "./training/fair_eval.py",
-      "name": "_paired_improvement_counts",
-      "doc": "Operational 'wins' where oracle strictly improves a binary bad outcome vs baseline."
-    },
-    {
-      "id": "./training/fair_eval.py:plot_fair_eval",
-      "type": "function",
-      "file": "./training/fair_eval.py",
-      "name": "plot_fair_eval",
-      "doc": "Bar chart: select headline baseline vs oracle binary rates with Wilson error bars."
-    },
-    {
-      "id": "./training/fair_eval.py:main",
-      "type": "function",
-      "file": "./training/fair_eval.py",
-      "name": "main",
-      "doc": null
-    },
-    {
-      "id": "./training/fair_eval.py:pmf",
-      "type": "function",
-      "file": "./training/fair_eval.py",
-      "name": "pmf",
-      "doc": null
-    },
-    {
-      "id": "./training/fair_eval.py:pair",
-      "type": "function",
-      "file": "./training/fair_eval.py",
-      "name": "pair",
-      "doc": null
-    },
-    {
-      "id": "./training/fair_eval.py:rate",
-      "type": "function",
-      "file": "./training/fair_eval.py",
-      "name": "rate",
-      "doc": null
-    },
-    {
-      "id": "./training/fair_eval.py:errs",
-      "type": "function",
-      "file": "./training/fair_eval.py",
-      "name": "errs",
-      "doc": null
-    },
-    {
-      "id": "./training/make_plots.py:_boxplot_compat",
-      "type": "function",
-      "file": "./training/make_plots.py",
-      "name": "_boxplot_compat",
-      "doc": null
-    },
-    {
-      "id": "./training/make_plots.py:_per_episode_rows",
-      "type": "function",
-      "file": "./training/make_plots.py",
-      "name": "_per_episode_rows",
-      "doc": null
-    },
-    {
-      "id": "./training/make_plots.py:plot_kpi_bars",
-      "type": "function",
-      "file": "./training/make_plots.py",
-      "name": "plot_kpi_bars",
-      "doc": null
-    },
-    {
-      "id": "./training/make_plots.py:plot_episode_trajectories",
-      "type": "function",
-      "file": "./training/make_plots.py",
-      "name": "plot_episode_trajectories",
-      "doc": null
-    },
-    {
-      "id": "./training/make_plots.py:plot_delta_histograms",
-      "type": "function",
-      "file": "./training/make_plots.py",
-      "name": "plot_delta_histograms",
-      "doc": null
-    },
-    {
-      "id": "./training/make_plots.py:plot_reward_breakdown",
-      "type": "function",
-      "file": "./training/make_plots.py",
-      "name": "plot_reward_breakdown",
-      "doc": null
-    },
-    {
-      "id": "./training/make_plots.py:plot_boxplots",
-      "type": "function",
-      "file": "./training/make_plots.py",
-      "name": "plot_boxplots",
-      "doc": null
-    },
-    {
-      "id": "./training/make_plots.py:plot_oracle_win_rates",
-      "type": "function",
-      "file": "./training/make_plots.py",
-      "name": "plot_oracle_win_rates",
-      "doc": null
-    },
-    {
-      "id": "./training/make_plots.py:plot_paired_scatter",
-      "type": "function",
-      "file": "./training/make_plots.py",
-      "name": "plot_paired_scatter",
-      "doc": null
-    },
-    {
-      "id": "./training/make_plots.py:plot_binary_timeline",
-      "type": "function",
-      "file": "./training/make_plots.py",
-      "name": "plot_binary_timeline",
-      "doc": null
-    },
-    {
-      "id": "./training/make_plots.py:plot_fair_eval_rates",
-      "type": "function",
-      "file": "./training/make_plots.py",
-      "name": "plot_fair_eval_rates",
-      "doc": null
-    },
-    {
-      "id": "./training/make_plots.py:plot_mcnemar_summary",
-      "type": "function",
-      "file": "./training/make_plots.py",
-      "name": "plot_mcnemar_summary",
-      "doc": null
-    },
-    {
-      "id": "./training/make_plots.py:plot_dashboard_grid",
-      "type": "function",
-      "file": "./training/make_plots.py",
-      "name": "plot_dashboard_grid",
-      "doc": null
-    },
-    {
-      "id": "./training/make_plots.py:main",
-      "type": "function",
-      "file": "./training/make_plots.py",
-      "name": "main",
-      "doc": null
-    },
-    {
-      "id": "./training/make_plots.py:rate",
-      "type": "function",
-      "file": "./training/make_plots.py",
-      "name": "rate",
-      "doc": null
-    },
-    {
-      "id": "./training/evaluate.py:EpisodeMetrics",
+      "id": "./ev_grid_oracle/road_models.py:RoadAction",
       "type": "class",
-      "file": "./training/evaluate.py",
-      "name": "EpisodeMetrics",
+      "file": "./ev_grid_oracle/road_models.py",
+      "name": "RoadAction",
+      "doc": "Minimal action space for RL on a real road graph:\nchoose the next connected node (no teleportation)."
+    },
+    {
+      "id": "./ev_grid_oracle/road_models.py:RoadState",
+      "type": "class",
+      "file": "./ev_grid_oracle/road_models.py",
+      "name": "RoadState",
       "doc": null
     },
     {
-      "id": "./training/evaluate.py:_episode_metrics_to_json",
-      "type": "function",
-      "file": "./training/evaluate.py",
-      "name": "_episode_metrics_to_json",
+      "id": "./ev_grid_oracle/road_models.py:RoadObservation",
+      "type": "class",
+      "file": "./ev_grid_oracle/road_models.py",
+      "name": "RoadObservation",
       "doc": null
     },
     {
-      "id": "./training/evaluate.py:run_episode",
+      "id": "./ev_grid_oracle/road_models.py:_non_trivial",
       "type": "function",
-      "file": "./training/evaluate.py",
-      "name": "run_episode",
+      "file": "./ev_grid_oracle/road_models.py",
+      "name": "_non_trivial",
       "doc": null
     },
     {
-      "id": "./training/evaluate.py:summarize",
+      "id": "./ev_grid_oracle/bescom_feed.py:BESCOMFeedAPI",
+      "type": "class",
+      "file": "./ev_grid_oracle/bescom_feed.py",
+      "name": "BESCOMFeedAPI",
+      "doc": "Deterministic BESCOM feeder \"API mock\".\n\n- No network calls (HF Spaces safe).\n- Feeder loads are derived from: time-of-day + grid_load_pct + station loads.\n- Output is stable under (seed, scenario, tick) so judge replays match."
+    },
+    {
+      "id": "./ev_grid_oracle/bescom_feed.py:snapshot",
       "type": "function",
-      "file": "./training/evaluate.py",
-      "name": "summarize",
+      "file": "./ev_grid_oracle/bescom_feed.py",
+      "name": "snapshot",
       "doc": null
     },
     {
-      "id": "./training/evaluate.py:summarize_reward_breakdown",
+      "id": "./ev_grid_oracle/bescom_feed.py:_stable_seed",
       "type": "function",
-      "file": "./training/evaluate.py",
-      "name": "summarize_reward_breakdown",
+      "file": "./ev_grid_oracle/bescom_feed.py",
+      "name": "_stable_seed",
       "doc": null
     },
     {
-      "id": "./training/evaluate.py:main",
+      "id": "./ev_grid_oracle/bescom_feed.py:_zone_for_station",
       "type": "function",
-      "file": "./training/evaluate.py",
+      "file": "./ev_grid_oracle/bescom_feed.py",
+      "name": "_zone_for_station",
+      "doc": null
+    },
+    {
+      "id": "./ev_grid_oracle/reward.py:RewardWeights",
+      "type": "class",
+      "file": "./ev_grid_oracle/reward.py",
+      "name": "RewardWeights",
+      "doc": null
+    },
+    {
+      "id": "./ev_grid_oracle/reward.py:_haversine_km",
+      "type": "function",
+      "file": "./ev_grid_oracle/reward.py",
+      "name": "_haversine_km",
+      "doc": null
+    },
+    {
+      "id": "./ev_grid_oracle/reward.py:_graph_route_km",
+      "type": "function",
+      "file": "./ev_grid_oracle/reward.py",
+      "name": "_graph_route_km",
+      "doc": "Approximate driving distance along the city graph using haversine edge weights.\nReturns None if no path exists."
+    },
+    {
+      "id": "./ev_grid_oracle/reward.py:compute_reward",
+      "type": "function",
+      "file": "./ev_grid_oracle/reward.py",
+      "name": "compute_reward",
+      "doc": "Deterministic, verifier-style reward with breakdown.\n\nMatches hackathon spec: wait, grid_stress, peak, renewable, urgency, anti-hack."
+    },
+    {
+      "id": "./ev_grid_oracle/reward.py:split_role_rewards",
+      "type": "function",
+      "file": "./ev_grid_oracle/reward.py",
+      "name": "split_role_rewards",
+      "doc": "Deterministic role-level reward views derived from the same underlying breakdown.\n\nThis is intentionally simple and bounded (judge-friendly): it does not claim\nfull MARL credit assignment, but it does make incentives explicit."
+    },
+    {
+      "id": "./ev_grid_oracle/reward.py:add_flag",
+      "type": "function",
+      "file": "./ev_grid_oracle/reward.py",
+      "name": "add_flag",
+      "doc": null
+    },
+    {
+      "id": "./ev_grid_oracle/reward.py:f",
+      "type": "function",
+      "file": "./ev_grid_oracle/reward.py",
+      "name": "f",
+      "doc": null
+    },
+    {
+      "id": "./ev_grid_oracle/parsing.py:parse_simulation",
+      "type": "function",
+      "file": "./ev_grid_oracle/parsing.py",
+      "name": "parse_simulation",
+      "doc": null
+    },
+    {
+      "id": "./ev_grid_oracle/parsing.py:parse_action",
+      "type": "function",
+      "file": "./ev_grid_oracle/parsing.py",
+      "name": "parse_action",
+      "doc": null
+    },
+    {
+      "id": "./ev_grid_oracle/parsing.py:parse_simulation_and_action",
+      "type": "function",
+      "file": "./ev_grid_oracle/parsing.py",
+      "name": "parse_simulation_and_action",
+      "doc": "Parse both dream prediction and action (either can be missing)."
+    },
+    {
+      "id": "./ev_grid_oracle/multi_agent.py:MultiAgentSession",
+      "type": "class",
+      "file": "./ev_grid_oracle/multi_agent.py",
+      "name": "MultiAgentSession",
+      "doc": "Minimal explicit multi-agent wrapper around EVGridCore.\n\n- GridOperator emits a directive (constraint signal) + optional message.\n- FleetDispatcher emits an action + optional message.\n- Resolver applies directive deterministically and steps EVGridCore."
+    },
+    {
+      "id": "./ev_grid_oracle/multi_agent.py:step",
+      "type": "function",
+      "file": "./ev_grid_oracle/multi_agent.py",
+      "name": "step",
+      "doc": null
+    },
+    {
+      "id": "./ev_grid_oracle/multi_agent.py:snapshot",
+      "type": "function",
+      "file": "./ev_grid_oracle/multi_agent.py",
+      "name": "snapshot",
+      "doc": "Read-only view of the underlying core state."
+    },
+    {
+      "id": "./ev_grid_oracle/city_graph.py:StationSpec",
+      "type": "class",
+      "file": "./ev_grid_oracle/city_graph.py",
+      "name": "StationSpec",
+      "doc": null
+    },
+    {
+      "id": "./ev_grid_oracle/city_graph.py:get_station_by_id",
+      "type": "function",
+      "file": "./ev_grid_oracle/city_graph.py",
+      "name": "get_station_by_id",
+      "doc": null
+    },
+    {
+      "id": "./ev_grid_oracle/city_graph.py:get_station_by_slug",
+      "type": "function",
+      "file": "./ev_grid_oracle/city_graph.py",
+      "name": "get_station_by_slug",
+      "doc": null
+    },
+    {
+      "id": "./ev_grid_oracle/city_graph.py:haversine_km",
+      "type": "function",
+      "file": "./ev_grid_oracle/city_graph.py",
+      "name": "haversine_km",
+      "doc": null
+    },
+    {
+      "id": "./ev_grid_oracle/city_graph.py:_edge_minutes",
+      "type": "function",
+      "file": "./ev_grid_oracle/city_graph.py",
+      "name": "_edge_minutes",
+      "doc": null
+    },
+    {
+      "id": "./ev_grid_oracle/city_graph.py:_add_chain_edges",
+      "type": "function",
+      "file": "./ev_grid_oracle/city_graph.py",
+      "name": "_add_chain_edges",
+      "doc": null
+    },
+    {
+      "id": "./ev_grid_oracle/city_graph.py:_add_dense_within_cluster",
+      "type": "function",
+      "file": "./ev_grid_oracle/city_graph.py",
+      "name": "_add_dense_within_cluster",
+      "doc": null
+    },
+    {
+      "id": "./ev_grid_oracle/city_graph.py:build_city_graph",
+      "type": "function",
+      "file": "./ev_grid_oracle/city_graph.py",
+      "name": "build_city_graph",
+      "doc": null
+    },
+    {
+      "id": "./ev_grid_oracle/city_graph.py:travel_time_minutes",
+      "type": "function",
+      "file": "./ev_grid_oracle/city_graph.py",
+      "name": "travel_time_minutes",
+      "doc": null
+    },
+    {
+      "id": "./ev_grid_oracle/city_graph.py:nearest_stations_by_geo",
+      "type": "function",
+      "file": "./ev_grid_oracle/city_graph.py",
+      "name": "nearest_stations_by_geo",
+      "doc": null
+    },
+    {
+      "id": "./ev_grid_oracle/demand_sim.py:DemandParams",
+      "type": "class",
+      "file": "./ev_grid_oracle/demand_sim.py",
+      "name": "DemandParams",
+      "doc": null
+    },
+    {
+      "id": "./ev_grid_oracle/demand_sim.py:_gaussian_bump",
+      "type": "function",
+      "file": "./ev_grid_oracle/demand_sim.py",
+      "name": "_gaussian_bump",
+      "doc": null
+    },
+    {
+      "id": "./ev_grid_oracle/demand_sim.py:expected_arrivals_per_step",
+      "type": "function",
+      "file": "./ev_grid_oracle/demand_sim.py",
+      "name": "expected_arrivals_per_step",
+      "doc": null
+    },
+    {
+      "id": "./ev_grid_oracle/demand_sim.py:sample_arrivals_per_step",
+      "type": "function",
+      "file": "./ev_grid_oracle/demand_sim.py",
+      "name": "sample_arrivals_per_step",
+      "doc": null
+    },
+    {
+      "id": "./viz/record_two_phase.py:_step_action",
+      "type": "function",
+      "file": "./viz/record_two_phase.py",
+      "name": "_step_action",
+      "doc": null
+    },
+    {
+      "id": "./viz/record_two_phase.py:record_phase",
+      "type": "function",
+      "file": "./viz/record_two_phase.py",
+      "name": "record_phase",
+      "doc": null
+    },
+    {
+      "id": "./viz/record_two_phase.py:main",
+      "type": "function",
+      "file": "./viz/record_two_phase.py",
       "name": "main",
       "doc": null
     },
     {
-      "id": "./tests/test_demo_api.py:test_demo_new_and_step_roundtrip",
+      "id": "./viz/record.py:record",
       "type": "function",
-      "file": "./tests/test_demo_api.py",
-      "name": "test_demo_new_and_step_roundtrip",
+      "file": "./viz/record.py",
+      "name": "record",
+      "doc": "Record frames as PNGs.\n\n- `tick_every_frames`: how many frames to show per env.step() (slows animation, looks smoother)."
+    },
+    {
+      "id": "./viz/record.py:main",
+      "type": "function",
+      "file": "./viz/record.py",
+      "name": "main",
       "doc": null
     },
     {
-      "id": "./tests/test_demo_api.py:test_demo_spawn_vehicle_route_event",
+      "id": "./viz/gradio_demo.py:_norm",
       "type": "function",
-      "file": "./tests/test_demo_api.py",
-      "name": "test_demo_spawn_vehicle_route_event",
+      "file": "./viz/gradio_demo.py",
+      "name": "_norm",
       "doc": null
     },
     {
-      "id": "./tests/test_demo_api.py:test_demo_step_forced_action_validation_422",
+      "id": "./viz/gradio_demo.py:_station_color",
       "type": "function",
-      "file": "./tests/test_demo_api.py",
-      "name": "test_demo_step_forced_action_validation_422",
+      "file": "./viz/gradio_demo.py",
+      "name": "_station_color",
       "doc": null
     },
     {
-      "id": "./tests/test_demo_api.py:test_health_shape",
+      "id": "./viz/gradio_demo.py:render_map",
       "type": "function",
-      "file": "./tests/test_demo_api.py",
-      "name": "test_health_shape",
+      "file": "./viz/gradio_demo.py",
+      "name": "render_map",
       "doc": null
     },
     {
-      "id": "./tests/test_demo_api.py:test_demo_sessions_ttl_eviction",
-      "type": "function",
-      "file": "./tests/test_demo_api.py",
-      "name": "test_demo_sessions_ttl_eviction",
+      "id": "./viz/gradio_demo.py:Session",
+      "type": "class",
+      "file": "./viz/gradio_demo.py",
+      "name": "Session",
       "doc": null
     },
     {
-      "id": "./tests/test_demo_api.py:test_ma_new_and_step_roundtrip",
+      "id": "./viz/gradio_demo.py:new_session",
       "type": "function",
-      "file": "./tests/test_demo_api.py",
-      "name": "test_ma_new_and_step_roundtrip",
+      "file": "./viz/gradio_demo.py",
+      "name": "new_session",
       "doc": null
     },
     {
-      "id": "./tests/test_env_determinism.py:test_reset_state_identical_two_cores_same_seed",
+      "id": "./viz/gradio_demo.py:step_once",
       "type": "function",
-      "file": "./tests/test_env_determinism.py",
-      "name": "test_reset_state_identical_two_cores_same_seed",
+      "file": "./viz/gradio_demo.py",
+      "name": "step_once",
       "doc": null
     },
     {
-      "id": "./tests/test_env_determinism.py:test_step_sequence_identical_two_cores_same_actions",
+      "id": "./viz/gradio_demo.py:compute_kpis",
       "type": "function",
-      "file": "./tests/test_env_determinism.py",
-      "name": "test_step_sequence_identical_two_cores_same_actions",
+      "file": "./viz/gradio_demo.py",
+      "name": "compute_kpis",
       "doc": null
     },
     {
-      "id": "./tests/test_env_determinism.py:test_ev_grid_action_rejects_malformed_payload",
+      "id": "./viz/gradio_demo.py:xy",
       "type": "function",
-      "file": "./tests/test_env_determinism.py",
-      "name": "test_ev_grid_action_rejects_malformed_payload",
+      "file": "./viz/gradio_demo.py",
+      "name": "xy",
       "doc": null
     },
     {
-      "id": "./tests/test_env_determinism.py:test_route_action_requires_station",
+      "id": "./viz/gradio_demo.py:_start",
       "type": "function",
-      "file": "./tests/test_env_determinism.py",
-      "name": "test_route_action_requires_station",
+      "file": "./viz/gradio_demo.py",
+      "name": "_start",
       "doc": null
     },
     {
-      "id": "./tests/test_reward.py:test_reward_breakdown_has_keys_and_total",
+      "id": "./viz/gradio_demo.py:_step",
       "type": "function",
-      "file": "./tests/test_reward.py",
-      "name": "test_reward_breakdown_has_keys_and_total",
+      "file": "./viz/gradio_demo.py",
+      "name": "_step",
       "doc": null
     },
     {
-      "id": "./tests/test_reward.py:test_deferring_critical_ev_penalized",
+      "id": "./viz/gradio_demo.py:_run60",
       "type": "function",
-      "file": "./tests/test_reward.py",
-      "name": "test_deferring_critical_ev_penalized",
+      "file": "./viz/gradio_demo.py",
+      "name": "_run60",
       "doc": null
     },
     {
-      "id": "./tests/test_reward.py:test_invalid_station_routes_penalized",
+      "id": "./viz/gradio_demo.py:_start_and_maybe_autoplay",
       "type": "function",
-      "file": "./tests/test_reward.py",
-      "name": "test_invalid_station_routes_penalized",
+      "file": "./viz/gradio_demo.py",
+      "name": "_start_and_maybe_autoplay",
       "doc": null
     },
     {
-      "id": "./tests/test_reward.py:test_split_role_rewards_exception_handling",
+      "id": "./viz/gradio_demo.py:_kpis",
       "type": "function",
-      "file": "./tests/test_reward.py",
-      "name": "test_split_role_rewards_exception_handling",
+      "file": "./viz/gradio_demo.py",
+      "name": "_kpis",
       "doc": null
     },
     {
-      "id": "./tests/test_world_model_verifier.py:test_rollout_deterministic_is_stable",
+      "id": "./viz/city_map.py:_station_color",
       "type": "function",
-      "file": "./tests/test_world_model_verifier.py",
-      "name": "test_rollout_deterministic_is_stable",
+      "file": "./viz/city_map.py",
+      "name": "_station_color",
       "doc": null
     },
     {
-      "id": "./tests/test_world_model_verifier.py:test_prediction_score_higher_when_close",
+      "id": "./viz/city_map.py:_norm",
       "type": "function",
-      "file": "./tests/test_world_model_verifier.py",
-      "name": "test_prediction_score_higher_when_close",
+      "file": "./viz/city_map.py",
+      "name": "_norm",
       "doc": null
     },
     {
-      "id": "./tests/test_evaluate_paired.py:_chdir_repo_root",
-      "type": "function",
-      "file": "./tests/test_evaluate_paired.py",
-      "name": "_chdir_repo_root",
+      "id": "./viz/city_map.py:RenderConfig",
+      "type": "class",
+      "file": "./viz/city_map.py",
+      "name": "RenderConfig",
       "doc": null
     },
     {
-      "id": "./tests/test_evaluate_paired.py:test_baseline_rollout_identical_for_same_seed_and_scenario",
-      "type": "function",
-      "file": "./tests/test_evaluate_paired.py",
-      "name": "test_baseline_rollout_identical_for_same_seed_and_scenario",
+      "id": "./viz/city_map.py:CityMapRenderer",
+      "type": "class",
+      "file": "./viz/city_map.py",
+      "name": "CityMapRenderer",
       "doc": null
     },
     {
-      "id": "./tests/test_evaluate_paired.py:test_oracle_matches_baseline_when_skip_llm",
+      "id": "./viz/city_map.py:run_live",
       "type": "function",
-      "file": "./tests/test_evaluate_paired.py",
-      "name": "test_oracle_matches_baseline_when_skip_llm",
+      "file": "./viz/city_map.py",
+      "name": "run_live",
       "doc": null
     },
     {
-      "id": "./tests/test_evaluate_paired.py:test_evaluate_cli_paired_json",
+      "id": "./viz/city_map.py:__init__",
       "type": "function",
-      "file": "./tests/test_evaluate_paired.py",
-      "name": "test_evaluate_cli_paired_json",
+      "file": "./viz/city_map.py",
+      "name": "__init__",
       "doc": null
     },
     {
-      "id": "./tests/test_evaluate_paired.py:test_fair_eval_cli",
+      "id": "./viz/city_map.py:xy",
       "type": "function",
-      "file": "./tests/test_evaluate_paired.py",
-      "name": "test_fair_eval_cli",
+      "file": "./viz/city_map.py",
+      "name": "xy",
       "doc": null
     },
     {
-      "id": "./tests/test_models_and_graph.py:test_city_graph_connected_and_25_stations",
+      "id": "./viz/city_map.py:draw_arrow",
       "type": "function",
-      "file": "./tests/test_models_and_graph.py",
-      "name": "test_city_graph_connected_and_25_stations",
+      "file": "./viz/city_map.py",
+      "name": "draw_arrow",
       "doc": null
     },
     {
-      "id": "./tests/test_models_and_graph.py:test_action_route_requires_station_id_and_zero_defer",
+      "id": "./viz/city_map.py:render",
       "type": "function",
-      "file": "./tests/test_models_and_graph.py",
-      "name": "test_action_route_requires_station_id_and_zero_defer",
+      "file": "./viz/city_map.py",
+      "name": "render",
       "doc": null
     },
     {
-      "id": "./tests/test_models_and_graph.py:test_action_defer_requires_positive_defer_minutes",
+      "id": "./viz/city_map.py:_draw_background",
       "type": "function",
-      "file": "./tests/test_models_and_graph.py",
-      "name": "test_action_defer_requires_positive_defer_minutes",
+      "file": "./viz/city_map.py",
+      "name": "_draw_background",
       "doc": null
     },
     {
-      "id": "./tests/test_models_and_graph.py:test_time_advances_with_5min_steps",
+      "id": "./viz/city_map.py:_draw_edges",
       "type": "function",
-      "file": "./tests/test_models_and_graph.py",
-      "name": "test_time_advances_with_5min_steps",
+      "file": "./viz/city_map.py",
+      "name": "_draw_edges",
       "doc": null
     },
     {
-      "id": "./tests/test_fair_eval_mcnemar.py:test_mcnemar_no_discordant_is_neutral",
+      "id": "./viz/city_map.py:_draw_glow",
       "type": "function",
-      "file": "./tests/test_fair_eval_mcnemar.py",
-      "name": "test_mcnemar_no_discordant_is_neutral",
+      "file": "./viz/city_map.py",
+      "name": "_draw_glow",
       "doc": null
     },
     {
-      "id": "./tests/test_fair_eval_mcnemar.py:test_mcnemar_strong_asymmetry_low_p",
+      "id": "./viz/city_map.py:_draw_animated_route",
       "type": "function",
-      "file": "./tests/test_fair_eval_mcnemar.py",
-      "name": "test_mcnemar_strong_asymmetry_low_p",
+      "file": "./viz/city_map.py",
+      "name": "_draw_animated_route",
       "doc": null
     },
     {
-      "id": "./tests/test_fair_eval_mcnemar.py:test_paired_mcnemar_analysis_shape",
+      "id": "./viz/city_map.py:blit_line",
       "type": "function",
-      "file": "./tests/test_fair_eval_mcnemar.py",
-      "name": "test_paired_mcnemar_analysis_shape",
-      "doc": null
-    },
-    {
-      "id": "./tests/test_parsing.py:test_parse_simulation_valid",
-      "type": "function",
-      "file": "./tests/test_parsing.py",
-      "name": "test_parse_simulation_valid",
-      "doc": null
-    },
-    {
-      "id": "./tests/test_parsing.py:test_parse_simulation_missing_match",
-      "type": "function",
-      "file": "./tests/test_parsing.py",
-      "name": "test_parse_simulation_missing_match",
-      "doc": null
-    },
-    {
-      "id": "./tests/test_parsing.py:test_parse_simulation_exception_handling",
-      "type": "function",
-      "file": "./tests/test_parsing.py",
-      "name": "test_parse_simulation_exception_handling",
-      "doc": null
-    },
-    {
-      "id": "./tests/test_policies_collapse.py:_run_policy",
-      "type": "function",
-      "file": "./tests/test_policies_collapse.py",
-      "name": "_run_policy",
-      "doc": null
-    },
-    {
-      "id": "./tests/test_policies_collapse.py:test_collapse_policies_do_not_crash",
-      "type": "function",
-      "file": "./tests/test_policies_collapse.py",
-      "name": "test_collapse_policies_do_not_crash",
-      "doc": null
-    },
-    {
-      "id": "./tests/test_policies_collapse.py:test_collapse_policies_return_valid_actions_when_pending",
-      "type": "function",
-      "file": "./tests/test_policies_collapse.py",
-      "name": "test_collapse_policies_return_valid_actions_when_pending",
+      "file": "./viz/city_map.py",
+      "name": "blit_line",
       "doc": null
     }
   ]

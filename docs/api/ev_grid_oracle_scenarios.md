@@ -18,3 +18,4 @@ Note: ticks are env steps (5-minute increments by default).
 
 ### `apply_scenario_events`
 Returns updated modifiers and the list of events that fired this tick.
+
