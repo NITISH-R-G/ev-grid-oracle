@@ -46,3 +46,4 @@ No documentation available.
 
 ### `rate`
 No documentation available.
+

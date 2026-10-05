@@ -16,3 +16,4 @@ No documentation available.
 
 ### `snapshot`
 Read-only view of the underlying core state.
+
