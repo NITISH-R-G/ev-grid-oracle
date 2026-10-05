@@ -5,123 +5,23 @@
       "type": "module"
     },
     {
-      "id": "record_two_phase",
+      "id": "sync_space_to_hub",
       "type": "module"
     },
     {
-      "id": "city_map",
+      "id": "write_eval_snapshot",
       "type": "module"
     },
     {
-      "id": "__init__",
+      "id": "build_roads_render",
       "type": "module"
     },
     {
-      "id": "record",
+      "id": "fetch_osm_roads",
       "type": "module"
     },
     {
-      "id": "gradio_demo",
-      "type": "module"
-    },
-    {
-      "id": "app",
-      "type": "module"
-    },
-    {
-      "id": "ev_grid_environment",
-      "type": "module"
-    },
-    {
-      "id": "ev_grid_road_environment",
-      "type": "module"
-    },
-    {
-      "id": "role_metrics",
-      "type": "module"
-    },
-    {
-      "id": "__init__",
-      "type": "module"
-    },
-    {
-      "id": "road_router",
-      "type": "module"
-    },
-    {
-      "id": "bescom_feed",
-      "type": "module"
-    },
-    {
-      "id": "road_models",
-      "type": "module"
-    },
-    {
-      "id": "road_env",
-      "type": "module"
-    },
-    {
-      "id": "multi_agent",
-      "type": "module"
-    },
-    {
-      "id": "city_graph",
-      "type": "module"
-    },
-    {
-      "id": "reward",
-      "type": "module"
-    },
-    {
-      "id": "reward_hack",
-      "type": "module"
-    },
-    {
-      "id": "__init__",
-      "type": "module"
-    },
-    {
-      "id": "personas",
-      "type": "module"
-    },
-    {
-      "id": "world_model_verifier",
-      "type": "module"
-    },
-    {
-      "id": "grid_sim",
-      "type": "module"
-    },
-    {
-      "id": "models",
-      "type": "module"
-    },
-    {
-      "id": "scenarios",
-      "type": "module"
-    },
-    {
-      "id": "env",
-      "type": "module"
-    },
-    {
-      "id": "parsing",
-      "type": "module"
-    },
-    {
-      "id": "oracle_agent",
-      "type": "module"
-    },
-    {
-      "id": "demand_sim",
-      "type": "module"
-    },
-    {
-      "id": "policies",
-      "type": "module"
-    },
-    {
-      "id": "traffic",
+      "id": "prune_osm_geojson",
       "type": "module"
     },
     {
@@ -129,7 +29,15 @@
       "type": "module"
     },
     {
-      "id": "sync_space_to_hub",
+      "id": "generate_architecture_diagrams",
+      "type": "module"
+    },
+    {
+      "id": "generate_health_dashboard",
+      "type": "module"
+    },
+    {
+      "id": "road_reward_smoke",
       "type": "module"
     },
     {
@@ -145,47 +53,11 @@
       "type": "module"
     },
     {
-      "id": "generate_architecture_diagrams",
-      "type": "module"
-    },
-    {
-      "id": "prune_osm_geojson",
-      "type": "module"
-    },
-    {
       "id": "__init__",
       "type": "module"
     },
     {
       "id": "docs_sync",
-      "type": "module"
-    },
-    {
-      "id": "road_reward_smoke",
-      "type": "module"
-    },
-    {
-      "id": "generate_health_dashboard",
-      "type": "module"
-    },
-    {
-      "id": "write_eval_snapshot",
-      "type": "module"
-    },
-    {
-      "id": "fetch_osm_roads",
-      "type": "module"
-    },
-    {
-      "id": "build_roads_render",
-      "type": "module"
-    },
-    {
-      "id": "fair_eval",
-      "type": "module"
-    },
-    {
-      "id": "__init__",
       "type": "module"
     },
     {
@@ -197,23 +69,31 @@
       "type": "module"
     },
     {
-      "id": "test_demo_api",
+      "id": "__init__",
       "type": "module"
     },
     {
-      "id": "test_env_determinism",
+      "id": "fair_eval",
       "type": "module"
     },
     {
-      "id": "test_reward",
+      "id": "ev_grid_road_environment",
       "type": "module"
     },
     {
-      "id": "test_world_model_verifier",
+      "id": "road_router",
       "type": "module"
     },
     {
-      "id": "test_evaluate_paired",
+      "id": "role_metrics",
+      "type": "module"
+    },
+    {
+      "id": "ev_grid_environment",
+      "type": "module"
+    },
+    {
+      "id": "app",
       "type": "module"
     },
     {
@@ -225,7 +105,15 @@
       "type": "module"
     },
     {
-      "id": "test_fair_eval_mcnemar",
+      "id": "test_env_determinism",
+      "type": "module"
+    },
+    {
+      "id": "test_policies_collapse",
+      "type": "module"
+    },
+    {
+      "id": "test_evaluate_paired",
       "type": "module"
     },
     {
@@ -233,53 +121,129 @@
       "type": "module"
     },
     {
-      "id": "test_policies_collapse",
+      "id": "test_fair_eval_mcnemar",
+      "type": "module"
+    },
+    {
+      "id": "test_demo_api",
+      "type": "module"
+    },
+    {
+      "id": "__init__",
+      "type": "module"
+    },
+    {
+      "id": "test_world_model_verifier",
+      "type": "module"
+    },
+    {
+      "id": "test_reward",
+      "type": "module"
+    },
+    {
+      "id": "personas",
+      "type": "module"
+    },
+    {
+      "id": "scenarios",
+      "type": "module"
+    },
+    {
+      "id": "road_env",
+      "type": "module"
+    },
+    {
+      "id": "reward_hack",
+      "type": "module"
+    },
+    {
+      "id": "policies",
+      "type": "module"
+    },
+    {
+      "id": "models",
+      "type": "module"
+    },
+    {
+      "id": "env",
+      "type": "module"
+    },
+    {
+      "id": "oracle_agent",
+      "type": "module"
+    },
+    {
+      "id": "traffic",
+      "type": "module"
+    },
+    {
+      "id": "grid_sim",
+      "type": "module"
+    },
+    {
+      "id": "world_model_verifier",
+      "type": "module"
+    },
+    {
+      "id": "road_models",
+      "type": "module"
+    },
+    {
+      "id": "__init__",
+      "type": "module"
+    },
+    {
+      "id": "bescom_feed",
+      "type": "module"
+    },
+    {
+      "id": "reward",
+      "type": "module"
+    },
+    {
+      "id": "parsing",
+      "type": "module"
+    },
+    {
+      "id": "multi_agent",
+      "type": "module"
+    },
+    {
+      "id": "city_graph",
+      "type": "module"
+    },
+    {
+      "id": "demand_sim",
+      "type": "module"
+    },
+    {
+      "id": "record_two_phase",
+      "type": "module"
+    },
+    {
+      "id": "record",
+      "type": "module"
+    },
+    {
+      "id": "gradio_demo",
+      "type": "module"
+    },
+    {
+      "id": "__init__",
+      "type": "module"
+    },
+    {
+      "id": "city_map",
       "type": "module"
     }
   ],
   "edges": [
     {
-      "source": "bescom_feed",
-      "target": "models"
-    },
-    {
       "source": "road_env",
       "target": "road_models"
     },
     {
-      "source": "multi_agent",
-      "target": "env"
-    },
-    {
-      "source": "multi_agent",
-      "target": "models"
-    },
-    {
-      "source": "multi_agent",
-      "target": "policies"
-    },
-    {
-      "source": "city_graph",
-      "target": "models"
-    },
-    {
-      "source": "reward",
-      "target": "models"
-    },
-    {
       "source": "reward_hack",
-      "target": "models"
-    },
-    {
-      "source": "world_model_verifier",
-      "target": "env"
-    },
-    {
-      "source": "world_model_verifier",
-      "target": "grid_sim"
-    },
-    {
-      "source": "world_model_verifier",
       "target": "models"
     },
     {
@@ -319,7 +283,43 @@
       "target": "scenarios"
     },
     {
+      "source": "world_model_verifier",
+      "target": "env"
+    },
+    {
+      "source": "world_model_verifier",
+      "target": "grid_sim"
+    },
+    {
+      "source": "world_model_verifier",
+      "target": "models"
+    },
+    {
+      "source": "bescom_feed",
+      "target": "models"
+    },
+    {
+      "source": "reward",
+      "target": "models"
+    },
+    {
       "source": "parsing",
+      "target": "models"
+    },
+    {
+      "source": "multi_agent",
+      "target": "env"
+    },
+    {
+      "source": "multi_agent",
+      "target": "models"
+    },
+    {
+      "source": "multi_agent",
+      "target": "policies"
+    },
+    {
+      "source": "city_graph",
       "target": "models"
     }
   ]

@@ -10,3 +10,4 @@ No documentation available.
 
 ### `test_collapse_policies_return_valid_actions_when_pending`
 No documentation available.
+
