@@ -4,4 +4,3 @@
 
 ### `generate_docs`
 No documentation available.
-
