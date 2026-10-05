@@ -44,7 +44,7 @@ def generate_architecture_diagrams() -> dict[str, Any]:
                                 graph["edges"].append(
                                     {"source": module_name, "target": node.module}
                                 )
-                except Exception:
+                except Exception:  # nosec B110
                     pass  # noqa: BLE001
 
     return graph

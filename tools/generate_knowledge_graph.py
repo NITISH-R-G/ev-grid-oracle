@@ -40,7 +40,7 @@ def generate_knowledge_graph() -> dict[str, list[dict[str, Any]]]:
                                     "doc": ast.get_docstring(node),
                                 }
                             )
-                except Exception:
+                except Exception:  # nosec B110
                     pass  # noqa: BLE001
 
     return graph

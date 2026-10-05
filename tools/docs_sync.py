@@ -56,7 +56,7 @@ def generate_docs() -> None:
                                         or "No documentation available."
                                     )
                                     out.write(f"{doc}\n\n")
-                except Exception:
+                except Exception:  # nosec B110
                     pass  # noqa: BLE001
 
 

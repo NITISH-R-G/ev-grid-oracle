@@ -10,4 +10,3 @@ No documentation available.
 
 ### `test_parse_simulation_exception_handling`
 No documentation available.
-

@@ -13,4 +13,3 @@ No documentation available.
 
 ### `test_split_role_rewards_exception_handling`
 No documentation available.
-
