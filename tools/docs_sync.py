@@ -1,11 +1,12 @@
 import ast
 import os
 
+
 def generate_docs() -> None:
     os.makedirs("docs/api", exist_ok=True)
 
     for root, dirs, files in os.walk("."):
-        dirs[:] = [d for d in dirs if not d.startswith('.')]
+        dirs[:] = [d for d in dirs if not d.startswith(".")]
         if "node_modules" in dirs:
             dirs.remove("node_modules")
 
@@ -22,7 +23,9 @@ def generate_docs() -> None:
                     for node in ast.walk(tree):
                         if isinstance(node, ast.ClassDef):
                             classes.append(node)
-                        elif isinstance(node, ast.FunctionDef) and not getattr(node, 'is_method', False):
+                        elif isinstance(node, ast.FunctionDef) and not getattr(
+                            node, "is_method", False
+                        ):
                             functions.append(node)
 
                     if classes or functions:
@@ -38,17 +41,24 @@ def generate_docs() -> None:
                                 out.write("## Classes\n\n")
                                 for c in classes:
                                     out.write(f"### `{c.name}`\n")
-                                    doc = ast.get_docstring(c) or "No documentation available."
+                                    doc = (
+                                        ast.get_docstring(c)
+                                        or "No documentation available."
+                                    )
                                     out.write(f"{doc}\n\n")
 
                             if functions:
                                 out.write("## Functions\n\n")
                                 for f_node in functions:
                                     out.write(f"### `{f_node.name}`\n")
-                                    doc = ast.get_docstring(f_node) or "No documentation available."
+                                    doc = (
+                                        ast.get_docstring(f_node)
+                                        or "No documentation available."
+                                    )
                                     out.write(f"{doc}\n\n")
-                except Exception as e:
-                    pass # noqa: BLE001
+                except Exception:
+                    pass  # noqa: BLE001
+
 
 if __name__ == "__main__":
     generate_docs()

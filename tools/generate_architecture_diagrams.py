@@ -3,12 +3,13 @@ import json
 import os
 from typing import Any
 
+
 def generate_architecture_diagrams() -> dict[str, Any]:
     graph: dict[str, Any] = {"nodes": [], "edges": []}
     modules: dict[str, str] = {}
 
     for root, dirs, files in os.walk("."):
-        dirs[:] = [d for d in dirs if not d.startswith('.')]
+        dirs[:] = [d for d in dirs if not d.startswith(".")]
         if "node_modules" in dirs:
             dirs.remove("node_modules")
 
@@ -17,13 +18,10 @@ def generate_architecture_diagrams() -> dict[str, Any]:
                 filepath = os.path.join(root, file)
                 module_name = file.replace(".py", "")
                 modules[module_name] = filepath
-                graph["nodes"].append({
-                    "id": module_name,
-                    "type": "module"
-                })
+                graph["nodes"].append({"id": module_name, "type": "module"})
 
     for root, dirs, files in os.walk("."):
-        dirs[:] = [d for d in dirs if not d.startswith('.')]
+        dirs[:] = [d for d in dirs if not d.startswith(".")]
         if "node_modules" in dirs:
             dirs.remove("node_modules")
 
@@ -38,20 +36,19 @@ def generate_architecture_diagrams() -> dict[str, Any]:
                         if isinstance(node, ast.Import):
                             for alias in node.names:
                                 if alias.name in modules:
-                                    graph["edges"].append({
-                                        "source": module_name,
-                                        "target": alias.name
-                                    })
+                                    graph["edges"].append(
+                                        {"source": module_name, "target": alias.name}
+                                    )
                         elif isinstance(node, ast.ImportFrom):
                             if node.module and node.module in modules:
-                                graph["edges"].append({
-                                    "source": module_name,
-                                    "target": node.module
-                                })
-                except Exception as e:
-                    pass # noqa: BLE001
+                                graph["edges"].append(
+                                    {"source": module_name, "target": node.module}
+                                )
+                except Exception:
+                    pass  # noqa: BLE001
 
     return graph
+
 
 if __name__ == "__main__":
     os.makedirs("artifacts", exist_ok=True)

@@ -7,4 +7,3 @@ No documentation available.
 
 ### `test_prediction_score_higher_when_close`
 No documentation available.
-

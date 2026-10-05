@@ -21,4 +21,3 @@ No documentation available.
 
 ### `hotspot`
 No documentation available.
-

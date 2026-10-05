@@ -3,11 +3,12 @@ import json
 import os
 from typing import Any
 
+
 def generate_knowledge_graph() -> dict[str, list[dict[str, Any]]]:
     graph: dict[str, list[dict[str, Any]]] = {"nodes": []}
 
     for root, dirs, files in os.walk("."):
-        dirs[:] = [d for d in dirs if not d.startswith('.')]
+        dirs[:] = [d for d in dirs if not d.startswith(".")]
         if "node_modules" in dirs:
             dirs.remove("node_modules")
 
@@ -20,28 +21,34 @@ def generate_knowledge_graph() -> dict[str, list[dict[str, Any]]]:
 
                     for node in ast.walk(tree):
                         if isinstance(node, ast.ClassDef):
-                            graph["nodes"].append({
-                                "id": f"{filepath}:{node.name}",
-                                "type": "class",
-                                "file": filepath,
-                                "name": node.name,
-                                "doc": ast.get_docstring(node)
-                            })
+                            graph["nodes"].append(
+                                {
+                                    "id": f"{filepath}:{node.name}",
+                                    "type": "class",
+                                    "file": filepath,
+                                    "name": node.name,
+                                    "doc": ast.get_docstring(node),
+                                }
+                            )
                         elif isinstance(node, ast.FunctionDef):
-                            graph["nodes"].append({
-                                "id": f"{filepath}:{node.name}",
-                                "type": "function",
-                                "file": filepath,
-                                "name": node.name,
-                                "doc": ast.get_docstring(node)
-                            })
-                except Exception as e:
-                    pass # noqa: BLE001
+                            graph["nodes"].append(
+                                {
+                                    "id": f"{filepath}:{node.name}",
+                                    "type": "function",
+                                    "file": filepath,
+                                    "name": node.name,
+                                    "doc": ast.get_docstring(node),
+                                }
+                            )
+                except Exception:
+                    pass  # noqa: BLE001
 
     return graph
 
+
 if __name__ == "__main__":
     import os
+
     os.makedirs("artifacts", exist_ok=True)
     graph = generate_knowledge_graph()
     with open("artifacts/knowledge_graph.json", "w", encoding="utf-8") as f:
