@@ -31,3 +31,14 @@ ev_grid_oracle.egg-info/
 .coverage
 dashboard_output/
 build/
+
+# Cache and environment
+.mypy_cache/
+.pytest_cache/
+.ruff_cache/
+.venv/
+
+# Large map files
+web/public/maps/*.json
+web/public/maps/*.json.gz
+web/public/maps/*.geojson

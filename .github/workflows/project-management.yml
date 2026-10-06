@@ -1,0 +1,33 @@
+name: Auto Assign Issues
+
+on:
+  issues:
+    types: [labeled]
+
+permissions:
+  issues: write
+
+jobs:
+  auto-assign:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Auto-assign based on labels
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const labelName = context.payload.label.name;
+            const issueNumber = context.payload.issue.number;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            // Assign to code owner
+            const assignee = 'NITISH-R-G';
+
+            if (['bug', 'enhancement', 'documentation'].includes(labelName)) {
+              await github.rest.issues.addAssignees({
+                owner,
+                repo,
+                issue_number: issueNumber,
+                assignees: [assignee]
+              });
+            }
