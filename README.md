@@ -14,13 +14,13 @@ An **OpenEnv RL environment** that simulates Bangalore’s EV charging grid and 
 
 ### OpenEnv Hackathon 2026 — theme fit (pick a primary; justify in pitch)
 
-| Theme | How EV Grid Oracle aligns |
-|------|----------------------------|
-| **#3 World modeling (primary)** | **Partially observable** grid + queues + **strict tool-like** actions; rewards come from **simulator + verifier** (`ev_grid_oracle/reward.py`), not from the model grading itself. Optional **world-model head** in training (`SimulationPrediction` + verifier in `training/train_grpo.ipynb`). |
-| **#2 Long horizon (primary)** | Multi-step episodes (`reset` / `step` over many ticks), **delayed** stress from **scheduled scenarios** (`ev_grid_oracle/scenarios.py`), recovery from early mistakes visible in replay. |
-| **#1 Multi-agent (primary)** | **Explicit multi-agent protocol**: **GridOperator** publishes a verifiable directive (`/ma/*`), **FleetDispatcher** routes EVs under that constraint, and we score **role rewards** + negotiation signal (`ev_grid_oracle/multi_agent.py`, `ev_grid_oracle/reward.py`). The demo UI includes **Judge Mode (MA)** with a negotiation timeline. |
-| **#4 Self-improvement** | Scenario curriculum + trap catalog (`docs/judge-kit/trap-catalog.md`) are a hook for **adaptive difficulty**; training can reweight scenarios (future work). |
-| **#5 Wild card** | Spatial **Bangalore graph** + **City Ops** demo + paired statistical eval are the differentiated story. |
+| Theme                           | How EV Grid Oracle aligns                                                                                                                                                                                                                                                                                                                     |
+| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **#3 World modeling (primary)** | **Partially observable** grid + queues + **strict tool-like** actions; rewards come from **simulator + verifier** (`ev_grid_oracle/reward.py`), not from the model grading itself. Optional **world-model head** in training (`SimulationPrediction` + verifier in `training/train_grpo.ipynb`).                                              |
+| **#2 Long horizon (primary)**   | Multi-step episodes (`reset` / `step` over many ticks), **delayed** stress from **scheduled scenarios** (`ev_grid_oracle/scenarios.py`), recovery from early mistakes visible in replay.                                                                                                                                                      |
+| **#1 Multi-agent (primary)**    | **Explicit multi-agent protocol**: **GridOperator** publishes a verifiable directive (`/ma/*`), **FleetDispatcher** routes EVs under that constraint, and we score **role rewards** + negotiation signal (`ev_grid_oracle/multi_agent.py`, `ev_grid_oracle/reward.py`). The demo UI includes **Judge Mode (MA)** with a negotiation timeline. |
+| **#4 Self-improvement**         | Scenario curriculum + trap catalog (`docs/judge-kit/trap-catalog.md`) are a hook for **adaptive difficulty**; training can reweight scenarios (future work).                                                                                                                                                                                  |
+| **#5 Wild card**                | Spatial **Bangalore graph** + **City Ops** demo + paired statistical eval are the differentiated story.                                                                                                                                                                                                                                       |
 
 **Dual framing:** OpenEnv Hackathon + AI for Bharat (BESCOM Theme 9).
 
@@ -28,28 +28,29 @@ An **OpenEnv RL environment** that simulates Bangalore’s EV charging grid and 
 
 Submissions are expected to meet the official checklist **with public URLs only** (do **not** commit large video binaries to the Hub Space repo).
 
-| Requirement | Where |
-|---------------|--------|
-| **OpenEnv (build on the framework)** | This repo uses **`openenv-core>=0.2.3`** on [PyPI](https://pypi.org/project/openenv-core/) (current release line), plus [`openenv.yaml`](openenv.yaml) and the FastAPI server under `server/`. |
-| **Runnable env on Hugging Face Spaces** | [**Space (card)**](https://huggingface.co/spaces/NITISHRG15102007/ev-grid-oracle) · [**Live app**](https://nitishrg15102007-ev-grid-oracle.hf.space) |
-| **Training script (TRL + Unsloth, re‑runnable)** | [**Open in Colab**](https://colab.research.google.com/github/NITISH-R-G/ev-grid-oracle/blob/main/training/train_grpo.ipynb) · [Notebook on GitHub](https://github.com/NITISH-R-G/ev-grid-oracle/blob/main/training/train_grpo.ipynb) · same file in repo: [`training/train_grpo.ipynb`](training/train_grpo.ipynb) |
-| **Evidence of real training (loss + reward)** | After a GPU run, TensorBoard logs land in `ev_oracle_grpo_road/`. Export PNGs: `python tools/export_grpo_tensorboard_plots.py --logdir ev_oracle_grpo_road --out-dir artifacts` → commit **`artifacts/grpo_loss.png`** and **`artifacts/grpo_reward.png`** (see [training artifacts doc](docs/submission/training-artifacts-and-logs.md)). *Until those exist from your run, add them before final submission.* |
-| **Mini‑blog or under‑2‑minute video (link only)** | **Writeup:** [HF mini‑blog source (markdown)](https://github.com/NITISH-R-G/ev-grid-oracle/blob/main/docs/hf-mini-blog-ev-grid-oracle.md) — paste into a Hub post or link the raw file. **Video:** `https://youtu.be/yW1a1TrTZlI` — shot list: [`docs/submission/youtube-under-2min-outline.md`](docs/submission/youtube-under-2min-outline.md). |
-| **Adapter weights (optional but linked)** | [LoRA on Hub](https://huggingface.co/NITISHRG15102007/ev-oracle-lora) |
-| **Extra materials** | Judge kit: [`docs/judge-kit/credit-assessment-pattern-map.md`](docs/judge-kit/credit-assessment-pattern-map.md) · official resources: [`docs/hackathon-official-resources.md`](docs/hackathon-official-resources.md) |
+| Requirement                                       | Where                                                                                                                                                                                                                                                                                                                                                                                                           |
+| ------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **OpenEnv (build on the framework)**              | This repo uses **`openenv-core>=0.2.3`** on [PyPI](https://pypi.org/project/openenv-core/) (current release line), plus [`openenv.yaml`](openenv.yaml) and the FastAPI server under `server/`.                                                                                                                                                                                                                  |
+| **Runnable env on Hugging Face Spaces**           | [**Space (card)**](https://huggingface.co/spaces/NITISHRG15102007/ev-grid-oracle) · [**Live app**](https://nitishrg15102007-ev-grid-oracle.hf.space)                                                                                                                                                                                                                                                            |
+| **Training script (TRL + Unsloth, re‑runnable)**  | [**Open in Colab**](https://colab.research.google.com/github/NITISH-R-G/ev-grid-oracle/blob/main/training/train_grpo.ipynb) · [Notebook on GitHub](https://github.com/NITISH-R-G/ev-grid-oracle/blob/main/training/train_grpo.ipynb) · same file in repo: [`training/train_grpo.ipynb`](training/train_grpo.ipynb)                                                                                              |
+| **Evidence of real training (loss + reward)**     | After a GPU run, TensorBoard logs land in `ev_oracle_grpo_road/`. Export PNGs: `python tools/export_grpo_tensorboard_plots.py --logdir ev_oracle_grpo_road --out-dir artifacts` → commit **`artifacts/grpo_loss.png`** and **`artifacts/grpo_reward.png`** (see [training artifacts doc](docs/submission/training-artifacts-and-logs.md)). _Until those exist from your run, add them before final submission._ |
+| **Mini‑blog or under‑2‑minute video (link only)** | **Writeup:** [HF mini‑blog source (markdown)](https://github.com/NITISH-R-G/ev-grid-oracle/blob/main/docs/hf-mini-blog-ev-grid-oracle.md) — paste into a Hub post or link the raw file. **Video:** `https://youtu.be/yW1a1TrTZlI` — shot list: [`docs/submission/youtube-under-2min-outline.md`](docs/submission/youtube-under-2min-outline.md).                                                                |
+| **Adapter weights (optional but linked)**         | [LoRA on Hub](https://huggingface.co/NITISHRG15102007/ev-oracle-lora)                                                                                                                                                                                                                                                                                                                                           |
+| **Extra materials**                               | Judge kit: [`docs/judge-kit/credit-assessment-pattern-map.md`](docs/judge-kit/credit-assessment-pattern-map.md) · official resources: [`docs/hackathon-official-resources.md`](docs/hackathon-official-resources.md)                                                                                                                                                                                            |
 
 **Eval / behavior evidence (complements GRPO curves):** paired baseline vs oracle plots live under `artifacts/` (see [Evidence & visualizations](#evidence--visualizations-baseline-vs-oracle--judge-pack) below).
 
 ### How this maps to judging (40 / 30 / 20 / 10)
 
-| Criterion (weight) | What judges ask | Where we answer |
-|--------------------|-----------------|-----------------|
-| **Environment innovation (40%)** | Novel, hard to game, tests behavior | Graph routing + **anti-cheat flags**, deterministic **stress scenarios**, Phaser command center + replay (`web/`). |
-| **Storytelling (30%)** | Problem → env → what changed → why it matters | This README + [`docs/hf-mini-blog-ev-grid-oracle.md`](docs/hf-mini-blog-ev-grid-oracle.md) + Space demo. |
-| **Improvement in rewards / behavior (20%)** | Before vs after, same seeds | **Paired** `training/evaluate.py`, plots below, `training/fair_eval.py` (Wilson + McNemar on `per_episode`). |
-| **Reward & pipeline (10%)** | Coherent reward, training hooks env | `ev_grid_oracle/reward.py` breakdown + `training/train_grpo.ipynb` (GRPO + `reward_fn` stepping `EVGridCore`). |
+| Criterion (weight)                          | What judges ask                               | Where we answer                                                                                                    |
+| ------------------------------------------- | --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| **Environment innovation (40%)**            | Novel, hard to game, tests behavior           | Graph routing + **anti-cheat flags**, deterministic **stress scenarios**, Phaser command center + replay (`web/`). |
+| **Storytelling (30%)**                      | Problem → env → what changed → why it matters | This README + [`docs/hf-mini-blog-ev-grid-oracle.md`](docs/hf-mini-blog-ev-grid-oracle.md) + Space demo.           |
+| **Improvement in rewards / behavior (20%)** | Before vs after, same seeds                   | **Paired** `training/evaluate.py`, plots below, `training/fair_eval.py` (Wilson + McNemar on `per_episode`).       |
+| **Reward & pipeline (10%)**                 | Coherent reward, training hooks env           | `ev_grid_oracle/reward.py` breakdown + `training/train_grpo.ipynb` (GRPO + `reward_fn` stepping `EVGridCore`).     |
 
 ### Why judges will care (fast)
+
 - **It’s verifiable**: every action parsed + validated; reward breakdown logged (anti‑hack by design).
 - **It’s visual**: live “city map” with station heat, queues, arrows, HUD.
 - **It shows learning**: baseline vs oracle KPIs + reward curves + replayable seeds.
@@ -95,29 +96,29 @@ Submissions are expected to meet the official checklist **with public URLs only*
 
 ### Submission bundle (env + training scripts + logs)
 
-| Deliverable | Where |
-|-------------|--------|
-| Shared **environment** | HF Space + `openenv.yaml` (links above) |
-| **Training script** | [`training/train_grpo.ipynb`](training/train_grpo.ipynb) (+ Colab quick link) |
-| **Eval / fair-stats scripts** | `training/evaluate.py`, `training/fair_eval.py`, `training/make_plots.py` |
-| **Training logs** (GRPO) | TensorBoard under `ev_oracle_grpo_road/` during a run; export PNGs or a console tail — **[`docs/submission/training-artifacts-and-logs.md`](docs/submission/training-artifacts-and-logs.md)** |
-| **Eval evidence** (JSON + plots) | `training/eval_results.json`, `artifacts/fair_eval_results.json`, `artifacts/*.png` |
-| **Video storyboard** | [`docs/submission/youtube-under-2min-outline.md`](docs/submission/youtube-under-2min-outline.md) |
+| Deliverable                      | Where                                                                                                                                                                                         |
+| -------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Shared **environment**           | HF Space + `openenv.yaml` (links above)                                                                                                                                                       |
+| **Training script**              | [`training/train_grpo.ipynb`](training/train_grpo.ipynb) (+ Colab quick link)                                                                                                                 |
+| **Eval / fair-stats scripts**    | `training/evaluate.py`, `training/fair_eval.py`, `training/make_plots.py`                                                                                                                     |
+| **Training logs** (GRPO)         | TensorBoard under `ev_oracle_grpo_road/` during a run; export PNGs or a console tail — **[`docs/submission/training-artifacts-and-logs.md`](docs/submission/training-artifacts-and-logs.md)** |
+| **Eval evidence** (JSON + plots) | `training/eval_results.json`, `artifacts/fair_eval_results.json`, `artifacts/*.png`                                                                                                           |
+| **Video storyboard**             | [`docs/submission/youtube-under-2min-outline.md`](docs/submission/youtube-under-2min-outline.md)                                                                                              |
 
 ### Official hackathon resources (OpenEnv + HF + tutorials)
 
 Full list with descriptions: [`docs/hackathon-official-resources.md`](docs/hackathon-official-resources.md).
 
-| Resource | Link |
-|----------|------|
-| OpenEnv Core (GitHub) | https://github.com/meta-pytorch/OpenEnV |
-| OpenEnv docs | https://meta-pytorch.org/OpenEnv/ |
-| HF OpenEnv environments | https://huggingface.co/openenv |
-| HF OpenEnv Spaces | https://huggingface.co/openenv/spaces |
-| Tutorials (tree) | https://github.com/meta-pytorch/OpenEnv/tree/main/tutorial |
-| Training examples | https://github.com/meta-pytorch/OpenEnv/tree/main/tutorial/examples |
-| Environment examples | https://github.com/meta-pytorch/OpenEnv/tree/main/envs |
-| Reward papers | https://arxiv.org/abs/2408.10215 · https://arxiv.org/abs/2601.19100 |
+| Resource                | Link                                                                |
+| ----------------------- | ------------------------------------------------------------------- |
+| OpenEnv Core (GitHub)   | https://github.com/meta-pytorch/OpenEnV                             |
+| OpenEnv docs            | https://meta-pytorch.org/OpenEnv/                                   |
+| HF OpenEnv environments | https://huggingface.co/openenv                                      |
+| HF OpenEnv Spaces       | https://huggingface.co/openenv/spaces                               |
+| Tutorials (tree)        | https://github.com/meta-pytorch/OpenEnv/tree/main/tutorial          |
+| Training examples       | https://github.com/meta-pytorch/OpenEnv/tree/main/tutorial/examples |
+| Environment examples    | https://github.com/meta-pytorch/OpenEnv/tree/main/envs              |
+| Reward papers           | https://arxiv.org/abs/2408.10215 · https://arxiv.org/abs/2601.19100 |
 
 **YouTube (RL envs):** [0airz7BhBiA](https://www.youtube.com/watch?v=0airz7BhBiA) · [ap4q4sAK4OY](https://www.youtube.com/watch?v=ap4q4sAK4OY) · [Jew4lhAiqnw](https://www.youtube.com/watch?v=Jew4lhAiqnw) · [kkCNMz0Ptd8 (live)](https://www.youtube.com/live/kkCNMz0Ptd8?si=JJ7og8x5qc7_Gi0e)
 
@@ -163,6 +164,7 @@ CONFIDENCE: 0.0-1.0
 ### Reward (verifiable + anti‑hack)
 
 Total reward is the sum of components (each logged) in `ev_grid_oracle/reward.py`:
+
 - **wait**: penalize average station wait
 - **grid_stress**: penalize overloaded stations (>85% capacity)
 - **peak**: penalize feeder load > 80%, bonus below it
@@ -183,6 +185,7 @@ python -m viz.gradio_demo
 ```
 
 What judges see:
+
 - map heat (green → red), queue dots, live KPIs
 - mode toggle: baseline vs oracle
 - **Run 60 ticks** streaming button (looks “alive”)
@@ -284,11 +287,13 @@ Note: On CPU-only machines, loading a 3B model can be slow or fail; use **Colab 
 ## Training (Colab T4)
 
 Open:
+
 - `training/train_grpo.ipynb`
 
 **Winning tip:** Prefer a **small** base model and **many** short training iterations over squeezing a huge model into memory for one or two lucky runs. Judges weight **environment quality**, **clear reward signals**, and **evidence** (curves, paired eval) more than raw parameter count. Use **QLoRA**, budget GPU time, tighten the env loop first—then scale `num_generations` / epochs when rollouts are stable.
 
 Notes:
+
 - start with 1 epoch + small `num_generations`, then scale
 - sample rollouts every N steps to detect reward hacking
 
@@ -302,8 +307,8 @@ python -m uvicorn server.app:app --host 0.0.0.0 --port 8000
 
 ### HF Space: redeploy from `main`
 
-- **Restart / rebuild (API):** with a Hub token installed locally, `python -c "from huggingface_hub import HfApi; HfApi().restart_space('NITISHRG15102007/ev-grid-oracle')"` queues a new build from the Space’s configured source revision.  
-- **`git push hf main`:** the Space git remote often **rejects** pushes that contain **binary PNGs** under `artifacts/` (Hub Xet policy). **Docker Spaces usually do *not* show a “Link GitHub repository” block** in Settings — only hardware, secrets, restart, factory rebuild, etc. That is normal.  
+- **Restart / rebuild (API):** with a Hub token installed locally, `python -c "from huggingface_hub import HfApi; HfApi().restart_space('NITISHRG15102007/ev-grid-oracle')"` queues a new build from the Space’s configured source revision.
+- **`git push hf main`:** the Space git remote often **rejects** pushes that contain **binary PNGs** under `artifacts/` (Hub Xet policy). **Docker Spaces usually do _not_ show a “Link GitHub repository” block** in Settings — only hardware, secrets, restart, factory rebuild, etc. That is normal.
 - **Recommended sync:** push code to GitHub as usual, then from repo root run  
   `python tools/sync_space_to_hub.py`  
   (builds `web/dist` and **uploads the tree via Hub API**, ignoring `artifacts/`, `node_modules`, `.git`, …). Then use **Restart** or **Factory rebuild** on the Space if needed. Set `HF_SPACE_REPO_ID` if your Space name differs.
@@ -311,9 +316,9 @@ python -m uvicorn server.app:app --host 0.0.0.0 --port 8000
 ### HF Space: “Oracle loading forever” / frozen UI
 
 1. **Road GeoJSON 404:** the UI is mounted at **`/ui/`**; map tiles must load from **`/ui/maps/...`**. If the map never draws and “New” stalls, check the browser network tab for **`/maps/...` (404)** — that was a known bug; rebuild/redeploy the Space from a commit that includes the `staticAssetUrl(...)` fix in `web/src/phaser/PixelCityScene.ts`.
-2. **LoRA repo typo:** the Hub user is **`NITISHRG15102007`** (letters **HR**). `NITISHGR…` will 404 or hang on retries. The Command Center pre-fills the correct id; edit only if you use another adapter repo.  
-3. **First `STEP` downloads Qwen2.5‑3B + LoRA on CPU** — can exceed a minute. The server now runs oracle inference in a **thread with timeout** (`DEMO_ORACLE_INFERENCE_TIMEOUT_SEC`, default **120s** in the Docker image) and falls back to **baseline** with badge **TIMEOUT→baseline** instead of wedging the browser.  
-4. **`ORACLE_SKIP_LLM=1`** on the Space forces an instant oracle path (baseline policy) for demos when you do not need on-Space LLM inference.  
+2. **LoRA repo typo:** the Hub user is **`NITISHRG15102007`** (letters **HR**). `NITISHGR…` will 404 or hang on retries. The Command Center pre-fills the correct id; edit only if you use another adapter repo.
+3. **First `STEP` downloads Qwen2.5‑3B + LoRA on CPU** — can exceed a minute. The server now runs oracle inference in a **thread with timeout** (`DEMO_ORACLE_INFERENCE_TIMEOUT_SEC`, default **120s** in the Docker image) and falls back to **baseline** with badge **TIMEOUT→baseline** instead of wedging the browser.
+4. **`ORACLE_SKIP_LLM=1`** on the Space forces an instant oracle path (baseline policy) for demos when you do not need on-Space LLM inference.
 5. **“New” no longer auto-runs the first step** — click **STEP** once maps are ready so the page does not block on model load during session creation.
 
 ---
