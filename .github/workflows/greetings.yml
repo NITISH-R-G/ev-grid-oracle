@@ -1,0 +1,20 @@
+name: Greetings
+
+on:
+  pull_request_target:
+    types: [opened]
+  issues:
+    types: [opened]
+
+jobs:
+  greeting:
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      pull-requests: write
+    steps:
+    - uses: actions/first-interaction@v1
+      with:
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        issue-message: 'Welcome to the project! Thanks for opening your first issue. A maintainer or our AI agent will review it shortly. Please ensure you have provided all the necessary details to help us investigate the issue.'
+        pr-message: 'Welcome to the project! Thanks for your first pull request. Our automated CI checks and AI PR reviewer will begin analyzing your code shortly. If the checks fail, please address them. A maintainer will review your contribution once everything is green.'

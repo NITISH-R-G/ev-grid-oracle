@@ -1,0 +1,6 @@
+"bug":
+  - any:
+      - "bug_report.yml"
+"enhancement":
+  - any:
+      - "feature_request.yml"
