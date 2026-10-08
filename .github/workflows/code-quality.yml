@@ -49,7 +49,7 @@ jobs:
 
     - name: Pytest validation
       run: |
-        python -m pytest tests/ -q --tb=line
+        uv run pytest tests/
 
   frontend-quality:
     runs-on: ubuntu-latest

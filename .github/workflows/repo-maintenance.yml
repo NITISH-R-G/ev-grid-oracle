@@ -1,0 +1,60 @@
+name: Repository Maintenance & Intelligence
+
+on:
+  push:
+    branches: [ "main", "master" ]
+  pull_request:
+    branches: [ "main", "master" ]
+  schedule:
+    - cron: '0 2 * * *' # Daily at 2 AM UTC
+
+permissions:
+  contents: write
+
+jobs:
+  maintenance:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' || github.event_name == 'schedule' || github.event.pull_request.head.repo.full_name == github.repository
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.head_ref || github.ref }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install uv cyclonedx-py ruff
+          uv pip install --system -e ".[dev,demo]"
+
+      - name: Code Quality Autofix
+        run: |
+          ruff check --unsafe-fixes --fix . || true
+          ruff format . || true
+
+      - name: Generate Knowledge Graph
+        run: python tools/generate_knowledge_graph.py || true
+
+      - name: Synchronize Documentation
+        run: python tools/docs_sync.py || true
+
+      - name: Generate Architecture Diagrams
+        run: python tools/generate_architecture_diagrams.py || true
+
+      - name: Generate SBOM
+        run: cyclonedx-py environment -o artifacts/bom.json || true
+
+      - name: Commit changes
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          git add -f artifacts/ docs/api/ || true
+          git add . || true
+          git diff --quiet && git diff --staged --quiet || (git commit -m "chore: automated repository maintenance [skip ci]" && git push)
