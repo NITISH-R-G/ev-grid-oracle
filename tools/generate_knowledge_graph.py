@@ -1,6 +1,6 @@
-import os
 import ast
 import json
+import os
 from pathlib import Path
 from typing import Any
 
@@ -81,7 +81,7 @@ def generate_graph() -> None:
                                     "type": "contains",
                                 }
                             )
-                except Exception as e:
+                except Exception as e:  # noqa: BLE001
                     print(f"Failed to parse {file_path}: {e}")
 
     out_path = artifacts_dir / "knowledge_graph.json"

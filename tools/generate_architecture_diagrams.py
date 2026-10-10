@@ -1,5 +1,5 @@
-import os
 import ast
+import os
 from pathlib import Path
 
 
@@ -54,7 +54,7 @@ def generate_diagrams() -> None:
                         elif isinstance(node, ast.ImportFrom):
                             if node.module:
                                 imports.append((module_name, node.module))
-                except Exception as e:
+                except Exception as e:  # noqa: BLE001
                     print(f"Failed to parse {file_path}: {e}")
 
     # Generate Mermaid diagram

@@ -1,5 +1,5 @@
-import os
 import ast
+import os
 from pathlib import Path
 
 
@@ -68,7 +68,7 @@ def generate_docs():
                         with open(out_path, "w", encoding="utf-8") as out_f:
                             out_f.write(doc_content)
 
-                except Exception as e:
+                except Exception as e:  # noqa: BLE001
                     print(f"Failed to process {file_path}: {e}")
 
 
