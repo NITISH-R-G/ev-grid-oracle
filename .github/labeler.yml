@@ -1,0 +1,8 @@
+bug:
+  - any:
+      - 'bug'
+      - 'fix'
+enhancement:
+  - any:
+      - 'feat'
+      - 'enhancement'
