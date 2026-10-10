@@ -1,0 +1,70 @@
+name: Autonomous Repository Maintenance
+
+on:
+  push:
+    branches: [ "main" ]
+  schedule:
+    - cron: '0 2 * * *' # Daily at 2 AM
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  maintenance:
+    if: github.event_name == 'push' || github.event_name == 'schedule' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+          ref: ${{ github.head_ref || github.ref }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      - name: Install uv
+        run: pip install uv
+
+      - name: Install dependencies
+        run: |
+          uv pip install --system -e ".[dev,demo]"
+          uv pip install --system cyclonedx-bom
+
+      - name: Install Prettier
+        run: npm install -g prettier
+
+      - name: Run Auto-Formatters (Ruff & Prettier)
+        run: |
+          uv run ruff check --unsafe-fixes --fix . || true
+          uv run ruff format . || true
+          npx prettier --write . || true
+
+      - name: Generate API Docs
+        run: uv run python tools/docs_sync.py || true
+
+      - name: Generate Knowledge Graph
+        run: uv run python tools/generate_knowledge_graph.py || true
+
+      - name: Generate Architecture Diagrams
+        run: uv run python tools/generate_architecture_diagrams.py || true
+
+      - name: Generate SBOM
+        run: uv run cyclonedx-py environment -o artifacts/bom.json || true
+
+      - name: Commit and Push Changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add -A || true
+          git add -f artifacts/ docs/api/ || true
+          git commit -m "chore(auto): autonomous repository maintenance [skip ci]" || true
+          git push || true
