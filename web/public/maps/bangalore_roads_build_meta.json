@@ -11,11 +11,11 @@
     "sha256": "3ff919bfed1d055c5a9ab096f2bfa3c5eb4fc580ff0ac84084a563360f26edc4"
   },
   "output": {
-    "path": "web/public/maps/bangalore_roads_graph.json.gz",
-    "sha256": "f91aa66d5eecfe6c10bfbc974d38b18d547e145967a0a3ef3b5ce5dc038f2f9b"
+    "path": "web/public/maps/bangalore_roads_graph.json",
+    "sha256": "f2169b769cabf029435d0e1b9c30bc661b1446d92564f823b206b65ebc1465fc"
   },
   "params": {
-    "geom_every": 4,
+    "geom_every": 3,
     "keep_only_largest_component": true,
     "snap_decimals": 5,
     "speed_kmh": {
