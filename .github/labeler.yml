@@ -1,0 +1,11 @@
+backend:
+  - any: ['server/**/*', 'ev_grid_oracle/**/*', 'tools/**/*', '*.py']
+
+frontend:
+  - any: ['web/**/*']
+
+docs:
+  - any: ['docs/**/*', 'README.md', '*.md']
+
+infrastructure:
+  - any: ['.github/**/*', 'Dockerfile', 'docker-compose.yml']
