@@ -27,6 +27,10 @@ jobs:
       run: |
         uv pip install --system -e ".[dev,demo]"
 
+    - name: Build local test graph to prevent gzip read errors on missing LFS assets
+      run: |
+        python tools/build_road_graph.py
+
     - name: Run Pytest
       run: |
         uv run pytest tests/ -q --tb=line
@@ -42,7 +46,7 @@ jobs:
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
-        node-version: '24'
+        node-version: '22'
         cache: 'npm'
         cache-dependency-path: ./web/package-lock.json
 
