@@ -7,45 +7,55 @@ Use this file when a Space is not `RUNNING` and the root cause is unclear.
 ### `RUNTIME_ERROR` with import traceback from `openenv/__init__.py` or `openenv/core/__init__.py`
 
 Likely cause:
+
 - Eager imports trigger unrelated client dependencies (`websockets.asyncio`, etc.) during server boot.
 
 Fix pattern:
+
 - Make package exports lazy (`__getattr__`) in `src/openenv/__init__.py` and `src/openenv/core/__init__.py`.
 - Avoid importing full client stack at module import time.
 
 ### `RUNTIME_ERROR` with `ModuleNotFoundError` from third-party env package (`finrl`, etc.)
 
 Likely cause:
+
 - Library-level imports pull optional/transitive dependencies not in the env Dockerfile.
 
 Fix pattern:
+
 - Add missing dependency directly in the environment Dockerfile (for example `exchange_calendars`, `wrds`).
 - Redeploy only the affected env.
 
 ### `RUNTIME_ERROR` or command parse issues with malformed `CMD` in Dockerfile
 
 Likely cause:
+
 - Missing newline at Dockerfile EOF before appended `ENV` lines in staging.
 
 Fix pattern:
+
 - Ensure Dockerfile has trailing newline before appending.
 - Redeploy after staging rebuild.
 
 ### `BUILD_ERROR` around `uv sync --frozen` or lock mismatch
 
 Likely cause:
+
 - Staged lockfile mismatch or lock not intended for release image.
 
 Fix pattern:
+
 - Remove irrelevant staged `uv.lock`.
 - Replace `uv sync --frozen` with `uv sync` in staged Dockerfile when lock strictness is invalid for Space builds.
 
 ### `APP_STARTING` for extended periods with no `errorMessage`
 
 Likely cause:
+
 - Runtime orchestrator stall or startup readiness not transitioning.
 
 Fix pattern:
+
 - Check event stream and metrics to confirm activity.
 - Run `restart_space(..., factory_reboot=True)`.
 - If still stuck, delete and recreate the Space, then redeploy.
@@ -53,9 +63,11 @@ Fix pattern:
 ### `APP_STARTING` + no web UI requirements
 
 Likely cause:
+
 - Web interface path introduces startup burden or dependency failures.
 
 Fix pattern:
+
 - Set `ENV ENABLE_WEB_INTERFACE=false` in env Dockerfile.
 - Keep HTTP server endpoints and `/health` path available.
 

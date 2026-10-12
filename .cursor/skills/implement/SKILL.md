@@ -45,21 +45,25 @@ The implementer agent will produce:
 ## Implementation Complete
 
 ### Tests Passed
+
 - `test_client_reset_returns_observation` ✓
 - `test_client_step_advances_state` ✓
 - `test_client_handles_invalid_action` ✓
 
 ### Changes Made
-| File | Change |
-|------|--------|
+
+| File                         | Change                 |
+| ---------------------------- | ---------------------- |
 | `src/openenv/core/client.py` | Added `reset()` method |
-| `src/openenv/core/client.py` | Added `step()` method |
+| `src/openenv/core/client.py` | Added `step()` method  |
 | `src/openenv/core/client.py` | Added input validation |
 
 ### Verification
 ```
+
 PYTHONPATH=src:envs uv run pytest tests/test_client.py -v
-   All 3 tests passed
+All 3 tests passed
+
 ```
 
 ### Next Steps
@@ -89,6 +93,7 @@ PYTHONPATH=src:envs uv run pytest tests/test_client.py -v
 ## Completion Criteria
 
 Before returning, verify:
+
 1. ALL tests pass
 2. No new test failures introduced
 3. Implementation is minimal and focused

@@ -1,0 +1,22 @@
+core:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/*.py"
+          - "pyproject.toml"
+          - "uv.lock"
+
+frontend:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "web/**/*"
+
+documentation:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/*.md"
+          - "docs/**/*"
+
+github-actions:
+  - changed-files:
+      - any-glob-to-any-file:
+          - ".github/**/*"

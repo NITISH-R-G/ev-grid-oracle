@@ -14,6 +14,7 @@ When this skill is invoked, you MUST execute these steps immediately. Do NOT jus
 ### Step 1: Parse Issue Number
 
 Extract the issue number from `$ARGUMENTS`:
+
 - Remove `#` prefix if present
 - The issue number is: **$ARGUMENTS**
 
@@ -112,6 +113,7 @@ Step 6: Invoke /write-tests → begin TDD cycle
 ## Important
 
 This skill runs in the MAIN conversation context (not forked) because it needs to:
+
 1. Spawn the issue-worker agent and receive its results
 2. Run worktree-create.sh script
 3. Create todos that persist in the conversation

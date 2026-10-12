@@ -59,6 +59,7 @@ Offer 3–6 idea patterns; pick the most trainable one unless the user overrides
 - **Game-like puzzles**: step-by-step actions with a simulator and a win condition (short horizon first).
 
 For each pattern, include:
+
 - **Observation** (what the agent sees)
 - **Action format** (strict schema)
 - **Verifier** (what is checked)
@@ -108,4 +109,3 @@ Include these links (with brief notes):
 - Workshop Module 3 (Deploying envs): `https://www.youtube.com/watch?v=1jU05MlENOI&t=2585s`
 - Workshop Module 4 (Building your own): `https://www.youtube.com/watch?v=1jU05MlENOI&t=2625s`
 - Mega Lecture Module 5 (Training + TRL / Wordle GRPO): `https://www.youtube.com/watch?v=Jew4lhAiqnw&t=6800s`
-

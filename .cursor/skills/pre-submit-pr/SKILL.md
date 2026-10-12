@@ -95,6 +95,7 @@ Comprehensive validation before submitting a pull request. Run this before creat
 ## Blocking Issues
 
 The following issues block PR submission:
+
 - Branch out of date with main (must merge first)
 - Lint failures
 - Test failures
@@ -105,6 +106,7 @@ The following issues block PR submission:
 ## Non-Blocking (Flag for Reviewers)
 
 These should be noted in PR but don't block:
+
 - Alignment discussion points (Tier 2)
 - RFC recommended (optional)
 - TODOs in code
