@@ -2,6 +2,7 @@ import ast
 import os
 import pathlib
 
+
 def find_imports(filepath: str) -> list[str]:
     try:
         with open(filepath, "r", encoding="utf-8") as f:
@@ -20,6 +21,7 @@ def find_imports(filepath: str) -> list[str]:
                 imports.append(node.module)
     return imports
 
+
 def generate_mermaid():
     root = pathlib.Path(".")
     out_dir = pathlib.Path("artifacts")
@@ -29,7 +31,7 @@ def generate_mermaid():
     mermaid_lines = ["```mermaid", "graph TD"]
 
     for dirpath, dirnames, filenames in os.walk(root):
-        dirnames[:] = [d for d in dirnames if not d.startswith('.')]
+        dirnames[:] = [d for d in dirnames if not d.startswith(".")]
 
         if "node_modules" in dirpath or "dist" in dirpath or "venv" in dirpath:
             continue
@@ -44,13 +46,14 @@ def generate_mermaid():
                 module_name = module_name.lstrip(".")
 
                 for imp in imports:
-                    mermaid_lines.append(f'    {module_name} --> {imp}')
+                    mermaid_lines.append(f"    {module_name} --> {imp}")
 
     mermaid_lines.append("```\n")
 
     with open(out_path, "w", encoding="utf-8") as f:
         f.write("# Architecture Graph\n\n")
         f.write("\n".join(mermaid_lines))
+
 
 if __name__ == "__main__":
     generate_mermaid()

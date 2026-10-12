@@ -2,11 +2,11 @@ name: Repository Maintenance Automation
 
 on:
   push:
-    branches: [ "main", "master" ]
+    branches: ["main", "master"]
   pull_request:
-    branches: [ "main", "master" ]
+    branches: ["main", "master"]
   schedule:
-    - cron: '0 0 * * 0' # Weekly
+    - cron: "0 0 * * 0" # Weekly
 
 jobs:
   maintenance:
@@ -15,54 +15,54 @@ jobs:
       contents: write
     if: github.event_name == 'push' || github.event_name == 'schedule' || github.event.pull_request.head.repo.full_name == github.repository
     steps:
-    - uses: actions/checkout@v4
-      with:
-        ref: ${{ github.head_ref || github.ref }}
-        fetch-depth: 0
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.head_ref || github.ref }}
+          fetch-depth: 0
 
-    - name: Set up Python
-      uses: actions/setup-python@v5
-      with:
-        python-version: '3.12'
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
 
-    - name: Set up Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '22'
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
 
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install ruff cyclonedx-py uv
-        uv pip install --system -e ".[dev,demo]"
-        npm install -g prettier
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff cyclonedx-py uv
+          uv pip install --system -e ".[dev,demo]"
+          npm install -g prettier
 
-    - name: Auto-fix linting issues
-      run: |
-        ruff check --unsafe-fixes --fix . || true
-        ruff format . || true
+      - name: Auto-fix linting issues
+        run: |
+          ruff check --unsafe-fixes --fix . || true
+          ruff format . || true
 
-    - name: Format non-python files
-      run: |
-        prettier --write "**/*.{json,md,yaml,yml,js,ts,jsx,tsx}" --ignore-path .prettierignore || true
+      - name: Format non-python files
+        run: |
+          prettier --write "**/*.{json,md,yaml,yml,js,ts,jsx,tsx}" --ignore-path .prettierignore || true
 
-    - name: Sync API Documentation
-      run: python tools/docs_sync.py || true
+      - name: Sync API Documentation
+        run: python tools/docs_sync.py || true
 
-    - name: Generate Architecture Diagrams
-      run: python tools/generate_architecture_diagrams.py || true
+      - name: Generate Architecture Diagrams
+        run: python tools/generate_architecture_diagrams.py || true
 
-    - name: Generate Knowledge Graph
-      run: python tools/generate_knowledge_graph.py || true
+      - name: Generate Knowledge Graph
+        run: python tools/generate_knowledge_graph.py || true
 
-    - name: Generate SBOM
-      run: cyclonedx-py environment -o bom.json || true
+      - name: Generate SBOM
+        run: cyclonedx-py environment -o bom.json || true
 
-    - name: Commit changes
-      run: |
-        git config --global user.name "github-actions[bot]"
-        git config --global user.email "github-actions[bot]@users.noreply.github.com"
-        git add -f artifacts/ docs/api/ || true
-        git add -A
-        git commit -m "chore: automated repository maintenance [skip ci]" || echo "No changes to commit"
-        git push
+      - name: Commit changes
+        run: |
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add -f artifacts/ docs/api/ || true
+          git add -A
+          git commit -m "chore: automated repository maintenance [skip ci]" || echo "No changes to commit"
+          git push

@@ -2,6 +2,7 @@ import ast
 import os
 import pathlib
 
+
 def extract_docstrings(filepath: str) -> str:
     try:
         with open(filepath, "r", encoding="utf-8") as f:
@@ -39,6 +40,7 @@ def extract_docstrings(filepath: str) -> str:
 
     return "\n".join(docs)
 
+
 def sync_docs():
     root = pathlib.Path(".")
     docs_dir = pathlib.Path("docs/api")
@@ -46,7 +48,7 @@ def sync_docs():
 
     for dirpath, dirnames, filenames in os.walk(root):
         # Ignore hidden directories like .git
-        dirnames[:] = [d for d in dirnames if not d.startswith('.')]
+        dirnames[:] = [d for d in dirnames if not d.startswith(".")]
 
         # Skip node_modules, build directories, etc.
         if "node_modules" in dirpath or "dist" in dirpath or "venv" in dirpath:
@@ -57,13 +59,16 @@ def sync_docs():
                 filepath = os.path.join(dirpath, filename)
 
                 # generate safe name: replace slashes with underscores
-                safe_name = filepath.replace("/", "_").replace("\\", "_").replace(".py", ".md")
+                safe_name = (
+                    filepath.replace("/", "_").replace("\\", "_").replace(".py", ".md")
+                )
                 out_path = docs_dir / safe_name
 
                 doc_content = extract_docstrings(filepath)
                 if doc_content.strip():
                     with open(out_path, "w", encoding="utf-8") as out_f:
                         out_f.write(doc_content)
+
 
 if __name__ == "__main__":
     sync_docs()

@@ -13,8 +13,8 @@ jobs:
       issues: write
       pull-requests: write
     steps:
-    - uses: actions/first-interaction@v1
-      with:
-        repo-token: ${{ secrets.GITHUB_TOKEN }}
-        issue-message: 'Welcome! Thank you for opening your first issue in this repository. A maintainer will review it shortly. In the meantime, please ensure you have provided enough context and steps to reproduce.'
-        pr-message: 'Welcome! Thank you for submitting your first pull request. We appreciate your contribution! Please make sure all CI checks pass, and consider running `./validate-submission.sh` locally.'
+      - uses: actions/first-interaction@v1
+        with:
+          repo-token: ${{ secrets.GITHUB_TOKEN }}
+          issue-message: "Welcome! Thank you for opening your first issue in this repository. A maintainer will review it shortly. In the meantime, please ensure you have provided enough context and steps to reproduce."
+          pr-message: "Welcome! Thank you for submitting your first pull request. We appreciate your contribution! Please make sure all CI checks pass, and consider running `./validate-submission.sh` locally."

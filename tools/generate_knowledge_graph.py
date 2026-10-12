@@ -4,6 +4,7 @@ import pathlib
 import json
 from typing import Any
 
+
 def extract_knowledge(filepath: str) -> dict[str, list[dict[str, Any]]]:
     try:
         with open(filepath, "r", encoding="utf-8") as f:
@@ -16,18 +17,22 @@ def extract_knowledge(filepath: str) -> dict[str, list[dict[str, Any]]]:
 
     for node in tree.body:
         if isinstance(node, ast.ClassDef):
-            knowledge["classes"].append({
-                "name": node.name,
-                "docstring": ast.get_docstring(node),
-                "methods": [n.name for n in node.body if isinstance(n, ast.FunctionDef)]
-            })
+            knowledge["classes"].append(
+                {
+                    "name": node.name,
+                    "docstring": ast.get_docstring(node),
+                    "methods": [
+                        n.name for n in node.body if isinstance(n, ast.FunctionDef)
+                    ],
+                }
+            )
         elif isinstance(node, ast.FunctionDef):
-            knowledge["functions"].append({
-                "name": node.name,
-                "docstring": ast.get_docstring(node)
-            })
+            knowledge["functions"].append(
+                {"name": node.name, "docstring": ast.get_docstring(node)}
+            )
 
     return knowledge
+
 
 def generate_graph():
     root = pathlib.Path(".")
@@ -38,7 +43,7 @@ def generate_graph():
     graph = {}
 
     for dirpath, dirnames, filenames in os.walk(root):
-        dirnames[:] = [d for d in dirnames if not d.startswith('.')]
+        dirnames[:] = [d for d in dirnames if not d.startswith(".")]
 
         if "node_modules" in dirpath or "dist" in dirpath or "venv" in dirpath:
             continue
@@ -54,6 +59,7 @@ def generate_graph():
 
     with open(out_path, "w", encoding="utf-8") as f:
         json.dump(graph, f, indent=2)
+
 
 if __name__ == "__main__":
     generate_graph()

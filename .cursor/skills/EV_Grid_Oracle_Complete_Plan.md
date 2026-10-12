@@ -1,9 +1,11 @@
 # ⚡ EV Grid Oracle — Complete Technical Plan
+
 ### OpenEnv Hackathon + AI for Bharat (BESCOM Theme 9) · Dual Submission
 
 ---
 
 ## 0. The One-Line Pitch
+
 > An RL agent trained inside an OpenEnv environment learns to route EVs across a simulated Bangalore charging grid — cutting peak load by 38%, eliminating queue gridlock, and shifting demand to renewable-heavy windows. Live. Visual. Measurable.
 
 ---
@@ -12,10 +14,10 @@
 
 Two things, tightly integrated:
 
-| Layer | What it is |
-|---|---|
-| **EVGridEnv** | OpenEnv-compliant RL environment simulating Bangalore's EV charging network |
-| **Oracle Agent** | A small LLM (Qwen 2.5 3B) trained with GRPO to act inside that environment |
+| Layer            | What it is                                                                  |
+| ---------------- | --------------------------------------------------------------------------- |
+| **EVGridEnv**    | OpenEnv-compliant RL environment simulating Bangalore's EV charging network |
+| **Oracle Agent** | A small LLM (Qwen 2.5 3B) trained with GRPO to act inside that environment  |
 
 The LLM reads a structured text description of grid state every timestep and outputs a routing decision. The environment verifies it, computes reward, and advances simulation. Training runs on a T4 Colab GPU. The demo runs on Hugging Face Spaces.
 
@@ -69,6 +71,7 @@ Bangalore city modeled as a graph of **25 charging stations** across real neighb
 Koramangala, Whitefield, HSR Layout, Indiranagar, Electronic City, Marathahalli, Jayanagar, Yeshwanthpur, Hebbal, Sarjapur, MG Road, Bellandur, Bannerghatta, Rajajinagar, JP Nagar, BTM Layout, Cunningham Road, Yelahanka, Kengeri, Tumkur Road, Old Airport Road, KR Puram, Silk Board, CV Raman Nagar, Domlur.
 
 Each station has:
+
 - Charger type: fast (30kW), slow (7kW), ultra-fast (150kW)
 - Slot count: 4–16 slots
 - Real GPS coordinates (for map viz)
@@ -76,6 +79,7 @@ Each station has:
 - Queue: ordered list of waiting EVs
 
 The grid itself has:
+
 - Total load capacity (simulated BESCOM feeder constraint)
 - Renewable % (solar peaks 10am–4pm, drops at 6pm)
 - Time of day (drives demand pattern — peak at 8am and 6pm)
@@ -96,7 +100,7 @@ class StationState:
     price_per_kwh: float       # real-time price signal
     avg_wait_minutes: float
 
-@dataclass  
+@dataclass
 class EVRequest:
     ev_id: str
     battery_pct: float         # 0.0–1.0
@@ -174,7 +178,7 @@ def compute_reward(prev_state, action, next_state) -> Tuple[float, dict]:
     R['wait'] = -avg_wait * 2.0
 
     # 2. Grid stress penalty — BESCOM constraint
-    overloaded = sum(1 for s in next_state.stations 
+    overloaded = sum(1 for s in next_state.stations
                      if s.occupied_slots / s.total_slots > 0.85)
     R['grid_stress'] = -overloaded * 3.0
 
@@ -252,6 +256,7 @@ ev-grid-oracle/
 ## 4. Training Pipeline
 
 ### 4.1 Base Model
+
 **Qwen 2.5 3B Instruct** — structured output following, small enough for T4, strong enough to reason about grid state.
 
 ### 4.2 Colab Training Notebook (Key Sections)
@@ -295,25 +300,25 @@ def collect_episode():
     obs = env.reset()
     trajectory = []
     total_reward = 0
-    
+
     for step in range(48):  # 4-hour episode
         prompt = obs["prompt"]
         response = rollout(prompt)
-        
+
         # Parse action from response
         action = parse_action(response)
         obs, reward, done, info = env.step(action)
-        
+
         trajectory.append({
             "prompt": prompt,
-            "response": response, 
+            "response": response,
             "reward": reward,
             "reward_breakdown": info["reward_breakdown"]
         })
         total_reward += reward
         if done:
             break
-    
+
     return trajectory, total_reward
 
 # Cell 5: GRPO Training
@@ -361,6 +366,7 @@ model.save_pretrained_merged(
 ### 4.3 What to Monitor During Training
 
 Track these columns separately (not just avg reward):
+
 - `reward/wait` — is queue time improving?
 - `reward/grid_stress` — is overloading reducing?
 - `reward/peak` — is load curve flattening?
@@ -370,13 +376,13 @@ Track these columns separately (not just avg reward):
 
 ### 4.4 Reward Hacking Defenses
 
-| Hack vector | Defense |
-|---|---|
-| Always defer every EV (avoids stress penalties) | Urgency penalty: defer on critical EV = -4.0 |
-| Route everything to one uncongested station | Queue buildup increases wait penalty; routing to queue = -3.0 |
-| Output invalid station IDs | Impossible action penalty = -8.0; parser returns INVALID action |
-| Hallucinate station data | Prompt includes ground-truth state; verifier cross-checks station_id |
-| Output malformed JSON | Regex verifier; malformed = 0 reward (not negative, to avoid reward signal from random noise) |
+| Hack vector                                     | Defense                                                                                       |
+| ----------------------------------------------- | --------------------------------------------------------------------------------------------- |
+| Always defer every EV (avoids stress penalties) | Urgency penalty: defer on critical EV = -4.0                                                  |
+| Route everything to one uncongested station     | Queue buildup increases wait penalty; routing to queue = -3.0                                 |
+| Output invalid station IDs                      | Impossible action penalty = -8.0; parser returns INVALID action                               |
+| Hallucinate station data                        | Prompt includes ground-truth state; verifier cross-checks station_id                          |
+| Output malformed JSON                           | Regex verifier; malformed = 0 reward (not negative, to avoid reward signal from random noise) |
 
 ---
 
@@ -389,7 +395,7 @@ Track these columns separately (not just avg reward):
 
 STATION_COLORS = {
     "empty":     (46, 213, 115),   # green
-    "half":      (255, 200, 0),    # yellow  
+    "half":      (255, 200, 0),    # yellow
     "busy":      (255, 130, 0),    # orange
     "critical":  (255, 50, 50),    # red
     "overflow":  (180, 0, 0),      # dark red
@@ -405,30 +411,30 @@ def load_pct_to_color(pct):
 def draw_frame(surface, state, agent_action=None):
     # Draw city grid background
     draw_bangalore_streets(surface)
-    
+
     # Draw stations
     for station in state.stations:
         x, y = geo_to_screen(station.lat, station.lng)
         pct = station.occupied_slots / station.total_slots
         color = load_pct_to_color(pct)
-        
+
         # Station circle, size = capacity
         radius = 8 + station.total_slots // 2
         pygame.draw.circle(surface, color, (x, y), radius)
-        
+
         # Queue indicator (small dots above station)
         for i in range(min(station.queue_length, 5)):
             pygame.draw.circle(surface, (255,255,255), (x - 10 + i*5, y - radius - 5), 3)
-        
+
         # Station label
         draw_text(surface, station.neighborhood[:6], x, y + radius + 4, size=9)
-    
+
     # Draw active EVs as moving dots
     for ev in state.active_evs:
         x, y = geo_to_screen(ev.lat, ev.lng)
         color = (0, 150, 255) if ev.battery_pct > 0.2 else (255, 80, 80)
         pygame.draw.circle(surface, color, (x, y), 5)
-    
+
     # Draw routing arrow if agent just acted
     if agent_action and agent_action.action_type == "route":
         ev = get_ev(state, agent_action.ev_id)
@@ -437,26 +443,26 @@ def draw_frame(surface, state, agent_action=None):
             ex, ey = geo_to_screen(ev.lat, ev.lng)
             sx, sy = geo_to_screen(station.lat, station.lng)
             draw_arrow(surface, (ex, ey), (sx, sy), (0, 200, 255))
-    
+
     # HUD panel (top right)
     draw_hud(surface, state)
 
 def draw_hud(surface, state):
     """Right panel: metrics"""
     hud_x = SCREEN_W - 220
-    
+
     # Grid load bar
-    draw_metric_bar(surface, hud_x, 40, "GRID LOAD", 
+    draw_metric_bar(surface, hud_x, 40, "GRID LOAD",
                     state.grid_load_pct, critical_threshold=0.80)
-    
+
     # Renewable %
     draw_metric_bar(surface, hud_x, 90, "RENEWABLE",
                     state.renewable_pct, good_high=True)
-    
+
     # Avg queue wait
     avg_wait = np.mean([s.avg_wait_minutes for s in state.stations])
     draw_text(surface, f"AVG WAIT  {avg_wait:.0f} min", hud_x, 140)
-    
+
     # Time of day
     draw_text(surface, f"TIME  {state.hour:02d}:00", hud_x, 160)
     draw_text(surface, f"PEAK RISK  {state.peak_risk}", hud_x, 180)
@@ -471,32 +477,32 @@ import gradio as gr
 
 with gr.Blocks(title="⚡ EV Grid Oracle") as demo:
     gr.Markdown("# ⚡ EV Grid Oracle\nRL agent optimizing EV charging across Bangalore")
-    
+
     with gr.Row():
         with gr.Column(scale=2):
             city_map = gr.Image(label="Live City Grid", every=1)  # updates each second
-            
+
         with gr.Column(scale=1):
             grid_load   = gr.Number(label="Grid Load %")
             renewable   = gr.Number(label="Renewable %")
             avg_wait    = gr.Number(label="Avg Queue Wait (min)")
             total_routed = gr.Number(label="EVs Routed")
-    
+
     with gr.Row():
         reward_plot = gr.LinePlot(label="Reward over Training")  # pre-computed
         comparison  = gr.BarPlot(label="Baseline vs Oracle")
-    
+
     with gr.Row():
-        mode_toggle = gr.Radio(["Untrained Baseline", "Oracle Agent"], 
+        mode_toggle = gr.Radio(["Untrained Baseline", "Oracle Agent"],
                                value="Oracle Agent", label="Agent Mode")
-        scenario    = gr.Dropdown(["Peak Evening (6pm)", "Morning Rush (8am)", 
+        scenario    = gr.Dropdown(["Peak Evening (6pm)", "Morning Rush (8am)",
                                    "Off-peak (2pm)", "Monsoon Demand Spike"],
                                   label="Scenario")
         run_btn     = gr.Button("▶ Run Simulation", variant="primary")
-    
+
     with gr.Accordion("Agent's Last Decision", open=True):
         agent_thought = gr.Textbox(label="What the Oracle said", lines=6)
-    
+
     run_btn.click(
         fn=run_simulation,
         inputs=[mode_toggle, scenario],
@@ -511,7 +517,9 @@ with gr.Blocks(title="⚡ EV Grid Oracle") as demo:
 This is your screenplay. Every second is designed.
 
 ### Scene 1 — The Problem (0:00–0:20)
+
 Open on a static image of Bangalore traffic. Text overlay:
+
 > "India will have 10 crore EVs by 2030. BESCOM's grid wasn't built for this."
 
 Cut to: a raw simulation with no AI — 6pm Bangalore, peak demand. Stations shown in red. Queue bars maxing out. Grid load bar hitting 94%. Numbers ticking up: avg wait 47 minutes.
@@ -519,15 +527,18 @@ Cut to: a raw simulation with no AI — 6pm Bangalore, peak demand. Stations sho
 **What this establishes:** The problem is real, urgent, visual, and India-specific.
 
 ### Scene 2 — The Environment (0:20–0:45)
+
 Zoom into the city map. Narration (text overlay):
+
 > "We built a simulated Bangalore charging grid — 25 stations, real neighborhoods, real grid constraints."
 
 Pan across stations: Koramangala (red, full), HSR (green, open), Whitefield (orange, busy). An EV icon appears, battery at 14%, blinking red.
 
 Show the LLM prompt appearing on split screen — the structured text the agent reads. Then the agent's response appears, character by character:
+
 ```
 ACTION: route
-STATION: HSR-Layout-B  
+STATION: HSR-Layout-B
 REASON: Nearest available fast charger, 0 queue, off-peak load zone
 CONFIDENCE: 0.94
 ```
@@ -537,22 +548,27 @@ Arrow draws from EV to HSR Layout. Station queue updates.
 **What this establishes:** The AI reads the grid, thinks, decides, acts. It's not a rule — it's intelligence.
 
 ### Scene 3 — Training Evidence (0:45–1:05)
+
 Cut to reward curves (pre-rendered from your training run):
+
 - X axis: training steps (0 → 2000)
 - Y axis: total episode reward
 - Clear upward trend with a dip then recovery
 - Separate lines for each reward component
 
 Key numbers appear:
+
 - Episode 0: avg wait 44 min, grid stress events 18/episode
 - Episode 2000: avg wait 14 min, grid stress events 3/episode
 
 **What this establishes:** The agent actually learned. Numbers don't lie.
 
 ### Scene 4 — The Oracle in Action (1:05–1:40)
+
 Switch toggle: "Oracle Agent" mode. Press play. Same scenario: peak 6pm.
 
 Watch the agent route 12 EVs in real-time over 60 seconds of simulation:
+
 - Critical-battery EV → instantly routed to nearest available fast charger
 - Flexible EV → gently redirected away from Koramangala (overloaded) to Sarjapur (slack)
 - Cluster of 4 EVs arriving at once → agent spreads them across 3 stations
@@ -562,15 +578,16 @@ Watch the agent route 12 EVs in real-time over 60 seconds of simulation:
 **What this establishes:** The behavior is nuanced, adaptive, beautiful to watch.
 
 ### Scene 5 — Side-by-Side KPIs (1:40–2:00)
+
 Final split screen: Baseline vs Oracle, same 4-hour simulation:
 
-| Metric | No AI | Oracle Agent |
-|---|---|---|
-| Avg queue wait | 44 min | 14 min |
-| Grid stress events | 18 | 3 |
-| Peak load exceeded | 23× | 2× |
-| Renewable % utilized | 31% | 58% |
-| Critical EVs stranded | 7 | 0 |
+| Metric                | No AI  | Oracle Agent |
+| --------------------- | ------ | ------------ |
+| Avg queue wait        | 44 min | 14 min       |
+| Grid stress events    | 18     | 3            |
+| Peak load exceeded    | 23×    | 2×           |
+| Renewable % utilized  | 31%    | 58%          |
+| Critical EVs stranded | 7      | 0            |
 
 Fade to: BESCOM logo + OpenEnv logo + GitHub/HF link.
 
@@ -581,6 +598,7 @@ Total runtime: **~2 minutes.**
 ## 7. Submission Checklist
 
 ### OpenEnv Hackathon Requirements
+
 - [x] OpenEnv latest release — `EVGridEnv` inherits `openenv.Environment`
 - [x] `openenv.yaml` manifest with valid schema
 - [x] FastAPI server wrapping environment (client/server separation respected)
@@ -591,6 +609,7 @@ Total runtime: **~2 minutes.**
 - [x] README with: problem motivation, env design, results plots, all links
 
 ### AI for Bharat (BESCOM Theme 9) Requirements
+
 - [x] Addresses EV charging optimization + grid load management
 - [x] Uses RL (as explicitly suggested in theme tech stack)
 - [x] Visualizable demo showing before/after improvement
@@ -598,6 +617,7 @@ Total runtime: **~2 minutes.**
 - [x] Scalable architecture note: can extend to any DISCOM in India
 
 ### README must include:
+
 1. Problem statement (2 paragraphs)
 2. Environment description (what agent sees, what it does, how reward works)
 3. Training evidence: reward curve image embedded
@@ -614,29 +634,34 @@ Assumes 20 working hours (2 focused days). Adjust based on team size.
 ### Day 1 — Environment & World
 
 **Hours 0–2: City graph + data structures**
+
 - Define all 25 stations (name, coords, capacity, charger type)
 - Build `city_graph.py` using NetworkX — nodes=stations, edges=distances
 - Define all dataclasses in `models.py`
 - Commit skeleton
 
 **Hours 2–5: Core environment**
+
 - Implement `demand_sim.py` — procedural EV arrival based on time of day
 - Implement `grid_sim.py` — BESCOM load curve + renewable solar/wind model
 - Implement `env.py` — `reset()`, `step()`, `state()` fully working
 - Test manually: call reset(), print state, call step() 10 times, verify state changes
 
 **Hours 5–7: Reward engine**
+
 - Implement all 6 reward components in `reward.py`
 - Unit test each component in isolation
 - Write adversarial test: does deferring critical EV get penalized?
 - Write adversarial test: does routing to full station get penalized?
 
 **Hours 7–9: Visualization first pass**
+
 - Build basic Pygame display — static city map with colored stations
 - Get it updating live from env state
 - Don't polish yet — just make it functional
 
 **Hours 9–10: OpenEnv packaging**
+
 - Add `openenv.yaml` manifest
 - Wrap in FastAPI (`server/app.py`)
 - Test `openenv serve` locally
@@ -649,6 +674,7 @@ Assumes 20 working hours (2 focused days). Adjust based on team size.
 ### Day 2 — Training & Demo
 
 **Hours 10–12: Training setup**
+
 - Open Colab, install dependencies
 - Load Qwen 2.5 3B with Unsloth QLoRA
 - Write `rollout()` function + `collect_episode()`
@@ -656,6 +682,7 @@ Assumes 20 working hours (2 focused days). Adjust based on team size.
 - Run 10 episodes with random policy → check reward distribution is non-trivial
 
 **Hours 12–15: First training run**
+
 - Generate 500 prompt scenarios (episode states)
 - Configure GRPOTrainer
 - Launch training — monitor reward columns every 50 steps
@@ -663,23 +690,27 @@ Assumes 20 working hours (2 focused days). Adjust based on team size.
 - If reward hacking: add penalty, restart
 
 **Hours 15–17: Polish visualization**
+
 - Add routing arrows (animated)
 - Add HUD panel with live metrics
 - Add mode toggle: baseline vs trained agent
 - Screen-record 90 seconds of each mode
 
 **Hours 17–18: Save model + Gradio demo**
+
 - Use Unsloth's `save_pretrained_merged` (not naive upcast)
 - Push model to HF Hub
 - Build Gradio demo (`gradio_demo.py`) — embed on same HF Space as environment
 - Test demo runs cleanly
 
 **Hours 18–19: README + blog**
+
 - Write README: problem → env → training → results — link everything
 - Write HF blog post (500 words): same structure, add reward curve screenshot
 - Embed before/after comparison table
 
 **Hour 20: Submission**
+
 - Final test: can a stranger run your Colab from scratch?
 - Verify HF Space URL loads the Gradio demo
 - Submit both hackathons with same URL
@@ -688,33 +719,35 @@ Assumes 20 working hours (2 focused days). Adjust based on team size.
 
 ## 9. Tech Stack Summary
 
-| Component | Technology |
-|---|---|
-| RL Environment | OpenEnv (latest) |
-| Environment server | FastAPI + Uvicorn |
-| City graph | NetworkX |
-| Demand simulation | NumPy procedural model |
-| LLM agent | Qwen 2.5 3B Instruct |
-| RL training | TRL GRPOTrainer |
-| Training efficiency | Unsloth (4-bit QLoRA) |
-| Training hardware | Google Colab T4 (free) |
-| Visualization | Pygame (recording) + Gradio (demo) |
-| Deployment | Hugging Face Spaces |
-| Experiment tracking | Weights & Biases (free tier) |
-| Language | Python 3.10+ |
+| Component           | Technology                         |
+| ------------------- | ---------------------------------- |
+| RL Environment      | OpenEnv (latest)                   |
+| Environment server  | FastAPI + Uvicorn                  |
+| City graph          | NetworkX                           |
+| Demand simulation   | NumPy procedural model             |
+| LLM agent           | Qwen 2.5 3B Instruct               |
+| RL training         | TRL GRPOTrainer                    |
+| Training efficiency | Unsloth (4-bit QLoRA)              |
+| Training hardware   | Google Colab T4 (free)             |
+| Visualization       | Pygame (recording) + Gradio (demo) |
+| Deployment          | Hugging Face Spaces                |
+| Experiment tracking | Weights & Biases (free tier)       |
+| Language            | Python 3.10+                       |
 
 ---
 
 ## 10. The Dual Submission Frame
 
 **For OpenEnv Hackathon judges:**
+
 > We built a novel RL environment (EVGridEnv) that trains an LLM to act as a smart dispatch agent inside a simulated city-scale EV charging network. The environment features procedural demand generation, multi-component rewards, and explicit anti-hacking defenses. Our GRPO-trained Qwen 2.5 3B agent reduces average queue wait by 68% and grid stress events by 83% compared to a random baseline.
 
 **For AI for Bharat judges (BESCOM Theme 9):**
+
 > EV Grid Oracle is an AI-powered charging optimization system purpose-built for India's DISCOM infrastructure challenge. By training a reinforcement learning agent on a simulated Bangalore grid, we demonstrate a demand-response system that flattens peak load, prioritizes critical vehicles, and maximizes renewable energy utilization — all without requiring BESCOM to modify any existing hardware. The architecture is deployable on any DISCOM's grid data.
 
 Same system. Same code. Two different stories. Both true.
 
 ---
 
-*Built for OpenEnv Hackathon (Apr 2026) + AI for Bharat / PanIIT Bangalore Summit 2026 (BESCOM Theme 9)*
+_Built for OpenEnv Hackathon (Apr 2026) + AI for Bharat / PanIIT Bangalore Summit 2026 (BESCOM Theme 9)_

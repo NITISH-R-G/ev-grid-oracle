@@ -31,6 +31,7 @@ Review code changes for alignment with OpenEnv principles using a two-tier model
 ## Tier 1: Uncontentious Issues (Fix Immediately)
 
 These are issues to fix without human input:
+
 - Lint failures from hook output
 - Debug code from hook output (print statements, breakpoints)
 - Uninitialized variables, type errors
@@ -51,11 +52,13 @@ For each potential alignment concern, format as:
 ### Examples of Tier 2 Issues
 
 **Principle conflicts:**
+
 - Adding external reward computation (violates "rewards in environment")
 - Client importing server code (violates client-server separation)
 - New API that differs from Gymnasium pattern
 
 **RFC conflicts (flag even for Draft/In Review RFCs):**
+
 - Change conflicts with design proposed in an open RFC
 - Change pre-empts a decision being discussed in an RFC
 - Change implements something differently than an RFC proposes

@@ -1,22 +1,22 @@
 core:
   - changed-files:
-    - any-glob-to-any-file:
-      - '**/*.py'
-      - 'pyproject.toml'
-      - 'uv.lock'
+      - any-glob-to-any-file:
+          - "**/*.py"
+          - "pyproject.toml"
+          - "uv.lock"
 
 frontend:
   - changed-files:
-    - any-glob-to-any-file:
-      - 'web/**/*'
+      - any-glob-to-any-file:
+          - "web/**/*"
 
 documentation:
   - changed-files:
-    - any-glob-to-any-file:
-      - '**/*.md'
-      - 'docs/**/*'
+      - any-glob-to-any-file:
+          - "**/*.md"
+          - "docs/**/*"
 
 github-actions:
   - changed-files:
-    - any-glob-to-any-file:
-      - '.github/**/*'
+      - any-glob-to-any-file:
+          - ".github/**/*"

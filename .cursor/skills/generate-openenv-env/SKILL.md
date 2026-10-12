@@ -50,6 +50,7 @@ For a compact checklist and mapping, read `references/env-generation-checklist.m
 Ask only the questions that materially affect architecture. Use the question bank in `references/env-generation-checklist.md`.
 
 Cover at least:
+
 - action space contract
 - observation fields needed by agents
 - reward design and terminal conditions
@@ -106,6 +107,7 @@ Implement these files in order:
 6. `README.md`
 
 Use these standards:
+
 - Use typed models (Action/Observation/State).
 - Use `create_app(<factory_or_class>, ActionType, ObservationType, env_name=...)` in `server/app.py`. Pass a class or factory callable, not an instantiated environment.
 - **Dual-import pattern** (required in `server/app.py` and `server/<name>_environment.py`): Use `try: from ..models import X / except ImportError: from models import X`. Relative imports work in-repo (`PYTHONPATH=src:envs`); bare imports work in Docker (`PYTHONPATH=/app/env`). The same pattern applies to intra-server imports (e.g., `from .foo import Bar` vs `from server.foo import Bar`).
@@ -148,6 +150,7 @@ openenv validate --url http://localhost:8000
 ### 9. Deliver with assumptions and gaps
 
 Report:
+
 - files created/updated
 - chosen archetype (typed vs MCP vs specialized)
 - assumptions made due to missing answers

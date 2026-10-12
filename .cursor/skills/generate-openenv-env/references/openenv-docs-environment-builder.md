@@ -15,7 +15,7 @@ A typical workflow looks like:
 5. Use the CLI (`openenv build`, `openenv validate`, `openenv push`) to package and share your work.
 
 !!! note
-    These integrations are handled automatically by the `openenv` CLI when you run `openenv init`.
+These integrations are handled automatically by the `openenv` CLI when you run `openenv init`.
 
 ### Prerequisites
 
@@ -310,9 +310,9 @@ Example runtime output:
     "failed_criteria": []
   },
   "criteria": [
-    {"id": "health_endpoint", "passed": true},
-    {"id": "metadata_endpoint", "passed": true},
-    {"id": "schema_endpoint", "passed": true}
+    { "id": "health_endpoint", "passed": true },
+    { "id": "metadata_endpoint", "passed": true },
+    { "id": "schema_endpoint", "passed": true }
   ]
 }
 ```
@@ -362,7 +362,7 @@ strategy:
         dockerfile: envs/chat_env/server/Dockerfile
       - name: coding-env
         dockerfile: envs/coding_env/server/Dockerfile
-      - name: my-env  # Add your environment here
+      - name: my-env # Add your environment here
         dockerfile: envs/my_env/server/Dockerfile
 ```
 
@@ -436,16 +436,16 @@ openenv push
 
 **Available options:**
 
-| Parameter | Description | Default | Recommended for RL |
-|-----------|-------------|---------|-------------------|
-| `--ws-ping-interval` | Seconds between server pings | 20 | 300 (5 min) |
-| `--ws-ping-timeout` | Seconds to wait for pong response | 20 | 300 (5 min) |
+| Parameter            | Description                       | Default | Recommended for RL |
+| -------------------- | --------------------------------- | ------- | ------------------ |
+| `--ws-ping-interval` | Seconds between server pings      | 20      | 300 (5 min)        |
+| `--ws-ping-timeout`  | Seconds to wait for pong response | 20      | 300 (5 min)        |
 
 !!! tip
-    For local development without Docker, pass the same flags directly to uvicorn:
-    ```bash
+For local development without Docker, pass the same flags directly to uvicorn:
+`bash
     uvicorn server.app:app --host 0.0.0.0 --port 8000 --ws-ping-interval 300 --ws-ping-timeout 300
-    ```
+    `
 
 ---
 
