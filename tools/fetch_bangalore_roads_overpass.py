@@ -8,6 +8,7 @@ import urllib.request
 from pathlib import Path
 from typing import Any
 
+
 ROOT = Path(__file__).resolve().parents[1]
 
 
@@ -74,7 +75,7 @@ def _http_post(url: str, data: dict[str, str], *, retries: int = 3) -> bytes:
         try:
             with urllib.request.urlopen(req, timeout=240) as r:  # nosec B310
                 return r.read()
-        except Exception as e:
+        except Exception as e:  # noqa: BLE001
             last_err = e
             if attempt >= retries:
                 raise

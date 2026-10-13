@@ -19,4 +19,3 @@ Deterministic across processes and Python versions.
 
 ### `hotspot`
 *(No docstring provided)*
-

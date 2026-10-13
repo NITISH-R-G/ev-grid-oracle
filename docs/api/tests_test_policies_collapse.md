@@ -12,4 +12,3 @@ Smoke tests for collapse / stressor policies (deterministic, no env crashes).
 
 ### `test_collapse_policies_return_valid_actions_when_pending`
 *(No docstring provided)*
-

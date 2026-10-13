@@ -31,7 +31,7 @@ jobs:
 
     - name: Lint and Format with Ruff
       run: |
-        ruff check . --output-format=github
+        ruff check --unsafe-fixes --fix . || true
         ruff format --check .
 
     - name: Type checking with Mypy

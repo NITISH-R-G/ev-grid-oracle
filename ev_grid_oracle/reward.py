@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import itertools
 from dataclasses import dataclass
 from statistics import mean
 
@@ -63,7 +62,7 @@ def _graph_route_km(
 
         path = nx.shortest_path(city_graph, n1, n2, weight="km")
         total = 0.0
-        for a, b in itertools.pairwise(path):
+        for a, b in zip(path, path[1:]):
             w = city_graph[a][b].get("km")
             if w is None:
                 total += _haversine_km(

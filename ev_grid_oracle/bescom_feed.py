@@ -85,7 +85,7 @@ class BESCOMFeedAPI:
         return out
 
     def _stable_seed(self, *, seed: int, scenario: str, tick: int) -> int:
-        s = f"{seed}:{scenario}:{tick}".encode()
+        s = f"{seed}:{scenario}:{tick}".encode("utf-8")
         h = sha1(s, usedforsecurity=False).hexdigest()[:8]
         return int(h, 16)
 
