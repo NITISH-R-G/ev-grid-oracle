@@ -1,0 +1,55 @@
+name: Repository Maintenance Automation
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+  schedule:
+    - cron: '0 0 * * *'
+
+permissions:
+  contents: write
+
+jobs:
+  maintenance:
+    if: github.event_name == 'push' || github.event_name == 'schedule' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+      with:
+        ref: ${{ github.head_ref || github.ref }}
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.12'
+
+    - name: Install dependencies
+      run: |
+        pip install uv
+        uv pip install --system -e ".[dev,demo]"
+        uv pip install --system ruff cyclonedx-bom
+
+    - name: Run Ruff Autofix
+      run: ruff check --unsafe-fixes --fix . || true
+
+    - name: Generate API Docs
+      run: python tools/docs_sync.py
+
+    - name: Generate Architecture Diagram
+      run: python tools/generate_architecture_diagrams.py
+
+    - name: Generate Knowledge Graph
+      run: python tools/generate_knowledge_graph.py
+
+    - name: Generate SBOM
+      run: cyclonedx-py environment -o bom.json || true
+
+    - name: Commit and Push Changes
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "github-actions[bot]@users.noreply.github.com"
+        git add -f artifacts/ docs/api/ || true
+        git add .
+        git diff --quiet && git diff --staged --quiet || (git commit -m "chore(auto): apply autonomous maintenance and sync artifacts" && git push)
