@@ -34,3 +34,4 @@ Next slices add demand_sim/grid_sim/reward engine.
 
 ### `_apply_tariff_mult`
 *(No docstring provided)*
+

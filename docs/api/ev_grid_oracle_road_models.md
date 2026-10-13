@@ -14,3 +14,4 @@ choose the next connected node (no teleportation).
 ## Functions
 ### `_non_trivial`
 *(No docstring provided)*
+
