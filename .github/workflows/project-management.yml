@@ -1,0 +1,42 @@
+name: Auto-Assign Project Management
+
+on:
+  issues:
+    types: [labeled]
+
+permissions:
+  issues: write
+
+jobs:
+  assign_based_on_label:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/github-script@v7
+        with:
+          script: |
+            const issue_number = context.issue.number;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const labelName = context.payload.label.name;
+
+            // Map labels to assignees
+            const labelToAssignee = {
+              'bug': 'NITISH-R-G',
+              'enhancement': 'NITISH-R-G',
+              'frontend': 'NITISH-R-G',
+              'backend': 'NITISH-R-G'
+            };
+
+            const assignee = labelToAssignee[labelName];
+
+            if (assignee) {
+              await github.rest.issues.addAssignees({
+                owner,
+                repo,
+                issue_number,
+                assignees: [assignee]
+              });
+              console.log(`Assigned @${assignee} to issue #${issue_number} based on label '${labelName}'`);
+            } else {
+              console.log(`No assignee mapped for label '${labelName}'`);
+            }
