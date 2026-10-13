@@ -9,4 +9,3 @@
 
 ### `test_parse_simulation_exception_handling`
 *(No docstring provided)*
-

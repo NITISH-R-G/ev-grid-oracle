@@ -18,4 +18,3 @@
 
 ### `test_ma_new_and_step_roundtrip`
 *(No docstring provided)*
-

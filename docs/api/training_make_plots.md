@@ -45,4 +45,3 @@
 
 ### `rate`
 *(No docstring provided)*
-

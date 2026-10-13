@@ -6,4 +6,3 @@
 
 ### `test_prediction_score_higher_when_close`
 *(No docstring provided)*
-

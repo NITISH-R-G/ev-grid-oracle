@@ -95,7 +95,7 @@ def score_prediction(
     overlap_score = max(0.0, 1.0 - overlap_err)
 
     score = 0.40 * grid_score + 0.25 * ren_score + 0.20 * jacc + 0.15 * overlap_score
-    score = 0.0 if score < 0.0 else min(score, 1.0)
+    score = 0.0 if score < 0.0 else 1.0 if score > 1.0 else score
     return PredictionScore(
         score_0_1=float(score),
         breakdown={

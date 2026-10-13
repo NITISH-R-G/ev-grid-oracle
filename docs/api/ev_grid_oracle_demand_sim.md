@@ -13,4 +13,3 @@
 
 ### `sample_arrivals_per_step`
 *(No docstring provided)*
-

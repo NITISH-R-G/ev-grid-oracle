@@ -20,4 +20,3 @@ Writes e.g. artifacts/grpo_loss.png and artifacts/grpo_reward.png (filenames dep
 
 ### `plot_tag`
 *(No docstring provided)*
-

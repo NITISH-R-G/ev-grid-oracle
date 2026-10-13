@@ -12,4 +12,3 @@
 
 ### `test_time_advances_with_5min_steps`
 *(No docstring provided)*
-

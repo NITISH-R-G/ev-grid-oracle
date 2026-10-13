@@ -65,4 +65,3 @@ Kept intentionally small and verifiable for hackathon judging.
 
 ### `_check_consistency`
 *(No docstring provided)*
-
