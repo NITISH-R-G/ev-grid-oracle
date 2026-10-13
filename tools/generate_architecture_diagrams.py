@@ -1,5 +1,5 @@
-import os
 import ast
+import os
 from collections import defaultdict
 
 
@@ -15,9 +15,8 @@ def extract_imports(filepath: str) -> list[str]:
         if isinstance(node, ast.Import):
             for alias in node.names:
                 imports.append(alias.name.split(".")[0])
-        elif isinstance(node, ast.ImportFrom):
-            if node.module:
-                imports.append(node.module.split(".")[0])
+        elif isinstance(node, ast.ImportFrom) and node.module:
+            imports.append(node.module.split(".")[0])
     return imports
 
 

@@ -1,6 +1,6 @@
-import os
 import ast
 import json
+import os
 from typing import Any
 
 
@@ -28,9 +28,8 @@ def extract_knowledge(filepath: str) -> dict[str, Any]:
         elif isinstance(node, ast.Import):
             for alias in node.names:
                 imports.append(alias.name)
-        elif isinstance(node, ast.ImportFrom):
-            if node.module:
-                imports.append(node.module)
+        elif isinstance(node, ast.ImportFrom) and node.module:
+            imports.append(node.module)
 
     return {"classes": classes, "functions": functions, "imports": list(set(imports))}
 
