@@ -30,3 +30,4 @@ Optional: load a trained LoRA adapter when `lora_repo_id` provided.
 
 ### `_generate`
 *(No docstring provided)*
+

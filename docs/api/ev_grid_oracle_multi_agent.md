@@ -14,3 +14,4 @@ Minimal explicit multi-agent wrapper around EVGridCore.
 
 ### `snapshot`
 Read-only view of the underlying core state.
+
